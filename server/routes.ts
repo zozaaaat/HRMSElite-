@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { registerAdvancedRoutes } from "./advanced-routes";
 import { insertCompanySchema, insertEmployeeSchema, insertLicenseSchema, insertEmployeeLeaveSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -225,7 +226,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/leaves/:leaveId/approve', isAuthenticated, async (req, res) => {
+  app.post('/api/leaves/:leaveId/approve', isAuthenticated, async (req: any, res) => {
     try {
       const { leaveId } = req.params;
       const approverId = req.user.claims.sub;
@@ -237,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/leaves/:leaveId/reject', isAuthenticated, async (req, res) => {
+  app.post('/api/leaves/:leaveId/reject', isAuthenticated, async (req: any, res) => {
     try {
       const { leaveId } = req.params;
       const { reason } = req.body;
@@ -251,7 +252,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Notification routes
-  app.get('/api/notifications', isAuthenticated, async (req, res) => {
+  app.get('/api/notifications', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const companyId = req.query.companyId as string;
@@ -263,7 +264,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/notifications/unread-count', isAuthenticated, async (req, res) => {
+  app.get('/api/notifications/unread-count', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const companyId = req.query.companyId as string;
@@ -300,6 +301,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch documents" });
     }
   });
+
+  // Register advanced routes
+  registerAdvancedRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

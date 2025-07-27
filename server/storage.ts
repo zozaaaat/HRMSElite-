@@ -224,12 +224,31 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(companyUsers.userId, userId), eq(companyUsers.isActive, true)));
   }
 
-  async getCompanyUsers(companyId: string): Promise<(CompanyUser & { user: User })[]> {
-    return await db
-      .select()
+  async getCompanyUsers(companyId: string): Promise<any[]> {
+    const result = await db
+      .select({
+        id: companyUsers.id,
+        companyId: companyUsers.companyId,
+        userId: companyUsers.userId,
+        role: companyUsers.role,
+        isActive: companyUsers.isActive,
+        permissions: companyUsers.permissions,
+        createdAt: companyUsers.createdAt,
+        updatedAt: companyUsers.updatedAt,
+        user: {
+          id: users.id,
+          email: users.email,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          profileImageUrl: users.profileImageUrl,
+          createdAt: users.createdAt,
+          updatedAt: users.updatedAt,
+        }
+      })
       .from(companyUsers)
       .innerJoin(users, eq(companyUsers.userId, users.id))
       .where(and(eq(companyUsers.companyId, companyId), eq(companyUsers.isActive, true)));
+    return result;
   }
 
   async addUserToCompany(userId: string, companyId: string, role: string, permissions: string[] = []): Promise<CompanyUser> {
@@ -454,18 +473,62 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(employeeLeaves.createdAt));
   }
 
-  async getCompanyLeaves(companyId: string, status?: string): Promise<(EmployeeLeave & { employee: Employee })[]> {
-    let query = db
-      .select()
-      .from(employeeLeaves)
-      .innerJoin(employees, eq(employeeLeaves.employeeId, employees.id))
-      .where(eq(employees.companyId, companyId));
-
+  async getCompanyLeaves(companyId: string, status?: string): Promise<any[]> {
+    const baseConditions = [eq(employees.companyId, companyId)];
     if (status) {
-      query = query.where(eq(employeeLeaves.status, status as any));
+      baseConditions.push(eq(employeeLeaves.status, status as any));
     }
 
-    return await query.orderBy(desc(employeeLeaves.createdAt));
+    const result = await db
+      .select({
+        id: employeeLeaves.id,
+        employeeId: employeeLeaves.employeeId,
+        type: employeeLeaves.type,
+        startDate: employeeLeaves.startDate,
+        endDate: employeeLeaves.endDate,
+        days: employeeLeaves.days,
+        reason: employeeLeaves.reason,
+        status: employeeLeaves.status,
+        approvedBy: employeeLeaves.approvedBy,
+        approvedAt: employeeLeaves.approvedAt,
+        rejectionReason: employeeLeaves.rejectionReason,
+        createdAt: employeeLeaves.createdAt,
+        updatedAt: employeeLeaves.updatedAt,
+        employee: {
+          id: employees.id,
+          companyId: employees.companyId,
+          civilId: employees.civilId,
+          fullName: employees.fullName,
+          nationality: employees.nationality,
+          type: employees.type,
+          jobTitle: employees.jobTitle,
+          actualJobTitle: employees.actualJobTitle,
+          department: employees.department,
+          baseSalary: employees.baseSalary,
+          allowances: employees.allowances,
+          deductions: employees.deductions,
+          totalSalary: employees.totalSalary,
+          hireDate: employees.hireDate,
+          contractType: employees.contractType,
+          workLocation: employees.workLocation,
+          isActive: employees.isActive,
+          isArchived: employees.isArchived,
+          profileImage: employees.profileImage,
+          phoneNumber: employees.phoneNumber,
+          email: employees.email,
+          address: employees.address,
+          emergencyContact: employees.emergencyContact,
+          notes: employees.notes,
+          createdAt: employees.createdAt,
+          updatedAt: employees.updatedAt,
+        }
+      })
+      .from(employeeLeaves)
+      .innerJoin(employees, eq(employeeLeaves.employeeId, employees.id))
+      .where(and(...baseConditions))
+      .orderBy(desc(employeeLeaves.createdAt));
+
+    return result;
   }
 
   async createLeave(leave: InsertEmployeeLeave): Promise<EmployeeLeave> {
