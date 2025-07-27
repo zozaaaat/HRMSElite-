@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { AddCompanyDialog } from "@/components/dialogs/add-company-dialog";
+
 import {
   Building2,
   Users,
@@ -17,7 +17,6 @@ import {
   Star,
   Shield,
   Crown,
-  Plus,
   Settings
 } from "lucide-react";
 
@@ -25,7 +24,6 @@ export default function CompanySelection() {
   const [location, setLocation] = useLocation();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const [addCompanyOpen, setAddCompanyOpen] = useState(false);
 
   const { data: companies = [] } = useQuery({
     queryKey: ["/api/companies"],
@@ -161,10 +159,6 @@ export default function CompanySelection() {
         {/* Quick Actions */}
         <div className="flex justify-center gap-4 mb-12">
           <Button variant="outline" size="lg" className="gap-2">
-            <Plus className="h-5 w-5" />
-            إضافة شركة جديدة
-          </Button>
-          <Button variant="outline" size="lg" className="gap-2">
             <Settings className="h-5 w-5" />
             إعدادات الحساب
           </Button>
@@ -180,16 +174,6 @@ export default function CompanySelection() {
                 <p className="text-gray-500 mb-6">
                   {searchQuery ? "لا توجد شركات تطابق بحثك" : "لم يتم تسجيل أي شركات بعد"}
                 </p>
-                {(user as any)?.role === "super_admin" && (
-                  <Button 
-                    size="lg" 
-                    className="gap-2"
-                    onClick={() => setAddCompanyOpen(true)}
-                  >
-                    <Plus className="h-5 w-5" />
-                    إضافة شركة جديدة
-                  </Button>
-                )}
               </CardContent>
             </Card>
           ) : (
@@ -273,11 +257,6 @@ export default function CompanySelection() {
           </p>
         </div>
       </div>
-
-      <AddCompanyDialog 
-        open={addCompanyOpen} 
-        onOpenChange={setAddCompanyOpen} 
-      />
     </div>
   );
 }
