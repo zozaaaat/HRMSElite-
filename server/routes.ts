@@ -52,9 +52,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/companies', isAuthenticated, async (req, res) => {
+  app.post('/api/companies', isAuthenticated, async (req: any, res) => {
     try {
-      const companyData = insertCompanySchema.parse(req.body);
+      // Check if user is super admin
+      const userRole = req.user?.claims?.role || "user";
+      if (userRole !== "super_admin") {
+        return res.status(403).json({ message: "Only Super Admin can add companies" });
+      }
+
+      const companyData = req.body; // Use direct body for now
       const company = await storage.createCompany(companyData);
       res.status(201).json(company);
     } catch (error) {

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { AddCompanyDialog } from "@/components/dialogs/add-company-dialog";
 import {
   Building2,
   Users,
@@ -22,6 +23,7 @@ import {
 export default function CompanySelection() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
+  const [addCompanyOpen, setAddCompanyOpen] = useState(false);
 
   const { data: companies = [] } = useQuery({
     queryKey: ["/api/companies"],
@@ -75,7 +77,7 @@ export default function CompanySelection() {
     }
   ];
 
-  const allCompanies = [...companies, ...mockCompanies];
+  const allCompanies = [...(Array.isArray(companies) ? companies : []), ...mockCompanies];
   
   const filteredCompanies = allCompanies.filter(company =>
     company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -133,7 +135,7 @@ export default function CompanySelection() {
             </div>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            مرحباً، {user?.firstName || 'المستخدم'}
+            مرحباً، {(user as any)?.firstName || 'المستخدم'}
           </h1>
           <p className="text-xl text-gray-600 mb-2">اختر الشركة التي تريد إدارتها</p>
           <p className="text-sm text-gray-500">
@@ -176,15 +178,21 @@ export default function CompanySelection() {
                 <p className="text-gray-500 mb-6">
                   {searchQuery ? "لا توجد شركات تطابق بحثك" : "لم يتم تسجيل أي شركات بعد"}
                 </p>
-                <Button size="lg" className="gap-2">
-                  <Plus className="h-5 w-5" />
-                  إضافة شركة جديدة
-                </Button>
+                {(user as any)?.role === "super_admin" && (
+                  <Button 
+                    size="lg" 
+                    className="gap-2"
+                    onClick={() => setAddCompanyOpen(true)}
+                  >
+                    <Plus className="h-5 w-5" />
+                    إضافة شركة جديدة
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredCompanies.map((company) => (
+              {filteredCompanies.map((company: any) => (
                 <Card 
                   key={company.id} 
                   className="group hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-blue-300 hover:scale-105"
@@ -195,7 +203,7 @@ export default function CompanySelection() {
                       <div className="flex items-center gap-4">
                         <Avatar className="h-16 w-16">
                           <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xl font-bold">
-                            {company.name.split(' ').slice(0, 2).map(n => n[0]).join('')}
+                            {company.name.split(' ').slice(0, 2).map((n: string) => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
                         <div>
@@ -262,6 +270,11 @@ export default function CompanySelection() {
           </p>
         </div>
       </div>
+
+      <AddCompanyDialog 
+        open={addCompanyOpen} 
+        onOpenChange={setAddCompanyOpen} 
+      />
     </div>
   );
 }

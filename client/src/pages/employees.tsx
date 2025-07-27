@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AddEmployeeDialog } from "@/components/dialogs/add-employee-dialog";
 import {
   Users,
   Search,
@@ -26,20 +28,26 @@ import {
   Clock,
   CheckCircle,
   AlertTriangle,
-  MoreHorizontal
+  MoreHorizontal,
+  ArrowLeft
 } from "lucide-react";
 
 export default function Employees() {
+  const [location, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [addEmployeeOpen, setAddEmployeeOpen] = useState(false);
+  
+  // Extract company ID from URL or use default
+  const companyId = new URLSearchParams(location.split('?')[1] || '').get('company') || '1';
 
   const { data: employees = [] } = useQuery({
-    queryKey: ["/api/employees"],
+    queryKey: [`/api/companies/${companyId}/employees`],
   });
 
   const { data: stats } = useQuery({
-    queryKey: ["/api/employees/stats"],
+    queryKey: [`/api/companies/${companyId}/stats`],
   });
 
   // Mock data for demonstration
@@ -342,6 +350,12 @@ export default function Employees() {
           </CardContent>
         </Card>
       )}
+
+      <AddEmployeeDialog 
+        open={addEmployeeOpen} 
+        onOpenChange={setAddEmployeeOpen}
+        companyId={companyId}
+      />
     </div>
   );
 }
