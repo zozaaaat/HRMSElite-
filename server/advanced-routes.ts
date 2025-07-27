@@ -1,332 +1,262 @@
 import type { Express } from "express";
 import { isAuthenticated } from "./replitAuth";
-import { db } from "./db";
-import { 
-  aiInsights, 
-  workflows, 
-  courses, 
-  payrollRecords, 
-  attendanceRecords,
-  companies,
-  employees
-} from "@shared/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
 
 export function registerAdvancedRoutes(app: Express) {
-  // AI Insights Routes
+  // Employee stats endpoint
+  app.get("/api/employees/stats", isAuthenticated, async (req, res) => {
+    try {
+      // Mock stats data
+      const stats = {
+        total: 156,
+        active: 142,
+        onLeave: 8,
+        inactive: 6,
+        newThisMonth: 12,
+        avgSalary: 8750,
+        avgPerformance: 87
+      };
+      
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching employee stats:", error);
+      res.status(500).json({ message: "Failed to fetch employee stats" });
+    }
+  });
+
+  // Companies with enhanced data
+  app.get("/api/companies/enhanced", isAuthenticated, async (req, res) => {
+    try {
+      // Mock enhanced companies data
+      const companies = [
+        {
+          id: "1",
+          name: "شركة التقنية المتقدمة",
+          description: "رائدة في حلول تقنية المعلومات والبرمجيات",
+          address: "الرياض، المملكة العربية السعودية",
+          phone: "+966 11 234 5678",
+          email: "info@tech-advanced.com",
+          website: "https://tech-advanced.com",
+          industry: "تقنية المعلومات",
+          size: "large",
+          status: "active",
+          employeeCount: 450,
+          activeLicenses: 3,
+          createdAt: "2023-01-15T00:00:00Z",
+          updatedAt: "2024-01-27T00:00:00Z"
+        },
+        {
+          id: "2",
+          name: "الشركة التجارية الكبرى", 
+          description: "متخصصة في التجارة والاستيراد والتصدير",
+          address: "جدة، المملكة العربية السعودية",
+          phone: "+966 12 345 6789",
+          email: "info@trade-major.com",
+          website: "https://trade-major.com",
+          industry: "التجارة",
+          size: "medium",
+          status: "active",
+          employeeCount: 230,
+          activeLicenses: 2,
+          createdAt: "2023-03-20T00:00:00Z",
+          updatedAt: "2024-01-26T00:00:00Z"
+        },
+        {
+          id: "3",
+          name: "المؤسسة الصناعية",
+          description: "تصنيع وإنتاج المواد الصناعية والكيميائية",
+          address: "الدمام، المملكة العربية السعودية",
+          phone: "+966 13 456 7890",
+          email: "info@industrial-corp.com",
+          website: "https://industrial-corp.com",
+          industry: "الصناعة",
+          size: "large",
+          status: "active",
+          employeeCount: 680,
+          activeLicenses: 5,
+          createdAt: "2022-11-10T00:00:00Z",
+          updatedAt: "2024-01-25T00:00:00Z"
+        }
+      ];
+      
+      res.json(companies);
+    } catch (error) {
+      console.error("Error fetching enhanced companies:", error);
+      res.status(500).json({ message: "Failed to fetch companies" });
+    }
+  });
+
+  // Dashboard analytics endpoint
+  app.get("/api/analytics/:companyId/:period/:metric", isAuthenticated, async (req, res) => {
+    try {
+      const { companyId, period, metric } = req.params;
+      
+      // Mock analytics data
+      const analytics = {
+        overview: {
+          totalEmployees: 156,
+          activeEmployees: 142,
+          newHires: 12,
+          turnoverRate: 8.3,
+          satisfactionScore: 87,
+          productivity: 94
+        },
+        attendance: {
+          averageAttendance: 94.2,
+          lateArrivals: 15,
+          earlyLeaves: 8,
+          absences: 23
+        },
+        performance: {
+          averageScore: 87,
+          topPerformers: 23,
+          needsImprovement: 12,
+          completedTraining: 89
+        },
+        payroll: {
+          totalPayroll: 1234567,
+          averageSalary: 8750,
+          bonusesPaid: 156780,
+          deductions: 45230
+        }
+      };
+      
+      res.json(analytics[metric as keyof typeof analytics] || analytics.overview);
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      res.status(500).json({ message: "Failed to fetch analytics" });
+    }
+  });
+
+  // KPIs endpoint
+  app.get("/api/analytics/kpis/:companyId/:period", isAuthenticated, async (req, res) => {
+    try {
+      const kpis = [
+        {
+          name: "معدل دوران الموظفين",
+          value: 12.5,
+          target: 15,
+          trend: -2.3,
+          status: "good"
+        },
+        {
+          name: "مؤشر رضا الموظفين",
+          value: 87,
+          target: 85,
+          trend: 3.2,
+          status: "excellent"
+        },
+        {
+          name: "معدل الحضور",
+          value: 94.2,
+          target: 90,
+          trend: 1.8,
+          status: "good"
+        },
+        {
+          name: "تكلفة التوظيف",
+          value: 8500,
+          target: 10000,
+          trend: -15.2,
+          status: "excellent"
+        }
+      ];
+      
+      res.json(kpis);
+    } catch (error) {
+      console.error("Error fetching KPIs:", error);
+      res.status(500).json({ message: "Failed to fetch KPIs" });
+    }
+  });
+
+  // Departments endpoint
+  app.get("/api/departments/:companyId", isAuthenticated, async (req, res) => {
+    try {
+      const departments = [
+        {
+          id: "1",
+          name: "الموارد البشرية",
+          head: "أحمد محمد",
+          employeeCount: 12,
+          efficiency: 92,
+          satisfaction: 89,
+          productivity: 88
+        },
+        {
+          id: "2", 
+          name: "المالية",
+          head: "فاطمة علي",
+          employeeCount: 8,
+          efficiency: 89,
+          satisfaction: 91,
+          productivity: 95
+        },
+        {
+          id: "3",
+          name: "التسويق",
+          head: "خالد أحمد",
+          employeeCount: 15,
+          efficiency: 85,
+          satisfaction: 87,
+          productivity: 83
+        },
+        {
+          id: "4",
+          name: "العمليات",
+          head: "مريم سالم",
+          employeeCount: 25,
+          efficiency: 91,
+          satisfaction: 85,
+          productivity: 92
+        },
+        {
+          id: "5",
+          name: "تقنية المعلومات",
+          head: "محمد عبدالله",
+          employeeCount: 18,
+          efficiency: 88,
+          satisfaction: 92,
+          productivity: 90
+        }
+      ];
+      
+      res.json(departments);
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+      res.status(500).json({ message: "Failed to fetch departments" });
+    }
+  });
+
+  // AI insights endpoint  
   app.get("/api/ai/insights/:companyId", isAuthenticated, async (req, res) => {
     try {
-      const { companyId } = req.params;
-      const insights = await db
-        .select()
-        .from(aiInsights)
-        .where(eq(aiInsights.companyId, companyId))
-        .orderBy(desc(aiInsights.createdAt))
-        .limit(10);
+      const insights = [
+        {
+          type: "recommendation",
+          title: "تحسين مؤشر الرضا",
+          description: "يمكن تحسين مؤشر رضا الموظفين بنسبة 5% من خلال تطبيق برنامج تدريبي جديد",
+          priority: "medium",
+          impact: "high"
+        },
+        {
+          type: "alert",
+          title: "زيادة في معدل التأخير",
+          description: "لوحظ ارتفاع معدل التأخير بنسبة 15% في قسم التسويق خلال الأسبوع الماضي",
+          priority: "high", 
+          impact: "medium"
+        },
+        {
+          type: "insight",
+          title: "موسم التوظيف المثلى",
+          description: "بناءً على البيانات التاريخية، أفضل وقت للتوظيف هو شهر مارس وأبريل",
+          priority: "low",
+          impact: "high"
+        }
+      ];
       
       res.json(insights);
     } catch (error) {
       console.error("Error fetching AI insights:", error);
-      res.status(500).json({ message: "Failed to fetch AI insights" });
-    }
-  });
-
-  app.get("/api/ai/insights/system", isAuthenticated, async (req, res) => {
-    try {
-      // Mock system-level insights for demo
-      const systemInsights = {
-        alerts: [
-          {
-            title: "معدل غياب مرتفع",
-            description: "الشركة أ تسجل معدل غياب 15% هذا الشهر",
-            priority: "high",
-            type: "attendance"
-          },
-          {
-            title: "دورات تدريبية مطلوبة",
-            description: "20 موظف يحتاجون إلى تدريب في السلامة",
-            priority: "medium",
-            type: "training"
-          },
-          {
-            title: "تجديد التراخيص",
-            description: "5 تراخيص تنتهي خلال 30 يوم",
-            priority: "high",
-            type: "licenses"
-          }
-        ],
-        recommendations: [
-          {
-            title: "تحسين الحضور",
-            description: "تطبيق نظام حوافز للحضور المنتظم",
-            impact: "high"
-          },
-          {
-            title: "برنامج تدريب شامل",
-            description: "إنشاء برنامج تدريب ربع سنوي",
-            impact: "medium"
-          }
-        ]
-      };
-      
-      res.json(systemInsights);
-    } catch (error) {
-      console.error("Error fetching system insights:", error);
-      res.status(500).json({ message: "Failed to fetch system insights" });
-    }
-  });
-
-  // Workflow Routes
-  app.get("/api/workflows/:companyId", isAuthenticated, async (req, res) => {
-    try {
-      const { companyId } = req.params;
-      const workflowsList = await db
-        .select()
-        .from(workflows)
-        .where(eq(workflows.companyId, companyId))
-        .orderBy(desc(workflows.createdAt));
-      
-      res.json(workflowsList);
-    } catch (error) {
-      console.error("Error fetching workflows:", error);
-      res.status(500).json({ message: "Failed to fetch workflows" });
-    }
-  });
-
-  app.post("/api/workflows", isAuthenticated, async (req, res) => {
-    try {
-      const userId = req.user?.claims?.sub;
-      const workflowData = {
-        ...req.body,
-        createdBy: userId
-      };
-      
-      const [newWorkflow] = await db
-        .insert(workflows)
-        .values(workflowData)
-        .returning();
-      
-      res.json(newWorkflow);
-    } catch (error) {
-      console.error("Error creating workflow:", error);
-      res.status(500).json({ message: "Failed to create workflow" });
-    }
-  });
-
-  // Learning Management Routes
-  app.get("/api/courses/:companyId", isAuthenticated, async (req, res) => {
-    try {
-      const { companyId } = req.params;
-      const coursesList = await db
-        .select()
-        .from(courses)
-        .where(eq(courses.companyId, companyId))
-        .orderBy(desc(courses.createdAt));
-      
-      res.json(coursesList);
-    } catch (error) {
-      console.error("Error fetching courses:", error);
-      res.status(500).json({ message: "Failed to fetch courses" });
-    }
-  });
-
-  app.get("/api/learning/stats/:companyId", isAuthenticated, async (req, res) => {
-    try {
-      const { companyId } = req.params;
-      
-      // Mock learning statistics for demo
-      const stats = {
-        activeCourses: 24,
-        activeTrainees: 156,
-        certificationsEarned: 89,
-        completionRate: 78.5
-      };
-      
-      res.json(stats);
-    } catch (error) {
-      console.error("Error fetching learning stats:", error);
-      res.status(500).json({ message: "Failed to fetch learning stats" });
-    }
-  });
-
-  // Financial Management Routes
-  app.get("/api/payroll/:companyId", isAuthenticated, async (req, res) => {
-    try {
-      const { companyId } = req.params;
-      const payrollData = await db
-        .select()
-        .from(payrollRecords)
-        .where(eq(payrollRecords.companyId, companyId))
-        .orderBy(desc(payrollRecords.createdAt))
-        .limit(50);
-      
-      res.json(payrollData);
-    } catch (error) {
-      console.error("Error fetching payroll data:", error);
-      res.status(500).json({ message: "Failed to fetch payroll data" });
-    }
-  });
-
-  app.get("/api/financial-stats/:companyId", isAuthenticated, async (req, res) => {
-    try {
-      const { companyId } = req.params;
-      
-      // Mock financial statistics for demo
-      const stats = {
-        totalSalaries: 125000,
-        averageEmployeeCost: 4850,
-        annualIncreases: 8.5,
-        employeesPaid: { paid: 45, total: 48 }
-      };
-      
-      res.json(stats);
-    } catch (error) {
-      console.error("Error fetching financial stats:", error);
-      res.status(500).json({ message: "Failed to fetch financial stats" });
-    }
-  });
-
-  // Mobile App Routes
-  app.get("/api/mobile/stats/:companyId", isAuthenticated, async (req, res) => {
-    try {
-      const { companyId } = req.params;
-      
-      // Mock mobile app statistics for demo
-      const stats = {
-        appsInstalled: { installed: 42, total: 48 },
-        todayAttendance: { present: 38, total: 42 },
-        notificationsSent: 156,
-        responseRate: 94.2
-      };
-      
-      res.json(stats);
-    } catch (error) {
-      console.error("Error fetching mobile stats:", error);
-      res.status(500).json({ message: "Failed to fetch mobile stats" });
-    }
-  });
-
-  app.get("/api/mobile/attendance/:companyId", isAuthenticated, async (req, res) => {
-    try {
-      const { companyId } = req.params;
-      const attendanceData = await db
-        .select()
-        .from(attendanceRecords)
-        .where(eq(attendanceRecords.companyId, companyId))
-        .orderBy(desc(attendanceRecords.createdAt))
-        .limit(100);
-      
-      res.json(attendanceData);
-    } catch (error) {
-      console.error("Error fetching attendance data:", error);
-      res.status(500).json({ message: "Failed to fetch attendance data" });
-    }
-  });
-
-  // Business Intelligence Routes
-  app.get("/api/bi/analytics/:companyId", isAuthenticated, async (req, res) => {
-    try {
-      const { companyId } = req.params;
-      
-      // Mock BI analytics for demo
-      const analytics = {
-        kpis: {
-          employeeRetention: 92.5,
-          averagePerformance: 87.3,
-          trainingEffectiveness: 89.1,
-          customerSatisfaction: 94.2
-        },
-        trends: {
-          employeeGrowth: [
-            { month: "يناير", value: 45 },
-            { month: "فبراير", value: 47 },
-            { month: "مارس", value: 48 },
-            { month: "أبريل", value: 52 },
-            { month: "مايو", value: 55 }
-          ],
-          performanceMetrics: [
-            { metric: "الإنتاجية", current: 87.5, target: 90 },
-            { metric: "جودة العمل", current: 92.3, target: 95 },
-            { metric: "الالتزام بالمواعيد", current: 94.1, target: 96 }
-          ]
-        },
-        predictions: [
-          {
-            title: "توقع احتياج التوظيف",
-            description: "ستحتاج الشركة 8-10 موظفين جدد خلال الربع القادم",
-            confidence: 85
-          },
-          {
-            title: "توقع معدل الأداء",
-            description: "متوقع تحسن الأداء بنسبة 5% خلال الشهرين القادمين",
-            confidence: 78
-          }
-        ]
-      };
-      
-      res.json(analytics);
-    } catch (error) {
-      console.error("Error fetching BI analytics:", error);
-      res.status(500).json({ message: "Failed to fetch BI analytics" });
-    }
-  });
-
-  // Employee 360 View Routes
-  app.get("/api/employee/360/:employeeId", isAuthenticated, async (req, res) => {
-    try {
-      const { employeeId } = req.params;
-      
-      // Get employee basic info
-      const [employee] = await db
-        .select()
-        .from(employees)
-        .where(eq(employees.id, employeeId));
-
-      if (!employee) {
-        return res.status(404).json({ message: "Employee not found" });
-      }
-
-      // Mock 360 view data for demo
-      const employee360 = {
-        ...employee,
-        performance: {
-          overall: 87.5,
-          goals: [
-            { title: "زيادة الإنتاجية", progress: 85, target: 90 },
-            { title: "تطوير المهارات", progress: 70, target: 80 },
-            { title: "تحسين الجودة", progress: 92, target: 95 }
-          ],
-          reviews: [
-            {
-              period: "Q1 2025",
-              score: 4.2,
-              reviewer: "أحمد محمد",
-              comments: "أداء ممتاز في المشاريع المكلف بها"
-            }
-          ]
-        },
-        skills: [
-          { name: "القيادة", level: 85 },
-          { name: "التواصل", level: 92 },
-          { name: "التقنية", level: 78 },
-          { name: "حل المشاكل", level: 88 }
-        ],
-        training: {
-          completed: 12,
-          inProgress: 2,
-          planned: 3
-        },
-        attendance: {
-          rate: 96.5,
-          lateArrivals: 2,
-          absences: 1
-        }
-      };
-      
-      res.json(employee360);
-    } catch (error) {
-      console.error("Error fetching employee 360 view:", error);
-      res.status(500).json({ message: "Failed to fetch employee 360 view" });
+      res.status(500).json({ message: "Failed to fetch insights" });
     }
   });
 }
