@@ -1,29 +1,28 @@
 import type { Express } from "express";
 import { isAuthenticated } from "./replitAuth";
+import { db } from "./db";
+import { 
+  aiInsights, 
+  workflows, 
+  courses, 
+  payrollRecords, 
+  attendanceRecords,
+  companies,
+  employees
+} from "@shared/schema";
+import { eq, and, desc, sql } from "drizzle-orm";
 
 export function registerAdvancedRoutes(app: Express) {
-  // AI Assistant Routes
-  app.post('/api/ai/chat', isAuthenticated, async (req: any, res) => {
-    try {
-      const { message, companyId, employeeId, context } = req.body;
-      const userId = req.user.claims.sub;
-
-      // Simulate AI response - in production, integrate with OpenAI or similar
-      const aiResponse = await processAIMessage(message, companyId, employeeId, context);
-      
-      res.json(aiResponse);
-    } catch (error) {
-      console.error("Error processing AI chat:", error);
-      res.status(500).json({ message: "Failed to process AI message" });
-    }
-  });
-
-  app.get('/api/ai/insights/:companyId', isAuthenticated, async (req: any, res) => {
+  // AI Insights Routes
+  app.get("/api/ai/insights/:companyId", isAuthenticated, async (req, res) => {
     try {
       const { companyId } = req.params;
-      
-      // Generate AI insights
-      const insights = await generateAIInsights(companyId);
+      const insights = await db
+        .select()
+        .from(aiInsights)
+        .where(eq(aiInsights.companyId, companyId))
+        .orderBy(desc(aiInsights.createdAt))
+        .limit(10);
       
       res.json(insights);
     } catch (error) {
@@ -32,388 +31,302 @@ export function registerAdvancedRoutes(app: Express) {
     }
   });
 
-  // Business Intelligence Routes
-  app.get('/api/analytics/:companyId', isAuthenticated, async (req: any, res) => {
+  app.get("/api/ai/insights/system", isAuthenticated, async (req, res) => {
     try {
-      const { companyId } = req.params;
-      const { timeFilter, departmentFilter } = req.query;
+      // Mock system-level insights for demo
+      const systemInsights = {
+        alerts: [
+          {
+            title: "معدل غياب مرتفع",
+            description: "الشركة أ تسجل معدل غياب 15% هذا الشهر",
+            priority: "high",
+            type: "attendance"
+          },
+          {
+            title: "دورات تدريبية مطلوبة",
+            description: "20 موظف يحتاجون إلى تدريب في السلامة",
+            priority: "medium",
+            type: "training"
+          },
+          {
+            title: "تجديد التراخيص",
+            description: "5 تراخيص تنتهي خلال 30 يوم",
+            priority: "high",
+            type: "licenses"
+          }
+        ],
+        recommendations: [
+          {
+            title: "تحسين الحضور",
+            description: "تطبيق نظام حوافز للحضور المنتظم",
+            impact: "high"
+          },
+          {
+            title: "برنامج تدريب شامل",
+            description: "إنشاء برنامج تدريب ربع سنوي",
+            impact: "medium"
+          }
+        ]
+      };
       
-      const analytics = await generateAnalytics(companyId, timeFilter, departmentFilter);
-      
-      res.json(analytics);
+      res.json(systemInsights);
     } catch (error) {
-      console.error("Error fetching analytics:", error);
-      res.status(500).json({ message: "Failed to fetch analytics" });
+      console.error("Error fetching system insights:", error);
+      res.status(500).json({ message: "Failed to fetch system insights" });
     }
   });
 
-  app.get('/api/analytics/kpis/:companyId', isAuthenticated, async (req: any, res) => {
+  // Workflow Routes
+  app.get("/api/workflows/:companyId", isAuthenticated, async (req, res) => {
     try {
       const { companyId } = req.params;
-      const { timeFilter } = req.query;
+      const workflowsList = await db
+        .select()
+        .from(workflows)
+        .where(eq(workflows.companyId, companyId))
+        .orderBy(desc(workflows.createdAt));
       
-      const kpis = await calculateKPIs(companyId, timeFilter);
-      
-      res.json(kpis);
-    } catch (error) {
-      console.error("Error calculating KPIs:", error);
-      res.status(500).json({ message: "Failed to calculate KPIs" });
-    }
-  });
-
-  // Workflow Builder Routes
-  app.get('/api/workflows', isAuthenticated, async (req: any, res) => {
-    try {
-      const companyId = req.query.companyId;
-      
-      // In production, fetch from database
-      const workflows = await getCompanyWorkflows(companyId);
-      
-      res.json(workflows);
+      res.json(workflowsList);
     } catch (error) {
       console.error("Error fetching workflows:", error);
       res.status(500).json({ message: "Failed to fetch workflows" });
     }
   });
 
-  app.post('/api/workflows', isAuthenticated, async (req: any, res) => {
+  app.post("/api/workflows", isAuthenticated, async (req, res) => {
     try {
-      const workflowData = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.user?.claims?.sub;
+      const workflowData = {
+        ...req.body,
+        createdBy: userId
+      };
       
-      const workflow = await createWorkflow({ ...workflowData, createdBy: userId });
+      const [newWorkflow] = await db
+        .insert(workflows)
+        .values(workflowData)
+        .returning();
       
-      res.json(workflow);
+      res.json(newWorkflow);
     } catch (error) {
       console.error("Error creating workflow:", error);
       res.status(500).json({ message: "Failed to create workflow" });
     }
   });
 
-  // Employee 360° View Routes
-  app.get('/api/employees/:employeeId/360-view', isAuthenticated, async (req: any, res) => {
-    try {
-      const { employeeId } = req.params;
-      
-      const view360 = await getEmployee360View(employeeId);
-      
-      res.json(view360);
-    } catch (error) {
-      console.error("Error fetching 360 view:", error);
-      res.status(500).json({ message: "Failed to fetch 360 view" });
-    }
-  });
-
-  // Mobile App Routes
-  app.post('/api/mobile/register-device', isAuthenticated, async (req: any, res) => {
-    try {
-      const { deviceId, deviceType, fcmToken, location } = req.body;
-      const userId = req.user.claims.sub;
-      
-      const session = await registerMobileDevice(userId, deviceId, deviceType, fcmToken, location);
-      
-      res.json(session);
-    } catch (error) {
-      console.error("Error registering mobile device:", error);
-      res.status(500).json({ message: "Failed to register device" });
-    }
-  });
-
-  app.post('/api/mobile/attendance/checkin', isAuthenticated, async (req: any, res) => {
-    try {
-      const { location, method } = req.body; // method: 'gps', 'qr', 'biometric'
-      const userId = req.user.claims.sub;
-      
-      const checkin = await processAttendanceCheckin(userId, location, method);
-      
-      res.json(checkin);
-    } catch (error) {
-      console.error("Error processing check-in:", error);
-      res.status(500).json({ message: "Failed to process check-in" });
-    }
-  });
-
-  // Financial Management Routes
-  app.get('/api/payroll/:companyId', isAuthenticated, async (req: any, res) => {
-    try {
-      const { companyId } = req.params;
-      const { period } = req.query;
-      
-      const payrollRuns = await getPayrollRuns(companyId, period);
-      
-      res.json(payrollRuns);
-    } catch (error) {
-      console.error("Error fetching payroll:", error);
-      res.status(500).json({ message: "Failed to fetch payroll" });
-    }
-  });
-
-  app.post('/api/payroll/:companyId/run', isAuthenticated, async (req: any, res) => {
-    try {
-      const { companyId } = req.params;
-      const { period, startDate, endDate } = req.body;
-      const userId = req.user.claims.sub;
-      
-      const payrollRun = await processPayroll(companyId, period, startDate, endDate, userId);
-      
-      res.json(payrollRun);
-    } catch (error) {
-      console.error("Error processing payroll:", error);
-      res.status(500).json({ message: "Failed to process payroll" });
-    }
-  });
-
   // Learning Management Routes
-  app.get('/api/courses/:companyId', isAuthenticated, async (req: any, res) => {
+  app.get("/api/courses/:companyId", isAuthenticated, async (req, res) => {
     try {
       const { companyId } = req.params;
+      const coursesList = await db
+        .select()
+        .from(courses)
+        .where(eq(courses.companyId, companyId))
+        .orderBy(desc(courses.createdAt));
       
-      const courses = await getCompanyCourses(companyId);
-      
-      res.json(courses);
+      res.json(coursesList);
     } catch (error) {
       console.error("Error fetching courses:", error);
       res.status(500).json({ message: "Failed to fetch courses" });
     }
   });
 
-  app.post('/api/courses/:courseId/enroll', isAuthenticated, async (req: any, res) => {
-    try {
-      const { courseId } = req.params;
-      const { employeeId } = req.body;
-      const companyId = req.body.companyId;
-      
-      const enrollment = await enrollInCourse(courseId, employeeId, companyId);
-      
-      res.json(enrollment);
-    } catch (error) {
-      console.error("Error enrolling in course:", error);
-      res.status(500).json({ message: "Failed to enroll in course" });
-    }
-  });
-
-  // Security & Audit Routes
-  app.get('/api/audit-logs/:companyId', isAuthenticated, async (req: any, res) => {
-    try {
-      const { companyId } = req.params;
-      const { startDate, endDate, action, userId } = req.query;
-      
-      const logs = await getAuditLogs(companyId, { startDate, endDate, action, userId });
-      
-      res.json(logs);
-    } catch (error) {
-      console.error("Error fetching audit logs:", error);
-      res.status(500).json({ message: "Failed to fetch audit logs" });
-    }
-  });
-
-  app.get('/api/security-settings/:companyId', isAuthenticated, async (req: any, res) => {
+  app.get("/api/learning/stats/:companyId", isAuthenticated, async (req, res) => {
     try {
       const { companyId } = req.params;
       
-      const settings = await getSecuritySettings(companyId);
+      // Mock learning statistics for demo
+      const stats = {
+        activeCourses: 24,
+        activeTrainees: 156,
+        certificationsEarned: 89,
+        completionRate: 78.5
+      };
       
-      res.json(settings);
+      res.json(stats);
     } catch (error) {
-      console.error("Error fetching security settings:", error);
-      res.status(500).json({ message: "Failed to fetch security settings" });
+      console.error("Error fetching learning stats:", error);
+      res.status(500).json({ message: "Failed to fetch learning stats" });
     }
   });
-}
 
-// Helper functions - these would contain actual business logic
-async function processAIMessage(message: string, companyId: string, employeeId?: string, context?: any[]) {
-  // Simulate AI processing
-  const responses = {
-    "ما هو رصيد إجازتي": {
-      message: "رصيد إجازتك السنوية الحالي هو 15 يوم. لديك أيضاً 5 أيام إجازة مرضية متبقية.",
-      analysis: {
-        type: "leave_balance",
-        confidence: 95,
-        recommendations: ["فكر في أخذ إجازة قريباً لتجديد النشاط", "تأكد من تخطيط إجازاتك مع فريقك"]
-      }
-    },
-    "متى موعد صرف المرتب": {
-      message: "يتم صرف المرتب في يوم 25 من كل شهر. المرتب القادم سيكون في 25 يناير 2025.",
-      analysis: {
-        type: "payroll_info",
-        confidence: 100,
-        recommendations: []
-      }
-    },
-    "من يستحق ترقية": {
-      message: "بناءً على تحليل الأداء، هناك 3 موظفين يستحقون الترقية: سارة أحمد (95 نقطة)، محمد علي (92 نقطة)، فاطمة خالد (90 نقطة).",
-      analysis: {
-        type: "promotion_analysis",
-        confidence: 87,
-        recommendations: ["راجع تقييمات الأداء السنوية", "ناقش خطط التطوير الوظيفي", "حدد الميزانية المطلوبة للترقيات"]
-      }
+  // Financial Management Routes
+  app.get("/api/payroll/:companyId", isAuthenticated, async (req, res) => {
+    try {
+      const { companyId } = req.params;
+      const payrollData = await db
+        .select()
+        .from(payrollRecords)
+        .where(eq(payrollRecords.companyId, companyId))
+        .orderBy(desc(payrollRecords.createdAt))
+        .limit(50);
+      
+      res.json(payrollData);
+    } catch (error) {
+      console.error("Error fetching payroll data:", error);
+      res.status(500).json({ message: "Failed to fetch payroll data" });
     }
-  };
+  });
 
-  return responses[message as keyof typeof responses] || {
-    message: "عذراً، لم أتمكن من فهم سؤالك. يمكنك سؤالي عن رصيد الإجازات، مواعيد المرتبات، أو تقييمات الأداء.",
-    analysis: null
-  };
-}
+  app.get("/api/financial-stats/:companyId", isAuthenticated, async (req, res) => {
+    try {
+      const { companyId } = req.params;
+      
+      // Mock financial statistics for demo
+      const stats = {
+        totalSalaries: 125000,
+        averageEmployeeCost: 4850,
+        annualIncreases: 8.5,
+        employeesPaid: { paid: 45, total: 48 }
+      };
+      
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching financial stats:", error);
+      res.status(500).json({ message: "Failed to fetch financial stats" });
+    }
+  });
 
-async function generateAIInsights(companyId: string) {
-  return {
-    alerts: [
-      {
-        title: "معدل غياب مرتفع",
-        description: "معدل الغياب في قسم المبيعات أرتفع بنسبة 15% هذا الأسبوع",
-        severity: "high",
-        action: "تحقق من الأسباب"
-      },
-      {
-        title: "موعد انتهاء عقود",
-        description: "5 عقود ستنتهي خلال الشهر القادم",
-        severity: "medium",
-        action: "راجع العقود"
-      }
-    ],
-    predictions: [
-      {
-        title: "خطر استقالة",
-        description: "أحمد محمد قد يقدم استقالته خلال الشهرين القادمين",
-        probability: 73,
-        risk: "high"
-      },
-      {
-        title: "احتياج تدريب",
-        description: "فريق التقنية يحتاج تدريب على التقنيات الجديدة",
-        probability: 89,
-        risk: "medium"
-      }
-    ]
-  };
-}
+  // Mobile App Routes
+  app.get("/api/mobile/stats/:companyId", isAuthenticated, async (req, res) => {
+    try {
+      const { companyId } = req.params;
+      
+      // Mock mobile app statistics for demo
+      const stats = {
+        appsInstalled: { installed: 42, total: 48 },
+        todayAttendance: { present: 38, total: 42 },
+        notificationsSent: 156,
+        responseRate: 94.2
+      };
+      
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching mobile stats:", error);
+      res.status(500).json({ message: "Failed to fetch mobile stats" });
+    }
+  });
 
-async function generateAnalytics(companyId: string, timeFilter?: string, departmentFilter?: string) {
-  return {
-    employeeTrend: [
-      { month: "يناير", count: 45 },
-      { month: "فبراير", count: 48 },
-      { month: "مارس", count: 52 },
-      { month: "أبريل", count: 49 },
-      { month: "مايو", count: 55 },
-      { month: "يونيو", count: 58 }
-    ],
-    departmentDistribution: [
-      { name: "المبيعات", value: 25 },
-      { name: "التقنية", value: 20 },
-      { name: "الموارد البشرية", value: 8 },
-      { name: "المالية", value: 12 },
-      { name: "التسويق", value: 15 }
-    ],
-    attendancePattern: [
-      { day: "الأحد", attendance: 92, absence: 8 },
-      { day: "الاثنين", attendance: 95, absence: 5 },
-      { day: "الثلاثاء", attendance: 96, absence: 4 },
-      { day: "الأربعاء", attendance: 94, absence: 6 },
-      { day: "الخميس", attendance: 89, absence: 11 }
-    ],
-    salaryDistribution: [
-      { range: "2000-3000", count: 15 },
-      { range: "3000-4000", count: 22 },
-      { range: "4000-5000", count: 18 },
-      { range: "5000-7000", count: 12 },
-      { range: "7000+", count: 8 }
-    ],
-    predictions: [
-      {
-        title: "ارتفاع معدل الاستقالات",
-        description: "متوقع ارتفاع 20% في الاستقالات خلال الربع القادم",
-        probability: 67,
-        risk: "medium",
-        recommendations: [
-          "تحسين رضا الموظفين",
-          "زيادة الحوافز",
-          "تطوير برامج الاحتفاظ بالمواهب"
+  app.get("/api/mobile/attendance/:companyId", isAuthenticated, async (req, res) => {
+    try {
+      const { companyId } = req.params;
+      const attendanceData = await db
+        .select()
+        .from(attendanceRecords)
+        .where(eq(attendanceRecords.companyId, companyId))
+        .orderBy(desc(attendanceRecords.createdAt))
+        .limit(100);
+      
+      res.json(attendanceData);
+    } catch (error) {
+      console.error("Error fetching attendance data:", error);
+      res.status(500).json({ message: "Failed to fetch attendance data" });
+    }
+  });
+
+  // Business Intelligence Routes
+  app.get("/api/bi/analytics/:companyId", isAuthenticated, async (req, res) => {
+    try {
+      const { companyId } = req.params;
+      
+      // Mock BI analytics for demo
+      const analytics = {
+        kpis: {
+          employeeRetention: 92.5,
+          averagePerformance: 87.3,
+          trainingEffectiveness: 89.1,
+          customerSatisfaction: 94.2
+        },
+        trends: {
+          employeeGrowth: [
+            { month: "يناير", value: 45 },
+            { month: "فبراير", value: 47 },
+            { month: "مارس", value: 48 },
+            { month: "أبريل", value: 52 },
+            { month: "مايو", value: 55 }
+          ],
+          performanceMetrics: [
+            { metric: "الإنتاجية", current: 87.5, target: 90 },
+            { metric: "جودة العمل", current: 92.3, target: 95 },
+            { metric: "الالتزام بالمواعيد", current: 94.1, target: 96 }
+          ]
+        },
+        predictions: [
+          {
+            title: "توقع احتياج التوظيف",
+            description: "ستحتاج الشركة 8-10 موظفين جدد خلال الربع القادم",
+            confidence: 85
+          },
+          {
+            title: "توقع معدل الأداء",
+            description: "متوقع تحسن الأداء بنسبة 5% خلال الشهرين القادمين",
+            confidence: 78
+          }
         ]
-      }
-    ]
-  };
-}
-
-async function calculateKPIs(companyId: string, timeFilter: string) {
-  return {
-    turnoverRate: "12.5%",
-    averageAttendance: "94.2%",
-    avgEmployeeCost: "1,250 ر.س",
-    productivityIndex: "87.3"
-  };
-}
-
-async function getCompanyWorkflows(companyId: string) {
-  return [
-    {
-      id: "wf-1",
-      name: "موافقة طلب الإجازة",
-      description: "سير عمل لموافقة طلبات الإجازات",
-      department: "hr",
-      isActive: true,
-      stepsCount: 3
+      };
+      
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching BI analytics:", error);
+      res.status(500).json({ message: "Failed to fetch BI analytics" });
     }
-  ];
-}
+  });
 
-async function createWorkflow(workflowData: any) {
-  return {
-    id: `wf-${Date.now()}`,
-    ...workflowData,
-    createdAt: new Date()
-  };
-}
+  // Employee 360 View Routes
+  app.get("/api/employee/360/:employeeId", isAuthenticated, async (req, res) => {
+    try {
+      const { employeeId } = req.params;
+      
+      // Get employee basic info
+      const [employee] = await db
+        .select()
+        .from(employees)
+        .where(eq(employees.id, employeeId));
 
-async function getEmployee360View(employeeId: string) {
-  return {
-    performanceScore: 85,
-    engagementLevel: "عالي",
-    skillMatrix: [
-      { name: "القيادة", level: 4 },
-      { name: "التواصل", level: 5 },
-      { name: "التقنية", level: 3 },
-      { name: "حل المشاكل", level: 4 }
-    ],
-    careerPath: [
-      { title: "موظف متدرب", date: "2020", completed: true },
-      { title: "موظف أول", date: "2021", completed: true },
-      { title: "مشرف", date: "2023", completed: true },
-      { title: "مدير قسم", date: "2025", completed: false }
-    ],
-    goals: [
-      { title: "تطوير مهارات القيادة", progress: 75, priority: "عالية", deadline: "ديسمبر 2024" },
-      { title: "إنجاز مشروع التطوير", progress: 60, priority: "متوسطة", deadline: "مارس 2025" }
-    ],
-    achievements: [
-      { title: "موظف الشهر", description: "تفوق في الأداء وتحقيق الأهداف", date: "نوفمبر 2024" },
-      { title: "إنجاز مشروع مميز", description: "قاد فريق نجح في تسليم المشروع قبل الموعد", date: "سبتمبر 2024" }
-    ],
-    trainingProgress: [
-      { courseName: "إدارة الفرق", progress: 90, status: "completed", score: "95%" },
-      { courseName: "التسويق الرقمي", progress: 45, status: "in_progress", score: null }
-    ],
-    feedback: [
-      { reviewerName: "سارة أحمد - المدير المباشر", rating: 5, comment: "أداء متميز ومبادرة رائعة", date: "ديسمبر 2024" },
-      { reviewerName: "محمد علي - زميل", rating: 4, comment: "متعاون وداعم للفريق", date: "نوفمبر 2024" }
-    ]
-  };
-}
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
 
-// Additional helper functions for other features...
-async function registerMobileDevice(userId: string, deviceId: string, deviceType: string, fcmToken: string, location: any) {
-  return { success: true, sessionId: `session-${Date.now()}` };
+      // Mock 360 view data for demo
+      const employee360 = {
+        ...employee,
+        performance: {
+          overall: 87.5,
+          goals: [
+            { title: "زيادة الإنتاجية", progress: 85, target: 90 },
+            { title: "تطوير المهارات", progress: 70, target: 80 },
+            { title: "تحسين الجودة", progress: 92, target: 95 }
+          ],
+          reviews: [
+            {
+              period: "Q1 2025",
+              score: 4.2,
+              reviewer: "أحمد محمد",
+              comments: "أداء ممتاز في المشاريع المكلف بها"
+            }
+          ]
+        },
+        skills: [
+          { name: "القيادة", level: 85 },
+          { name: "التواصل", level: 92 },
+          { name: "التقنية", level: 78 },
+          { name: "حل المشاكل", level: 88 }
+        ],
+        training: {
+          completed: 12,
+          inProgress: 2,
+          planned: 3
+        },
+        attendance: {
+          rate: 96.5,
+          lateArrivals: 2,
+          absences: 1
+        }
+      };
+      
+      res.json(employee360);
+    } catch (error) {
+      console.error("Error fetching employee 360 view:", error);
+      res.status(500).json({ message: "Failed to fetch employee 360 view" });
+    }
+  });
 }
-
-async function processAttendanceCheckin(userId: string, location: any, method: string) {
-  return { success: true, checkinTime: new Date(), method };
-}
-
-async function getPayrollRuns(companyId: string, period?: string) { return []; }
-async function processPayroll(companyId: string, period: string, startDate: string, endDate: string, userId: string) { return {}; }
-async function getCompanyCourses(companyId: string) { return []; }
-async function enrollInCourse(courseId: string, employeeId: string, companyId: string) { return {}; }
-async function getAuditLogs(companyId: string, filters: any) { return []; }
-async function getSecuritySettings(companyId: string) { return {}; }

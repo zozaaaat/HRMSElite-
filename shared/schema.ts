@@ -426,3 +426,92 @@ export type LicenseWithDetails = License & {
   employees: Employee[];
   documents: Document[];
 };
+
+// Advanced HRMS Tables
+export const aiInsights = pgTable("ai_insights", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id").references(() => companies.id),
+  type: varchar("type").notNull(),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  priority: varchar("priority").default("medium"),
+  status: varchar("status").default("active"),
+  data: jsonb("data"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const workflows = pgTable("workflows", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id").references(() => companies.id),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  type: varchar("type").notNull(),
+  trigger: varchar("trigger").notNull(),
+  conditions: jsonb("conditions"),
+  actions: jsonb("actions"),
+  isActive: boolean("is_active").default(true),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const courses = pgTable("courses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id").references(() => companies.id),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  category: varchar("category").notNull(),
+  level: varchar("level").default("beginner"),
+  duration: integer("duration").notNull(),
+  modules: integer("modules").default(1),
+  instructor: varchar("instructor"),
+  status: varchar("status").default("draft"),
+  rating: decimal("rating").default("0"),
+  enrollmentCount: integer("enrollment_count").default(0),
+  content: jsonb("content"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const payrollRecords = pgTable("payroll_records", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id").references(() => companies.id),
+  employeeId: varchar("employee_id").references(() => employees.id),
+  period: varchar("period").notNull(),
+  basicSalary: decimal("basic_salary").notNull(),
+  allowances: jsonb("allowances"),
+  deductions: jsonb("deductions"),
+  bonuses: decimal("bonuses").default("0"),
+  grossSalary: decimal("gross_salary").notNull(),
+  netSalary: decimal("net_salary").notNull(),
+  status: varchar("status").default("pending"),
+  processedAt: timestamp("processed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const attendanceRecords = pgTable("attendance_records", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  employeeId: varchar("employee_id").references(() => employees.id),
+  companyId: varchar("company_id").references(() => companies.id),
+  date: varchar("date").notNull(),
+  checkIn: timestamp("check_in"),
+  checkOut: timestamp("check_out"),
+  method: varchar("method").notNull(),
+  location: jsonb("location"),
+  status: varchar("status").default("present"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Additional Types
+export type AIInsight = typeof aiInsights.$inferSelect;
+export type InsertAIInsight = typeof aiInsights.$inferInsert;
+export type Workflow = typeof workflows.$inferSelect;
+export type InsertWorkflow = typeof workflows.$inferInsert;
+export type Course = typeof courses.$inferSelect;
+export type InsertCourse = typeof courses.$inferInsert;
+export type PayrollRecord = typeof payrollRecords.$inferSelect;
+export type InsertPayrollRecord = typeof payrollRecords.$inferInsert;
+export type AttendanceRecord = typeof attendanceRecords.$inferSelect;
+export type InsertAttendanceRecord = typeof attendanceRecords.$inferInsert;

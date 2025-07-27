@@ -8,6 +8,12 @@ import {
   BarChart3,
   Settings,
   Shield,
+  Bot,
+  Workflow,
+  GraduationCap,
+  Smartphone,
+  Eye,
+  Sparkles,
 } from "lucide-react";
 import type { Company, User } from "@shared/schema";
 
@@ -16,9 +22,28 @@ interface SidebarProps {
   user: User | undefined;
   activeView: string;
   onViewChange: (view: string) => void;
+  onAIAssistantOpen?: () => void;
+  onBIDashboardOpen?: () => void;
+  onWorkflowBuilderOpen?: () => void;
+  onLearningManagementOpen?: () => void;
+  onFinancialManagementOpen?: () => void;
+  onMobileAppOpen?: () => void;
+  onEmployee360Open?: () => void;
 }
 
-export function Sidebar({ company, user, activeView, onViewChange }: SidebarProps) {
+export function Sidebar({ 
+  company, 
+  user, 
+  activeView, 
+  onViewChange,
+  onAIAssistantOpen,
+  onBIDashboardOpen,
+  onWorkflowBuilderOpen,
+  onLearningManagementOpen,
+  onFinancialManagementOpen,
+  onMobileAppOpen,
+  onEmployee360Open
+}: SidebarProps) {
   const getCompanyInitials = (name: string) => {
     const words = name.split(' ');
     return words.slice(0, 2).map(word => word.charAt(0)).join(' ');
@@ -75,6 +100,51 @@ export function Sidebar({ company, user, activeView, onViewChange }: SidebarProp
     },
   ];
 
+  const advancedFeatures = [
+    {
+      id: "ai-assistant",
+      label: "المساعد الذكي",
+      icon: Bot,
+      onClick: onAIAssistantOpen,
+    },
+    {
+      id: "bi-dashboard",
+      label: "لوحة التحليلات",
+      icon: BarChart3,
+      onClick: onBIDashboardOpen,
+    },
+    {
+      id: "workflow-builder",
+      label: "منشئ سير العمل",
+      icon: Workflow,
+      onClick: onWorkflowBuilderOpen,
+    },
+    {
+      id: "learning-management",
+      label: "إدارة التعلم",
+      icon: GraduationCap,
+      onClick: onLearningManagementOpen,
+    },
+    {
+      id: "financial-management",
+      label: "الإدارة المالية",
+      icon: DollarSign,
+      onClick: onFinancialManagementOpen,
+    },
+    {
+      id: "mobile-app",
+      label: "التطبيق المحمول",
+      icon: Smartphone,
+      onClick: onMobileAppOpen,
+    },
+    {
+      id: "employee-360",
+      label: "عرض الموظف 360°",
+      icon: Eye,
+      onClick: onEmployee360Open,
+    },
+  ];
+
   const mainMenuItems = menuItems.filter(item => item.section === "main");
   const settingsMenuItems = menuItems.filter(item => item.section === "settings");
 
@@ -126,6 +196,61 @@ export function Sidebar({ company, user, activeView, onViewChange }: SidebarProp
           </ul>
         </div>
 
+        <div className="px-3 mt-8">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            الإعدادات
+          </p>
+          <ul className="space-y-1">
+            {settingsMenuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeView === item.id;
+              
+              return (
+                <li key={item.id}>
+                  <Button
+                    variant={isActive ? "secondary" : "ghost"}
+                    className={`w-full justify-start ${
+                      isActive 
+                        ? "bg-primary/10 text-primary hover:bg-primary/20" 
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
+                    onClick={() => onViewChange(item.id)}
+                  >
+                    <Icon className="ml-3 h-4 w-4" />
+                    {item.label}
+                  </Button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        {/* Advanced Features Section */}
+        <div className="px-3 mt-8">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            الميزات المتقدمة
+          </p>
+          <ul className="space-y-1">
+            {advancedFeatures.map((feature) => {
+              const Icon = feature.icon;
+              
+              return (
+                <li key={feature.id}>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-muted-foreground hover:text-foreground hover:bg-muted"
+                    onClick={feature.onClick}
+                  >
+                    <Icon className="ml-3 h-4 w-4" />
+                    {feature.label}
+                  </Button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        {/* Settings Section */}
         <div className="px-3 mt-8">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
             الإعدادات

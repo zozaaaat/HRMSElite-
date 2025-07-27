@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   MessageCircle, 
   Send, 
@@ -43,29 +44,31 @@ export function AIAssistant({ companyId, employeeId, isOpen, onClose }: AIAssist
     {
       id: '1',
       type: 'ai',
-      content: 'مرحباً! أنا مساعد الذكي للموارد البشرية. كيف يمكنني مساعدتك اليوم؟',
+      content: 'مرحباً! أنا المساعد الذكي للموارد البشرية. كيف يمكنني مساعدتك اليوم؟',
       timestamp: new Date(),
     }
   ]);
   const [inputMessage, setInputMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Get AI insights data
   const { data: aiInsights } = useQuery({
-    queryKey: ['/api/ai/insights', companyId],
+    queryKey: ['/api/ai/insights/system'],
     enabled: isOpen,
   });
 
   const sendMessageMutation = useMutation({
     mutationFn: async (message: string) => {
-      return await apiRequest('/api/ai/chat', {
-        method: 'POST',
-        body: JSON.stringify({
-          message,
-          companyId,
-          employeeId,
-          context: messages.slice(-5) // Send last 5 messages for context
-        })
-      });
+      // Mock AI response for now
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return {
+        message: `تم تحليل استفسارك: "${message}". بناءً على البيانات المتاحة، أنصح بمراجعة تقارير الأداء وتحديث سياسات الشركة.`,
+        analysis: {
+          type: 'general',
+          confidence: 85,
+          recommendations: ['مراجعة تقارير الأداء', 'تحديث السياسات', 'متابعة مع الإدارة']
+        }
+      };
     },
     onSuccess: (response) => {
       const aiMessage: AIMessage = {
@@ -78,6 +81,14 @@ export function AIAssistant({ companyId, employeeId, isOpen, onClose }: AIAssist
       setMessages(prev => [...prev, aiMessage]);
     }
   });
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
@@ -101,126 +112,93 @@ export function AIAssistant({ companyId, employeeId, isOpen, onClose }: AIAssist
     }
   };
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-4xl h-[600px] flex flex-col">
-        <CardHeader className="flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-primary" />
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-5xl h-[80vh] flex flex-col p-0" dir="rtl">
+        <DialogHeader className="border-b p-6">
+          <div className="flex items-center gap-2">
+            <Bot className="h-6 w-6 text-blue-600" />
             <Sparkles className="h-4 w-4 text-yellow-500" />
-            المساعد الذكي للموارد البشرية
-          </CardTitle>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
-        </CardHeader>
+            <DialogTitle className="text-xl font-bold">
+              المساعد الذكي للموارد البشرية
+            </DialogTitle>
+          </div>
+        </DialogHeader>
         
-        <CardContent className="flex-1 flex gap-4 p-4">
+        <div className="flex-1 flex gap-6 p-6">
           {/* Chat Area */}
           <div className="flex-1 flex flex-col">
-            <div className="flex-1 overflow-y-auto space-y-4 mb-4 p-4 bg-muted/20 rounded-lg">
+            <div className="flex-1 overflow-y-auto space-y-4 mb-4 p-4 bg-muted/20 rounded-lg border">
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex gap-3 ${
-                    message.type === 'user' ? 'justify-end' : 'justify-start'
-                  }`}
+                  className={`flex ${message.type === 'user' ? 'justify-start' : 'justify-end'}`}
                 >
-                  <div
-                    className={`flex gap-2 max-w-[80%] ${
-                      message.type === 'user' ? 'flex-row-reverse' : 'flex-row'
-                    }`}
-                  >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      message.type === 'user' 
-                        ? 'bg-primary text-primary-foreground' 
-                        : 'bg-secondary'
-                    }`}>
-                      {message.type === 'user' ? (
-                        <User className="h-4 w-4" />
-                      ) : (
-                        <Bot className="h-4 w-4" />
-                      )}
-                    </div>
-                    
-                    <div className={`rounded-lg p-3 ${
-                      message.type === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-background border'
-                    }`}>
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                      
-                      {message.analysis && (
-                        <div className="mt-3 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="secondary" className="text-xs">
-                              {message.analysis.type}
-                            </Badge>
-                            <Badge variant="outline" className="text-xs">
-                              ثقة: {Math.round(message.analysis.confidence)}%
-                            </Badge>
-                          </div>
-                          
-                          {message.analysis.recommendations.length > 0 && (
-                            <div className="space-y-1">
-                              <p className="text-xs font-medium">التوصيات:</p>
-                              {message.analysis.recommendations.map((rec, index) => (
-                                <div key={index} className="flex items-start gap-1">
-                                  <CheckCircle className="h-3 w-3 text-green-500 mt-0.5" />
-                                  <p className="text-xs">{rec}</p>
-                                </div>
-                              ))}
+                  <div className={`max-w-[80%] rounded-lg p-3 ${
+                    message.type === 'user' 
+                      ? 'bg-primary text-primary-foreground ml-auto' 
+                      : 'bg-muted mr-auto'
+                  }`}>
+                    <div className="flex items-start gap-2">
+                      {message.type === 'ai' && <Bot className="h-4 w-4 mt-0.5 flex-shrink-0" />}
+                      {message.type === 'user' && <User className="h-4 w-4 mt-0.5 flex-shrink-0" />}
+                      <div className="flex-1">
+                        <p className="text-sm leading-relaxed">{message.content}</p>
+                        {message.analysis && (
+                          <div className="mt-2 space-y-1">
+                            <div className="flex items-center gap-1 text-xs opacity-75">
+                              <CheckCircle className="h-3 w-3" />
+                              مستوى الثقة: {message.analysis.confidence}%
                             </div>
-                          )}
-                        </div>
-                      )}
-                      
-                      <p className="text-xs opacity-70 mt-2">
-                        {message.timestamp.toLocaleTimeString('ar-SA', {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </p>
+                            {message.analysis.recommendations.length > 0 && (
+                              <div className="text-xs">
+                                <p className="font-medium mb-1">التوصيات:</p>
+                                <ul className="space-y-0.5">
+                                  {message.analysis.recommendations.map((rec, idx) => (
+                                    <li key={idx} className="flex items-center gap-1">
+                                      <div className="w-1 h-1 bg-current rounded-full" />
+                                      {rec}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        <p className="text-xs opacity-50 mt-1">
+                          {message.timestamp.toLocaleTimeString('ar')}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
               ))}
-              
               {sendMessageMutation.isPending && (
-                <div className="flex gap-3 justify-start">
-                  <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
-                    <Bot className="h-4 w-4" />
-                  </div>
-                  <div className="bg-background border rounded-lg p-3">
+                <div className="flex justify-end">
+                  <div className="bg-muted rounded-lg p-3 mr-auto max-w-[80%]">
                     <div className="flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-t-transparent"></div>
-                      <p className="text-sm">جاري التحليل...</p>
+                      <Bot className="h-4 w-4" />
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" />
+                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                      </div>
                     </div>
                   </div>
                 </div>
               )}
-              
               <div ref={messagesEndRef} />
             </div>
             
+            {/* Message Input */}
             <div className="flex gap-2">
               <Input
+                placeholder="اكتب سؤالك هنا..."
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="اكتب سؤالك هنا... (مثال: ما هو معدل الغياب هذا الشهر؟)"
-                disabled={sendMessageMutation.isPending}
                 className="flex-1"
+                dir="rtl"
               />
               <Button 
                 onClick={handleSendMessage}
@@ -231,80 +209,79 @@ export function AIAssistant({ companyId, employeeId, isOpen, onClose }: AIAssist
               </Button>
             </div>
           </div>
-          
-          {/* AI Insights Panel */}
+
+          {/* Insights Sidebar */}
           <div className="w-80 space-y-4">
-            <h3 className="font-semibold text-sm flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              رؤى ذكية فورية
-            </h3>
-            
-            <div className="space-y-3">
-              {aiInsights?.alerts?.map((alert: any, index: number) => (
-                <div key={index} className="p-3 rounded-lg border bg-background">
-                  <div className="flex items-start gap-2">
-                    <AlertTriangle className={`h-4 w-4 mt-0.5 ${
-                      alert.severity === 'high' ? 'text-red-500' :
-                      alert.severity === 'medium' ? 'text-yellow-500' : 'text-blue-500'
-                    }`} />
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium">{alert.title}</p>
-                      <p className="text-xs text-muted-foreground">{alert.description}</p>
-                      {alert.action && (
-                        <Button size="sm" variant="outline" className="h-6 text-xs">
-                          {alert.action}
-                        </Button>
-                      )}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-green-600" />
+                  رؤى ذكية
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {aiInsights?.alerts?.map((alert: any, idx: number) => (
+                  <div key={idx} className="p-3 rounded-lg bg-red-50 border border-red-200">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-medium text-sm text-red-800">{alert.title}</p>
+                        <p className="text-xs text-red-600 mt-1">{alert.description}</p>
+                        <Badge variant="destructive" className="mt-2 text-xs">
+                          {alert.priority === 'high' ? 'عالي' : 'متوسط'}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-              
-              {aiInsights?.predictions?.map((prediction: any, index: number) => (
-                <div key={index} className="p-3 rounded-lg border bg-background">
-                  <div className="flex items-start gap-2">
-                    <Clock className="h-4 w-4 mt-0.5 text-blue-500" />
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium">{prediction.title}</p>
-                      <p className="text-xs text-muted-foreground">{prediction.description}</p>
-                      <Badge variant="secondary" className="text-xs">
-                        احتمالية: {prediction.probability}%
-                      </Badge>
+                ))}
+                
+                {aiInsights?.recommendations?.map((rec: any, idx: number) => (
+                  <div key={idx} className="p-3 rounded-lg bg-blue-50 border border-blue-200">
+                    <div className="flex items-start gap-2">
+                      <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-medium text-sm text-blue-800">{rec.title}</p>
+                        <p className="text-xs text-blue-600 mt-1">{rec.description}</p>
+                        <Badge variant="secondary" className="mt-2 text-xs">
+                          تأثير {rec.impact === 'high' ? 'عالي' : 'متوسط'}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-            
-            <Separator />
-            
-            <div className="space-y-2">
-              <h4 className="font-medium text-sm">أسئلة شائعة</h4>
-              <div className="space-y-1">
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-purple-600" />
+                  اختصارات سريعة
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
                 {[
-                  "ما هو رصيد إجازتي المتبقي؟",
-                  "متى موعد صرف المرتب؟",
-                  "كيف أقدم طلب إجازة؟",
-                  "من يستحق ترقية هذا العام؟",
-                  "ما هو معدل الحضور العام؟"
-                ].map((question, index) => (
+                  'تقرير الحضور اليومي',
+                  'تحليل أداء الموظفين',
+                  'حالة التراخيص',
+                  'طلبات الإجازات المعلقة',
+                  'تقرير المرتبات'
+                ].map((shortcut, idx) => (
                   <Button
-                    key={index}
+                    key={idx}
                     variant="ghost"
-                    className="h-auto p-2 text-xs justify-start whitespace-normal"
-                    onClick={() => {
-                      setInputMessage(question);
-                      handleSendMessage();
-                    }}
+                    className="w-full justify-start text-sm h-auto py-2"
+                    onClick={() => setInputMessage(shortcut)}
                   >
-                    {question}
+                    <MessageCircle className="h-3 w-3 ml-2" />
+                    {shortcut}
                   </Button>
                 ))}
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

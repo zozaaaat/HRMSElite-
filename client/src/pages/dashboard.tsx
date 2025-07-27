@@ -11,6 +11,10 @@ import { BIDashboard } from "@/components/bi-dashboard";
 import { WorkflowBuilder } from "@/components/workflow-builder";
 import { useState } from "react";
 import type { CompanyWithStats } from "@shared/schema";
+import { LearningManagement } from "@/components/learning-management";
+import { FinancialManagement } from "@/components/financial-management";
+import { MobileApp } from "@/components/mobile-app";
+import { Employee360 } from "@/components/employee-360";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -18,6 +22,12 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeView, setActiveView] = useState("overview");
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
+  const [biDashboardOpen, setBiDashboardOpen] = useState(false);
+  const [workflowBuilderOpen, setWorkflowBuilderOpen] = useState(false);
+  const [learningManagementOpen, setLearningManagementOpen] = useState(false);
+  const [financialManagementOpen, setFinancialManagementOpen] = useState(false);
+  const [mobileAppOpen, setMobileAppOpen] = useState(false);
+  const [employee360Open, setEmployee360Open] = useState(false);
 
   const { data: stats } = useQuery({
     queryKey: ["/api/dashboard/stats"],
@@ -195,6 +205,31 @@ export default function Dashboard() {
         companyId="system"
         isOpen={aiAssistantOpen}
         onClose={() => setAiAssistantOpen(false)}
+      />
+
+      {/* Additional Modals */}
+      <LearningManagement 
+        companyId="system" 
+        isOpen={learningManagementOpen} 
+        onClose={() => setLearningManagementOpen(false)} 
+      />
+
+      <FinancialManagement 
+        companyId="system" 
+        isOpen={financialManagementOpen} 
+        onClose={() => setFinancialManagementOpen(false)} 
+      />
+
+      <MobileApp 
+        companyId="system" 
+        isOpen={mobileAppOpen} 
+        onClose={() => setMobileAppOpen(false)} 
+      />
+
+      <Employee360 
+        employeeId="demo-employee" 
+        isOpen={employee360Open} 
+        onClose={() => setEmployee360Open(false)} 
       />
     </div>
   );

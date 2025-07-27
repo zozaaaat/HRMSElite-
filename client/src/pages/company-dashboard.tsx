@@ -3,10 +3,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Bell, Sun, Moon, LogOut, Bot, BarChart3, Workflow, Users2 } from "lucide-react";
+import { Bell, Sun, Moon, LogOut, Bot, BarChart3, Workflow, Users2, GraduationCap, DollarSign, Smartphone, Eye } from "lucide-react";
 import { AIAssistant } from "@/components/ai-assistant";
 import { BIDashboard } from "@/components/bi-dashboard";
 import { WorkflowBuilder } from "@/components/workflow-builder";
+import { LearningManagement } from "@/components/learning-management";
+import { FinancialManagement } from "@/components/financial-management";
+import { MobileApp } from "@/components/mobile-app";
+import { Employee360 } from "@/components/employee-360";
 import { useTheme } from "@/components/theme-provider";
 import { Sidebar } from "@/components/sidebar";
 import { StatsCard } from "@/components/stats-card";
@@ -19,6 +23,13 @@ export default function CompanyDashboard() {
   const { theme, setTheme } = useTheme();
   const [activeView, setActiveView] = useState("dashboard");
   const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
+  const [biDashboardOpen, setBiDashboardOpen] = useState(false);
+  const [workflowBuilderOpen, setWorkflowBuilderOpen] = useState(false);
+  const [learningManagementOpen, setLearningManagementOpen] = useState(false);
+  const [financialManagementOpen, setFinancialManagementOpen] = useState(false);
+  const [mobileAppOpen, setMobileAppOpen] = useState(false);
+  const [employee360Open, setEmployee360Open] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
 
   const { data: company } = useQuery({
     queryKey: ["/api/companies", companyId],
@@ -58,7 +69,14 @@ export default function CompanyDashboard() {
         company={companyData} 
         user={user} 
         activeView={activeView} 
-        onViewChange={setActiveView} 
+        onViewChange={setActiveView}
+        onAIAssistantOpen={() => setAiAssistantOpen(true)}
+        onBIDashboardOpen={() => setBiDashboardOpen(true)}
+        onWorkflowBuilderOpen={() => setWorkflowBuilderOpen(true)}
+        onLearningManagementOpen={() => setLearningManagementOpen(true)}
+        onFinancialManagementOpen={() => setFinancialManagementOpen(true)}
+        onMobileAppOpen={() => setMobileAppOpen(true)}
+        onEmployee360Open={() => setEmployee360Open(true)}
       />
 
       {/* Main Content */}
@@ -198,6 +216,53 @@ export default function CompanyDashboard() {
           companyId={companyId}
           isOpen={aiAssistantOpen}
           onClose={() => setAiAssistantOpen(false)}
+        />
+      )}
+
+      {/* Additional Advanced Modals */}
+      {companyId && (
+        <>
+          <BIDashboard
+            companyId={companyId}
+            isOpen={biDashboardOpen}
+            onClose={() => setBiDashboardOpen(false)}
+          />
+
+          <WorkflowBuilder
+            companyId={companyId}
+            isOpen={workflowBuilderOpen}
+            onClose={() => setWorkflowBuilderOpen(false)}
+          />
+
+          <LearningManagement
+            companyId={companyId}
+            isOpen={learningManagementOpen}
+            onClose={() => setLearningManagementOpen(false)}
+          />
+
+          <FinancialManagement
+            companyId={companyId}
+            isOpen={financialManagementOpen}
+            onClose={() => setFinancialManagementOpen(false)}
+          />
+
+          <MobileApp
+            companyId={companyId}
+            isOpen={mobileAppOpen}
+            onClose={() => setMobileAppOpen(false)}
+          />
+        </>
+      )}
+
+      {/* Employee 360 Modal */}
+      {selectedEmployeeId && (
+        <Employee360
+          employeeId={selectedEmployeeId}
+          isOpen={employee360Open}
+          onClose={() => {
+            setEmployee360Open(false);
+            setSelectedEmployeeId(null);
+          }}
         />
       )}
     </div>
