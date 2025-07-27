@@ -26,7 +26,8 @@ import {
   ArrowDownRight,
   Target,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Plus
 } from "lucide-react";
 
 interface FinancialManagementProps {
