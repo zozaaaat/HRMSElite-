@@ -193,6 +193,14 @@ export default function CompanyManagerDashboard() {
                   <p className="text-sm text-muted-foreground">ربط أنظمة المحاسبة الخارجية</p>
                 </CardContent>
               </Card>
+
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/assets-management'}>
+                <CardContent className="p-6 text-center">
+                  <Package className="h-12 w-12 text-purple-500 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">إدارة الأصول</h3>
+                  <p className="text-sm text-muted-foreground">إدارة أصول ومعدات الشركة</p>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 

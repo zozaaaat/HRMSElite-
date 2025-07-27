@@ -221,6 +221,15 @@ export default function SuperAdminDashboard() {
               <Archive className="h-4 w-4" />
               الأرشيف
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.location.href = '/assets-management'}
+              className="gap-2 hover:bg-purple-50 hover:border-purple-300"
+            >
+              <Package className="h-4 w-4" />
+              إدارة الأصول
+            </Button>
           </div>
         </div>
       </div>

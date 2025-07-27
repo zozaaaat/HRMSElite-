@@ -46,6 +46,10 @@ export const licenseTypeEnum = pgEnum("license_type", ["main", "branch"]);
 export const leaveStatusEnum = pgEnum("leave_status", ["pending", "approved", "rejected"]);
 export const leaveTypeEnum = pgEnum("leave_type", ["annual", "sick", "maternity", "emergency", "unpaid"]);
 export const documentTypeEnum = pgEnum("document_type", ["passport", "residence", "license", "contract", "certificate", "other"]);
+export const assetStatusEnum = pgEnum("asset_status", ["available", "in_use", "maintenance", "retired", "lost", "damaged"]);
+export const assetTypeEnum = pgEnum("asset_type", ["equipment", "vehicle", "furniture", "electronics", "software", "other"]);
+export const maintenanceStatusEnum = pgEnum("maintenance_status", ["scheduled", "in_progress", "completed", "cancelled"]);
+export const maintenanceTypeEnum = pgEnum("maintenance_type", ["preventive", "corrective", "emergency", "upgrade"]);
 
 // Companies table
 export const companies = pgTable("companies", {
@@ -515,3 +519,159 @@ export type PayrollRecord = typeof payrollRecords.$inferSelect;
 export type InsertPayrollRecord = typeof payrollRecords.$inferInsert;
 export type AttendanceRecord = typeof attendanceRecords.$inferSelect;
 export type InsertAttendanceRecord = typeof attendanceRecords.$inferInsert;
+
+// Assets & Equipment Management Tables
+export const assets = pgTable("assets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id").references(() => companies.id),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  assetCode: varchar("asset_code").unique().notNull(),
+  type: assetTypeEnum("type").notNull(),
+  category: varchar("category"),
+  brand: varchar("brand"),
+  model: varchar("model"),
+  serialNumber: varchar("serial_number"),
+  purchaseDate: date("purchase_date"),
+  purchasePrice: decimal("purchase_price"),
+  currentValue: decimal("current_value"),
+  depreciation: decimal("depreciation"),
+  warrantyExpiry: date("warranty_expiry"),
+  location: varchar("location"),
+  department: varchar("department"),
+  assignedTo: varchar("assigned_to").references(() => employees.id),
+  status: assetStatusEnum("status").default("available"),
+  condition: varchar("condition").default("good"),
+  notes: text("notes"),
+  imageUrl: varchar("image_url"),
+  documentUrl: varchar("document_url"),
+  lastMaintenanceDate: date("last_maintenance_date"),
+  nextMaintenanceDate: date("next_maintenance_date"),
+  isActive: boolean("is_active").default(true),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const assetCategories = pgTable("asset_categories", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id").references(() => companies.id),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  parentId: varchar("parent_id"),
+  depreciationRate: decimal("depreciation_rate").default("0"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const assetMaintenance = pgTable("asset_maintenance", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  assetId: varchar("asset_id").references(() => assets.id),
+  companyId: varchar("company_id").references(() => companies.id),
+  type: maintenanceTypeEnum("type").notNull(),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  scheduledDate: date("scheduled_date"),
+  completedDate: date("completed_date"),
+  status: maintenanceStatusEnum("status").default("scheduled"),
+  priority: varchar("priority").default("medium"),
+  cost: decimal("cost"),
+  vendor: varchar("vendor"),
+  performedBy: varchar("performed_by"),
+  notes: text("notes"),
+  attachments: jsonb("attachments"),
+  nextMaintenanceDate: date("next_maintenance_date"),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const assetTransfers = pgTable("asset_transfers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  assetId: varchar("asset_id").references(() => assets.id),
+  companyId: varchar("company_id").references(() => companies.id),
+  fromEmployee: varchar("from_employee").references(() => employees.id),
+  toEmployee: varchar("to_employee").references(() => employees.id),
+  fromLocation: varchar("from_location"),
+  toLocation: varchar("to_location"),
+  transferDate: date("transfer_date").notNull(),
+  reason: text("reason"),
+  condition: varchar("condition"),
+  notes: text("notes"),
+  approvedBy: varchar("approved_by").references(() => users.id),
+  status: varchar("status").default("pending"),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const assetCheckouts = pgTable("asset_checkouts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  assetId: varchar("asset_id").references(() => assets.id),
+  companyId: varchar("company_id").references(() => companies.id),
+  employeeId: varchar("employee_id").references(() => employees.id),
+  checkoutDate: date("checkout_date").notNull(),
+  expectedReturnDate: date("expected_return_date"),
+  actualReturnDate: date("actual_return_date"),
+  purpose: text("purpose"),
+  condition: varchar("condition"),
+  notes: text("notes"),
+  status: varchar("status").default("active"),
+  checkedOutBy: varchar("checked_out_by").references(() => users.id),
+  checkedInBy: varchar("checked_in_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Asset Management Insert Schemas
+export const insertAssetSchema = createInsertSchema(assets).omit({
+  id: true,
+  createdBy: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAssetCategorySchema = createInsertSchema(assetCategories).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAssetMaintenanceSchema = createInsertSchema(assetMaintenance).omit({
+  id: true,
+  createdBy: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAssetTransferSchema = createInsertSchema(assetTransfers).omit({
+  id: true,
+  createdBy: true,
+  createdAt: true,
+});
+
+export const insertAssetCheckoutSchema = createInsertSchema(assetCheckouts).omit({
+  id: true,
+  checkedOutBy: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Asset Management Types
+export type Asset = typeof assets.$inferSelect;
+export type InsertAsset = z.infer<typeof insertAssetSchema>;
+export type AssetCategory = typeof assetCategories.$inferSelect;
+export type InsertAssetCategory = z.infer<typeof insertAssetCategorySchema>;
+export type AssetMaintenance = typeof assetMaintenance.$inferSelect;
+export type InsertAssetMaintenance = z.infer<typeof insertAssetMaintenanceSchema>;
+export type AssetTransfer = typeof assetTransfers.$inferSelect;
+export type InsertAssetTransfer = z.infer<typeof insertAssetTransferSchema>;
+export type AssetCheckout = typeof assetCheckouts.$inferSelect;
+export type InsertAssetCheckout = z.infer<typeof insertAssetCheckoutSchema>;
+
+// Extended Asset Types
+export type AssetWithDetails = Asset & {
+  category?: AssetCategory;
+  assignedEmployee?: Employee;
+  maintenanceHistory: AssetMaintenance[];
+  transferHistory: AssetTransfer[];
+  checkoutHistory: AssetCheckout[];
+};

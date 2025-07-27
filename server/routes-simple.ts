@@ -789,6 +789,234 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(mockMapping);
   });
 
+  // Mock assets data
+  const mockAssets = [
+    {
+      id: "1",
+      companyId: "1",
+      name: "جهاز كمبيوتر محمول Dell",
+      description: "جهاز كمبيوتر محمول للاستخدام المكتبي",
+      assetCode: "LAP-001",
+      type: "electronics",
+      category: "أجهزة الكمبيوتر",
+      brand: "Dell",
+      model: "Latitude 5520",
+      serialNumber: "DL123456789",
+      purchaseDate: "2023-01-15",
+      purchasePrice: "3500.00",
+      currentValue: "2800.00",
+      depreciation: "700.00",
+      warrantyExpiry: "2026-01-15",
+      location: "المكتب الرئيسي - الطابق الثاني",
+      department: "تقنية المعلومات",
+      assignedTo: "1",
+      status: "in_use",
+      condition: "جيد",
+      notes: "جهاز محمول للاستخدام اليومي",
+      imageUrl: "",
+      documentUrl: "",
+      lastMaintenanceDate: "2024-06-15",
+      nextMaintenanceDate: "2025-06-15",
+      isActive: true,
+      createdBy: "1",
+      createdAt: "2023-01-15T10:00:00Z",
+      updatedAt: "2024-01-15T10:00:00Z"
+    },
+    {
+      id: "2",
+      companyId: "1",
+      name: "طابعة HP LaserJet",
+      description: "طابعة ليزر للمكتب",
+      assetCode: "PRT-002",
+      type: "equipment",
+      category: "معدات المكتب",
+      brand: "HP",
+      model: "LaserJet Pro M404n",
+      serialNumber: "HP987654321",
+      purchaseDate: "2023-03-10",
+      purchasePrice: "1200.00",
+      currentValue: "900.00",
+      depreciation: "300.00",
+      warrantyExpiry: "2025-03-10",
+      location: "المكتب الرئيسي - الطابق الأول",
+      department: "الإدارة",
+      assignedTo: null,
+      status: "available",
+      condition: "ممتاز",
+      notes: "طابعة مشتركة للاستخدام العام",
+      imageUrl: "",
+      documentUrl: "",
+      lastMaintenanceDate: "2024-03-10",
+      nextMaintenanceDate: "2025-03-10",
+      isActive: true,
+      createdBy: "1",
+      createdAt: "2023-03-10T10:00:00Z",
+      updatedAt: "2024-03-10T10:00:00Z"
+    },
+    {
+      id: "3",
+      companyId: "1",
+      name: "سيارة تويوتا كامري",
+      description: "سيارة للاستخدام الرسمي",
+      assetCode: "VEH-003",
+      type: "vehicle",
+      category: "المركبات",
+      brand: "Toyota",
+      model: "Camry 2023",
+      serialNumber: "TOY2023CAM456",
+      purchaseDate: "2023-05-20",
+      purchasePrice: "85000.00",
+      currentValue: "75000.00",
+      depreciation: "10000.00",
+      warrantyExpiry: "2026-05-20",
+      location: "موقف السيارات",
+      department: "الإدارة التنفيذية",
+      assignedTo: "2",
+      status: "in_use",
+      condition: "ممتاز",
+      notes: "سيارة للاستخدام الرسمي والاجتماعات",
+      imageUrl: "",
+      documentUrl: "",
+      lastMaintenanceDate: "2024-11-20",
+      nextMaintenanceDate: "2025-02-20",
+      isActive: true,
+      createdBy: "1",
+      createdAt: "2023-05-20T10:00:00Z",
+      updatedAt: "2024-11-20T10:00:00Z"
+    },
+    {
+      id: "4",
+      companyId: "1",
+      name: "خادم Dell PowerEdge",
+      description: "خادم لقاعدة البيانات والتطبيقات",
+      assetCode: "SRV-004",
+      type: "equipment",
+      category: "خوادم",
+      brand: "Dell",
+      model: "PowerEdge R740",
+      serialNumber: "DL-SRV-789123",
+      purchaseDate: "2022-11-15",
+      purchasePrice: "25000.00",
+      currentValue: "18000.00",
+      depreciation: "7000.00",
+      warrantyExpiry: "2025-11-15",
+      location: "غرفة الخوادم - الطابق السفلي",
+      department: "تقنية المعلومات",
+      assignedTo: null,
+      status: "maintenance",
+      condition: "يحتاج صيانة",
+      notes: "خادم رئيسي للنظام - قيد الصيانة الدورية",
+      imageUrl: "",
+      documentUrl: "",
+      lastMaintenanceDate: "2024-12-01",
+      nextMaintenanceDate: "2025-06-01",
+      isActive: true,
+      createdBy: "1",
+      createdAt: "2022-11-15T10:00:00Z",
+      updatedAt: "2024-12-01T10:00:00Z"
+    }
+  ];
+
+  // Assets endpoints
+  app.get('/api/assets', isAuthenticated, (req: any, res) => {
+    res.json(mockAssets);
+  });
+
+  app.post('/api/assets', isAuthenticated, (req: any, res) => {
+    const newAsset = {
+      id: (mockAssets.length + 1).toString(),
+      companyId: "1",
+      ...req.body,
+      createdBy: req.user.id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      isActive: true
+    };
+    
+    mockAssets.push(newAsset);
+    res.status(201).json(newAsset);
+  });
+
+  app.get('/api/assets/:id', isAuthenticated, (req: any, res) => {
+    const asset = mockAssets.find(a => a.id === req.params.id);
+    if (!asset) {
+      return res.status(404).json({ message: "الأصل غير موجود" });
+    }
+    res.json(asset);
+  });
+
+  app.put('/api/assets/:id', isAuthenticated, (req: any, res) => {
+    const assetIndex = mockAssets.findIndex(a => a.id === req.params.id);
+    if (assetIndex === -1) {
+      return res.status(404).json({ message: "الأصل غير موجود" });
+    }
+    
+    mockAssets[assetIndex] = {
+      ...mockAssets[assetIndex],
+      ...req.body,
+      updatedAt: new Date().toISOString()
+    };
+    
+    res.json(mockAssets[assetIndex]);
+  });
+
+  app.delete('/api/assets/:id', isAuthenticated, (req: any, res) => {
+    const assetIndex = mockAssets.findIndex(a => a.id === req.params.id);
+    if (assetIndex === -1) {
+      return res.status(404).json({ message: "الأصل غير موجود" });
+    }
+    
+    mockAssets.splice(assetIndex, 1);
+    res.json({ message: "تم حذف الأصل بنجاح" });
+  });
+
+  // Asset maintenance endpoints
+  const mockMaintenance: any[] = [];
+
+  app.get('/api/asset-maintenance', isAuthenticated, (req: any, res) => {
+    res.json(mockMaintenance);
+  });
+
+  app.post('/api/asset-maintenance', isAuthenticated, (req: any, res) => {
+    const newMaintenance = {
+      id: (mockMaintenance.length + 1).toString(),
+      companyId: "1",
+      ...req.body,
+      status: "scheduled",
+      createdBy: req.user.id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    mockMaintenance.push(newMaintenance);
+    res.status(201).json(newMaintenance);
+  });
+
+  // Asset categories endpoints
+  const mockCategories = [
+    { id: "1", companyId: "1", name: "أجهزة الكمبيوتر", description: "أجهزة الكمبيوتر المحمولة والمكتبية", depreciationRate: "20", isActive: true },
+    { id: "2", companyId: "1", name: "معدات المكتب", description: "طابعات وماسحات وأجهزة المكتب", depreciationRate: "15", isActive: true },
+    { id: "3", companyId: "1", name: "المركبات", description: "سيارات وشاحنات الشركة", depreciationRate: "25", isActive: true },
+    { id: "4", companyId: "1", name: "خوادم", description: "خوادم الشبكة وقواعد البيانات", depreciationRate: "30", isActive: true }
+  ];
+
+  app.get('/api/asset-categories', isAuthenticated, (req: any, res) => {
+    res.json(mockCategories);
+  });
+
+  app.post('/api/asset-categories', isAuthenticated, (req: any, res) => {
+    const newCategory = {
+      id: (mockCategories.length + 1).toString(),
+      companyId: "1",
+      ...req.body,
+      isActive: true,
+      createdAt: new Date().toISOString()
+    };
+    
+    mockCategories.push(newCategory);
+    res.status(201).json(newCategory);
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
