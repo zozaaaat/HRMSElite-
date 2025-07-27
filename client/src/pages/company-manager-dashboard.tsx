@@ -17,7 +17,8 @@ import {
   Moon,
   Sun,
   LogOut,
-  Brain
+  Brain,
+  Package
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
