@@ -20,6 +20,7 @@ import Employees from "@/pages/employees";
 import Reports from "@/pages/reports";
 import SettingsPage from "@/pages/settings";
 import NotFound from "@/pages/not-found";
+import AIAnalytics from "@/pages/ai-analytics";
 
 function Router() {
   return (
@@ -40,6 +41,7 @@ function Router() {
       <Route path="/employees" component={Employees} />
       <Route path="/reports" component={Reports} />
       <Route path="/settings" component={SettingsPage} />
+      <Route path="/ai-analytics" component={AIAnalytics} />
       
       {/* 404 page */}
       <Route component={NotFound} />

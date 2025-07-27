@@ -355,11 +355,11 @@ export default function SuperAdminDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/ai-analytics'}>
                 <CardContent className="p-6 text-center">
                   <Brain className="h-12 w-12 text-purple-500 mx-auto mb-4" />
-                  <h3 className="font-semibold mb-2">التحليل التنبؤي</h3>
-                  <p className="text-sm text-muted-foreground">توقعات ذكية وتوصيات</p>
+                  <h3 className="font-semibold mb-2">الذكاء الاصطناعي</h3>
+                  <p className="text-sm text-muted-foreground">تحليلات ذكية وتنبؤات مستقبلية</p>
                 </CardContent>
               </Card>
             </div>

@@ -16,7 +16,8 @@ import {
   Bell,
   Moon,
   Sun,
-  LogOut
+  LogOut,
+  Brain
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
@@ -88,9 +89,10 @@ export default function CompanyManagerDashboard() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
             <TabsTrigger value="employees">الموظفين</TabsTrigger>
+            <TabsTrigger value="ai">الذكاء الاصطناعي</TabsTrigger>
             <TabsTrigger value="reports">التقارير</TabsTrigger>
             <TabsTrigger value="settings">الإعدادات</TabsTrigger>
           </TabsList>
@@ -154,6 +156,17 @@ export default function CompanyManagerDashboard() {
               <p className="text-muted-foreground mb-4">قم بإدارة موظفي الشركة من هنا</p>
               <Button onClick={() => window.location.href = '/employees'}>
                 عرض جميع الموظفين
+              </Button>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="ai">
+            <div className="text-center py-12">
+              <BarChart3 className="h-16 w-16 text-purple-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">تحليلات الذكاء الاصطناعي</h3>
+              <p className="text-muted-foreground mb-4">احصل على تحليلات ذكية وتنبؤات مستقبلية لشركتك</p>
+              <Button onClick={() => window.location.href = '/ai-analytics'} className="bg-purple-600 hover:bg-purple-700">
+                دخول تحليلات الذكاء الاصطناعي
               </Button>
             </div>
           </TabsContent>

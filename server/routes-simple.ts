@@ -363,6 +363,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(mockStats);
   });
 
+  // AI Analytics endpoints
+  app.get('/api/ai/predictions', (req, res) => {
+    const predictions = [
+      {
+        id: "1",
+        title: "معدل دوران الموظفين",
+        type: "turnover",
+        prediction: "ارتفاع متوقع بنسبة 15% خلال الربع القادم",
+        confidence: 85,
+        impact: "high",
+        timeframe: "3 أشهر",
+        recommendation: "تطبيق برامج الاحتفاظ بالمواهب وتحسين بيئة العمل",
+        data: [
+          { month: "يناير", actual: 5, predicted: 6 },
+          { month: "فبراير", actual: 7, predicted: 8 },
+          { month: "مارس", actual: 6, predicted: 9 },
+          { month: "أبريل", actual: null, predicted: 12 },
+          { month: "مايو", actual: null, predicted: 14 },
+          { month: "يونيو", actual: null, predicted: 15 }
+        ]
+      },
+      {
+        id: "2", 
+        title: "احتياجات التوظيف",
+        type: "recruitment",
+        prediction: "الحاجة لتوظيف 25 موظف جديد خلال الشهرين القادمين",
+        confidence: 78,
+        impact: "medium",
+        timeframe: "2 شهر",
+        recommendation: "بدء حملة توظيف مبكرة والتواصل مع وكالات التوظيف",
+        data: [
+          { month: "أبريل", openings: 8, filled: 5 },
+          { month: "مايو", openings: 12, filled: 0 },
+          { month: "يونيو", openings: 15, filled: 0 }
+        ]
+      }
+    ];
+    res.json(predictions);
+  });
+
+  app.get('/api/ai/insights', (req, res) => {
+    const insights = [
+      {
+        id: "1",
+        category: "attendance", 
+        title: "انخفاض في معدل الحضور",
+        description: "انخفاض ملحوظ في معدل الحضور بنسبة 8% خلال الأسبوعين الماضيين في قسم التسويق",
+        severity: "warning",
+        actionRequired: true,
+        suggestion: "مراجعة سياسات الحضور والتحدث مع مديري القسم لفهم الأسباب",
+        confidence: 92
+      },
+      {
+        id: "2",
+        category: "performance",
+        title: "تحسن في الأداء العام",
+        description: "ارتفاع في مؤشرات الأداء بنسبة 12% بعد تطبيق البرنامج التدريبي الجديد",
+        severity: "success", 
+        actionRequired: false,
+        suggestion: "مواصلة البرنامج التدريبي وتوسيعه لأقسام أخرى",
+        confidence: 88
+      }
+    ];
+    res.json(insights);
+  });
+
+  app.get('/api/ai/performance-metrics', (req, res) => {
+    const metrics = [
+      { name: "يناير", productivity: 85, satisfaction: 78, retention: 92 },
+      { name: "فبراير", productivity: 88, satisfaction: 82, retention: 89 },
+      { name: "مارس", productivity: 91, satisfaction: 85, retention: 87 },
+      { name: "أبريل", productivity: 87, satisfaction: 79, retention: 90 },
+      { name: "مايو", productivity: 93, satisfaction: 88, retention: 94 },
+      { name: "يونيو", productivity: 89, satisfaction: 86, retention: 91 }
+    ];
+    res.json(metrics);
+  });
+
+  app.get('/api/ai/department-analysis', (req, res) => {
+    const analysis = [
+      { name: "الموارد البشرية", employees: 12, avgSalary: 8500, satisfaction: 88, turnover: 5 },
+      { name: "التسويق", employees: 18, avgSalary: 7200, satisfaction: 75, turnover: 12 },
+      { name: "المبيعات", employees: 25, avgSalary: 6800, satisfaction: 82, turnover: 8 },
+      { name: "التطوير", employees: 15, avgSalary: 9200, satisfaction: 91, turnover: 3 },
+      { name: "المالية", employees: 8, avgSalary: 8800, satisfaction: 85, turnover: 6 }
+    ];
+    res.json(analysis);
+  });
+
+  app.post('/api/ai/generate-insights', (req, res) => {
+    // Simulate AI processing time
+    setTimeout(() => {
+      const newInsights = [
+        {
+          id: "new-1",
+          category: "cost",
+          title: "فرصة توفير جديدة",
+          description: "اكتشاف فرصة لتوفير 15% من تكاليف التدريب عبر الأتمتة",
+          severity: "info",
+          actionRequired: false,
+          suggestion: "تطبيق منصة تدريب إلكترونية موحدة",
+          confidence: 82
+        }
+      ];
+      res.json(newInsights);
+    }, 2000);
+  });
+
   // AI Insights
   app.get('/api/ai/insights/system', (req, res) => {
     const mockInsights = [
