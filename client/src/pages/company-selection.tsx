@@ -134,13 +134,8 @@ export default function CompanySelection() {
               <Building2 className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            مرحباً، {(user as any)?.firstName || 'المستخدم'}
-          </h1>
+          
           <p className="text-xl text-gray-600 mb-2">اختر الشركة التي تريد إدارتها</p>
-          <p className="text-sm text-gray-500">
-            لديك صلاحيات للوصول إلى {filteredCompanies.length} شركة
-          </p>
         </div>
 
         {/* Search Bar */}
@@ -156,13 +151,7 @@ export default function CompanySelection() {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="flex justify-center gap-4 mb-12">
-          <Button variant="outline" size="lg" className="gap-2">
-            <Settings className="h-5 w-5" />
-            إعدادات الحساب
-          </Button>
-        </div>
+        
 
         {/* Companies Grid */}
         <div className="max-w-6xl mx-auto">
