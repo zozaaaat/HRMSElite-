@@ -3,7 +3,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Moon, Sun, Bell, Settings, Users, FileText, Plus, Search, Bot, BarChart3, Workflow, Brain, Building2, TrendingUp, Activity, Target, PieChart, Zap } from "lucide-react";
+import { Moon, Sun, Bell, Settings, Users, FileText, Plus, Search, Bot, BarChart3, Workflow, Brain, Building2, TrendingUp, Activity, Target, PieChart, Zap, DollarSign, Archive, User } from "lucide-react";
+import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
 import { useTheme } from "@/components/theme-provider";
 import { StatsCard } from "@/components/stats-card";
 import { CompanyCard } from "@/components/company-card";
@@ -13,6 +14,10 @@ import { BIDashboard } from "@/components/bi-dashboard";
 import { WorkflowBuilder } from "@/components/workflow-builder";
 import { LearningManagement } from "@/components/learning-management";
 import { NotificationCenter } from "@/components/notification-center";
+import { MobileAppIntegration } from "@/components/mobile-app-integration";
+import { Employee360View } from "@/components/employee-360-view";
+import { FinancialManagement } from "@/components/financial-management";
+import { EmployeeArchiving } from "@/components/employee-archiving";
 import { useState } from "react";
 import type { CompanyWithStats } from "@shared/schema";
 // Additional advanced components will be imported as needed
@@ -27,6 +32,10 @@ export default function Dashboard() {
   const [workflowBuilderOpen, setWorkflowBuilderOpen] = useState(false);
   const [learningManagementOpen, setLearningManagementOpen] = useState(false);
   const [notificationCenterOpen, setNotificationCenterOpen] = useState(false);
+  const [mobileAppOpen, setMobileAppOpen] = useState(false);
+  const [employee360Open, setEmployee360Open] = useState(false);
+  const [financialManagementOpen, setFinancialManagementOpen] = useState(false);
+  const [employeeArchivingOpen, setEmployeeArchivingOpen] = useState(false);
 
   const { data: stats } = useQuery({
     queryKey: ["/api/dashboard/stats"],
@@ -51,12 +60,14 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-reverse space-x-4">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <i className="fas fa-building text-primary-foreground"></i>
-              </div>
+              <img 
+                src={zeylabLogo} 
+                alt="Zeylab Logo" 
+                className="w-10 h-10 object-contain"
+              />
               <div>
-                <h1 className="text-2xl font-bold text-foreground">نظام إدارة الموارد البشرية</h1>
-                <p className="text-sm text-muted-foreground">إدارة متكاملة للشركات والموظفين</p>
+                <h1 className="text-2xl font-bold text-foreground">Zeylab HRMS</h1>
+                <p className="text-sm text-muted-foreground">نظام إدارة الموارد البشرية المتقدم</p>
               </div>
             </div>
             <div className="flex items-center space-x-reverse space-x-2">
@@ -179,6 +190,42 @@ export default function Dashboard() {
             >
               <FileText className="h-4 w-4" />
               التقارير
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setMobileAppOpen(true)}
+              className="gap-2 hover:bg-cyan-50 hover:border-cyan-300"
+            >
+              <Bot className="h-4 w-4" />
+              التطبيق المحمول
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setFinancialManagementOpen(true)}
+              className="gap-2 hover:bg-orange-50 hover:border-orange-300"
+            >
+              <DollarSign className="h-4 w-4" />
+              الإدارة المالية
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEmployee360Open(true)}
+              className="gap-2 hover:bg-indigo-50 hover:border-indigo-300"
+            >
+              <User className="h-4 w-4" />
+              عرض 360°
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEmployeeArchivingOpen(true)}
+              className="gap-2 hover:bg-gray-50 hover:border-gray-300"
+            >
+              <Archive className="h-4 w-4" />
+              أرشفة الموظفين
             </Button>
             <Button
               variant="outline"
@@ -332,15 +379,58 @@ export default function Dashboard() {
         onClose={() => setAiAssistantOpen(false)}
       />
 
-      {/* Modals */}
+      {/* BI Dashboard Modal */}
+      <BIDashboard
+        companyId="system"
+        isOpen={biDashboardOpen}
+        onClose={() => setBiDashboardOpen(false)}
+      />
+
+      {/* Workflow Builder Modal */}
+      <WorkflowBuilder
+        companyId="system"
+        isOpen={workflowBuilderOpen}
+        onClose={() => setWorkflowBuilderOpen(false)}
+      />
+
+      {/* Learning Management Modal */}
       <LearningManagement 
         isOpen={learningManagementOpen} 
         onClose={() => setLearningManagementOpen(false)} 
       />
       
+      {/* Notification Center Modal */}
       <NotificationCenter 
         isOpen={notificationCenterOpen} 
         onClose={() => setNotificationCenterOpen(false)} 
+      />
+
+      {/* Mobile App Integration Modal */}
+      <MobileAppIntegration
+        companyId="system"
+        isOpen={mobileAppOpen}
+        onClose={() => setMobileAppOpen(false)}
+      />
+
+      {/* Employee 360 View Modal */}
+      <Employee360View
+        employeeId="demo"
+        isOpen={employee360Open}
+        onClose={() => setEmployee360Open(false)}
+      />
+
+      {/* Financial Management Modal */}
+      <FinancialManagement
+        companyId="system"
+        isOpen={financialManagementOpen}
+        onClose={() => setFinancialManagementOpen(false)}
+      />
+
+      {/* Employee Archiving Modal */}
+      <EmployeeArchiving
+        companyId="system"
+        isOpen={employeeArchivingOpen}
+        onClose={() => setEmployeeArchivingOpen(false)}
       />
     </div>
   );

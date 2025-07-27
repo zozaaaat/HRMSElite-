@@ -20,6 +20,7 @@ import {
   EyeOff,
   ArrowLeft 
 } from "lucide-react";
+import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
 
 const loginSchema = z.object({
   username: z.string().min(3, "اسم المستخدم يجب أن يكون على الأقل 3 أحرف"),
@@ -119,12 +120,21 @@ export default function Login({ companyId, companyName }: LoginProps) {
       <div className="w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-            <Shield className="h-8 w-8 text-white" />
+          <div className="flex items-center justify-center mb-6">
+            <div className="flex items-center gap-4">
+              <img 
+                src={zeylabLogo} 
+                alt="Zeylab Logo" 
+                className="w-16 h-16 object-contain"
+              />
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Zeylab
+              </h1>
+            </div>
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">تسجيل الدخول</h1>
-            <p className="text-gray-600 mt-2">ادخل بياناتك للوصول إلى النظام</p>
+            <h2 className="text-2xl font-bold text-gray-900">تسجيل الدخول</h2>
+            <p className="text-gray-600 mt-2">ادخل بياناتك للوصول إلى نظام إدارة الموارد البشرية</p>
           </div>
         </div>
 
