@@ -29,20 +29,15 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-interface LoginProps {
-  companyId?: string;
-  companyName?: string;
-}
-
-export default function Login({ companyId, companyName }: LoginProps) {
+export default function Login() {
   const [location, setLocation] = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
 
-  // Extract company info from URL if not provided as props
+  // Extract company info from URL
   const urlParams = new URLSearchParams(location.split('?')[1] || '');
-  const selectedCompanyId = companyId || urlParams.get('company') || '';
-  const selectedCompanyName = companyName || urlParams.get('name') || 'الشركة المحددة';
+  const selectedCompanyId = urlParams.get('company') || '';
+  const selectedCompanyName = urlParams.get('name') || 'الشركة المحددة';
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -82,22 +77,22 @@ export default function Login({ companyId, companyName }: LoginProps) {
       const userRole = response.user.role;
       switch (userRole) {
         case 'super_admin':
-          setLocation('/dashboard?view=super-admin');
+          setLocation('/super-admin');
           break;
         case 'company_manager':
-          setLocation(`/company-dashboard?company=${selectedCompanyId}`);
+          setLocation('/company-manager');
           break;
         case 'employee':
-          setLocation(`/employee-dashboard?company=${selectedCompanyId}`);
+          setLocation('/employee');
           break;
         case 'supervisor':
-          setLocation(`/supervisor-dashboard?company=${selectedCompanyId}`);
+          setLocation('/supervisor');
           break;
         case 'worker':
-          setLocation(`/worker-dashboard?company=${selectedCompanyId}`);
+          setLocation('/worker');
           break;
         default:
-          setLocation(`/dashboard?company=${selectedCompanyId}`);
+          setLocation('/super-admin');
       }
     },
     onError: (error: any) => {
