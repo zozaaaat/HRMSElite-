@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Moon, Sun, Bell, Settings, Users, FileText, Plus, Search, Bot, BarChart3, Workflow, Brain } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Moon, Sun, Bell, Settings, Users, FileText, Plus, Search, Bot, BarChart3, Workflow, Brain, Building2 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { StatsCard } from "@/components/stats-card";
 import { CompanyCard } from "@/components/company-card";
@@ -145,6 +146,50 @@ export default function Dashboard() {
               </button>
             ))}
           </nav>
+        </div>
+      </div>
+
+      {/* Quick Navigation Bar */}
+      <div className="bg-muted/20 border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="flex flex-wrap gap-2 justify-center">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.location.href = '/companies'}
+              className="gap-2 hover:bg-blue-50 hover:border-blue-300"
+            >
+              <Building2 className="h-4 w-4" />
+              الشركات
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.location.href = '/employees'}
+              className="gap-2 hover:bg-green-50 hover:border-green-300"
+            >
+              <Users className="h-4 w-4" />
+              الموظفين
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.location.href = '/reports'}
+              className="gap-2 hover:bg-purple-50 hover:border-purple-300"
+            >
+              <FileText className="h-4 w-4" />
+              التقارير
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.location.href = '/settings'}
+              className="gap-2 hover:bg-gray-50 hover:border-gray-300"
+            >
+              <Settings className="h-4 w-4" />
+              الإعدادات
+            </Button>
+          </div>
         </div>
       </div>
 
