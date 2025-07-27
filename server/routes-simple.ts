@@ -1,7 +1,93 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 
+// Mock users for authentication
+const mockUsers = [
+  { id: "1", username: "admin", password: "admin123", name: "المسؤول العام", role: "super_admin", email: "admin@zeylab.com" },
+  { id: "2", username: "manager", password: "manager123", name: "مدير الشركة", role: "company_manager", email: "manager@company.com" },
+  { id: "3", username: "employee", password: "emp123", name: "الموظف", role: "employee", email: "employee@company.com" },
+  { id: "4", username: "supervisor", password: "super123", name: "المشرف", role: "supervisor", email: "supervisor@company.com" },
+  { id: "5", username: "worker", password: "work123", name: "العامل", role: "worker", email: "worker@company.com" }
+];
+
+// Simple authentication middleware for demo
+const isAuthenticated = (req: any, res: any, next: any) => {
+  const userFromSession = req.session?.user;
+  const authHeader = req.headers.authorization;
+  
+  if (userFromSession) {
+    req.user = userFromSession;
+    return next();
+  }
+  
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    const user = mockUsers.find(u => u.username === token);
+    if (user) {
+      req.user = user;
+      return next();
+    }
+  }
+  
+  res.status(401).json({ message: "غير مسجل دخول" });
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
+
+  // Login route
+  app.post('/api/auth/login', (req, res) => {
+    const { username, password } = req.body;
+    
+    const user = mockUsers.find(u => 
+      u.username === username && u.password === password
+    );
+    
+    if (user) {
+      req.session.user = user;
+      res.json({ 
+        success: true, 
+        user: { 
+          id: user.id, 
+          username: user.username, 
+          name: user.name, 
+          role: user.role,
+          email: user.email
+        } 
+      });
+    } else {
+      res.status(401).json({ success: false, message: "بيانات دخول غير صحيحة" });
+    }
+  });
+
+  // Get current user
+  app.get('/api/auth/current-user', isAuthenticated, (req: any, res) => {
+    const user = req.user;
+    res.json({
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      role: user.role,
+      email: user.email
+    });
+  });
+
+  // Logout route
+  app.post('/api/auth/logout', (req, res) => {
+    req.session.destroy(() => {
+      res.json({ success: true });
+    });
+  });
+
+  // Dashboard stats
+  app.get('/api/dashboard/stats', (req, res) => {
+    res.json({
+      totalCompanies: 4,
+      totalEmployees: 1680,
+      activeLicenses: 12,
+      systemRevenue: 250000,
+      urgentAlerts: 3
+    });
+  });
   
   // Companies route - return mock data
   app.get('/api/companies', async (req, res) => {
