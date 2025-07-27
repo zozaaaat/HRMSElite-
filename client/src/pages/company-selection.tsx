@@ -77,7 +77,7 @@ export default function CompanySelection() {
     }
   ];
 
-  const allCompanies = [...(Array.isArray(companies) ? companies : []), ...mockCompanies];
+  const allCompanies = Array.isArray(companies) ? companies : mockCompanies;
   
   const filteredCompanies = allCompanies.filter(company =>
     company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -120,8 +120,8 @@ export default function CompanySelection() {
     }
   };
 
-  const handleCompanySelect = (companyId: string) => {
-    window.location.href = `/company/${companyId}`;
+  const handleCompanySelect = (companyId: string, companyName: string) => {
+    setLocation(`/login?company=${companyId}&name=${encodeURIComponent(companyName)}`);
   };
 
   return (
@@ -182,7 +182,7 @@ export default function CompanySelection() {
                 <Card 
                   key={company.id} 
                   className="group hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-blue-300 hover:scale-105"
-                  onClick={() => handleCompanySelect(company.id)}
+                  onClick={() => handleCompanySelect(company.id, company.name)}
                 >
                   <CardHeader className="pb-4">
                     <div className="flex items-start justify-between">

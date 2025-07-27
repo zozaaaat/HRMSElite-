@@ -53,13 +53,23 @@ export default function Login({ companyId, companyName }: LoginProps) {
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginFormData) => {
-      return apiRequest(`/api/auth/login`, {
+      const response = await fetch(`/api/auth/login`, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           ...data,
           companyId: selectedCompanyId
         })
       });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "فشل في تسجيل الدخول");
+      }
+      
+      return response.json();
     },
     onSuccess: (response: any) => {
       toast({
