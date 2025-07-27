@@ -3,7 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Bell, Sun, Moon, LogOut } from "lucide-react";
+import { Bell, Sun, Moon, LogOut, Bot, BarChart3, Workflow, Users2 } from "lucide-react";
+import { AIAssistant } from "@/components/ai-assistant";
+import { BIDashboard } from "@/components/bi-dashboard";
+import { WorkflowBuilder } from "@/components/workflow-builder";
 import { useTheme } from "@/components/theme-provider";
 import { Sidebar } from "@/components/sidebar";
 import { StatsCard } from "@/components/stats-card";
@@ -52,7 +55,7 @@ export default function CompanyDashboard() {
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
       <Sidebar 
-        company={company} 
+        company={companyData} 
         user={user} 
         activeView={activeView} 
         onViewChange={setActiveView} 
@@ -135,7 +138,7 @@ export default function CompanyDashboard() {
                   />
                 </div>
                 
-                {/* Add navigation tabs for different views */}
+                {/* Navigation tabs for different views */}
                 <div className="mb-6">
                   <nav className="flex space-x-reverse space-x-4">
                     {[
@@ -179,87 +182,12 @@ export default function CompanyDashboard() {
                     <p className="text-sm">سيتم عرض قائمة الموظفين وإدارتهم هنا</p>
                   </div>
                 </div>
-                    color="yellow"
-                  />
-                  <StatsCard
-                    title="التنبيهات العاجلة"
-                    value={stats?.urgentAlerts || 0}
-                    icon="alert"
-                    color="red"
-                  />
-                </div>
-
-                {/* Recent Activities and Alerts */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                  {/* Recent Activities */}
-                  <div className="bg-card rounded-lg shadow border border-border">
-                    <div className="p-6 border-b border-border">
-                      <h3 className="text-lg font-bold text-foreground">النشاطات الأخيرة</h3>
-                    </div>
-                    <div className="p-6">
-                      <div className="space-y-4">
-                        <div className="flex items-start space-x-reverse space-x-3">
-                          <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                            <i className="fas fa-user-plus text-blue-600 text-sm"></i>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm text-foreground">تم إضافة موظف جديد</p>
-                            <p className="text-xs text-muted-foreground">منذ ساعتين</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start space-x-reverse space-x-3">
-                          <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
-                            <i className="fas fa-check text-green-600 text-sm"></i>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm text-foreground">تم الموافقة على إجازة</p>
-                            <p className="text-xs text-muted-foreground">منذ 4 ساعات</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Urgent Alerts */}
-                  <div className="bg-card rounded-lg shadow border border-border">
-                    <div className="p-6 border-b border-border">
-                      <h3 className="text-lg font-bold text-foreground">التنبيهات العاجلة</h3>
-                    </div>
-                    <div className="p-6">
-                      <div className="space-y-4">
-                        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-                          <div className="flex">
-                            <i className="fas fa-exclamation-triangle text-destructive mt-1 ml-3"></i>
-                            <div>
-                              <h4 className="text-sm font-medium text-destructive">انتهاء إقامة عامل</h4>
-                              <p className="text-sm text-destructive/80 mt-1">ستنتهي إقامة عامل خلال 10 أيام</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-                          <div className="flex">
-                            <i className="fas fa-clock text-yellow-600 mt-1 ml-3"></i>
-                            <div>
-                              <h4 className="text-sm font-medium text-yellow-800 dark:text-yellow-400">ترخيص قريب الانتهاء</h4>
-                              <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">ترخيص سينتهي خلال شهر واحد</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Employees Table */}
-                <EmployeesTable employees={employees} companyId={companyId!} />
               </>
             )}
 
-            {activeView === "employees" && (
-              <EmployeesTable employees={employees} companyId={companyId!} showActions />
+            {activeView === "employees" && companyId && (
+              <EmployeesTable employees={employees} companyId={companyId} showActions />
             )}
-
-            {/* Other views can be implemented here */}
           </div>
         </main>
       </div>

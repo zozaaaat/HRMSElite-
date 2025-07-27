@@ -188,26 +188,6 @@ export default function Dashboard() {
             </Button>
           </div>
         )}
-          <h2 className="text-xl font-bold text-foreground mb-6">الإجراءات السريعة</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button variant="outline" className="h-24 flex-col space-y-2 text-center">
-              <Plus className="h-8 w-8 text-primary" />
-              <span className="text-sm">إضافة شركة جديدة</span>
-            </Button>
-            <Button variant="outline" className="h-24 flex-col space-y-2 text-center">
-              <FileText className="h-8 w-8 text-green-600" />
-              <span className="text-sm">التقارير العامة</span>
-            </Button>
-            <Button variant="outline" className="h-24 flex-col space-y-2 text-center">
-              <Settings className="h-8 w-8 text-orange-600" />
-              <span className="text-sm">إعدادات النظام</span>
-            </Button>
-            <Button variant="outline" className="h-24 flex-col space-y-2 text-center">
-              <Users className="h-8 w-8 text-purple-600" />
-              <span className="text-sm">إدارة المستخدمين</span>
-            </Button>
-          </div>
-        </div>
       </main>
 
       {/* AI Assistant Modal */}
