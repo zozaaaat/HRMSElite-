@@ -27,7 +27,9 @@ import {
   Archive,
   User as UserIcon,
   Target,
-  PieChart
+  PieChart,
+  FolderOpen,
+  Calculator
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { StatsCard } from "@/components/stats-card";
@@ -299,6 +301,30 @@ export default function SuperAdminDashboard() {
                   <p className="text-sm text-muted-foreground">أتمتة العمليات والموافقات</p>
                 </CardContent>
               </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/project-management'}>
+                <CardContent className="p-6 text-center">
+                  <FolderOpen className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">إدارة المشاريع</h3>
+                  <p className="text-sm text-muted-foreground">متابعة المشاريع والمهام</p>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/mobile-apps'}>
+                <CardContent className="p-6 text-center">
+                  <Smartphone className="h-12 w-12 text-green-600 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">التطبيق المحمول</h3>
+                  <p className="text-sm text-muted-foreground">للمشرفين والعمال</p>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/accounting-systems'}>
+                <CardContent className="p-6 text-center">
+                  <Calculator className="h-12 w-12 text-orange-600 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">أنظمة المحاسبة</h3>
+                  <p className="text-sm text-muted-foreground">ربط QuickBooks و SAP</p>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
@@ -360,6 +386,22 @@ export default function SuperAdminDashboard() {
                   <Brain className="h-12 w-12 text-purple-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">الذكاء الاصطناعي</h3>
                   <p className="text-sm text-muted-foreground">تحليلات ذكية وتنبؤات مستقبلية</p>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/project-management'}>
+                <CardContent className="p-6 text-center">
+                  <FolderOpen className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">إدارة المشاريع</h3>
+                  <p className="text-sm text-muted-foreground">متابعة المشاريع والمهام</p>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/accounting-systems'}>
+                <CardContent className="p-6 text-center">
+                  <Calculator className="h-12 w-12 text-orange-600 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">أنظمة المحاسبة</h3>
+                  <p className="text-sm text-muted-foreground">ربط أنظمة المحاسبة الخارجية</p>
                 </CardContent>
               </Card>
             </div>

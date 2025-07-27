@@ -161,13 +161,38 @@ export default function CompanyManagerDashboard() {
           </TabsContent>
 
           <TabsContent value="ai">
-            <div className="text-center py-12">
-              <BarChart3 className="h-16 w-16 text-purple-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">تحليلات الذكاء الاصطناعي</h3>
-              <p className="text-muted-foreground mb-4">احصل على تحليلات ذكية وتنبؤات مستقبلية لشركتك</p>
-              <Button onClick={() => window.location.href = '/ai-analytics'} className="bg-purple-600 hover:bg-purple-700">
-                دخول تحليلات الذكاء الاصطناعي
-              </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/ai-analytics'}>
+                <CardContent className="p-6 text-center">
+                  <BarChart3 className="h-12 w-12 text-purple-500 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">تحليلات الذكاء الاصطناعي</h3>
+                  <p className="text-sm text-muted-foreground">تحليلات ذكية وتنبؤات مستقبلية</p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/project-management'}>
+                <CardContent className="p-6 text-center">
+                  <Calendar className="h-12 w-12 text-blue-500 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">إدارة المشاريع</h3>
+                  <p className="text-sm text-muted-foreground">متابعة المشاريع والمهام</p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/mobile-apps'}>
+                <CardContent className="p-6 text-center">
+                  <Users className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">التطبيق المحمول</h3>
+                  <p className="text-sm text-muted-foreground">للمشرفين والعمال</p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/accounting-systems'}>
+                <CardContent className="p-6 text-center">
+                  <DollarSign className="h-12 w-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">أنظمة المحاسبة</h3>
+                  <p className="text-sm text-muted-foreground">ربط أنظمة المحاسبة الخارجية</p>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 

@@ -592,6 +592,203 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(mockMobileStats);
   });
 
+  // Projects API
+  app.get('/api/projects', (req, res) => {
+    const mockProjects = [
+      {
+        id: "1",
+        name: "تطوير تطبيق الموارد البشرية",
+        description: "مشروع لتطوير نظام إدارة الموارد البشرية المتكامل",
+        status: "active",
+        progress: 75,
+        startDate: "2025-01-01",
+        endDate: "2025-06-30",
+        teamSize: 8,
+        budget: 500000,
+        manager: "أحمد محمد العلي"
+      },
+      {
+        id: "2",
+        name: "تحديث أنظمة المحاسبة",
+        description: "ربط الأنظمة المحاسبية الخارجية مع النظام الداخلي",
+        status: "planning",
+        progress: 25,
+        startDate: "2025-02-01",
+        endDate: "2025-08-31",
+        teamSize: 5,
+        budget: 300000,
+        manager: "سارة أحمد الزهراني"
+      }
+    ];
+    res.json(mockProjects);
+  });
+
+  app.get('/api/projects/:id/tasks', (req, res) => {
+    const mockTasks = [
+      {
+        id: "1",
+        projectId: req.params.id,
+        title: "تصميم واجهة المستخدم",
+        description: "إنشاء تصميم متجاوب لواجهة النظام",
+        status: "completed",
+        priority: "high",
+        assignee: "محمد علي",
+        dueDate: "2025-02-15",
+        progress: 100
+      },
+      {
+        id: "2",
+        projectId: req.params.id,
+        title: "تطوير قاعدة البيانات",
+        description: "إنشاء هيكل قاعدة البيانات والجداول",
+        status: "in_progress",
+        priority: "high",
+        assignee: "فاطمة خالد",
+        dueDate: "2025-02-28",
+        progress: 60
+      }
+    ];
+    res.json(mockTasks);
+  });
+
+  // Mobile App Integration API
+  app.get('/api/mobile/integrations', (req, res) => {
+    const mockIntegrations = [
+      {
+        id: "1",
+        name: "تطبيق الحضور والانصراف",
+        type: "attendance",
+        status: "active",
+        users: 420,
+        lastSync: "2025-01-27T14:30:00Z",
+        features: ["تسجيل الحضور", "إشعارات فورية", "تتبع الموقع"]
+      },
+      {
+        id: "2",
+        name: "تطبيق إدارة المهام",
+        type: "tasks",
+        status: "active",
+        users: 125,
+        lastSync: "2025-01-27T14:25:00Z",
+        features: ["متابعة المهام", "تحديث التقدم", "التواصل الفوري"]
+      }
+    ];
+    res.json(mockIntegrations);
+  });
+
+  app.get('/api/mobile/device-registrations', (req, res) => {
+    const mockDevices = [
+      {
+        id: "1",
+        deviceName: "جهاز الاستقبال - المدخل الرئيسي",
+        location: "البوابة الرئيسية",
+        type: "attendance_kiosk",
+        status: "online",
+        lastPing: "2025-01-27T14:30:00Z",
+        registeredUsers: 420
+      },
+      {
+        id: "2",
+        deviceName: "جهاز الاستقبال - مكتب الإدارة",
+        location: "الطابق الثاني",
+        type: "attendance_kiosk",
+        status: "online",
+        lastPing: "2025-01-27T14:29:00Z",
+        registeredUsers: 85
+      }
+    ];
+    res.json(mockDevices);
+  });
+
+  // Accounting Integration API
+  app.get('/api/accounting/integrations', (req, res) => {
+    const mockAccountingIntegrations = [
+      {
+        id: "quickbooks",
+        name: "QuickBooks",
+        type: "cloud",
+        status: "connected",
+        lastSync: "2025-01-27T12:00:00Z",
+        syncFrequency: "daily",
+        dataTypes: ["employees", "payroll", "expenses", "taxes"],
+        connectionHealth: "excellent"
+      },
+      {
+        id: "sap",
+        name: "SAP Business One",
+        type: "enterprise",
+        status: "disconnected",
+        lastSync: null,
+        syncFrequency: "real-time",
+        dataTypes: ["full_integration"],
+        connectionHealth: "not_connected"
+      },
+      {
+        id: "xero",
+        name: "Xero",
+        type: "cloud",
+        status: "pending",
+        lastSync: null,
+        syncFrequency: "weekly",
+        dataTypes: ["basic_payroll"],
+        connectionHealth: "configuring"
+      }
+    ];
+    res.json(mockAccountingIntegrations);
+  });
+
+  app.get('/api/accounting/sync-status', (req, res) => {
+    const mockSyncStatus = {
+      isRunning: false,
+      lastRun: "2025-01-27T12:00:00Z",
+      nextRun: "2025-01-28T12:00:00Z",
+      status: "completed",
+      recordsProcessed: 1250,
+      errors: 0,
+      warnings: 2,
+      duration: "45 seconds"
+    };
+    res.json(mockSyncStatus);
+  });
+
+  app.post('/api/accounting/sync', (req, res) => {
+    // Simulate sync process
+    setTimeout(() => {
+      res.json({
+        success: true,
+        message: "تم بدء عملية المزامنة بنجاح",
+        jobId: "sync_" + Date.now()
+      });
+    }, 1000);
+  });
+
+  app.get('/api/accounting/mapping', (req, res) => {
+    const mockMapping = [
+      {
+        hrmsField: "basicSalary",
+        accountingField: "base_wages",
+        system: "quickbooks",
+        mapped: true,
+        dataType: "currency"
+      },
+      {
+        hrmsField: "allowances",
+        accountingField: "allowances_account",
+        system: "quickbooks",
+        mapped: true,
+        dataType: "currency"
+      },
+      {
+        hrmsField: "deductions",
+        accountingField: "deductions_account",
+        system: "quickbooks",
+        mapped: false,
+        dataType: "currency"
+      }
+    ];
+    res.json(mockMapping);
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

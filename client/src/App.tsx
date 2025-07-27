@@ -21,6 +21,9 @@ import Reports from "@/pages/reports";
 import SettingsPage from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 import AIAnalytics from "@/pages/ai-analytics";
+import ProjectManagement from "@/pages/project-management";
+import MobileApps from "@/pages/mobile-apps";
+import AccountingSystems from "@/pages/accounting-systems";
 
 function Router() {
   return (
@@ -42,6 +45,9 @@ function Router() {
       <Route path="/reports" component={Reports} />
       <Route path="/settings" component={SettingsPage} />
       <Route path="/ai-analytics" component={AIAnalytics} />
+      <Route path="/project-management" component={ProjectManagement} />
+      <Route path="/mobile-apps" component={MobileApps} />
+      <Route path="/accounting-systems" component={AccountingSystems} />
       
       {/* 404 page */}
       <Route component={NotFound} />
