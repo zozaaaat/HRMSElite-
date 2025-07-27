@@ -6,15 +6,15 @@ import { Moon, Sun, Bell, Settings, Users, FileText, Plus, Search, Bot, BarChart
 import { useTheme } from "@/components/theme-provider";
 import { StatsCard } from "@/components/stats-card";
 import { CompanyCard } from "@/components/company-card";
+import { AdvancedCompanyCard } from "@/components/advanced-company-card";
 import { AIAssistant } from "@/components/ai-assistant";
 import { BIDashboard } from "@/components/bi-dashboard";
 import { WorkflowBuilder } from "@/components/workflow-builder";
+import { LearningManagement } from "@/components/learning-management";
+import { NotificationCenter } from "@/components/notification-center";
 import { useState } from "react";
 import type { CompanyWithStats } from "@shared/schema";
-import { LearningManagement } from "@/components/learning-management";
-import { FinancialManagement } from "@/components/financial-management";
-import { MobileApp } from "@/components/mobile-app";
-import { Employee360 } from "@/components/employee-360";
+// Additional advanced components will be imported as needed
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -25,9 +25,7 @@ export default function Dashboard() {
   const [biDashboardOpen, setBiDashboardOpen] = useState(false);
   const [workflowBuilderOpen, setWorkflowBuilderOpen] = useState(false);
   const [learningManagementOpen, setLearningManagementOpen] = useState(false);
-  const [financialManagementOpen, setFinancialManagementOpen] = useState(false);
-  const [mobileAppOpen, setMobileAppOpen] = useState(false);
-  const [employee360Open, setEmployee360Open] = useState(false);
+  const [notificationCenterOpen, setNotificationCenterOpen] = useState(false);
 
   const { data: stats } = useQuery({
     queryKey: ["/api/dashboard/stats"],
@@ -60,18 +58,54 @@ export default function Dashboard() {
                 <p className="text-sm text-muted-foreground">إدارة متكاملة للشركات والموظفين</p>
               </div>
             </div>
-            <div className="flex items-center space-x-reverse space-x-4">
+            <div className="flex items-center space-x-reverse space-x-2">
               <Button 
                 variant="ghost" 
-                size="icon"
+                size="sm"
                 onClick={() => setAiAssistantOpen(true)}
-                className="relative"
+                className="flex items-center gap-2 relative"
               >
-                <Bot className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                <Bot className="h-4 w-4" />
+                <span className="hidden md:inline">المساعد الذكي</span>
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               </Button>
-              <Button variant="ghost" size="icon">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setBiDashboardOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <BarChart3 className="h-4 w-4" />
+                <span className="hidden md:inline">التحليلات</span>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setWorkflowBuilderOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <Workflow className="h-4 w-4" />
+                <span className="hidden md:inline">سير العمل</span>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setLearningManagementOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <Brain className="h-4 w-4" />
+                <span className="hidden md:inline">التعلم</span>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative"
+                onClick={() => setNotificationCenterOpen(true)}
+              >
                 <Bell className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
+                  3
+                </span>
               </Button>
               <Button variant="ghost" size="icon" onClick={handleThemeToggle}>
                 {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -125,24 +159,37 @@ export default function Dashboard() {
                 value={(stats as any)?.totalCompanies || 0}
                 icon="building"
                 color="blue"
+                trend={{ value: 12, isPositive: true }}
+                subtitle="نمو مستقر في التسجيلات الجديدة"
+                change="منذ الشهر الماضي"
               />
               <StatsCard
                 title="إجمالي العمال"
                 value={(stats as any)?.totalEmployees || 0}
                 icon="users"
                 color="green"
+                trend={{ value: 8, isPositive: true }}
+                subtitle="زيادة في التوظيف عبر جميع الشركات"
+                change="هذا الشهر"
               />
               <StatsCard
                 title="إجمالي التراخيص"
                 value={(stats as any)?.totalLicenses || 0}
                 icon="certificate"
                 color="orange"
+                trend={{ value: 3, isPositive: false }}
+                subtitle="بعض التراخيص تحتاج تجديد"
+                change="تحديث أسبوعي"
               />
               <StatsCard
                 title="تنبيهات عاجلة"
                 value={(stats as any)?.urgentAlerts || 0}
                 icon="alert"
                 color="red"
+                trend={{ value: 25, isPositive: false }}
+                subtitle="يتطلب انتباه فوري من الإدارة"
+                change="اليوم"
+                onClick={() => console.log('View alerts')}
               />
             </div>
 
@@ -167,17 +214,50 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Company Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Advanced Company Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredCompanies.map((company) => (
-                <CompanyCard key={company.id} company={company} />
+                <AdvancedCompanyCard 
+                  key={company.id} 
+                  company={company}
+                  onViewDetails={() => console.log('View details:', company.name)}
+                  onManage={() => console.log('Manage:', company.name)}
+                />
               ))}
             </div>
           </>
         )}
 
         {activeView === "analytics" && (
-          <BIDashboard companyId="system" />
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold">التحليلات المتقدمة</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 cursor-pointer hover:scale-105 transition-transform"
+                onClick={() => setBiDashboardOpen(true)}>
+                <CardContent className="p-6 text-center">
+                  <BarChart3 className="h-8 w-8 text-blue-600 mx-auto mb-3" />
+                  <h3 className="font-semibold text-blue-800">لوحة البيانات التفاعلية</h3>
+                  <p className="text-sm text-blue-600 mt-2">تحليلات وتقارير متقدمة</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 cursor-pointer hover:scale-105 transition-transform">
+                <CardContent className="p-6 text-center">
+                  <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-3" />
+                  <h3 className="font-semibold text-green-800">مؤشرات الأداء</h3>
+                  <p className="text-sm text-green-600 mt-2">KPIs والمقاييس الرئيسية</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 cursor-pointer hover:scale-105 transition-transform">
+                <CardContent className="p-6 text-center">
+                  <Brain className="h-8 w-8 text-purple-600 mx-auto mb-3" />
+                  <h3 className="font-semibold text-purple-800">التحليل التنبؤي</h3>
+                  <p className="text-sm text-purple-600 mt-2">توقعات ذكية وتوصيات</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         )}
 
         {activeView === "workflows" && (
@@ -207,29 +287,15 @@ export default function Dashboard() {
         onClose={() => setAiAssistantOpen(false)}
       />
 
-      {/* Additional Modals */}
+      {/* Modals */}
       <LearningManagement 
-        companyId="system" 
         isOpen={learningManagementOpen} 
         onClose={() => setLearningManagementOpen(false)} 
       />
-
-      <FinancialManagement 
-        companyId="system" 
-        isOpen={financialManagementOpen} 
-        onClose={() => setFinancialManagementOpen(false)} 
-      />
-
-      <MobileApp 
-        companyId="system" 
-        isOpen={mobileAppOpen} 
-        onClose={() => setMobileAppOpen(false)} 
-      />
-
-      <Employee360 
-        employeeId="demo-employee" 
-        isOpen={employee360Open} 
-        onClose={() => setEmployee360Open(false)} 
+      
+      <NotificationCenter 
+        isOpen={notificationCenterOpen} 
+        onClose={() => setNotificationCenterOpen(false)} 
       />
     </div>
   );

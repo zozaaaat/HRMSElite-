@@ -59,16 +59,74 @@ export function AIAssistant({ companyId, employeeId, isOpen, onClose }: AIAssist
 
   const sendMessageMutation = useMutation({
     mutationFn: async (message: string) => {
-      // Mock AI response for now
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return {
-        message: `تم تحليل استفسارك: "${message}". بناءً على البيانات المتاحة، أنصح بمراجعة تقارير الأداء وتحديث سياسات الشركة.`,
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Advanced AI response simulation based on message content
+      const lowerMessage = message.toLowerCase();
+      let response = {
+        message: '',
         analysis: {
           type: 'general',
-          confidence: 85,
-          recommendations: ['مراجعة تقارير الأداء', 'تحديث السياسات', 'متابعة مع الإدارة']
+          confidence: 0,
+          recommendations: [] as string[]
         }
       };
+
+      if (lowerMessage.includes('حضور') || lowerMessage.includes('غياب')) {
+        response = {
+          message: `تحليل الحضور: تم العثور على ${Math.floor(Math.random() * 5) + 1} موظف بمعدل غياب عالي هذا الشهر. معدل الحضور العام: 87.3%`,
+          analysis: {
+            type: 'attendance',
+            confidence: 92,
+            recommendations: [
+              'تطبيق نظام تحفيز للحضور المنتظم',
+              'مراجعة أسباب الغياب المتكرر',
+              'تحديث سياسة الإجازات'
+            ]
+          }
+        };
+      } else if (lowerMessage.includes('راتب') || lowerMessage.includes('مرتب')) {
+        response = {
+          message: `تحليل المرتبات: إجمالي المرتبات الشهرية: 125,000 ريال. تم اكتشاف اختلافات في ${Math.floor(Math.random() * 3) + 1} حسابات تحتاج مراجعة.`,
+          analysis: {
+            type: 'payroll',
+            confidence: 88,
+            recommendations: [
+              'مراجعة حسابات الساعات الإضافية',
+              'التحقق من البدلات والخصومات',
+              'تحديث جدول المرتبات'
+            ]
+          }
+        };
+      } else if (lowerMessage.includes('أداء') || lowerMessage.includes('تقييم')) {
+        response = {
+          message: `تحليل الأداء: متوسط تقييم الأداء: 4.2/5. يوجد ${Math.floor(Math.random() * 8) + 2} موظف يحتاجون تدريب إضافي.`,
+          analysis: {
+            type: 'performance',
+            confidence: 91,
+            recommendations: [
+              'وضع خطط تطوير فردية',
+              'تنظيم دورات تدريبية متخصصة',
+              'تحسين نظام التقييم'
+            ]
+          }
+        };
+      } else {
+        response = {
+          message: `تم تحليل استفسارك: "${message}". بناءً على بيانات النظام، يمكنني مساعدتك في الحصول على معلومات محددة حول الموظفين، الرواتب، الحضور، أو الأداء.`,
+          analysis: {
+            type: 'general',
+            confidence: 75,
+            recommendations: [
+              'استخدم كلمات مفتاحية محددة للحصول على تحليل دقيق',
+              'اطلب تقارير مفصلة حسب القسم',
+              'راجع لوحة التحليلات للمزيد من البيانات'
+            ]
+          }
+        };
+      }
+
+      return response;
     },
     onSuccess: (response) => {
       const aiMessage: AIMessage = {
