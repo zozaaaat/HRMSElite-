@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import {
 } from "lucide-react";
 
 export default function CompanySelection() {
+  const [location, setLocation] = useLocation();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [addCompanyOpen, setAddCompanyOpen] = useState(false);
@@ -251,6 +253,7 @@ export default function CompanySelection() {
                         size="sm" 
                         className="gap-2 group-hover:bg-blue-600 group-hover:text-white transition-colors"
                         disabled={company.status !== "active"}
+                        onClick={() => setLocation(`/login?company=${company.id}&name=${encodeURIComponent(company.name)}`)}
                       >
                         دخول
                         <ArrowRight className="h-4 w-4" />

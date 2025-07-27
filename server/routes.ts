@@ -311,6 +311,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register advanced routes
   registerAdvancedRoutes(app);
 
+  // Login route
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const { username, password, companyId } = req.body;
+      
+      // Mock user authentication
+      const users = {
+        'admin': { 
+          id: '1', 
+          name: 'مدير النظام', 
+          role: 'super_admin', 
+          password: 'admin123',
+          email: 'admin@system.com'
+        },
+        'manager': { 
+          id: '2', 
+          name: 'أحمد محمد', 
+          role: 'company_manager', 
+          password: 'manager123',
+          email: 'manager@company.com',
+          companyId 
+        },
+        'employee': { 
+          id: '3', 
+          name: 'سارة أحمد', 
+          role: 'employee', 
+          password: 'emp123',
+          email: 'sara@company.com',
+          companyId 
+        },
+        'supervisor': { 
+          id: '4', 
+          name: 'محمد علي', 
+          role: 'supervisor', 
+          password: 'super123',
+          email: 'supervisor@company.com',
+          companyId 
+        },
+        'worker': { 
+          id: '5', 
+          name: 'عبدالله سالم', 
+          role: 'worker', 
+          password: 'work123',
+          email: 'worker@company.com',
+          companyId 
+        }
+      };
+
+      const user = users[username as keyof typeof users];
+      if (!user || user.password !== password) {
+        return res.status(401).json({ message: "اسم المستخدم أو كلمة المرور غير صحيحة" });
+      }
+
+      // Store user session
+      (req.session as any).user = user;
+      
+      res.json({ 
+        success: true, 
+        user: {
+          id: user.id,
+          name: user.name,
+          role: user.role,
+          email: user.email,
+          companyId: user.companyId
+        }
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "حدث خطأ في تسجيل الدخول" });
+    }
+  });
+
+  // Logout route
+  app.post('/api/auth/logout', (req, res) => {
+    req.session?.destroy(() => {
+      res.json({ success: true });
+    });
+  });
+
+  // Current user route
+  app.get('/api/auth/current-user', (req, res) => {
+    if ((req.session as any).user) {
+      res.json((req.session as any).user);
+    } else {
+      res.status(401).json({ message: "غير مسجل دخول" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

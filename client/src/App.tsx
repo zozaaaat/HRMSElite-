@@ -14,25 +14,25 @@ import SettingsPage from "@/pages/settings";
 import CompanySelection from "@/pages/company-selection";
 import Landing from "@/pages/landing";
 import NotFound from "@/pages/not-found";
+import Login from "@/pages/login";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
   return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : (
-        <>
-          <Route path="/" component={CompanySelection} />
-          <Route path="/dashboard" component={Dashboard} />
-          <Route path="/companies" component={Companies} />
-          <Route path="/employees" component={Employees} />
-          <Route path="/reports" component={Reports} />
-          <Route path="/settings" component={SettingsPage} />
-          <Route path="/company/:companyId" component={CompanyDashboard} />
-        </>
-      )}
+      <Route path="/" component={CompanySelection} />
+      <Route path="/login" component={() => <Login />} />
+      <Route path="/dashboard" component={Dashboard} />
+      <Route path="/company-dashboard" component={CompanyDashboard} />
+      <Route path="/employee-dashboard" component={Dashboard} />
+      <Route path="/supervisor-dashboard" component={Dashboard} />
+      <Route path="/worker-dashboard" component={Dashboard} />
+      <Route path="/companies" component={Companies} />
+      <Route path="/employees" component={Employees} />
+      <Route path="/reports" component={Reports} />
+      <Route path="/settings" component={SettingsPage} />
+      <Route path="/company/:companyId" component={CompanyDashboard} />
       <Route component={NotFound} />
     </Switch>
   );
