@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Moon, Sun, Bell, Settings, Users, FileText, Plus, Search, Bot, BarChart3, Workflow, Brain, Building2 } from "lucide-react";
+import { Moon, Sun, Bell, Settings, Users, FileText, Plus, Search, Bot, BarChart3, Workflow, Brain, Building2, TrendingUp, Activity, Target, PieChart, Zap } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { StatsCard } from "@/components/stats-card";
 import { CompanyCard } from "@/components/company-card";
@@ -114,7 +114,7 @@ export default function Dashboard() {
               <div className="flex items-center space-x-reverse space-x-2">
                 <div className="w-8 h-8 bg-muted rounded-full"></div>
                 <span className="text-sm font-medium text-foreground">
-                  {user?.firstName || 'مستخدم'} {user?.lastName || ''}
+                  {(user as any)?.name || 'مستخدم'}
                 </span>
               </div>
             </div>

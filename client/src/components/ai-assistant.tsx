@@ -1,342 +1,158 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { 
-  MessageCircle, 
-  Send, 
-  Bot, 
-  User, 
-  Sparkles, 
-  TrendingUp,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  X
-} from "lucide-react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-
-interface AIMessage {
-  id: string;
-  type: 'user' | 'ai';
-  content: string;
-  analysis?: {
-    type: string;
-    confidence: number;
-    recommendations: string[];
-  };
-  timestamp: Date;
-}
+import { Bot, Send, User, Sparkles, Lightbulb, TrendingUp, AlertTriangle } from "lucide-react";
 
 interface AIAssistantProps {
-  companyId: string;
-  employeeId?: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function AIAssistant({ companyId, employeeId, isOpen, onClose }: AIAssistantProps) {
-  const [messages, setMessages] = useState<AIMessage[]>([
+interface Message {
+  id: string;
+  type: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
+export function AIAssistant({ isOpen, onClose }: AIAssistantProps) {
+  const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      type: 'ai',
-      content: 'مرحباً! أنا المساعد الذكي للموارد البشرية. كيف يمكنني مساعدتك اليوم؟',
-      timestamp: new Date(),
+      type: 'assistant',
+      content: 'مرحباً! أنا مساعدك الذكي للموارد البشرية. كيف يمكنني مساعدتك اليوم؟',
+      timestamp: new Date()
     }
   ]);
-  const [inputMessage, setInputMessage] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Get AI insights data
-  const { data: aiInsights } = useQuery({
-    queryKey: ['/api/ai/insights/system'],
-    enabled: isOpen,
-  });
-
-  const sendMessageMutation = useMutation({
-    mutationFn: async (message: string) => {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Advanced AI response simulation based on message content
-      const lowerMessage = message.toLowerCase();
-      let response = {
-        message: '',
-        analysis: {
-          type: 'general',
-          confidence: 0,
-          recommendations: [] as string[]
-        }
-      };
-
-      if (lowerMessage.includes('حضور') || lowerMessage.includes('غياب')) {
-        response = {
-          message: `تحليل الحضور: تم العثور على ${Math.floor(Math.random() * 5) + 1} موظف بمعدل غياب عالي هذا الشهر. معدل الحضور العام: 87.3%`,
-          analysis: {
-            type: 'attendance',
-            confidence: 92,
-            recommendations: [
-              'تطبيق نظام تحفيز للحضور المنتظم',
-              'مراجعة أسباب الغياب المتكرر',
-              'تحديث سياسة الإجازات'
-            ]
-          }
-        };
-      } else if (lowerMessage.includes('راتب') || lowerMessage.includes('مرتب')) {
-        response = {
-          message: `تحليل المرتبات: إجمالي المرتبات الشهرية: 125,000 ريال. تم اكتشاف اختلافات في ${Math.floor(Math.random() * 3) + 1} حسابات تحتاج مراجعة.`,
-          analysis: {
-            type: 'payroll',
-            confidence: 88,
-            recommendations: [
-              'مراجعة حسابات الساعات الإضافية',
-              'التحقق من البدلات والخصومات',
-              'تحديث جدول المرتبات'
-            ]
-          }
-        };
-      } else if (lowerMessage.includes('أداء') || lowerMessage.includes('تقييم')) {
-        response = {
-          message: `تحليل الأداء: متوسط تقييم الأداء: 4.2/5. يوجد ${Math.floor(Math.random() * 8) + 2} موظف يحتاجون تدريب إضافي.`,
-          analysis: {
-            type: 'performance',
-            confidence: 91,
-            recommendations: [
-              'وضع خطط تطوير فردية',
-              'تنظيم دورات تدريبية متخصصة',
-              'تحسين نظام التقييم'
-            ]
-          }
-        };
-      } else {
-        response = {
-          message: `تم تحليل استفسارك: "${message}". بناءً على بيانات النظام، يمكنني مساعدتك في الحصول على معلومات محددة حول الموظفين، الرواتب، الحضور، أو الأداء.`,
-          analysis: {
-            type: 'general',
-            confidence: 75,
-            recommendations: [
-              'استخدم كلمات مفتاحية محددة للحصول على تحليل دقيق',
-              'اطلب تقارير مفصلة حسب القسم',
-              'راجع لوحة التحليلات للمزيد من البيانات'
-            ]
-          }
-        };
-      }
-
-      return response;
-    },
-    onSuccess: (response) => {
-      const aiMessage: AIMessage = {
-        id: Date.now().toString(),
-        type: 'ai',
-        content: response.message,
-        analysis: response.analysis,
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, aiMessage]);
-    }
-  });
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  const [inputMessage, setInputMessage] = useState('');
 
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
 
-    const userMessage: AIMessage = {
+    const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
       content: inputMessage,
-      timestamp: new Date(),
+      timestamp: new Date()
     };
 
     setMessages(prev => [...prev, userMessage]);
-    sendMessageMutation.mutate(inputMessage);
-    setInputMessage("");
+
+    // Simulate AI response
+    setTimeout(() => {
+      const aiResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: getAIResponse(inputMessage),
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, aiResponse]);
+    }, 1000);
+
+    setInputMessage('');
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
+  const getAIResponse = (input: string): string => {
+    const responses = {
+      'رواتب': 'بناءً على تحليل البيانات، يمكنني تقديم التوصيات التالية للرواتب:\n• متوسط الراتب الحالي: 8,500 ريال\n• نسبة الزيادة المقترحة: 7%\n• توفير في التكاليف: 12%',
+      'موظفين': 'تحليل الموظفين يظهر:\n• إجمالي الموظفين: 450\n• معدل الرضا: 87%\n• معدل الدوران: 5.2%\n• التوصية: تطوير برامج التدريب',
+      'أداء': 'تقرير الأداء:\n• تحسن الإنتاجية: +15%\n• معدل إكمال المهام: 94%\n• النقاط التي تحتاج تحسين: إدارة الوقت',
+      'إجازات': 'تحليل الإجازات:\n• إجازات معلقة: 12\n• متوسط مدة الإجازة: 5 أيام\n• التوصية: تطبيق نظام إجازات مرن'
+    };
+
+    for (const [key, response] of Object.entries(responses)) {
+      if (input.includes(key)) {
+        return response;
+      }
     }
+
+    return 'أفهم استفسارك. يمكنني مساعدتك في:\n• تحليل بيانات الموظفين\n• تقييم الأداء\n• إدارة الرواتب\n• تحسين العمليات\n• التنبؤ بالاتجاهات';
   };
+
+  const quickSuggestions = [
+    { icon: TrendingUp, text: 'تحليل الأداء العام', prompt: 'أريد تحليل أداء الشركة' },
+    { icon: Lightbulb, text: 'توصيات التحسين', prompt: 'ما هي توصياتك لتحسين الأداء؟' },
+    { icon: AlertTriangle, text: 'المشاكل المحتملة', prompt: 'ما هي المشاكل التي قد تواجهنا؟' },
+    { icon: Sparkles, text: 'الاتجاهات المستقبلية', prompt: 'ما هي الاتجاهات المتوقعة؟' }
+  ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl h-[80vh] flex flex-col p-0" dir="rtl">
-        <DialogHeader className="border-b p-6">
-          <div className="flex items-center gap-2">
-            <Bot className="h-6 w-6 text-blue-600" />
-            <Sparkles className="h-4 w-4 text-yellow-500" />
-            <DialogTitle className="text-xl font-bold">
-              المساعد الذكي للموارد البشرية
-            </DialogTitle>
-          </div>
+      <DialogContent className="max-w-2xl h-[600px] flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Bot className="h-5 w-5 text-primary" />
+            المساعد الذكي للموارد البشرية
+          </DialogTitle>
         </DialogHeader>
-        
-        <div className="flex-1 flex gap-6 p-6">
-          {/* Chat Area */}
-          <div className="flex-1 flex flex-col">
-            <div className="flex-1 overflow-y-auto space-y-4 mb-4 p-4 bg-muted/20 rounded-lg border">
+
+        <div className="flex-1 flex flex-col gap-4">
+          {/* Quick Suggestions */}
+          <div className="grid grid-cols-2 gap-2">
+            {quickSuggestions.map((suggestion, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                size="sm"
+                className="h-auto p-3 flex flex-col items-center gap-2"
+                onClick={() => setInputMessage(suggestion.prompt)}
+              >
+                <suggestion.icon className="h-4 w-4 text-primary" />
+                <span className="text-xs text-center">{suggestion.text}</span>
+              </Button>
+            ))}
+          </div>
+
+          {/* Messages */}
+          <ScrollArea className="flex-1 p-4 border rounded-lg">
+            <div className="space-y-4">
               {messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex ${message.type === 'user' ? 'justify-start' : 'justify-end'}`}
+                  className={`flex gap-3 ${message.type === 'user' ? 'flex-row-reverse' : ''}`}
                 >
-                  <div className={`max-w-[80%] rounded-lg p-3 ${
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                     message.type === 'user' 
-                      ? 'bg-primary text-primary-foreground ml-auto' 
-                      : 'bg-muted mr-auto'
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'bg-muted'
                   }`}>
-                    <div className="flex items-start gap-2">
-                      {message.type === 'ai' && <Bot className="h-4 w-4 mt-0.5 flex-shrink-0" />}
-                      {message.type === 'user' && <User className="h-4 w-4 mt-0.5 flex-shrink-0" />}
-                      <div className="flex-1">
-                        <p className="text-sm leading-relaxed">{message.content}</p>
-                        {message.analysis && (
-                          <div className="mt-2 space-y-1">
-                            <div className="flex items-center gap-1 text-xs opacity-75">
-                              <CheckCircle className="h-3 w-3" />
-                              مستوى الثقة: {message.analysis.confidence}%
-                            </div>
-                            {message.analysis.recommendations.length > 0 && (
-                              <div className="text-xs">
-                                <p className="font-medium mb-1">التوصيات:</p>
-                                <ul className="space-y-0.5">
-                                  {message.analysis.recommendations.map((rec, idx) => (
-                                    <li key={idx} className="flex items-center gap-1">
-                                      <div className="w-1 h-1 bg-current rounded-full" />
-                                      {rec}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        <p className="text-xs opacity-50 mt-1">
-                          {message.timestamp.toLocaleTimeString('ar')}
-                        </p>
-                      </div>
+                    {message.type === 'user' ? 
+                      <User className="h-4 w-4" /> : 
+                      <Bot className="h-4 w-4" />
+                    }
+                  </div>
+                  <div className={`flex-1 ${message.type === 'user' ? 'text-right' : ''}`}>
+                    <div className={`inline-block p-3 rounded-lg max-w-xs ${
+                      message.type === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted'
+                    }`}>
+                      <p className="text-sm whitespace-pre-line">{message.content}</p>
                     </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {message.timestamp.toLocaleTimeString('ar-SA')}
+                    </p>
                   </div>
                 </div>
               ))}
-              {sendMessageMutation.isPending && (
-                <div className="flex justify-end">
-                  <div className="bg-muted rounded-lg p-3 mr-auto max-w-[80%]">
-                    <div className="flex items-center gap-2">
-                      <Bot className="h-4 w-4" />
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" />
-                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                        <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
             </div>
-            
-            {/* Message Input */}
-            <div className="flex gap-2">
-              <Input
-                placeholder="اكتب سؤالك هنا..."
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="flex-1"
-                dir="rtl"
-              />
-              <Button 
-                onClick={handleSendMessage}
-                disabled={!inputMessage.trim() || sendMessageMutation.isPending}
-                size="icon"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+          </ScrollArea>
 
-          {/* Insights Sidebar */}
-          <div className="w-80 space-y-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-green-600" />
-                  رؤى ذكية
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {aiInsights?.alerts?.map((alert: any, idx: number) => (
-                  <div key={idx} className="p-3 rounded-lg bg-red-50 border border-red-200">
-                    <div className="flex items-start gap-2">
-                      <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="font-medium text-sm text-red-800">{alert.title}</p>
-                        <p className="text-xs text-red-600 mt-1">{alert.description}</p>
-                        <Badge variant="destructive" className="mt-2 text-xs">
-                          {alert.priority === 'high' ? 'عالي' : 'متوسط'}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                
-                {aiInsights?.recommendations?.map((rec: any, idx: number) => (
-                  <div key={idx} className="p-3 rounded-lg bg-blue-50 border border-blue-200">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="font-medium text-sm text-blue-800">{rec.title}</p>
-                        <p className="text-xs text-blue-600 mt-1">{rec.description}</p>
-                        <Badge variant="secondary" className="mt-2 text-xs">
-                          تأثير {rec.impact === 'high' ? 'عالي' : 'متوسط'}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-purple-600" />
-                  اختصارات سريعة
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {[
-                  'تقرير الحضور اليومي',
-                  'تحليل أداء الموظفين',
-                  'حالة التراخيص',
-                  'طلبات الإجازات المعلقة',
-                  'تقرير المرتبات'
-                ].map((shortcut, idx) => (
-                  <Button
-                    key={idx}
-                    variant="ghost"
-                    className="w-full justify-start text-sm h-auto py-2"
-                    onClick={() => setInputMessage(shortcut)}
-                  >
-                    <MessageCircle className="h-3 w-3 ml-2" />
-                    {shortcut}
-                  </Button>
-                ))}
-              </CardContent>
-            </Card>
+          {/* Input */}
+          <div className="flex gap-2">
+            <Input
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              placeholder="اكتب رسالتك هنا..."
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              className="flex-1"
+            />
+            <Button onClick={handleSendMessage} size="icon">
+              <Send className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </DialogContent>

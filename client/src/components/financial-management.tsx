@@ -1,434 +1,449 @@
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   DollarSign, 
-  Calculator, 
-  FileText, 
+  TrendingUp, 
+  TrendingDown, 
+  Calculator,
+  PieChart,
+  FileText,
+  Download,
+  Upload,
   CreditCard,
-  TrendingUp,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Users,
-  Calendar
+  Banknote,
+  Receipt,
+  Target,
+  AlertTriangle
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 
 interface FinancialManagementProps {
-  companyId: string;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export function FinancialManagement({ companyId }: FinancialManagementProps) {
-  const [activeTab, setActiveTab] = useState("payroll");
+export function FinancialManagement({ isOpen, onClose }: FinancialManagementProps) {
+  const [selectedPeriod, setSelectedPeriod] = useState('month');
 
-  const { data: payrollData } = useQuery({
-    queryKey: ['/api/payroll', companyId],
-  });
+  const financialMetrics = [
+    {
+      title: 'إجمالي المرتبات',
+      value: '3.2M ريال',
+      change: '+5.2%',
+      trend: 'up',
+      icon: DollarSign,
+      color: 'text-green-600'
+    },
+    {
+      title: 'المزايا والبدلات',
+      value: '480K ريال',
+      change: '+2.1%',
+      trend: 'up',
+      icon: CreditCard,
+      color: 'text-blue-600'
+    },
+    {
+      title: 'الضرائب المستحقة',
+      value: '125K ريال',
+      change: '-1.5%',
+      trend: 'down',
+      icon: Receipt,
+      color: 'text-orange-600'
+    },
+    {
+      title: 'توفير متوقع',
+      value: '95K ريال',
+      change: '+12%',
+      trend: 'up',
+      icon: Target,
+      color: 'text-purple-600'
+    }
+  ];
 
-  const { data: financialStats } = useQuery({
-    queryKey: ['/api/financial-stats', companyId],
-  });
+  const payrollData = [
+    {
+      employeeId: '1',
+      name: 'أحمد محمد',
+      baseSalary: 15000,
+      allowances: 2500,
+      deductions: 750,
+      netSalary: 16750,
+      department: 'التقنية',
+      status: 'processed'
+    },
+    {
+      employeeId: '2',
+      name: 'سارة أحمد',
+      baseSalary: 12000,
+      allowances: 1800,
+      deductions: 600,
+      netSalary: 13200,
+      department: 'الموارد البشرية',
+      status: 'pending'
+    },
+    {
+      employeeId: '3',
+      name: 'محمد علي',
+      baseSalary: 18000,
+      allowances: 3200,
+      deductions: 900,
+      netSalary: 20300,
+      department: 'المبيعات',
+      status: 'processed'
+    }
+  ];
+
+  const budgetCategories = [
+    {
+      category: 'الرواتب الأساسية',
+      allocated: 2800000,
+      spent: 2650000,
+      percentage: 94.6,
+      status: 'on-track'
+    },
+    {
+      category: 'البدلات والمزايا',
+      allocated: 600000,
+      spent: 480000,
+      percentage: 80,
+      status: 'under-budget'
+    },
+    {
+      category: 'التدريب والتطوير',
+      allocated: 150000,
+      spent: 165000,
+      percentage: 110,
+      status: 'over-budget'
+    },
+    {
+      category: 'التأمين الطبي',
+      allocated: 300000,
+      spent: 275000,
+      percentage: 91.7,
+      status: 'on-track'
+    }
+  ];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'processed': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+      case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+      case 'failed': return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+    }
+  };
+
+  const getBudgetStatusColor = (status: string) => {
+    switch (status) {
+      case 'on-track': return 'text-green-600';
+      case 'under-budget': return 'text-blue-600';
+      case 'over-budget': return 'text-red-600';
+      default: return 'text-gray-600';
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Financial Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <DollarSign className="h-4 w-4" />
-              إجمالي المرتبات الشهرية
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">125,000 ر.س</div>
-            <p className="text-xs text-muted-foreground">
-              +5.2% من الشهر الماضي
-            </p>
-          </CardContent>
-        </Card>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-6xl h-[700px] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Calculator className="h-5 w-5 text-primary" />
+            نظام الإدارة المالية المتقدم
+          </DialogTitle>
+        </DialogHeader>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Calculator className="h-4 w-4" />
-              متوسط تكلفة الموظف
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">4,850 ر.س</div>
-            <p className="text-xs text-muted-foreground">
-              شامل البدلات والمكافآت
-            </p>
-          </CardContent>
-        </Card>
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
+            <TabsTrigger value="payroll">المرتبات</TabsTrigger>
+            <TabsTrigger value="budget">الميزانية</TabsTrigger>
+            <TabsTrigger value="reports">التقارير</TabsTrigger>
+          </TabsList>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              الزيادات السنوية
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">8.5%</div>
-            <p className="text-xs text-muted-foreground">
-              معدل الزيادات هذا العام
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              الموظفون المدفوعون
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">45/48</div>
-            <p className="text-xs text-muted-foreground">
-              3 موظفين في انتظار الدفع
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Financial Management Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="payroll">كشوف المرتبات</TabsTrigger>
-          <TabsTrigger value="salary-structure">هيكل المرتبات</TabsTrigger>
-          <TabsTrigger value="benefits">المزايا والبدلات</TabsTrigger>
-          <TabsTrigger value="tax">الضرائب والخصومات</TabsTrigger>
-          <TabsTrigger value="reports">التقارير المالية</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="payroll" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">دورة المرتبات الحالية</h3>
-            <div className="flex gap-2">
-              <Button>
-                <Calculator className="ml-2 h-4 w-4" />
-                حساب المرتبات
-              </Button>
-              <Button variant="outline">
-                <FileText className="ml-2 h-4 w-4" />
-                تصدير التقرير
-              </Button>
-            </div>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>كشف مرتبات يناير 2025</span>
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  قيد المعالجة
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">125,000</div>
-                  <p className="text-sm text-muted-foreground">إجمالي المرتبات</p>
-                </div>
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">15,500</div>
-                  <p className="text-sm text-muted-foreground">إجمالي البدلات</p>
-                </div>
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold text-red-600">8,750</div>
-                  <p className="text-sm text-muted-foreground">إجمالي الخصومات</p>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>تقدم المعالجة</span>
-                  <span>75%</span>
-                </div>
-                <Progress value={75} className="h-2" />
-              </div>
-
-              <div className="space-y-3">
-                <h4 className="font-medium">حالة المدفوعات</h4>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span className="text-sm">تم الدفع</span>
-                    </div>
-                    <span className="font-medium">42 موظف</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-950 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-yellow-600" />
-                      <span className="text-sm">في انتظار الدفع</span>
-                    </div>
-                    <span className="font-medium">3 موظفين</span>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="h-4 w-4 text-red-600" />
-                      <span className="text-sm">مشاكل في الدفع</span>
-                    </div>
-                    <span className="font-medium">3 موظفين</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="salary-structure" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">هيكل المرتبات المتقدم</h3>
-            <Button>
-              <DollarSign className="ml-2 h-4 w-4" />
-              إضافة درجة مالية جديدة
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">الدرجات الوظيفية</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {[
-                  { level: "المستوى الأول", salary: "3,500 - 4,500", count: 12 },
-                  { level: "المستوى الثاني", salary: "4,500 - 6,000", count: 18 },
-                  { level: "المستوى الثالث", salary: "6,000 - 8,500", count: 15 },
-                  { level: "المستوى الإداري", salary: "8,500 - 12,000", count: 8 },
-                  { level: "المستوى القيادي", salary: "12,000+", count: 3 }
-                ].map((grade, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <p className="font-medium">{grade.level}</p>
-                      <p className="text-sm text-muted-foreground">{grade.salary} ر.س</p>
-                    </div>
-                    <Badge variant="outline">{grade.count} موظف</Badge>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">مكونات الراتب</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {[
-                  { component: "الراتب الأساسي", percentage: 70, amount: "3,500" },
-                  { component: "بدل السكن", percentage: 15, amount: "750" },
-                  { component: "بدل المواصلات", percentage: 8, amount: "400" },
-                  { component: "بدل الاتصالات", percentage: 4, amount: "200" },
-                  { component: "مكافآت الأداء", percentage: 3, amount: "150" }
-                ].map((component, index) => (
-                  <div key={index} className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span>{component.component}</span>
-                      <span>{component.amount} ر.س ({component.percentage}%)</span>
-                    </div>
-                    <Progress value={component.percentage} className="h-1" />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="benefits" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">المزايا والبدلات</h3>
-            <Button>إضافة مزية جديدة</Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              {
-                title: "التأمين الطبي",
-                description: "تغطية طبية شاملة للموظف والعائلة",
-                cost: "450 ر.س/شهر",
-                employees: 45,
-                status: "نشط"
-              },
-              {
-                title: "بدل الوقود",
-                description: "دعم تكاليف المواصلات والوقود",
-                cost: "300 ر.س/شهر",
-                employees: 38,
-                status: "نشط"
-              },
-              {
-                title: "مكافأة الأداء",
-                description: "مكافآت ربع سنوية بناءً على الأداء",
-                cost: "متغير",
-                employees: 42,
-                status: "نشط"
-              }
-            ].map((benefit, index) => (
-              <Card key={index}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center justify-between">
-                    {benefit.title}
-                    <Badge variant={benefit.status === "نشط" ? "default" : "secondary"}>
-                      {benefit.status}
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <p className="text-xs text-muted-foreground">{benefit.description}</p>
-                  <div className="flex justify-between text-sm">
-                    <span>التكلفة:</span>
-                    <span className="font-medium">{benefit.cost}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>المستفيدون:</span>
-                    <span className="font-medium">{benefit.employees} موظف</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="tax" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">الضرائب والخصومات</h3>
-            <Button>تحديث إعدادات الضرائب</Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">ضريبة الدخل</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold">12,750 ر.س</div>
-                  <p className="text-sm text-muted-foreground">إجمالي ضريبة الدخل الشهرية</p>
-                </div>
-                
-                <div className="space-y-2">
-                  {[
-                    { bracket: "0 - 30,000", rate: "0%", employees: 15 },
-                    { bracket: "30,001 - 60,000", rate: "5%", employees: 20 },
-                    { bracket: "60,001 - 100,000", rate: "10%", employees: 10 },
-                    { bracket: "100,001+", rate: "15%", employees: 3 }
-                  ].map((bracket, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 border rounded">
-                      <span className="text-sm">{bracket.bracket} ر.س</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{bracket.rate}</span>
-                        <Badge variant="outline" className="text-xs">{bracket.employees}</Badge>
+          <TabsContent value="overview" className="space-y-6">
+            {/* Financial Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {financialMetrics.map((metric, index) => (
+                <Card key={index}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          {metric.title}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-2xl font-bold">{metric.value}</p>
+                          <Badge variant={metric.trend === 'up' ? 'default' : 'secondary'}>
+                            {metric.trend === 'up' ? (
+                              <TrendingUp className="h-3 w-3 ml-1" />
+                            ) : (
+                              <TrendingDown className="h-3 w-3 ml-1" />
+                            )}
+                            {metric.change}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className={`p-3 rounded-full bg-muted ${metric.color}`}>
+                        <metric.icon className="h-6 w-6" />
                       </div>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
 
+            {/* Quick Actions */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">التأمينات الاجتماعية</CardTitle>
+                <CardTitle>العمليات السريعة</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold">8,950 ر.س</div>
-                  <p className="text-sm text-muted-foreground">مساهمة الشركة الشهرية</p>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>مساهمة الموظف (9%)</span>
-                    <span>5,625 ر.س</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>مساهمة الشركة (12%)</span>
-                    <span>7,500 ر.س</span>
-                  </div>
-                  <div className="flex justify-between text-sm font-medium pt-2 border-t">
-                    <span>الإجمالي</span>
-                    <span>13,125 ر.س</span>
-                  </div>
+              <CardContent>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <Button className="h-20 flex flex-col items-center justify-center gap-2">
+                    <Calculator className="h-6 w-6" />
+                    <span className="text-sm">حساب المرتبات</span>
+                  </Button>
+                  <Button variant="outline" className="h-20 flex flex-col items-center justify-center gap-2">
+                    <FileText className="h-6 w-6" />
+                    <span className="text-sm">إنشاء تقرير</span>
+                  </Button>
+                  <Button variant="outline" className="h-20 flex flex-col items-center justify-center gap-2">
+                    <Upload className="h-6 w-6" />
+                    <span className="text-sm">رفع بيانات</span>
+                  </Button>
+                  <Button variant="outline" className="h-20 flex flex-col items-center justify-center gap-2">
+                    <Download className="h-6 w-6" />
+                    <span className="text-sm">تصدير البيانات</span>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="reports" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">التقارير المالية</h3>
-            <div className="flex gap-2">
-              <Button variant="outline">
-                <Calendar className="ml-2 h-4 w-4" />
-                تقرير شهري
-              </Button>
+          <TabsContent value="payroll" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">إدارة المرتبات</h3>
               <Button>
-                <FileText className="ml-2 h-4 w-4" />
-                تقرير سنوي
+                <Calculator className="h-4 w-4 ml-2" />
+                معالجة المرتبات
               </Button>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              {
-                title: "تقرير كشوف المرتبات",
-                description: "تفاصيل المرتبات والخصومات",
-                lastGenerated: "15 يناير 2025",
-                format: "PDF, Excel"
-              },
-              {
-                title: "تقرير التأمينات",
-                description: "مساهمات التأمينات الاجتماعية",
-                lastGenerated: "10 يناير 2025",
-                format: "PDF, XML"
-              },
-              {
-                title: "تقرير الضرائب",
-                description: "ضرائب الدخل والاستقطاعات",
-                lastGenerated: "12 يناير 2025",
-                format: "PDF, Excel"
-              }
-            ].map((report, index) => (
-              <Card key={index}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">{report.title}</CardTitle>
+            {/* Payroll Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <Banknote className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                  <div className="text-2xl font-bold">450</div>
+                  <div className="text-sm text-muted-foreground">إجمالي الموظفين</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <CreditCard className="h-8 w-8 text-blue-500 mx-auto mb-2" />
+                  <div className="text-2xl font-bold">425</div>
+                  <div className="text-sm text-muted-foreground">مرتبات مُعالجة</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <AlertTriangle className="h-8 w-8 text-orange-500 mx-auto mb-2" />
+                  <div className="text-2xl font-bold">25</div>
+                  <div className="text-sm text-muted-foreground">في الانتظار</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Payroll Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>تفاصيل المرتبات - يناير 2025</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-right p-2">الموظف</th>
+                        <th className="text-right p-2">القسم</th>
+                        <th className="text-right p-2">الراتب الأساسي</th>
+                        <th className="text-right p-2">البدلات</th>
+                        <th className="text-right p-2">الخصومات</th>
+                        <th className="text-right p-2">الصافي</th>
+                        <th className="text-right p-2">الحالة</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {payrollData.map((employee) => (
+                        <tr key={employee.employeeId} className="border-b">
+                          <td className="p-2 font-medium">{employee.name}</td>
+                          <td className="p-2 text-muted-foreground">{employee.department}</td>
+                          <td className="p-2">{employee.baseSalary.toLocaleString()} ريال</td>
+                          <td className="p-2 text-green-600">+{employee.allowances.toLocaleString()}</td>
+                          <td className="p-2 text-red-600">-{employee.deductions.toLocaleString()}</td>
+                          <td className="p-2 font-bold">{employee.netSalary.toLocaleString()} ريال</td>
+                          <td className="p-2">
+                            <Badge className={getStatusColor(employee.status)}>
+                              {employee.status === 'processed' ? 'مُعالج' : 'في الانتظار'}
+                            </Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="budget" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">إدارة الميزانية</h3>
+              <Button>
+                <PieChart className="h-4 w-4 ml-2" />
+                تحديث الميزانية
+              </Button>
+            </div>
+
+            {/* Budget Overview */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>تخصيص الميزانية</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                  <p className="text-xs text-muted-foreground">{report.description}</p>
-                  <div className="text-xs">
-                    <span className="text-muted-foreground">آخر إنشاء: </span>
-                    <span>{report.lastGenerated}</span>
+                <CardContent>
+                  <div className="space-y-4">
+                    {budgetCategories.map((category, index) => (
+                      <div key={index} className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">{category.category}</span>
+                          <span className={`text-sm font-bold ${getBudgetStatusColor(category.status)}`}>
+                            {category.percentage.toFixed(1)}%
+                          </span>
+                        </div>
+                        <Progress value={category.percentage} className="h-2" />
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>مصروف: {(category.spent / 1000).toFixed(0)}K ريال</span>
+                          <span>مخصص: {(category.allocated / 1000).toFixed(0)}K ريال</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="text-xs">
-                    <span className="text-muted-foreground">التنسيق: </span>
-                    <span>{report.format}</span>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>التحليل المالي</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium">الوضع المالي العام</span>
+                        <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
+                          ممتاز
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        الشركة تحقق أداءً مالياً قوياً مع توفير 5.2% من الميزانية المخصصة
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium">التوقعات القادمة</span>
+                        <TrendingUp className="h-4 w-4 text-green-500" />
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        متوقع زيادة 8% في التكاليف للربع القادم بسبب التوسع
+                      </p>
+                    </div>
+
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium">فرص التحسين</span>
+                        <Target className="h-4 w-4 text-blue-500" />
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        يمكن تحسين كفاءة التكاليف بنسبة 12% من خلال الأتمتة
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex gap-1 pt-2">
-                    <Button size="sm" variant="outline" className="flex-1 text-xs">
-                      تحميل
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="reports" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">التقارير المالية</h3>
+              <Button>
+                <FileText className="h-4 w-4 ml-2" />
+                إنشاء تقرير جديد
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>التقارير المتاحة</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <Button variant="outline" className="w-full justify-start">
+                      <FileText className="h-4 w-4 ml-2" />
+                      تقرير المرتبات الشهري
                     </Button>
-                    <Button size="sm" className="flex-1 text-xs">
-                      إنشاء جديد
+                    <Button variant="outline" className="w-full justify-start">
+                      <PieChart className="h-4 w-4 ml-2" />
+                      تحليل الميزانية السنوي
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <Receipt className="h-4 w-4 ml-2" />
+                      تقرير الضرائب الربعي
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <TrendingUp className="h-4 w-4 ml-2" />
+                      تحليل الاتجاهات المالية
                     </Button>
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
-    </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>الإحصائيات السريعة</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between">
+                      <span className="text-sm">متوسط الراتب الشهري</span>
+                      <span className="text-sm font-bold">9,750 ريال</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">إجمالي التكاليف السنوية</span>
+                      <span className="text-sm font-bold">52.6M ريال</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">معدل نمو التكاليف</span>
+                      <span className="text-sm font-bold text-green-600">+5.2%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">التوفير المحقق</span>
+                      <span className="text-sm font-bold text-blue-600">2.8M ريال</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
   );
 }

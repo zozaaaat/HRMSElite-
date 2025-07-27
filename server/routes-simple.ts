@@ -82,7 +82,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         industry: "تقنية المعلومات",
         size: "كبيرة",
         status: "active",
-        employeeCount: 450,
+        totalEmployees: 450,
+        activeEmployees: 420,
       };
       res.json(mockCompany);
     } catch (error) {
@@ -259,6 +260,142 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } else {
       res.status(401).json({ message: "غير مسجل دخول" });
     }
+  });
+
+  // Dashboard stats for Super Admin
+  app.get('/api/dashboard/stats', (req, res) => {
+    const mockStats = {
+      totalCompanies: 4,
+      totalEmployees: 1680,
+      activeEmployees: 1520,
+      pendingLeaves: 23,
+      expiringLicenses: 8,
+      urgentAlerts: 5,
+      monthlyGrowth: 12.5,
+      satisfactionRate: 94.2
+    };
+    res.json(mockStats);
+  });
+
+  // AI Insights
+  app.get('/api/ai/insights/system', (req, res) => {
+    const mockInsights = [
+      {
+        id: "1",
+        type: "prediction",
+        title: "توقع زيادة معدل الإجازات",
+        description: "متوقع زيادة 15% في طلبات الإجازات الشهر القادم",
+        priority: "medium",
+        recommendations: ["تعديل جدولة المناوبات", "توظيف موظفين مؤقتين"]
+      },
+      {
+        id: "2", 
+        type: "alert",
+        title: "تحسين الأداء المالي",
+        description: "إمكانية توفير 8% من تكاليف الرواتب",
+        priority: "high",
+        recommendations: ["مراجعة هيكل الرواتب", "تحسين نظام المكافآت"]
+      }
+    ];
+    res.json(mockInsights);
+  });
+
+  // Analytics endpoints
+  app.get('/api/analytics/kpis/:companyId/:period', (req, res) => {
+    const mockKPIs = {
+      employeeRetention: 92.3,
+      avgSalary: 7500,
+      productivityIndex: 87.5,
+      trainingHours: 240,
+      absenceRate: 4.2,
+      overtimeHours: 180
+    };
+    res.json(mockKPIs);
+  });
+
+  app.get('/api/analytics/:companyId/:period/:type', (req, res) => {
+    const mockAnalytics = {
+      attendance: [
+        { month: "يناير", present: 420, absent: 30 },
+        { month: "فبراير", present: 435, absent: 15 },
+        { month: "مارس", present: 410, absent: 40 }
+      ],
+      performance: [
+        { department: "التقنية", score: 92 },
+        { department: "المالية", score: 88 },
+        { department: "الموارد البشرية", score: 95 }
+      ]
+    };
+    res.json(mockAnalytics);
+  });
+
+  // Department management
+  app.get('/api/departments/:companyId', (req, res) => {
+    const mockDepartments = [
+      { id: "1", name: "التقنية", manager: "أحمد محمد", employees: 45, budget: 500000 },
+      { id: "2", name: "المالية", manager: "سارة أحمد", employees: 25, budget: 300000 },
+      { id: "3", name: "الموارد البشرية", manager: "محمد علي", employees: 15, budget: 200000 }
+    ];
+    res.json(mockDepartments);
+  });
+
+  // Payroll system
+  app.get('/api/payroll/:companyId', (req, res) => {
+    const mockPayroll = [
+      {
+        employeeId: "1",
+        name: "أحمد محمد",
+        baseSalary: 8000,
+        allowances: 1500,
+        deductions: 500,
+        totalSalary: 9000,
+        status: "processed"
+      },
+      {
+        employeeId: "2", 
+        name: "سارة أحمد",
+        baseSalary: 6500,
+        allowances: 1000,
+        deductions: 300,
+        totalSalary: 7200,
+        status: "pending"
+      }
+    ];
+    res.json(mockPayroll);
+  });
+
+  // Financial statistics
+  app.get('/api/financial-stats/:companyId', (req, res) => {
+    const mockFinancials = {
+      totalPayroll: 3200000,
+      benefits: 480000,
+      taxes: 256000,
+      netCost: 3936000,
+      monthlyBudget: 4000000,
+      remainingBudget: 64000
+    };
+    res.json(mockFinancials);
+  });
+
+  // Mobile app endpoints
+  app.get('/api/mobile/attendance/:companyId', (req, res) => {
+    const mockAttendance = [
+      { date: "2025-01-27", checkIn: "08:00", checkOut: "17:00", status: "present" },
+      { date: "2025-01-26", checkIn: "08:15", checkOut: "17:30", status: "late" },
+      { date: "2025-01-25", checkIn: "08:00", checkOut: "17:00", status: "present" }
+    ];
+    res.json(mockAttendance);
+  });
+
+  app.get('/api/mobile/stats/:companyId', (req, res) => {
+    const mockMobileStats = {
+      activeUsers: 420,
+      dailyCheckIns: 395,
+      avgResponseTime: "2.3s",
+      satisfactionScore: 4.6,
+      pushNotifications: 1250
+    };
+    res.json(mockMobileStats);
   });
 
   const httpServer = createServer(app);
