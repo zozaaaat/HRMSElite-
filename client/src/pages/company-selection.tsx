@@ -19,6 +19,7 @@ import {
   Crown,
   Settings
 } from "lucide-react";
+import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
 
 export default function CompanySelection() {
   const [location, setLocation] = useLocation();
@@ -130,12 +131,20 @@ export default function CompanySelection() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
-              <Building2 className="h-8 w-8 text-white" />
+            <div className="flex items-center gap-4">
+              <img 
+                src={zeylabLogo} 
+                alt="Zeylab Logo" 
+                className="w-20 h-20 object-contain"
+              />
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Zeylab
+              </h1>
             </div>
           </div>
           
-          <p className="text-xl text-gray-600 mb-2">اختر الشركة التي تريد إدارتها</p>
+          <p className="text-xl text-gray-600 mb-2">نظام إدارة الموارد البشرية المتقدم</p>
+          <p className="text-lg text-gray-500">اختر الشركة التي تريد إدارتها</p>
         </div>
 
         {/* Search Bar */}
@@ -242,7 +251,7 @@ export default function CompanySelection() {
         {/* Footer Info */}
         <div className="text-center mt-16 text-gray-500">
           <p className="text-sm">
-            نظام إدارة الموارد البشرية • آخر تسجيل دخول: {new Date().toLocaleDateString('ar-SA')}
+            Zeylab HRMS • آخر تسجيل دخول: {new Date().toLocaleDateString('ar-SA')}
           </p>
         </div>
       </div>
