@@ -13,18 +13,32 @@ import {
   Moon,
   Sun,
   LogOut,
-  User
+  User,
+  Smartphone,
+  Calendar,
+  TrendingUp
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
+import { useLocation } from "wouter";
 
 export default function WorkerDashboard() {
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState("overview");
+  const [, setLocation] = useLocation();
 
   const urlParams = new URLSearchParams(window.location.search);
   const companyId = urlParams.get('company') || '1';
+
+  // Worker stats
+  const workerStats = {
+    attendanceRate: 96.5,
+    totalHours: 176,
+    remainingLeaves: 15,
+    completedTasks: 42,
+    todayStatus: "حاضر"
+  };
 
   const handleLogout = () => {
     window.location.href = '/api/logout';
@@ -77,19 +91,20 @@ export default function WorkerDashboard() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
-            <TabsTrigger value="attendance">الحضور</TabsTrigger>
-            <TabsTrigger value="profile">الملف الشخصي</TabsTrigger>
+            <TabsTrigger value="profile">ملفي الشخصي</TabsTrigger>
+            <TabsTrigger value="mobile">التطبيق المحمول</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Worker Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <Clock className="h-8 w-8 text-blue-500" />
+                    <TrendingUp className="h-8 w-8 text-blue-500" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-muted-foreground">ساعات اليوم</p>
-                      <p className="text-2xl font-bold">7:45</p>
+                      <p className="text-sm font-medium text-muted-foreground">نسبة الحضور</p>
+                      <p className="text-2xl font-bold">{workerStats.attendanceRate}%</p>
                     </div>
                   </div>
                 </CardContent>
@@ -98,10 +113,10 @@ export default function WorkerDashboard() {
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <CheckCircle className="h-8 w-8 text-green-500" />
+                    <Clock className="h-8 w-8 text-green-500" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-muted-foreground">أيام العمل</p>
-                      <p className="text-2xl font-bold">20</p>
+                      <p className="text-sm font-medium text-muted-foreground">ساعات العمل</p>
+                      <p className="text-2xl font-bold">{workerStats.totalHours}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -110,71 +125,181 @@ export default function WorkerDashboard() {
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-center">
-                    <FileText className="h-8 w-8 text-purple-500" />
+                    <Calendar className="h-8 w-8 text-orange-500" />
                     <div className="ml-4">
-                      <p className="text-sm font-medium text-muted-foreground">المهام المكتملة</p>
-                      <p className="text-2xl font-bold">45</p>
+                      <p className="text-sm font-medium text-muted-foreground">إجازات متبقية</p>
+                      <p className="text-2xl font-bold">{workerStats.remainingLeaves}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <CheckCircle className="h-8 w-8 text-purple-500" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-muted-foreground">حالة اليوم</p>
+                      <p className="text-lg font-bold text-green-600">{workerStats.todayStatus}</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow">
-                <CardContent className="p-6 text-center">
-                  <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                  <h3 className="font-semibold mb-2">تسجيل حضور</h3>
-                  <p className="text-sm text-muted-foreground mb-4">تسجيل وقت بداية العمل</p>
-                  <Button className="w-full" size="lg">
-                    <Clock className="h-5 w-5 ml-2" />
-                    تسجيل حضور
-                  </Button>
-                </CardContent>
-              </Card>
+            {/* Quick Actions for Worker */}
+            <div>
+              <h3 className="text-xl font-semibold mb-4">أدوات العامل الأساسية</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setActiveTab("mobile")}>
+                  <CardContent className="p-6 text-center">
+                    <Smartphone className="h-12 w-12 text-blue-500 mx-auto mb-4" />
+                    <h3 className="font-semibold mb-2">تسجيل الحضور</h3>
+                    <p className="text-sm text-muted-foreground">تسجيل دخول وخروج يومي</p>
+                  </CardContent>
+                </Card>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow">
-                <CardContent className="p-6 text-center">
-                  <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-                  <h3 className="font-semibold mb-2">تسجيل انصراف</h3>
-                  <p className="text-sm text-muted-foreground mb-4">تسجيل وقت انتهاء العمل</p>
-                  <Button variant="outline" className="w-full" size="lg">
-                    <Clock className="h-5 w-5 ml-2" />
-                    تسجيل انصراف
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setActiveTab("profile")}>
+                  <CardContent className="p-6 text-center">
+                    <User className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                    <h3 className="font-semibold mb-2">ملفي الشخصي</h3>
+                    <p className="text-sm text-muted-foreground">عرض وتحديث البيانات</p>
+                  </CardContent>
+                </Card>
 
-          <TabsContent value="attendance">
-            <div className="text-center py-12">
-              <Clock className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">سجل الحضور</h3>
-              <p className="text-muted-foreground mb-4">تتبع أوقات الحضور والانصراف</p>
-              <div className="space-y-4 max-w-md mx-auto">
-                <Button className="w-full" size="lg">
-                  <CheckCircle className="h-5 w-5 ml-2" />
-                  تسجيل حضور
-                </Button>
-                <Button variant="outline" className="w-full" size="lg">
-                  <XCircle className="h-5 w-5 ml-2" />
-                  تسجيل انصراف
-                </Button>
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => console.log('طلب إجازة')}>
+                  <CardContent className="p-6 text-center">
+                    <Calendar className="h-12 w-12 text-purple-500 mx-auto mb-4" />
+                    <h3 className="font-semibold mb-2">طلب إجازة</h3>
+                    <p className="text-sm text-muted-foreground">تقديم طلبات الإجازة</p>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </TabsContent>
 
-          <TabsContent value="profile">
-            <div className="text-center py-12">
-              <User className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">الملف الشخصي</h3>
-              <p className="text-muted-foreground mb-4">عرض البيانات الشخصية</p>
-              <Button>
-                عرض الملف الشخصي
-              </Button>
-            </div>
+          <TabsContent value="profile" className="space-y-6">
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-xl font-semibold mb-6">بياناتي الشخصية</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">الاسم الكامل</label>
+                      <input 
+                        type="text" 
+                        value={user?.name || 'العامل'}
+                        readOnly
+                        className="w-full p-2 border rounded-md bg-muted"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-2">المسمى الوظيفي</label>
+                      <input 
+                        type="text" 
+                        value="عامل"
+                        readOnly
+                        className="w-full p-2 border rounded-md bg-muted"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-2">القسم</label>
+                      <input 
+                        type="text" 
+                        value="الإنتاج"
+                        readOnly
+                        className="w-full p-2 border rounded-md bg-muted"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">تاريخ التوظيف</label>
+                      <input 
+                        type="text" 
+                        value="01/01/2023"
+                        readOnly
+                        className="w-full p-2 border rounded-md bg-muted"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-2">المشرف المباشر</label>
+                      <input 
+                        type="text" 
+                        value="أحمد محمد"
+                        readOnly
+                        className="w-full p-2 border rounded-md bg-muted"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-2">الراتب الأساسي</label>
+                      <input 
+                        type="text" 
+                        value="400 د.ك"
+                        readOnly
+                        className="w-full p-2 border rounded-md bg-muted"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-muted rounded-lg">
+                  <h4 className="font-semibold mb-2">ملاحظة</h4>
+                  <p className="text-sm text-muted-foreground">
+                    لتحديث أي من هذه البيانات، يرجى التواصل مع قسم الموارد البشرية أو مشرفك المباشر.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="mobile" className="space-y-6">
+            <Card>
+              <CardContent className="p-6 text-center">
+                <Smartphone className="h-16 w-16 text-blue-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">تطبيق العامل المحمول</h3>
+                <p className="text-muted-foreground mb-6">
+                  استخدم التطبيق المحمول لتسجيل الحضور والانصراف وطلب الإجازات
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="p-4 border rounded-lg">
+                    <Clock className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                    <h4 className="font-semibold">تسجيل الحضور</h4>
+                    <p className="text-sm text-muted-foreground">تسجيل دخول وخروج سريع</p>
+                  </div>
+                  
+                  <div className="p-4 border rounded-lg">
+                    <Calendar className="h-8 w-8 text-blue-500 mx-auto mb-2" />
+                    <h4 className="font-semibold">طلب الإجازات</h4>
+                    <p className="text-sm text-muted-foreground">تقديم طلبات الإجازة والأذونات</p>
+                  </div>
+                  
+                  <div className="p-4 border rounded-lg">
+                    <FileText className="h-8 w-8 text-orange-500 mx-auto mb-2" />
+                    <h4 className="font-semibold">كشف الراتب</h4>
+                    <p className="text-sm text-muted-foreground">عرض تفاصيل الراتب الشهري</p>
+                  </div>
+                  
+                  <div className="p-4 border rounded-lg">
+                    <Bell className="h-8 w-8 text-purple-500 mx-auto mb-2" />
+                    <h4 className="font-semibold">الإشعارات</h4>
+                    <p className="text-sm text-muted-foreground">إشعارات الشركة والمهام</p>
+                  </div>
+                </div>
+                
+                <Button onClick={() => setLocation(`/mobile-apps?company=${companyId}&role=worker`)}>
+                  <Smartphone className="h-4 w-4 ml-2" />
+                  فتح التطبيق المحمول
+                </Button>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>
