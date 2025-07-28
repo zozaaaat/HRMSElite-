@@ -43,7 +43,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     );
     
     if (user) {
-      req.session.user = user;
+      (req.session as any).user = user;
       res.json({ 
         success: true, 
         user: { 
