@@ -107,7 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           industry: "أقمشة ومنسوجات",
           size: "متوسطة",
           status: "active",
-          employeeCount: 51,
+          employeeCount: 52,
           businessActivity: "تجارة الأقمشة بالجملة والتجزئة",
           location: "المباركية",
           licenseTypes: ["تجاري", "استيراد"],
@@ -126,7 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           industry: "مجوهرات وذهب",
           size: "صغيرة",
           status: "active",
-          employeeCount: 57,
+          employeeCount: 56,
           businessActivity: "تجارة وتصنيع المجوهرات والذهب والفضة",
           location: "المباركية - فحيحيل - الجهراء",
           licenseTypes: ["تجاري", "صناعي", "مجوهرات"],
@@ -145,7 +145,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           industry: "تجارة عامة",
           size: "صغيرة",
           status: "active",
-          employeeCount: 38,
+          employeeCount: 31,
           businessActivity: "تجارة البضائع العامة والمواد الاستهلاكية",
           location: "الجهراء",
           licenseTypes: ["تجاري", "استيراد"]
@@ -161,7 +161,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           industry: "استيراد وتصدير",
           size: "صغيرة",
           status: "active",
-          employeeCount: 52,
+          employeeCount: 33,
           businessActivity: "استيراد وتصدير البضائع المختلفة",
           location: "الصليبية",
           licenseTypes: ["استيراد", "تصدير", "تجاري"]
@@ -177,7 +177,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           industry: "أزياء وملابس",
           size: "متوسطة",
           status: "active",
-          employeeCount: 75,
+          employeeCount: 77,
           businessActivity: "تجارة الملابس والأزياء الجاهزة",
           location: "الصفاة",
           licenseTypes: ["تجاري", "خياطة"]
@@ -187,6 +187,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching companies:", error);
       res.status(500).json({ message: "Failed to fetch companies" });
+    }
+  });
+
+  // All employees route with real corrected data
+  app.get('/api/employees', async (req, res) => {
+    try {
+      console.log('Loading real employees data...');
+      const realEmployees = getAllEmployees();
+      console.log(`Returning ${realEmployees.length} real employees`);
+      res.json(realEmployees);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+      res.status(500).json({ message: "Failed to fetch employees" });
     }
   });
 
@@ -234,36 +247,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Employees route
   app.get('/api/companies/:companyId/employees', async (req, res) => {
     try {
-      // Real employees data based on Excel files from business documents
-      const mockEmployees = [
-        {
-          id: "1",
-          companyId: req.params.companyId,
-          fullName: "جورج يوسف إبراهيم", // مدير عام شركة النيل الأزرق
-          email: "george@blue-nile-jewelry.com",
-          phone: "+966501234567",
-          position: "مطور برمجيات",
-          department: "التقنية",
-          hireDate: "2022-01-15",
-          status: "active",
-          salary: 8000,
-        },
-        {
-          id: "2",
-          companyId: req.params.companyId,
-          fullName: "سارة أحمد الزهراني",
-          email: "sara@company.sa",
-          phone: "+966507654321",
-          position: "محاسبة",
-          department: "المالية",
-          hireDate: "2021-06-10",
-          status: "active",
-          salary: 6500,
-        }
-      ];
-      res.json(mockEmployees);
+      const { companyId } = req.params;
+      console.log(`Loading employees for company ${companyId}...`);
+      const companyEmployees = getCompanyEmployees(companyId);
+      console.log(`Returning ${companyEmployees.length} employees for company ${companyId}`);
+      res.json(companyEmployees);
     } catch (error) {
-      console.error("Error fetching employees:", error);
+      console.error("Error fetching company employees:", error);
       res.status(500).json({ message: "Failed to fetch employees" });
     }
   });

@@ -5,13 +5,21 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load real employee data extracted from Excel files
+// Load corrected employee data extracted from Excel files
 let realEmployeesData: any = {};
 try {
-  const dataPath = path.join(__dirname, 'extracted-employees.json');
+  const dataPath = path.join(__dirname, 'corrected-employees.json');
   if (fs.existsSync(dataPath)) {
     const rawData = fs.readFileSync(dataPath, 'utf8');
     realEmployeesData = JSON.parse(rawData);
+    console.log('Loaded corrected employee data successfully');
+  } else {
+    console.log('Corrected employees file not found, trying original...');
+    const fallbackPath = path.join(__dirname, 'extracted-employees.json');
+    if (fs.existsSync(fallbackPath)) {
+      const rawData = fs.readFileSync(fallbackPath, 'utf8');
+      realEmployeesData = JSON.parse(rawData);
+    }
   }
 } catch (error) {
   console.error('Error loading real employees data:', error);
