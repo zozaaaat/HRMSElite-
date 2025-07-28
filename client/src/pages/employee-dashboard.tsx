@@ -29,11 +29,24 @@ import {
   BookOpen,
   Award
 } from "lucide-react";
+import { SharedLayout } from "@/components/shared-layout";
 import { useTheme } from "@/components/theme-provider";
 import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
 import { useLocation } from "wouter";
 
 export default function EmployeeDashboard() {
+  return (
+    <SharedLayout 
+      userRole="employee" 
+      userName="أحمد محمد علي" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <EmployeeDashboardContent />
+    </SharedLayout>
+  );
+}
+
+function EmployeeDashboardContent() {
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState("overview");

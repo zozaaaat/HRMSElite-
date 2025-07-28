@@ -20,9 +20,22 @@ import {
   PlayCircle,
   PauseCircle
 } from "lucide-react";
+import { SharedLayout } from "@/components/shared-layout";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function ProjectManagement() {
+  return (
+    <SharedLayout 
+      userRole="company_manager" 
+      userName="مدير الشركة" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <ProjectManagementContent />
+    </SharedLayout>
+  );
+}
+
+function ProjectManagementContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedProject, setSelectedProject] = useState<string | null>(null);

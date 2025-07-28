@@ -24,6 +24,7 @@ import {
   MapPin,
   DollarSign
 } from "lucide-react";
+import { SharedLayout } from "@/components/shared-layout";
 
 interface JobPosting {
   id: string;
@@ -53,6 +54,18 @@ interface Applicant {
 }
 
 export default function RecruitmentPage() {
+  return (
+    <SharedLayout 
+      userRole="company_manager" 
+      userName="مدير الشركة" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <RecruitmentContent />
+    </SharedLayout>
+  );
+}
+
+function RecruitmentContent() {
   const { toast } = useToast();
   const [showNewJobDialog, setShowNewJobDialog] = useState(false);
   const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(null);

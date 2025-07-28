@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { SharedLayout } from "@/components/shared-layout";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ import {
   Calculator,
   Package
 } from "lucide-react";
+import { ProductionDashboard } from "@/components/production-dashboard";
 import { useTheme } from "@/components/theme-provider";
 import { StatsCard } from "@/components/stats-card";
 import { CompanyCard } from "@/components/company-card";
@@ -48,6 +50,18 @@ import { NotificationCenter } from "@/components/notification-center";
 import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
 
 export default function SuperAdminDashboard() {
+  return (
+    <SharedLayout 
+      userRole="super_admin" 
+      userName="المسؤول العام" 
+      companyName="نظام إدارة الموارد البشرية"
+    >
+      <SuperAdminContent />
+    </SharedLayout>
+  );
+}
+
+function SuperAdminContent() {
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
   const [, setLocation] = useLocation();
@@ -481,6 +495,7 @@ export default function SuperAdminDashboard() {
           </TabsContent>
 
           <TabsContent value="system" className="space-y-6">
+            <ProductionDashboard />
             <h2 className="text-2xl font-bold">إدارة النظام</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

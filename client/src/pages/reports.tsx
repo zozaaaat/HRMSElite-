@@ -33,6 +33,18 @@ interface ReportData {
 }
 
 export default function ReportsPage() {
+  return (
+    <SharedLayout 
+      userRole="company_manager" 
+      userName="مدير الشركة" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <ReportsContent />
+    </SharedLayout>
+  );
+}
+
+function ReportsContent() {
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(2025, 0, 1),

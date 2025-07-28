@@ -20,8 +20,21 @@ import {
   QrCode,
   Calendar
 } from "lucide-react";
+import { SharedLayout } from "@/components/shared-layout";
 
 export default function MobileApps() {
+  return (
+    <SharedLayout 
+      userRole="company_manager" 
+      userName="مدير الشركة" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <MobileAppsContent />
+    </SharedLayout>
+  );
+}
+
+function MobileAppsContent() {
   const [activeTab, setActiveTab] = useState("overview");
 
   // Fetch mobile integrations

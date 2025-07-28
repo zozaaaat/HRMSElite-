@@ -69,6 +69,18 @@ interface NewEmployee {
 }
 
 export default function EmployeesPage() {
+  return (
+    <SharedLayout 
+      userRole="company_manager" 
+      userName="مدير الشركة" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <EmployeesContent />
+    </SharedLayout>
+  );
+}
+
+function EmployeesContent() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isAddEmployeeOpen, setIsAddEmployeeOpen] = useState(false);

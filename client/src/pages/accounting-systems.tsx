@@ -19,9 +19,22 @@ import {
   TrendingUp,
   AlertTriangle
 } from "lucide-react";
+import { SharedLayout } from "@/components/shared-layout";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function AccountingSystems() {
+  return (
+    <SharedLayout 
+      userRole="company_manager" 
+      userName="مدير الشركة" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <AccountingSystemsContent />
+    </SharedLayout>
+  );
+}
+
+function AccountingSystemsContent() {
   const [activeTab, setActiveTab] = useState("overview");
   const queryClient = useQueryClient();
 

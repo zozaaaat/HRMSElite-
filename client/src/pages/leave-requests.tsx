@@ -29,6 +29,7 @@ import {
   Filter,
   Eye
 } from "lucide-react";
+import { SharedLayout } from "@/components/shared-layout";
 
 interface LeaveRequest {
   id: string;
@@ -52,6 +53,18 @@ interface LeaveBalance {
 }
 
 export default function LeaveRequestsPage() {
+  return (
+    <SharedLayout 
+      userRole="employee" 
+      userName="أحمد محمد علي" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <LeaveRequestsContent />
+    </SharedLayout>
+  );
+}
+
+function LeaveRequestsContent() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isNewRequestOpen, setIsNewRequestOpen] = useState(false);

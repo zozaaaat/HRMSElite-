@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
+import { SharedLayout } from "@/components/shared-layout";
 
 interface AttendanceStats {
   present: number;
@@ -43,6 +44,18 @@ interface AttendanceRecord {
 }
 
 export default function AttendancePage() {
+  return (
+    <SharedLayout 
+      userRole="employee" 
+      userName="أحمد محمد علي" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <AttendanceContent />
+    </SharedLayout>
+  );
+}
+
+function AttendanceContent() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedDate, setSelectedDate] = useState(new Date());

@@ -21,8 +21,21 @@ import {
   Moon,
   Sun
 } from "lucide-react";
+import { SharedLayout } from "@/components/shared-layout";
 
 export default function SettingsPage() {
+  return (
+    <SharedLayout 
+      userRole="company_manager" 
+      userName="مدير الشركة" 
+      companyName="شركة النيل الأزرق للمجوهرات" 
+    >
+      <SettingsContent />
+    </SharedLayout>
+  );
+}
+
+function SettingsContent() {
   const { toast } = useToast();
   const [profileData, setProfileData] = useState({
     name: "أحمد محمد علي",

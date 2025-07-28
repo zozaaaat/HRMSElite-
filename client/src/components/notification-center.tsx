@@ -1,71 +1,63 @@
 import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { format } from "date-fns";
-import { ar } from "date-fns/locale";
 import { 
-  Bell,
-  Check,
-  X,
-  Clock,
-  User,
-  AlertTriangle,
-  Info,
+  Bell, 
+  X, 
+  Check, 
+  AlertTriangle, 
+  Info, 
   CheckCircle,
-  Calendar,
-  DollarSign,
-  FileText,
-  Settings,
-  MoreVertical
+  Clock,
+  Filter
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-export interface Notification {
+interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'info' | 'warning' | 'success' | 'error' | 'system';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  type: 'info' | 'warning' | 'success' | 'error';
+  timestamp: string;
   read: boolean;
-  createdAt: string;
-  category: 'attendance' | 'leave' | 'payroll' | 'system' | 'training' | 'general';
   actionUrl?: string;
-  metadata?: any;
 }
 
-interface NotificationCenterProps {
-  className?: string;
-}
-
-export function NotificationCenter({ className }: NotificationCenterProps) {
+export function NotificationCenter() {
+  const [filter, setFilter] = useState<'all' | 'unread' | 'important'>('all');
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [isOpen, setIsOpen] = useState(false);
 
-  // جلب الإشعارات
-  const { data: notifications = [], isLoading } = useQuery<Notification[]>({
+  const { data: notifications = [] } = useQuery<Notification[]>({
     queryKey: ["/api/notifications"],
+    refetchInterval: 30000, // Check for new notifications every 30 seconds
   });
 
-  // تحديث حالة الإشعارات
   const markAsReadMutation = useMutation({
-    mutationFn: (notificationId: string) => 
-      apiRequest(`/api/notifications/${notificationId}/read`, "PATCH"),
+    mutationFn: async (notificationId: string) => {
+      const response = await fetch(`/api/notifications/${notificationId}/read`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) throw new Error('Failed to mark as read');
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
     },
   });
 
-  // حذف الإشعار
   const deleteNotificationMutation = useMutation({
-    mutationFn: (notificationId: string) => 
-      apiRequest(`/api/notifications/${notificationId}`, "DELETE"),
+    mutationFn: async (notificationId: string) => {
+      const response = await fetch(`/api/notifications/${notificationId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete notification');
+      return response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
       toast({
@@ -75,308 +67,177 @@ export function NotificationCenter({ className }: NotificationCenterProps) {
     },
   });
 
-  // إشعارات تجريبية - بدون إشعارات قبول/رفض للعمال
-  const mockNotifications: Notification[] = [
-    {
-      id: "2",
-      title: "تأخير في الحضور",
-      message: "5 موظفين سجلوا حضورهم متأخرين اليوم",
-      type: "warning",
-      priority: "medium",
-      read: false,
-      createdAt: "2025-01-28T08:45:00Z",
-      category: "attendance",
-      actionUrl: "/attendance"
+  const markAllAsReadMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/notifications/mark-all-read', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) throw new Error('Failed to mark all as read');
+      return response.json();
     },
-    {
-      id: "3",
-      title: "تم معالجة الرواتب",
-      message: "تم إنهاء معالجة رواتب شهر يناير لجميع الموظفين",
-      type: "success",
-      priority: "high",
-      read: true,
-      createdAt: "2025-01-27T16:20:00Z",
-      category: "payroll",
-      actionUrl: "/payroll"
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
+      toast({
+        title: "تم وضع علامة مقروء على جميع الإشعارات",
+        description: "تم تحديث جميع الإشعارات كمقروءة",
+      });
     },
-    {
-      id: "4",
-      title: "انتهاء صلاحية ترخيص",
-      message: "ترخيص العمل الخاص بشركة النيل الأزرق سينتهي خلال 30 يوم",
-      type: "warning",
-      priority: "high",
-      read: false,
-      createdAt: "2025-01-27T14:15:00Z",
-      category: "system",
-      actionUrl: "/license-management"
-    },
-    {
-      id: "5",
-      title: "تحديث النظام",
-      message: "تم تحديث نظام إدارة الموارد البشرية إلى الإصدار 2.1.0",
-      type: "system",
-      priority: "low",
-      read: true,
-      createdAt: "2025-01-26T12:00:00Z",
-      category: "system"
-    },
-    {
-      id: "6",
-      title: "دورة تدريبية جديدة",
-      message: "تم إضافة دورة 'إدارة الوقت والإنتاجية' لبرنامج التدريب",
-      type: "info",
-      priority: "low",
-      read: false,
-      createdAt: "2025-01-26T09:30:00Z",
-      category: "training",
-      actionUrl: "/training"
-    }
-  ];
-
-  const allNotifications = [...notifications, ...mockNotifications];
-  const unreadCount = allNotifications.filter(n => !n.read).length;
+  });
 
   const getNotificationIcon = (type: string) => {
-    const iconMap = {
-      info: Info,
-      warning: AlertTriangle,
-      success: CheckCircle,
-      error: X,
-      system: Settings
-    };
-    const IconComponent = iconMap[type as keyof typeof iconMap] || Info;
-    return IconComponent;
+    switch (type) {
+      case 'warning':
+        return <AlertTriangle className="h-4 w-4 text-orange-500" />;
+      case 'success':
+        return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case 'error':
+        return <X className="h-4 w-4 text-red-500" />;
+      default:
+        return <Info className="h-4 w-4 text-blue-500" />;
+    }
   };
 
-  const getNotificationColor = (type: string, priority: string) => {
-    if (priority === 'urgent') return 'text-red-600 bg-red-50';
-    
-    const colorMap = {
-      info: 'text-blue-600 bg-blue-50',
-      warning: 'text-orange-600 bg-orange-50',
-      success: 'text-green-600 bg-green-50',
-      error: 'text-red-600 bg-red-50',
-      system: 'text-purple-600 bg-purple-50'
-    };
-    return colorMap[type as keyof typeof colorMap] || 'text-gray-600 bg-gray-50';
+  const getNotificationBadgeVariant = (type: string) => {
+    switch (type) {
+      case 'warning':
+        return 'destructive';
+      case 'success':
+        return 'default';
+      case 'error':
+        return 'destructive';
+      default:
+        return 'secondary';
+    }
   };
 
-  const getCategoryLabel = (category: string) => {
-    const categoryMap = {
-      attendance: 'الحضور',
-      leave: 'الإجازات',
-      payroll: 'الرواتب',
-      system: 'النظام',
-      training: 'التدريب',
-      general: 'عام'
-    };
-    return categoryMap[category as keyof typeof categoryMap] || 'عام';
-  };
+  const filteredNotifications = notifications.filter((notification) => {
+    if (filter === 'unread') return !notification.read;
+    if (filter === 'important') return notification.type === 'warning' || notification.type === 'error';
+    return true;
+  });
 
-  const handleMarkAsRead = (notificationId: string) => {
-    markAsReadMutation.mutate(notificationId);
-  };
-
-  const handleDeleteNotification = (notificationId: string) => {
-    deleteNotificationMutation.mutate(notificationId);
-  };
-
-  const handleMarkAllAsRead = () => {
-    allNotifications
-      .filter(n => !n.read)
-      .forEach(n => markAsReadMutation.mutate(n.id));
-  };
-
-  const filterNotificationsByCategory = (category: string) => {
-    if (category === 'all') return allNotifications;
-    return allNotifications.filter(n => n.category === category);
-  };
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          {unreadCount > 0 && (
-            <Badge 
-              variant="destructive" 
-              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0"
+    <Card className="h-full">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5" />
+            مركز الإشعارات
+            {unreadCount > 0 && (
+              <Badge variant="destructive" className="px-2 py-1">
+                {unreadCount}
+              </Badge>
+            )}
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => markAllAsReadMutation.mutate()}
+              disabled={markAllAsReadMutation.isPending || unreadCount === 0}
             >
-              {unreadCount > 9 ? '9+' : unreadCount}
-            </Badge>
-          )}
-        </Button>
-      </PopoverTrigger>
-      
-      <PopoverContent className="w-96 p-0" align="end">
-        <Card className="border-0 shadow-lg">
-          <CardHeader className="border-b">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">الإشعارات</CardTitle>
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary">{unreadCount} جديد</Badge>
-                {unreadCount > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleMarkAllAsRead}
-                    className="text-xs"
-                  >
-                    قراءة الكل
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-          
-          <CardContent className="p-0">
-            <Tabs defaultValue="all" className="w-full">
-              <div className="border-b">
-                <TabsList className="grid w-full grid-cols-4 rounded-none h-auto">
-                  <TabsTrigger value="all" className="text-xs">الكل</TabsTrigger>
-                  <TabsTrigger value="leave" className="text-xs">الإجازات</TabsTrigger>
-                  <TabsTrigger value="attendance" className="text-xs">الحضور</TabsTrigger>
-                  <TabsTrigger value="payroll" className="text-xs">الرواتب</TabsTrigger>
-                </TabsList>
-              </div>
+              <Check className="h-4 w-4 ml-1" />
+              قراءة الكل
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Filter Buttons */}
+        <div className="flex gap-2">
+          <Button
+            variant={filter === 'all' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter('all')}
+          >
+            الكل ({notifications.length})
+          </Button>
+          <Button
+            variant={filter === 'unread' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter('unread')}
+          >
+            غير مقروء ({unreadCount})
+          </Button>
+          <Button
+            variant={filter === 'important' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter('important')}
+          >
+            هام
+          </Button>
+        </div>
 
-              <TabsContent value="all" className="mt-0">
-                <ScrollArea className="h-96">
-                  <div className="space-y-1 p-2">
-                    {allNotifications.length === 0 ? (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p>لا توجد إشعارات</p>
+        {/* Notifications List */}
+        <ScrollArea className="h-[400px]">
+          <div className="space-y-3">
+            {filteredNotifications.length === 0 ? (
+              <div className="text-center text-muted-foreground py-8">
+                <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>لا توجد إشعارات</p>
+              </div>
+            ) : (
+              filteredNotifications.map((notification) => (
+                <Card 
+                  key={notification.id}
+                  className={`p-4 hover:shadow-md transition-shadow ${
+                    !notification.read ? 'border-blue-200 bg-blue-50/50' : ''
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 flex-1">
+                      {getNotificationIcon(notification.type)}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-medium text-sm">{notification.title}</h4>
+                          <Badge 
+                            variant={getNotificationBadgeVariant(notification.type)}
+                            className="text-xs"
+                          >
+                            {notification.type === 'info' && 'معلومات'}
+                            {notification.type === 'warning' && 'تحذير'}
+                            {notification.type === 'success' && 'نجح'}
+                            {notification.type === 'error' && 'خطأ'}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {notification.message}
+                        </p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          {new Date(notification.timestamp).toLocaleString('ar-EG')}
+                        </div>
                       </div>
-                    ) : (
-                      allNotifications.map((notification) => {
-                        const IconComponent = getNotificationIcon(notification.type);
-                        const colorClasses = getNotificationColor(notification.type, notification.priority);
-                        
-                        return (
-                          <div
-                            key={notification.id}
-                            className={`p-3 rounded-lg border transition-colors hover:bg-gray-50 ${
-                              !notification.read ? 'bg-blue-50/50 border-blue-200' : 'bg-white'
-                            }`}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className={`p-2 rounded-full ${colorClasses}`}>
-                                <IconComponent className="h-4 w-4" />
-                              </div>
-                              
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-1">
-                                  <h4 className={`text-sm font-medium ${!notification.read ? 'font-semibold' : ''}`}>
-                                    {notification.title}
-                                  </h4>
-                                  <div className="flex items-center gap-1">
-                                    <Badge variant="outline" className="text-xs">
-                                      {getCategoryLabel(notification.category)}
-                                    </Badge>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-6 w-6"
-                                      onClick={() => handleDeleteNotification(notification.id)}
-                                    >
-                                      <X className="h-3 w-3" />
-                                    </Button>
-                                  </div>
-                                </div>
-                                
-                                <p className="text-sm text-muted-foreground mb-2">
-                                  {notification.message}
-                                </p>
-                                
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs text-muted-foreground">
-                                    {format(new Date(notification.createdAt), "dd/MM/yyyy - HH:mm", { locale: ar })}
-                                  </span>
-                                  
-                                  <div className="flex items-center gap-1">
-                                    {!notification.read && (
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-6 px-2 text-xs"
-                                        onClick={() => handleMarkAsRead(notification.id)}
-                                      >
-                                        <Check className="h-3 w-3 mr-1" />
-                                        قراءة
-                                      </Button>
-                                    )}
-                                    
-                                    {notification.actionUrl && (
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-6 px-2 text-xs"
-                                        onClick={() => {
-                                          window.location.href = notification.actionUrl!;
-                                          setIsOpen(false);
-                                        }}
-                                      >
-                                        عرض
-                                      </Button>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })
-                    )}
-                  </div>
-                </ScrollArea>
-              </TabsContent>
-
-              {['leave', 'attendance', 'payroll'].map(category => (
-                <TabsContent key={category} value={category} className="mt-0">
-                  <ScrollArea className="h-96">
-                    <div className="space-y-1 p-2">
-                      {filterNotificationsByCategory(category).map((notification) => {
-                        const IconComponent = getNotificationIcon(notification.type);
-                        const colorClasses = getNotificationColor(notification.type, notification.priority);
-                        
-                        return (
-                          <div
-                            key={notification.id}
-                            className={`p-3 rounded-lg border transition-colors hover:bg-gray-50 ${
-                              !notification.read ? 'bg-blue-50/50 border-blue-200' : 'bg-white'
-                            }`}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className={`p-2 rounded-full ${colorClasses}`}>
-                                <IconComponent className="h-4 w-4" />
-                              </div>
-                              
-                              <div className="flex-1 min-w-0">
-                                <h4 className={`text-sm font-medium mb-1 ${!notification.read ? 'font-semibold' : ''}`}>
-                                  {notification.title}
-                                </h4>
-                                <p className="text-sm text-muted-foreground mb-2">
-                                  {notification.message}
-                                </p>
-                                <span className="text-xs text-muted-foreground">
-                                  {format(new Date(notification.createdAt), "dd/MM/yyyy - HH:mm", { locale: ar })}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
                     </div>
-                  </ScrollArea>
-                </TabsContent>
-              ))}
-            </Tabs>
-          </CardContent>
-        </Card>
-      </PopoverContent>
-    </Popover>
+                    
+                    <div className="flex items-center gap-1">
+                      {!notification.read && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => markAsReadMutation.mutate(notification.id)}
+                        >
+                          <Check className="h-3 w-3" />
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteNotificationMutation.mutate(notification.id)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+        </ScrollArea>
+      </CardContent>
+    </Card>
   );
 }
-
-export default NotificationCenter;

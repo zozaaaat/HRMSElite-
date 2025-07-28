@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
+import { SharedLayout } from "@/components/shared-layout";
 
 interface Document {
   id: string;
@@ -40,6 +41,18 @@ interface Document {
 }
 
 export default function DocumentsPage() {
+  return (
+    <SharedLayout 
+      userRole="company_manager" 
+      userName="مدير الشركة" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <DocumentsContent />
+    </SharedLayout>
+  );
+}
+
+function DocumentsContent() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");

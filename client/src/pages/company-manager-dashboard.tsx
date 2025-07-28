@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { SharedLayout } from "@/components/shared-layout";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,6 +29,18 @@ import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
 import { useLocation } from "wouter";
 
 export default function CompanyManagerDashboard() {
+  return (
+    <SharedLayout 
+      userRole="company_manager" 
+      userName="مدير الشركة" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <CompanyManagerContent />
+    </SharedLayout>
+  );
+}
+
+function CompanyManagerContent() {
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState("overview");

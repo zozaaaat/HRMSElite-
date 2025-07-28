@@ -19,11 +19,24 @@ import {
   ClipboardList,
   TrendingUp
 } from "lucide-react";
+import { SharedLayout } from "@/components/shared-layout";
 import { useTheme } from "@/components/theme-provider";
 import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
 import { useLocation } from "wouter";
 
 export default function SupervisorDashboard() {
+  return (
+    <SharedLayout 
+      userRole="supervisor" 
+      userName="علي أحمد المشرف" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <SupervisorDashboardContent />
+    </SharedLayout>
+  );
+}
+
+function SupervisorDashboardContent() {
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState("overview");
@@ -206,9 +219,9 @@ export default function SupervisorDashboard() {
                         </div>
                         <div className="flex items-center gap-2">
                           {index < supervisorStats.todayAttendance ? (
-                            <CheckCircle className="h-5 w-5 text-green-500" title="حاضر" />
+                            <CheckCircle className="h-5 w-5 text-green-500" />
                           ) : (
-                            <AlertCircle className="h-5 w-5 text-red-500" title="غائب" />
+                            <AlertCircle className="h-5 w-5 text-red-500" />
                           )}
                         </div>
                       </div>

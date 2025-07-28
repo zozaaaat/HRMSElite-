@@ -53,6 +53,18 @@ interface PayrollSummary {
 }
 
 export default function PayrollPage() {
+  return (
+    <SharedLayout 
+      userRole="employee" 
+      userName="أحمد محمد علي" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <PayrollContent />
+    </SharedLayout>
+  );
+}
+
+function PayrollContent() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);

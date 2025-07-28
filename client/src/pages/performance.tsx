@@ -18,6 +18,7 @@ import {
   CheckCircle,
   Activity
 } from "lucide-react";
+import { SharedLayout } from "@/components/shared-layout";
 import { 
   LineChart, Line, BarChart, Bar, RadarChart, Radar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -40,6 +41,18 @@ interface TeamPerformance {
 }
 
 export default function PerformancePage() {
+  return (
+    <SharedLayout 
+      userRole="employee" 
+      userName="أحمد محمد علي" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <PerformanceContent />
+    </SharedLayout>
+  );
+}
+
+function PerformanceContent() {
   const { toast } = useToast();
   const [selectedPeriod, setSelectedPeriod] = useState("quarter");
   const [selectedTeam, setSelectedTeam] = useState("all");

@@ -17,6 +17,7 @@ import {
   Star,
   Target
 } from "lucide-react";
+import { SharedLayout } from "@/components/shared-layout";
 
 interface Course {
   id: string;
@@ -33,6 +34,18 @@ interface Course {
 }
 
 export default function TrainingPage() {
+  return (
+    <SharedLayout 
+      userRole="employee" 
+      userName="أحمد محمد علي" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <TrainingContent />
+    </SharedLayout>
+  );
+}
+
+function TrainingContent() {
   const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState("all");
 

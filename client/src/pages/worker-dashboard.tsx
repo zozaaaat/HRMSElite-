@@ -18,11 +18,24 @@ import {
   Calendar,
   TrendingUp
 } from "lucide-react";
+import { SharedLayout } from "@/components/shared-layout";
 import { useTheme } from "@/components/theme-provider";
 import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
 import { useLocation } from "wouter";
 
 export default function WorkerDashboard() {
+  return (
+    <SharedLayout 
+      userRole="worker" 
+      userName="محمد علي العامل" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <WorkerDashboardContent />
+    </SharedLayout>
+  );
+}
+
+function WorkerDashboardContent() {
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState("overview");
@@ -189,7 +202,7 @@ export default function WorkerDashboard() {
                       <label className="block text-sm font-medium mb-2">الاسم الكامل</label>
                       <input 
                         type="text" 
-                        value={user?.name || 'العامل'}
+                        value="محمد علي العامل"
                         readOnly
                         className="w-full p-2 border rounded-md bg-muted"
                       />

@@ -34,8 +34,21 @@ import {
   Trash,
   RefreshCw
 } from "lucide-react";
+import { SharedLayout } from "@/components/shared-layout";
 
 export default function GovernmentForms() {
+  return (
+    <SharedLayout 
+      userRole="company_manager" 
+      userName="مدير الشركة" 
+      companyName="شركة النيل الأزرق للمجوهرات"
+    >
+      <GovernmentFormsContent />
+    </SharedLayout>
+  );
+}
+
+function GovernmentFormsContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedCompany, setSelectedCompany] = useState("all");
