@@ -86,7 +86,7 @@ export default function EmployeeDashboard() {
             </div>
             
             <div className="flex items-center space-x-reverse space-x-2">
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative" onClick={() => console.log('فتح مركز الإشعارات - 5 إشعارات جديدة')}>
                 <Bell className="h-5 w-5" />
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
                   5

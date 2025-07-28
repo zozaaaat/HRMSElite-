@@ -66,7 +66,7 @@ export default function CompanyManagerDashboard() {
             </div>
             
             <div className="flex items-center space-x-reverse space-x-2">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" onClick={() => console.log('فتح مركز الإشعارات')}>
                 <Bell className="h-5 w-5" />
               </Button>
               <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
