@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import { registerRoutes } from "./routes-simple";
+import { registerIntelligentRoutes } from "./intelligent-routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
@@ -50,6 +51,7 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
+  registerIntelligentRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

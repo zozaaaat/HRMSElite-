@@ -50,6 +50,10 @@ export const assetStatusEnum = pgEnum("asset_status", ["available", "in_use", "m
 export const assetTypeEnum = pgEnum("asset_type", ["equipment", "vehicle", "furniture", "electronics", "software", "other"]);
 export const maintenanceStatusEnum = pgEnum("maintenance_status", ["scheduled", "in_progress", "completed", "cancelled"]);
 export const maintenanceTypeEnum = pgEnum("maintenance_type", ["preventive", "corrective", "emergency", "upgrade"]);
+export const projectStatusEnum = pgEnum("project_status", ["planning", "active", "on_hold", "completed", "cancelled"]);
+export const taskStatusEnum = pgEnum("task_status", ["todo", "in_progress", "review", "completed", "cancelled"]);
+export const notificationTypeEnum = pgEnum("notification_type", ["system", "license_expiry", "employee_update", "project_update", "task_assignment", "leave_request", "document_expiry"]);
+export const salaryComponentTypeEnum = pgEnum("salary_component_type", ["basic", "allowance", "bonus", "overtime", "deduction", "tax"]);
 
 // Companies table
 export const companies = pgTable("companies", {
@@ -515,6 +519,110 @@ export const courses = pgTable("courses", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Advanced intelligent tables with smart relationships
+
+// Projects Management
+export const projects = pgTable("projects", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id").references(() => companies.id),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  status: projectStatusEnum("status").default("planning"),
+  priority: varchar("priority").default("medium"),
+  managerId: varchar("manager_id").references(() => employees.id),
+  departmentId: varchar("department_id").references(() => departments.id),
+  licenseId: varchar("license_id").references(() => licenses.id), // Связанная лицензия
+  budget: decimal("budget"),
+  actualCost: decimal("actual_cost").default("0"),
+  progress: integer("progress").default(0),
+  startDate: date("start_date"),
+  endDate: date("end_date"),
+  actualEndDate: date("actual_end_date"),
+  clientName: varchar("client_name"),
+  clientEmail: varchar("client_email"),
+  tags: text("tags").array(),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Smart Departments
+export const departments = pgTable("departments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id").references(() => companies.id),
+  name: varchar("name").notNull(),
+  code: varchar("code").unique(),
+  description: text("description"),
+  headOfDepartment: varchar("head_of_department"),
+  parentDepartmentId: varchar("parent_department_id"),
+  budget: decimal("budget"),
+  location: varchar("location"),
+  costCenter: varchar("cost_center"),
+  requiredLicenses: text("required_licenses").array(),
+  kpis: jsonb("kpis"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Tasks with intelligent assignment
+export const tasks = pgTable("tasks", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: varchar("project_id").references(() => projects.id),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  status: taskStatusEnum("status").default("todo"),
+  priority: varchar("priority").default("medium"),
+  assignedTo: varchar("assigned_to").references(() => employees.id),
+  assignedBy: varchar("assigned_by").references(() => employees.id),
+  reviewedBy: varchar("reviewed_by").references(() => employees.id),
+  dependsOn: text("depends_on").array(), // Task dependencies
+  tags: text("tags").array(),
+  estimatedHours: integer("estimated_hours"),
+  actualHours: integer("actual_hours").default(0),
+  dueDate: timestamp("due_date"),
+  completedAt: timestamp("completed_at"),
+  licenseRequired: varchar("license_required").references(() => licenses.id), // Required license
+  skillsRequired: text("skills_required").array(),
+  difficulty: varchar("difficulty").default("medium"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Smart Asset Management
+export const smartAssets = pgTable("smart_assets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyId: varchar("company_id").references(() => companies.id),
+  name: varchar("name").notNull(),
+  code: varchar("code").unique(),
+  type: assetTypeEnum("type").notNull(),
+  category: varchar("category"),
+  model: varchar("model"),
+  serialNumber: varchar("serial_number"),
+  manufacturer: varchar("manufacturer"),
+  purchaseDate: date("purchase_date"),
+  purchasePrice: decimal("purchase_price"),
+  currentValue: decimal("current_value"),
+  depreciationRate: decimal("depreciation_rate"),
+  status: assetStatusEnum("status").default("available"),
+  location: varchar("location"),
+  assignedTo: varchar("assigned_to"),
+  departmentId: varchar("department_id"),
+  licenseRequired: varchar("license_required"),
+  insurancePolicyNumber: varchar("insurance_policy_number"),
+  warrantyExpiryDate: date("warranty_expiry_date"),
+  lastMaintenanceDate: date("last_maintenance_date"),
+  nextMaintenanceDate: date("next_maintenance_date"),
+  maintenanceHistory: jsonb("maintenance_history"),
+  specifications: jsonb("specifications"),
+  usageHours: integer("usage_hours").default(0),
+  maintenanceCost: decimal("maintenance_cost").default("0"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Intelligent Payroll System
 export const payrollRecords = pgTable("payroll_records", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   companyId: varchar("company_id").references(() => companies.id),
@@ -557,158 +665,147 @@ export type InsertPayrollRecord = typeof payrollRecords.$inferInsert;
 export type AttendanceRecord = typeof attendanceRecords.$inferSelect;
 export type InsertAttendanceRecord = typeof attendanceRecords.$inferInsert;
 
-// Assets & Equipment Management Tables
-export const assets = pgTable("assets", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  companyId: varchar("company_id").references(() => companies.id),
-  name: varchar("name").notNull(),
-  description: text("description"),
-  assetCode: varchar("asset_code").unique().notNull(),
-  type: assetTypeEnum("type").notNull(),
-  category: varchar("category"),
-  brand: varchar("brand"),
-  model: varchar("model"),
-  serialNumber: varchar("serial_number"),
-  purchaseDate: date("purchase_date"),
-  purchasePrice: decimal("purchase_price"),
-  currentValue: decimal("current_value"),
-  depreciation: decimal("depreciation"),
-  warrantyExpiry: date("warranty_expiry"),
-  location: varchar("location"),
-  department: varchar("department"),
-  assignedTo: varchar("assigned_to").references(() => employees.id),
-  status: assetStatusEnum("status").default("available"),
-  condition: varchar("condition").default("good"),
-  notes: text("notes"),
-  imageUrl: varchar("image_url"),
-  documentUrl: varchar("document_url"),
-  lastMaintenanceDate: date("last_maintenance_date"),
-  nextMaintenanceDate: date("next_maintenance_date"),
-  isActive: boolean("is_active").default(true),
-  createdBy: varchar("created_by").references(() => users.id),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+// Intelligent Relations and Advanced Schema Extensions now added properly...
 
-export const assetCategories = pgTable("asset_categories", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  companyId: varchar("company_id").references(() => companies.id),
-  name: varchar("name").notNull(),
-  description: text("description"),
-  parentId: varchar("parent_id"),
-  depreciationRate: decimal("depreciation_rate").default("0"),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+// Simplified Relations for Intelligent System
+export const departmentsRelations = relations(departments, ({ one }) => ({
+  company: one(companies, {
+    fields: [departments.companyId],
+    references: [companies.id],
+  }),
+}));
 
-export const assetMaintenance = pgTable("asset_maintenance", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  assetId: varchar("asset_id").references(() => assets.id),
-  companyId: varchar("company_id").references(() => companies.id),
-  type: maintenanceTypeEnum("type").notNull(),
-  title: varchar("title").notNull(),
-  description: text("description"),
-  scheduledDate: date("scheduled_date"),
-  completedDate: date("completed_date"),
-  status: maintenanceStatusEnum("status").default("scheduled"),
-  priority: varchar("priority").default("medium"),
-  cost: decimal("cost"),
-  vendor: varchar("vendor"),
-  performedBy: varchar("performed_by"),
-  notes: text("notes"),
-  attachments: jsonb("attachments"),
-  nextMaintenanceDate: date("next_maintenance_date"),
-  createdBy: varchar("created_by").references(() => users.id),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+// Extended company relations with new intelligent connections
+export const companiesExtendedRelations = relations(companies, ({ many }) => ({
+  users: many(companyUsers),
+  employees: many(employees),
+  licenses: many(licenses),
+  departments: many(departments),
+  payrollRecords: many(payrollRecords),
+  attendanceRecords: many(attendanceRecords),
+}));
 
-export const assetTransfers = pgTable("asset_transfers", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  assetId: varchar("asset_id").references(() => assets.id),
-  companyId: varchar("company_id").references(() => companies.id),
-  fromEmployee: varchar("from_employee").references(() => employees.id),
-  toEmployee: varchar("to_employee").references(() => employees.id),
-  fromLocation: varchar("from_location"),
-  toLocation: varchar("to_location"),
-  transferDate: date("transfer_date").notNull(),
-  reason: text("reason"),
-  condition: varchar("condition"),
-  notes: text("notes"),
-  approvedBy: varchar("approved_by").references(() => users.id),
-  status: varchar("status").default("pending"),
-  createdBy: varchar("created_by").references(() => users.id),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+// Enhanced employee relations with intelligent connections
+export const employeesExtendedRelations = relations(employees, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [employees.companyId],
+    references: [companies.id],
+  }),
+  license: one(licenses, {
+    fields: [employees.licenseId],
+    references: [licenses.id],
+  }),
+  leaves: many(employeeLeaves),
+  deductions: many(employeeDeductions),
+  violations: many(employeeViolations),
+  documents: many(documents),
+}));
 
-export const assetCheckouts = pgTable("asset_checkouts", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  assetId: varchar("asset_id").references(() => assets.id),
-  companyId: varchar("company_id").references(() => companies.id),
-  employeeId: varchar("employee_id").references(() => employees.id),
-  checkoutDate: date("checkout_date").notNull(),
-  expectedReturnDate: date("expected_return_date"),
-  actualReturnDate: date("actual_return_date"),
-  purpose: text("purpose"),
-  condition: varchar("condition"),
-  notes: text("notes"),
-  status: varchar("status").default("active"),
-  checkedOutBy: varchar("checked_out_by").references(() => users.id),
-  checkedInBy: varchar("checked_in_by").references(() => users.id),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+// Enhanced license relations
+export const licensesExtendedRelations = relations(licenses, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [licenses.companyId],
+    references: [companies.id],
+  }),
+  employees: many(employees),
+  documents: many(documents),
+}));
 
-// Asset Management Insert Schemas
-export const insertAssetSchema = createInsertSchema(assets).omit({
-  id: true,
-  createdBy: true,
-  createdAt: true,
-  updatedAt: true,
-});
+// Additional smart types
+export type Project = typeof projects.$inferSelect;
+export type InsertProject = typeof projects.$inferInsert;
+export type Task = typeof tasks.$inferSelect;
+export type InsertTask = typeof tasks.$inferInsert;
+export type Department = typeof departments.$inferSelect;
+export type InsertDepartment = typeof departments.$inferInsert;
+export type SmartAsset = typeof smartAssets.$inferSelect;
+export type InsertSmartAsset = typeof smartAssets.$inferInsert;
+export type EmployeeSkill = typeof employeeSkills.$inferSelect;
+export type InsertEmployeeSkill = typeof employeeSkills.$inferInsert;
+export type TrainingProgram = typeof trainingPrograms.$inferSelect;
+export type InsertTrainingProgram = typeof trainingPrograms.$inferInsert;
+export type PerformanceReview = typeof performanceReviews.$inferSelect;
+export type InsertPerformanceReview = typeof performanceReviews.$inferInsert;
+export type SmartNotification = typeof smartNotifications.$inferSelect;
+export type InsertSmartNotification = typeof smartNotifications.$inferInsert;
 
-export const insertAssetCategorySchema = createInsertSchema(assetCategories).omit({
-  id: true,
-  createdAt: true,
-});
+// Intelligent Dashboard Analytics Types
+export type CompanyIntelligentStats = Company & {
+  totalEmployees: number;
+  totalLicenses: number;
+  activeProjects: number;
+  completedTasks: number;
+  departmentCount: number;
+  assetValue: number;
+  trainingPrograms: number;
+  avgPerformanceRating: number;
+  upcomingLicenseExpiries: number;
+  pendingTasksCount: number;
+  overdueTasks: number;
+  departmentProductivity: Array<{
+    departmentName: string;
+    taskCompletion: number;
+    employeeCount: number;
+    budget: number;
+  }>;
+  licenseUtilization: Array<{
+    licenseName: string;
+    assignedEmployees: number;
+    utilizationRate: number;
+  }>;
+  skillsMatrix: Array<{
+    skillName: string;
+    employeeCount: number;
+    averageProficiency: number;
+  }>;
+};
 
-export const insertAssetMaintenanceSchema = createInsertSchema(assetMaintenance).omit({
-  id: true,
-  createdBy: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export type EmployeeIntelligentProfile = Employee & {
+  department: Department;
+  supervisor: Employee | null;
+  assignedLicenses: License[];
+  currentProjects: Project[];
+  assignedTasks: Task[];
+  skills: EmployeeSkill[];
+  recentPerformance: PerformanceReview[];
+  trainingHistory: TrainingProgram[];
+  attendanceStats: {
+    totalDays: number;
+    presentDays: number;
+    lateDays: number;
+    attendanceRate: number;
+  };
+  productivityScore: number;
+  upcomingLicenseRenewals: License[];
+  skillGaps: string[];
+  careerPath: {
+    currentLevel: string;
+    nextLevel: string;
+    requiredSkills: string[];
+    estimatedTimeToPromotion: number;
+  };
+};
 
-export const insertAssetTransferSchema = createInsertSchema(assetTransfers).omit({
-  id: true,
-  createdBy: true,
-  createdAt: true,
-});
-
-export const insertAssetCheckoutSchema = createInsertSchema(assetCheckouts).omit({
-  id: true,
-  checkedOutBy: true,
-  createdAt: true,
-  updatedAt: true,
-});
-
-// Asset Management Types
-export type Asset = typeof assets.$inferSelect;
-export type InsertAsset = z.infer<typeof insertAssetSchema>;
-export type AssetCategory = typeof assetCategories.$inferSelect;
-export type InsertAssetCategory = z.infer<typeof insertAssetCategorySchema>;
-export type AssetMaintenance = typeof assetMaintenance.$inferSelect;
-export type InsertAssetMaintenance = z.infer<typeof insertAssetMaintenanceSchema>;
-export type AssetTransfer = typeof assetTransfers.$inferSelect;
-export type InsertAssetTransfer = z.infer<typeof insertAssetTransferSchema>;
-export type AssetCheckout = typeof assetCheckouts.$inferSelect;
-export type InsertAssetCheckout = z.infer<typeof insertAssetCheckoutSchema>;
-
-// Extended Asset Types
-export type AssetWithDetails = Asset & {
-  category?: AssetCategory;
-  assignedEmployee?: Employee;
-  maintenanceHistory: AssetMaintenance[];
-  transferHistory: AssetTransfer[];
-  checkoutHistory: AssetCheckout[];
+export type ProjectIntelligentView = Project & {
+  department: Department;
+  manager: Employee;
+  assignedEmployees: Employee[];
+  tasks: Task[];
+  requiredLicense: License | null;
+  budgetUtilization: number;
+  timeline: {
+    plannedDuration: number;
+    actualDuration: number;
+    remainingDays: number;
+  };
+  teamPerformance: {
+    averageTaskCompletion: number;
+    skillMatchRate: number;
+    licenseCompliance: number;
+  };
+  riskFactors: Array<{
+    type: string;
+    severity: 'low' | 'medium' | 'high';
+    description: string;
+  }>;
 };

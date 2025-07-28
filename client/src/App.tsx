@@ -29,6 +29,7 @@ import AssetsManagement from "@/pages/assets-management";
 import GovernmentForms from "@/pages/government-forms";
 import PermissionsManagement from "@/pages/permissions-management";
 import LicenseManagementPage from "@/pages/license-management";
+import IntelligentDashboard from "@/pages/intelligent-dashboard";
 
 function Router() {
   return (
@@ -63,6 +64,7 @@ function Router() {
       <Route path="/government-forms" component={GovernmentForms} />
       <Route path="/permissions-management" component={PermissionsManagement} />
       <Route path="/license-management" component={LicenseManagementPage} />
+      <Route path="/intelligent-dashboard" component={IntelligentDashboard} />
       
       {/* 404 page */}
       <Route component={NotFound} />
