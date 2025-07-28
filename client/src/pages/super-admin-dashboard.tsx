@@ -269,15 +269,7 @@ export default function SuperAdminDashboard() {
               <Calculator className="h-4 w-4" />
               أنظمة المحاسبة
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setLocation('/government-forms')}
-              className="gap-2 hover:bg-red-50 hover:border-red-300"
-            >
-              <FileText className="h-4 w-4" />
-              النماذج الحكومية
-            </Button>
+
             <Button
               variant="outline"
               size="sm"

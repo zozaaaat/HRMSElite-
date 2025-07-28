@@ -63,6 +63,7 @@ export default function EmployeeDashboard() {
     "معالجة الطلبات",
     "إصدار التقارير",
     "إدارة المستندات",
+    "النماذج الحكومية",
     "متابعة الحضور",
     "تنظيم التدريب"
   ];
@@ -182,8 +183,8 @@ export default function EmployeeDashboard() {
               </Card>
             </div>
 
-            {/* Admin Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Admin Actions - expanded to 5 columns to fit all */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <Card className="cursor-pointer hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
                   <Users className="h-10 w-10 text-blue-500 mb-3" />
@@ -224,6 +225,17 @@ export default function EmployeeDashboard() {
                   <p className="text-sm text-muted-foreground mb-3">تنظيم وإدارة التدريب</p>
                   <Button className="w-full" size="sm" onClick={() => setActiveTab("documents")}>
                     إدارة التدريب
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <ClipboardList className="h-10 w-10 text-green-500 mb-3" />
+                  <h3 className="font-semibold mb-2">النماذج الحكومية</h3>
+                  <p className="text-sm text-muted-foreground mb-3">النماذج الرسمية الكويتية</p>
+                  <Button className="w-full" size="sm" onClick={() => setLocation(`/government-forms?company=${companyId}`)}>
+                    عرض النماذج
                   </Button>
                 </CardContent>
               </Card>

@@ -18,7 +18,10 @@ import {
   Sun,
   LogOut,
   Brain,
-  Package
+  Package,
+  Shield,
+  ClipboardList,
+  Calculator
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
@@ -101,6 +104,7 @@ export default function CompanyManagerDashboard() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
+            {/* Company Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
                 <CardContent className="p-6">
@@ -150,16 +154,63 @@ export default function CompanyManagerDashboard() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Core Management Actions - Company Manager Focus */}
+            <div>
+              <h3 className="text-xl font-semibold mb-4">الأدوات الأساسية لإدارة الشركة</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/employees?company=${companyId}`)}>
+                  <CardContent className="p-6 text-center">
+                    <Users className="h-12 w-12 text-blue-500 mx-auto mb-4" />
+                    <h3 className="font-semibold mb-2">إدارة الموظفين</h3>
+                    <p className="text-sm text-muted-foreground">إضافة وإدارة موظفي الشركة</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/permissions-management?company=${companyId}`)}>
+                  <CardContent className="p-6 text-center">
+                    <Shield className="h-12 w-12 text-purple-500 mx-auto mb-4" />
+                    <h3 className="font-semibold mb-2">إدارة الصلاحيات</h3>
+                    <p className="text-sm text-muted-foreground">تخصيص صلاحيات الموظفين الإداريين</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/government-forms?company=${companyId}`)}>
+                  <CardContent className="p-6 text-center">
+                    <FileText className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                    <h3 className="font-semibold mb-2">النماذج الحكومية</h3>
+                    <p className="text-sm text-muted-foreground">النماذج الرسمية الكويتية</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="employees">
-            <div className="text-center py-12">
-              <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">إدارة الموظفين</h3>
-              <p className="text-muted-foreground mb-4">قم بإدارة موظفي الشركة من هنا</p>
-              <Button onClick={() => window.location.href = '/employees'}>
-                عرض جميع الموظفين
-              </Button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/employees?company=${companyId}`)}>
+                <CardContent className="p-6 text-center">
+                  <Users className="h-12 w-12 text-blue-500 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">قائمة الموظفين</h3>
+                  <p className="text-sm text-muted-foreground">عرض وإدارة جميع الموظفين</p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/permissions-management?company=${companyId}`)}>
+                <CardContent className="p-6 text-center">
+                  <Shield className="h-12 w-12 text-purple-500 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">إدارة الصلاحيات</h3>
+                  <p className="text-sm text-muted-foreground">تخصيص صلاحيات الموظفين الإداريين</p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/mobile-apps?company=${companyId}`)}>
+                <CardContent className="p-6 text-center">
+                  <Calendar className="h-12 w-12 text-orange-500 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">التطبيق المحمول</h3>
+                  <p className="text-sm text-muted-foreground">للمشرفين والعمال</p>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
@@ -175,23 +226,15 @@ export default function CompanyManagerDashboard() {
 
               <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/project-management?company=${companyId}`)}>
                 <CardContent className="p-6 text-center">
-                  <Calendar className="h-12 w-12 text-blue-500 mx-auto mb-4" />
+                  <Briefcase className="h-12 w-12 text-blue-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">إدارة المشاريع</h3>
                   <p className="text-sm text-muted-foreground">متابعة المشاريع والمهام</p>
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/mobile-apps?company=${companyId}`)}>
-                <CardContent className="p-6 text-center">
-                  <Users className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                  <h3 className="font-semibold mb-2">التطبيق المحمول</h3>
-                  <p className="text-sm text-muted-foreground">للمشرفين والعمال</p>
-                </CardContent>
-              </Card>
-
               <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/accounting-systems?company=${companyId}`)}>
                 <CardContent className="p-6 text-center">
-                  <DollarSign className="h-12 w-12 text-orange-500 mx-auto mb-4" />
+                  <Calculator className="h-12 w-12 text-green-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">أنظمة المحاسبة</h3>
                   <p className="text-sm text-muted-foreground">ربط أنظمة المحاسبة الخارجية</p>
                 </CardContent>
@@ -199,7 +242,7 @@ export default function CompanyManagerDashboard() {
 
               <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/assets-management?company=${companyId}`)}>
                 <CardContent className="p-6 text-center">
-                  <Package className="h-12 w-12 text-purple-500 mx-auto mb-4" />
+                  <Package className="h-12 w-12 text-orange-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">إدارة الأصول</h3>
                   <p className="text-sm text-muted-foreground">إدارة أصول ومعدات الشركة</p>
                 </CardContent>
