@@ -30,6 +30,7 @@ import GovernmentForms from "@/pages/government-forms";
 import PermissionsManagement from "@/pages/permissions-management";
 import LicenseManagementPage from "@/pages/license-management";
 import IntelligentDashboard from "@/pages/intelligent-dashboard";
+import RoleVisualization from "@/pages/role-visualization";
 // Focus on comprehensive HRMS with enhanced support for gold and fabrics companies
 
 function Router() {
@@ -66,6 +67,7 @@ function Router() {
       <Route path="/permissions-management" component={PermissionsManagement} />
       <Route path="/license-management" component={LicenseManagementPage} />
       <Route path="/intelligent-dashboard" component={IntelligentDashboard} />
+      <Route path="/role-visualization" component={RoleVisualization} />
       {/* Removed specialized pages - keeping system unified */}
       
       {/* 404 page */}
