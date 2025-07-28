@@ -35,10 +35,15 @@ function Router() {
       
       {/* All dashboard routes - no auth check for now */}
       <Route path="/super-admin" component={SuperAdminDashboard} />
+      <Route path="/super-admin-dashboard" component={SuperAdminDashboard} />
       <Route path="/company-manager" component={CompanyManagerDashboard} />
+      <Route path="/company-manager-dashboard" component={CompanyManagerDashboard} />
       <Route path="/employee" component={EmployeeDashboard} />
+      <Route path="/employee-dashboard" component={EmployeeDashboard} />
       <Route path="/supervisor" component={SupervisorDashboard} />
+      <Route path="/supervisor-dashboard" component={SupervisorDashboard} />
       <Route path="/worker" component={WorkerDashboard} />
+      <Route path="/worker-dashboard" component={WorkerDashboard} />
       
       {/* Shared routes */}
       <Route path="/companies" component={Companies} />

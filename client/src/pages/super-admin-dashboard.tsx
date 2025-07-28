@@ -29,7 +29,8 @@ import {
   Target,
   PieChart,
   FolderOpen,
-  Calculator
+  Calculator,
+  Package
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { StatsCard } from "@/components/stats-card";
