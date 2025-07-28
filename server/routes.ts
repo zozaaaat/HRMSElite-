@@ -396,6 +396,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Government Forms API endpoints
+  app.get('/api/government-forms/templates', async (req, res) => {
+    try {
+      const templates = [
+        {
+          id: "manpower_license",
+          nameAr: "رخصة القوى العاملة",
+          ministry: "وزارة الداخلية - الهيئة العامة للقوى العاملة",
+          fields: ["company_name", "license_number", "activity_type", "employee_count"]
+        },
+        {
+          id: "residence_permit",
+          nameAr: "تصريح إقامة",
+          ministry: "وزارة الداخلية - الأمن العام",
+          fields: ["employee_name", "passport_number", "nationality", "job_title", "salary"]
+        }
+      ];
+      res.json(templates);
+    } catch (error) {
+      res.status(500).json({ error: 'Server error' });
+    }
+  });
+
+  app.post('/api/government-forms/fill', async (req, res) => {
+    try {
+      const { formId, employeeId, formData } = req.body;
+      console.log(`Filling form ${formId} for employee ${employeeId}`, formData);
+      res.json({ success: true, message: "تم ملء النموذج بنجاح" });
+    } catch (error) {
+      res.status(500).json({ error: 'Server error' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
