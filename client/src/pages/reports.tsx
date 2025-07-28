@@ -153,7 +153,7 @@ export default function Reports() {
               />
             </PopoverContent>
           </Popover>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => console.log('إنشاء تقرير مخصص')}>
             <FileText className="h-4 w-4" />
             إنشاء تقرير مخصص
           </Button>
@@ -249,10 +249,10 @@ export default function Reports() {
                         {getStatusText(report.status)}
                       </Badge>
                       <div className="flex gap-1">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => console.log('تحميل تقرير:', report.name)}>
                           <Download className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => console.log('مشاركة تقرير:', report.name)}>
                           <Share2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -336,14 +336,15 @@ export default function Reports() {
                       size="sm" 
                       className="flex-1"
                       disabled={report.status !== "ready"}
+                      onClick={() => console.log('تحميل:', report.name)}
                     >
                       <Download className="h-4 w-4 ml-2" />
                       تحميل
                     </Button>
-                    <Button variant="secondary" size="sm">
+                    <Button variant="secondary" size="sm" onClick={() => console.log('طباعة:', report.name)}>
                       <Printer className="h-4 w-4" />
                     </Button>
-                    <Button variant="secondary" size="sm">
+                    <Button variant="secondary" size="sm" onClick={() => console.log('مشاركة:', report.name)}>
                       <Share2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -364,7 +365,7 @@ export default function Reports() {
               <p className="text-sm text-muted-foreground mb-6">
                 قم بإنشاء تقارير مخصصة حسب احتياجاتك المحددة
               </p>
-              <Button className="gap-2">
+              <Button className="gap-2" onClick={() => console.log('بدء إنشاء تقرير مخصص')}>
                 <FileText className="h-4 w-4" />
                 بدء إنشاء تقرير مخصص
               </Button>

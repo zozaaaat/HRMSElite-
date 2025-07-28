@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -79,6 +80,9 @@ export default function Companies() {
     queryKey: ["/api/companies"],
   });
 
+  // Type the companies array properly
+  const typedCompanies = companies as any[];
+
   const addCompanyMutation = useMutation({
     mutationFn: async (data: CompanyFormData) => {
       return await apiRequest("/api/companies", {
@@ -93,7 +97,7 @@ export default function Companies() {
     }
   });
 
-  const filteredCompanies = companies.filter((company: any) => {
+  const filteredCompanies = typedCompanies.filter((company: any) => {
     const matchesSearch = company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          company.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "all" || company.status === statusFilter;
@@ -127,10 +131,10 @@ export default function Companies() {
   };
 
   const statsData = {
-    total: companies.length,
-    active: companies.filter((c: any) => c.status === "active").length,
-    pending: companies.filter((c: any) => c.status === "pending").length,
-    suspended: companies.filter((c: any) => c.status === "suspended").length
+    total: typedCompanies.length,
+    active: typedCompanies.filter((c: any) => c.status === "active").length,
+    pending: typedCompanies.filter((c: any) => c.status === "pending").length,
+    suspended: typedCompanies.filter((c: any) => c.status === "suspended").length
   };
 
   return (
@@ -411,10 +415,10 @@ export default function Companies() {
                   </div>
                 </div>
                 <div className="flex gap-1">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => console.log('عرض شركة:', company.name)}>
                     <Eye className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => {setEditingCompany(company); setIsAddDialogOpen(true);}}>
                     <Edit className="h-4 w-4" />
                   </Button>
                 </div>
@@ -449,11 +453,11 @@ export default function Companies() {
               <Separator />
 
               <div className="flex gap-2">
-                <Button variant="default" size="sm" className="flex-1">
+                <Button variant="default" size="sm" className="flex-1" onClick={() => console.log('عرض تفاصيل:', company.name)}>
                   <BarChart3 className="h-4 w-4 ml-2" />
                   عرض التفاصيل
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => console.log('إعدادات:', company.name)}>
                   <Settings className="h-4 w-4" />
                 </Button>
               </div>

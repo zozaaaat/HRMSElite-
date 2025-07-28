@@ -148,7 +148,7 @@ export default function Employees() {
           <h1 className="text-3xl font-bold text-foreground">إدارة الموظفين</h1>
           <p className="text-muted-foreground mt-2">إدارة شاملة لجميع الموظفين عبر الشركات</p>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2" onClick={() => setAddEmployeeOpen(true)}>
           <UserPlus className="h-4 w-4" />
           إضافة موظف جديد
         </Button>
@@ -275,10 +275,10 @@ export default function Employees() {
                   </div>
                 </div>
                 <div className="flex gap-1">
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => console.log('عرض ملف الموظف:', employee.name)}>
                     <Eye className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" onClick={() => console.log('المزيد من الخيارات:', employee.name)}>
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </div>
@@ -315,11 +315,11 @@ export default function Employees() {
               </div>
 
               <div className="flex gap-2">
-                <Button variant="default" size="sm" className="flex-1">
+                <Button variant="default" size="sm" className="flex-1" onClick={() => console.log('عرض ملف:', employee.name)}>
                   <Eye className="h-4 w-4 ml-2" />
                   عرض الملف
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => console.log('تعديل:', employee.name)}>
                   <Edit className="h-4 w-4" />
                 </Button>
               </div>
@@ -343,7 +343,7 @@ export default function Employees() {
                 ? "لا توجد موظفين تطابق معايير البحث"
                 : "لم يتم تسجيل أي موظفين بعد"}
             </p>
-            <Button>
+            <Button onClick={() => setAddEmployeeOpen(true)}>
               <UserPlus className="h-4 w-4 ml-2" />
               إضافة موظف جديد
             </Button>

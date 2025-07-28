@@ -41,7 +41,7 @@ export default function SettingsPage() {
           <h1 className="text-3xl font-bold text-foreground">إعدادات النظام</h1>
           <p className="text-muted-foreground mt-2">إدارة إعدادات النظام والحساب والأمان</p>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2" onClick={() => console.log('حفظ التغييرات')}>
           <Save className="h-4 w-4" />
           حفظ التغييرات
         </Button>
