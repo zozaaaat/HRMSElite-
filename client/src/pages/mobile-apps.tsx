@@ -21,6 +21,7 @@ import {
   Calendar
 } from "lucide-react";
 import { SharedLayout } from "@/components/shared-layout";
+import { MobileAppFeatures } from "@/components/mobile-app-features";
 
 export default function MobileApps() {
   return (
@@ -479,6 +480,11 @@ function MobileAppsContent() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* PWA and Mobile App Features */}
+          <TabsContent value="pwa" className="space-y-6">
+            <MobileAppFeatures />
           </TabsContent>
         </Tabs>
       </div>

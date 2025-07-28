@@ -1,0 +1,113 @@
+{
+  "name": "Zeylab HRMS - نظام إدارة الموارد البشرية",
+  "short_name": "Zeylab HRMS",
+  "description": "نظام إدارة الموارد البشرية الشامل للشركات العربية",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0066CC",
+  "orientation": "portrait-primary",
+  "dir": "rtl",
+  "lang": "ar",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-192x192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "الشاشة الرئيسية - سطح المكتب"
+    },
+    {
+      "src": "/screenshots/mobile-dashboard.png", 
+      "sizes": "375x812",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "لوحة التحكم - الهاتف المحمول"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "لوحة التحكم",
+      "short_name": "التحكم",
+      "description": "الوصول السريع للوحة التحكم",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/icons/shortcut-dashboard.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "الموظفون",
+      "short_name": "الموظفون", 
+      "description": "إدارة الموظفين",
+      "url": "/employees",
+      "icons": [
+        {
+          "src": "/icons/shortcut-employees.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "الحضور",
+      "short_name": "الحضور",
+      "description": "تسجيل الحضور والانصراف",
+      "url": "/attendance", 
+      "icons": [
+        {
+          "src": "/icons/shortcut-attendance.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}

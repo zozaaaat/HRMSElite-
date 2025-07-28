@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
+import { PWAInstallPrompt, OfflineStatus } from "@/components/pwa-install-prompt";
 import { useEffect } from "react";
 
 // Import pages
@@ -96,8 +97,10 @@ function App() {
       <ThemeProvider defaultTheme="light" storageKey="hrms-theme">
         <TooltipProvider>
           <div className="min-h-screen bg-background text-foreground" dir="rtl">
+            <OfflineStatus />
             <Toaster />
             <Router />
+            <PWAInstallPrompt />
           </div>
         </TooltipProvider>
       </ThemeProvider>
