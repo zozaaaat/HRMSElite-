@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,6 +50,7 @@ import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
 export default function SuperAdminDashboard() {
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
+  const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
   
@@ -71,7 +73,7 @@ export default function SuperAdminDashboard() {
     queryKey: ["/api/companies"],
   });
 
-  const filteredCompanies = companies.filter((company: any) =>
+  const filteredCompanies = (companies as any[]).filter((company: any) =>
     company.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -180,11 +182,20 @@ export default function SuperAdminDashboard() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setActiveTab("analytics")}
+              onClick={() => setLocation('/employees')}
               className="gap-2 hover:bg-green-50 hover:border-green-300"
             >
-              <BarChart3 className="h-4 w-4" />
-              التحليلات المتقدمة
+              <Users className="h-4 w-4" />
+              إدارة الموظفين
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setLocation('/ai-analytics')}
+              className="gap-2 hover:bg-purple-50 hover:border-purple-300"
+            >
+              <Brain className="h-4 w-4" />
+              الذكاء الاصطناعي
             </Button>
             <Button
               variant="outline"
@@ -225,11 +236,56 @@ export default function SuperAdminDashboard() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => window.location.href = '/assets-management'}
+              onClick={() => setLocation('/assets-management')}
               className="gap-2 hover:bg-purple-50 hover:border-purple-300"
             >
               <Package className="h-4 w-4" />
               إدارة الأصول
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setLocation('/project-management')}
+              className="gap-2 hover:bg-blue-500 hover:border-blue-600"
+            >
+              <FolderOpen className="h-4 w-4" />
+              إدارة المشاريع
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setLocation('/reports')}
+              className="gap-2 hover:bg-green-500 hover:border-green-600"
+            >
+              <FileText className="h-4 w-4" />
+              التقارير
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setLocation('/accounting-systems')}
+              className="gap-2 hover:bg-yellow-50 hover:border-yellow-300"
+            >
+              <Calculator className="h-4 w-4" />
+              أنظمة المحاسبة
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setLearningManagementOpen(true)}
+              className="gap-2 hover:bg-indigo-50 hover:border-indigo-300"
+            >
+              <Target className="h-4 w-4" />
+              التعلم والتطوير
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setLocation('/settings')}
+              className="gap-2 hover:bg-gray-50 hover:border-gray-300"
+            >
+              <Settings className="h-4 w-4" />
+              الإعدادات
             </Button>
           </div>
         </div>
@@ -364,8 +420,6 @@ export default function SuperAdminDashboard() {
                 <CompanyCard 
                   key={company.id} 
                   company={company}
-                  onView={() => console.log('View company:', company.name)}
-                  onEdit={() => console.log('Edit company:', company.name)}
                 />
               ))}
             </div>
@@ -391,7 +445,7 @@ export default function SuperAdminDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/ai-analytics'}>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation('/ai-analytics')}>
                 <CardContent className="p-6 text-center">
                   <Brain className="h-12 w-12 text-purple-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">الذكاء الاصطناعي</h3>
@@ -399,7 +453,7 @@ export default function SuperAdminDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/project-management'}>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation('/project-management')}>
                 <CardContent className="p-6 text-center">
                   <FolderOpen className="h-12 w-12 text-blue-600 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">إدارة المشاريع</h3>
@@ -407,11 +461,19 @@ export default function SuperAdminDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/accounting-systems'}>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation('/accounting-systems')}>
                 <CardContent className="p-6 text-center">
                   <Calculator className="h-12 w-12 text-orange-600 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">أنظمة المحاسبة</h3>
                   <p className="text-sm text-muted-foreground">ربط أنظمة المحاسبة الخارجية</p>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation('/mobile-apps')}>
+                <CardContent className="p-6 text-center">
+                  <Smartphone className="h-12 w-12 text-cyan-600 mx-auto mb-4" />
+                  <h3 className="font-semibold mb-2">التطبيق المحمول</h3>
+                  <p className="text-sm text-muted-foreground">إدارة التطبيق المحمول والإشعارات</p>
                 </CardContent>
               </Card>
             </div>
@@ -421,7 +483,7 @@ export default function SuperAdminDashboard() {
             <h2 className="text-2xl font-bold">إدارة النظام</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/settings'}>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation('/settings')}>
                 <CardContent className="p-6 text-center">
                   <Settings className="h-12 w-12 text-gray-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">إعدادات النظام</h3>
@@ -429,7 +491,7 @@ export default function SuperAdminDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/employees'}>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation('/employees')}>
                 <CardContent className="p-6 text-center">
                   <Users className="h-12 w-12 text-blue-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">إدارة المستخدمين</h3>
@@ -437,7 +499,7 @@ export default function SuperAdminDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/reports'}>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation('/reports')}>
                 <CardContent className="p-6 text-center">
                   <FileText className="h-12 w-12 text-green-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">سجلات النظام</h3>
@@ -451,19 +513,16 @@ export default function SuperAdminDashboard() {
 
       {/* Modals */}
       <AIAssistant
-        companyId="system"
         isOpen={aiAssistantOpen}
         onClose={() => setAiAssistantOpen(false)}
       />
 
       <BIDashboard
-        companyId="system"
         isOpen={biDashboardOpen}
         onClose={() => setBiDashboardOpen(false)}
       />
 
       <WorkflowBuilder
-        companyId="system"
         isOpen={workflowBuilderOpen}
         onClose={() => setWorkflowBuilderOpen(false)}
       />
@@ -474,7 +533,6 @@ export default function SuperAdminDashboard() {
       />
 
       <MobileAppIntegration
-        companyId="system"
         isOpen={mobileAppOpen}
         onClose={() => setMobileAppOpen(false)}
       />
@@ -486,13 +544,11 @@ export default function SuperAdminDashboard() {
       />
 
       <FinancialManagement
-        companyId="system"
         isOpen={financialManagementOpen}
         onClose={() => setFinancialManagementOpen(false)}
       />
 
       <EmployeeArchiving
-        companyId="system"
         isOpen={employeeArchivingOpen}
         onClose={() => setEmployeeArchivingOpen(false)}
       />
