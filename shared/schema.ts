@@ -42,10 +42,10 @@ export const userRoleEnum = pgEnum("user_role", ["super_admin", "company_manager
 export const employeeStatusEnum = pgEnum("employee_status", ["active", "inactive", "on_leave", "terminated", "archived"]);
 export const employeeTypeEnum = pgEnum("employee_type", ["citizen", "expatriate"]);
 export const licenseStatusEnum = pgEnum("license_status", ["active", "expired", "pending"]);
-export const licenseTypeEnum = pgEnum("license_type", ["main", "branch"]);
+export const licenseTypeEnum = pgEnum("license_type", ["main", "branch", "commercial", "industrial", "professional", "import_export", "tailoring", "fabric", "jewelry", "restaurant", "service"]);
 export const leaveStatusEnum = pgEnum("leave_status", ["pending", "approved", "rejected"]);
 export const leaveTypeEnum = pgEnum("leave_type", ["annual", "sick", "maternity", "emergency", "unpaid"]);
-export const documentTypeEnum = pgEnum("document_type", ["passport", "residence", "license", "contract", "certificate", "other"]);
+export const documentTypeEnum = pgEnum("document_type", ["passport", "residence", "license", "contract", "certificate", "civil_id", "work_permit", "health_certificate", "establishment_document", "tax_certificate", "chamber_membership", "import_export_license", "fire_permit", "municipality_permit", "other"]);
 export const assetStatusEnum = pgEnum("asset_status", ["available", "in_use", "maintenance", "retired", "lost", "damaged"]);
 export const assetTypeEnum = pgEnum("asset_type", ["equipment", "vehicle", "furniture", "electronics", "software", "other"]);
 export const maintenanceStatusEnum = pgEnum("maintenance_status", ["scheduled", "in_progress", "completed", "cancelled"]);
@@ -55,7 +55,7 @@ export const taskStatusEnum = pgEnum("task_status", ["todo", "in_progress", "rev
 export const notificationTypeEnum = pgEnum("notification_type", ["system", "license_expiry", "employee_update", "project_update", "task_assignment", "leave_request", "document_expiry"]);
 export const salaryComponentTypeEnum = pgEnum("salary_component_type", ["basic", "allowance", "bonus", "overtime", "deduction", "tax"]);
 
-// Companies table
+// Companies table - Enhanced for real business data
 export const companies = pgTable("companies", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
@@ -77,6 +77,23 @@ export const companies = pgTable("companies", {
   totalEmployees: integer("total_employees").default(0),
   totalLicenses: integer("total_licenses").default(0),
   isActive: boolean("is_active").default(true),
+  // حقول إضافية مستخرجة من الملفات الحقيقية
+  industryType: text("industry_type"), // أقمشة، مجوهرات، خياطة، تجارة عامة
+  businessActivity: text("business_activity"), // نشاط الشركة التفصيلي
+  location: text("location"), // الموقع: مباركية، الجهراء، الصفاة، فحيحيل، رامين
+  taxNumber: varchar("tax_number"), // الرقم الضريبي
+  chambers: text("chambers"), // غرف التجارة المسجلة بها
+  partnerships: jsonb("partnerships").$type<{
+    partnerName: string;
+    partnershipType: string; // شريك، مدير، مالك
+    percentage?: number;
+  }[]>().default([]),
+  importExportLicense: varchar("import_export_license"), // رخصة الاستيراد والتصدير
+  specialPermits: jsonb("special_permits").$type<{
+    permitType: string;
+    permitNumber: string;
+    expiryDate: string;
+  }[]>().default([]),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -94,7 +111,7 @@ export const companyUsers = pgTable("company_users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Licenses table
+// Licenses table - Enhanced for various license types
 export const licenses = pgTable("licenses", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   companyId: varchar("company_id").notNull().references(() => companies.id),
@@ -109,11 +126,24 @@ export const licenses = pgTable("licenses", {
   associatedEmployees: integer("associated_employees").default(0),
   address: text("address"),
   description: text("description"),
+  // حقول إضافية للتراخيص المتنوعة
+  licenseCategory: text("license_category"), // تجاري، صناعي، مهني، خدمي
+  businessType: text("business_type"), // خياطة، أقمشة، مجوهرات، تجارة عامة
+  shopNumber: varchar("shop_number"), // رقم المحل/الدكان
+  floor: varchar("floor"), // الطابق
+  marketName: text("market_name"), // اسم السوق (المباركية، الجهراء، الخ)
+  renewalRequired: boolean("renewal_required").default(true),
+  annualFee: decimal("annual_fee"), // الرسوم السنوية
+  municipality: text("municipality"), // البلدية
+  firePermit: varchar("fire_permit"), // تصريح الدفاع المدني
+  healthPermit: varchar("health_permit"), // تصريح الصحة (للمطاعم والمختبرات)
+  environmentPermit: varchar("environment_permit"), // تصريح البيئة
+  parentLicenseId: varchar("parent_license_id").references(() => licenses.id), // للتراخيص الفرعية
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Employees table
+// Employees table - Enhanced for comprehensive employee data
 export const employees = pgTable("employees", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   companyId: varchar("company_id").notNull().references(() => companies.id),
@@ -139,6 +169,25 @@ export const employees = pgTable("employees", {
   isArchived: boolean("is_archived").default(false),
   archivedAt: timestamp("archived_at"),
   archivedReason: text("archived_reason"),
+  // حقول إضافية من الملفات الحقيقية
+  passportNumber: varchar("passport_number"), // رقم الجواز
+  passportExpiry: date("passport_expiry"), // انتهاء الجواز
+  residenceNumber: varchar("residence_number"), // رقم الإقامة
+  residenceExpiry: date("residence_expiry"), // انتهاء الإقامة
+  medicalInsurance: varchar("medical_insurance"), // التأمين الطبي
+  bankAccount: varchar("bank_account"), // الحساب البنكي
+  emergencyContactPhone: varchar("emergency_contact_phone"), // هاتف الطوارئ
+  maritalStatus: text("marital_status"), // الحالة الاجتماعية
+  numberOfDependents: integer("number_of_dependents").default(0), // عدد المعالين
+  educationLevel: text("education_level"), // المستوى التعليمي
+  previousExperience: text("previous_experience"), // الخبرة السابقة
+  languages: jsonb("languages").$type<string[]>().default([]), // اللغات
+  skills: jsonb("skills").$type<string[]>().default([]), // المهارات
+  contractType: text("contract_type"), // نوع العقد: محدود، غير محدود، مشروع
+  probationPeriod: integer("probation_period"), // فترة التجريب بالأشهر
+  workLocation: text("work_location"), // مكان العمل
+  department: text("department"), // القسم
+  directSupervisor: varchar("direct_supervisor").references(() => employees.id), // المشرف المباشر
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

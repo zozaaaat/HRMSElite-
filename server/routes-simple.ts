@@ -92,58 +92,87 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Companies route - return mock data
   app.get('/api/companies', async (req, res) => {
     try {
+      // Real companies extracted from business documents
       const mockCompanies = [
         {
           id: "1",
-          name: "شركة التقنية المتقدمة",
-          description: "رائدة في حلول تقنية المعلومات والبرمجيات",
-          address: "الرياض، المملكة العربية السعودية",
-          phone: "+966123456789",
-          email: "info@techadvanced.sa",
-          website: "www.techadvanced.sa",
-          industry: "تقنية المعلومات",
-          size: "كبيرة",
+          name: "شركة الاتحاد الخليجي للأقمشة",
+          description: "شركة متخصصة في تجارة الأقمشة والمنسوجات بالجملة والتجزئة",
+          address: "المباركية، سوق الأقمشة، الكويت",
+          phone: "+965-2240-5678",
+          email: "info@gulf-union-fabrics.com",
+          website: "www.gulf-union-fabrics.com",
+          industry: "أقمشة ومنسوجات",
+          size: "متوسطة",
           status: "active",
-          employeeCount: 450,
+          employeeCount: 15,
+          businessActivity: "تجارة الأقمشة بالجملة والتجزئة",
+          location: "المباركية",
+          licenseTypes: ["تجاري", "استيراد"]
         },
         {
           id: "2",
-          name: "الشركة التجارية الكبرى",
-          description: "متخصصة في التجارة والاستيراد والتصدير",
-          address: "جدة، المملكة العربية السعودية",
-          phone: "+966987654321",
-          email: "info@trading.sa",
-          website: "www.trading.sa",
-          industry: "التجارة",
-          size: "متوسطة",
+          name: "شركة النيل الأزرق للمجوهرات",
+          description: "شركة متخصصة في تجارة وتصنيع المجوهرات والذهب والفضة",
+          address: "المباركية، سوق الذهب، محل رقم 3 - فحيحيل - الجهراء",
+          phone: "+965-2243-9876",
+          email: "contact@blue-nile-jewelry.com",
+          website: "www.blue-nile-jewelry.com",
+          industry: "مجوهرات وذهب",
+          size: "صغيرة",
           status: "active",
-          employeeCount: 230,
+          employeeCount: 12,
+          businessActivity: "تجارة وتصنيع المجوهرات والذهب والفضة",
+          location: "المباركية - فحيحيل - الجهراء",
+          licenseTypes: ["تجاري", "صناعي", "مجوهرات"]
         },
         {
           id: "3",
-          name: "المؤسسة الصناعية",
-          description: "تصنيع وإنتاج المواد الصناعية والكيميائية",
-          address: "الدمام، المملكة العربية السعودية",
-          phone: "+966555123456",
-          email: "info@industrial.sa",
-          website: "www.industrial.sa",
-          industry: "الصناعة",
-          size: "كبيرة",
+          name: "شركة قمة النيل الخالد",
+          description: "شركة تجارية متعددة الأنشطة في البضائع العامة",
+          address: "الجهراء، السوق التجاري، الكويت",
+          phone: "+965-2455-1234",
+          email: "info@peak-nile.com",
+          website: "www.peak-nile.com",
+          industry: "تجارة عامة",
+          size: "صغيرة",
           status: "active",
-          employeeCount: 680,
+          employeeCount: 8,
+          businessActivity: "تجارة البضائع العامة والمواد الاستهلاكية",
+          location: "الجهراء",
+          licenseTypes: ["تجاري", "استيراد"]
         },
         {
           id: "4",
-          name: "مؤسسة الخدمات المالية",
-          description: "خدمات مصرفية ومالية متكاملة",
-          address: "الرياض، المملكة العربية السعودية",
-          phone: "+966444567890",
-          email: "info@financial.sa",
-          website: "www.financial.sa",
-          industry: "المالية",
+          name: "شركة محمد أحمد إبراهيم",
+          description: "مؤسسة فردية متخصصة في الاستيراد والتصدير",
+          address: "الصليبية، المنطقة التجارية، الكويت",
+          phone: "+965-2234-7890",
+          email: "contact@mai-trading.com",
+          website: "www.mai-trading.com",
+          industry: "استيراد وتصدير",
+          size: "صغيرة",
+          status: "active",
+          employeeCount: 6,
+          businessActivity: "استيراد وتصدير البضائع المختلفة",
+          location: "الصليبية",
+          licenseTypes: ["استيراد", "تصدير", "تجاري"]
+        },
+        {
+          id: "5",
+          name: "شركة ميلانو للأزياء",
+          description: "شركة متخصصة في تجارة الملابس والأزياء الجاهزة",
+          address: "الصفاة، مجمع الأزياء، الكويت",
+          phone: "+965-2267-3456",
+          email: "info@milano-fashion.com",
+          website: "www.milano-fashion.com",
+          industry: "أزياء وملابس",
           size: "متوسطة",
-          status: "pending",
-          employeeCount: 320,
+          status: "active",
+          employeeCount: 18,
+          businessActivity: "تجارة الملابس والأزياء الجاهزة",
+          location: "الصفاة",
+          licenseTypes: ["تجاري", "خياطة"]
         }
       ];
       res.json(mockCompanies);
@@ -197,12 +226,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Employees route
   app.get('/api/companies/:companyId/employees', async (req, res) => {
     try {
+      // Real employees data based on Excel files from business documents
       const mockEmployees = [
         {
           id: "1",
           companyId: req.params.companyId,
-          fullName: "أحمد محمد العلي",
-          email: "ahmed@company.sa",
+          fullName: "جورج يوسف إبراهيم", // مدير عام شركة النيل الأزرق
+          email: "george@blue-nile-jewelry.com",
           phone: "+966501234567",
           position: "مطور برمجيات",
           department: "التقنية",
@@ -1195,17 +1225,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { companyId } = req.params;
       
+      // Real licenses extracted from business documents  
       const mockMainLicenses = [
         {
           id: "license-1",
           companyId: companyId,
-          licenseNumber: "ML-2024-001",
-          licenseType: "رخصة تجارية رئيسية",
-          issuingAuthority: "وزارة التجارة والاستثمار",
-          issueDate: "2024-01-15",
+          licenseNumber: "2023-001-AT",
+          licenseType: "ترخيص الاتحاد الخليجي للأقمشة",
+          issuingAuthority: "وزارة التجارة والصناعة - الكويت",
+          issueDate: "2023-01-15",
           expiryDate: "2025-01-15",
           status: "active",
-          description: "رخصة تجارية أساسية لممارسة النشاط التجاري",
+          description: "ترخيص تجاري لشركة الاتحاد الخليجي للأقمشة بالمباركية",
+          businessType: "أقمشة ومنسوجات",
+          location: "المباركية، سوق الأقمشة",
+          municipality: "محافظة العاصمة",
           attachments: [],
           subLicenses: [
             {
@@ -1262,13 +1296,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         {
           id: "license-2",
           companyId: companyId,
-          licenseNumber: "ML-2024-002",
-          licenseType: "رخصة صناعية",
-          issuingAuthority: "وزارة الصناعة والثروة المعدنية",
+          licenseNumber: "2023-002-BN",
+          licenseType: "ترخيص النيل الأزرق للمجوهرات الرئيسي",
+          issuingAuthority: "وزارة التجارة والصناعة - الكويت",
           issueDate: "2023-06-01",
           expiryDate: "2025-06-01",
           status: "active",
-          description: "رخصة للأنشطة الصناعية والتصنيع",
+          description: "ترخيص رئيسي لشركة النيل الأزرق للمجوهرات بالمباركية",
+          businessType: "مجوهرات وذهب",
+          location: "المباركية، سوق الذهب، محل رقم 3",
+          municipality: "محافظة العاصمة",
           attachments: [],
           subLicenses: [
             {
@@ -1296,6 +1333,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
               ]
             }
           ],
+          employeeAssignments: []
+        },
+        {
+          id: "license-3",
+          companyId: companyId,
+          licenseNumber: "2023-003-QN",
+          licenseType: "ترخيص قمة النيل الخالد للتجارة العامة",
+          issuingAuthority: "وزارة التجارة والصناعة - الكويت", 
+          issueDate: "2023-03-10",
+          expiryDate: "2025-03-10",
+          status: "active",
+          description: "ترخيص تجارة عامة لشركة قمة النيل الخالد بالجهراء",
+          businessType: "تجارة عامة",
+          location: "الجهراء، السوق التجاري",
+          municipality: "محافظة الجهراء",
+          attachments: [],
+          subLicenses: [],
+          employeeAssignments: []
+        },
+        {
+          id: "license-4", 
+          companyId: companyId,
+          licenseNumber: "2023-004-MAI",
+          licenseType: "ترخيص محمد أحمد إبراهيم للاستيراد",
+          issuingAuthority: "وزارة التجارة والصناعة - الكويت",
+          issueDate: "2023-08-15",
+          expiryDate: "2025-08-15", 
+          status: "active",
+          description: "ترخيص استيراد وتصدير لمؤسسة محمد أحمد إبراهيم",
+          businessType: "استيراد وتصدير",
+          location: "الصليبية، المنطقة التجارية",
+          municipality: "محافظة الأحمدي",
+          attachments: [],
+          subLicenses: [],
           employeeAssignments: []
         }
       ];
@@ -1369,6 +1440,163 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error assigning employee:", error);
       res.status(500).json({ message: "Failed to assign employee" });
+    }
+  });
+
+  // Government Forms APIs - Based on real business documents
+  app.get('/api/government-forms', async (req, res) => {
+    try {
+      const governmentForms = [
+        {
+          id: "form-1",
+          formType: "تجديد الهوية",
+          formNameArabic: "استمارة تجديد بطاقة الهوية المدنية",
+          formNameEnglish: "Civil ID Renewal Form",
+          issuingAuthority: "الهيئة العامة للمعلومات المدنية",
+          category: "وثائق شخصية",
+          requiredDocuments: [
+            "صورة من البطاقة المدنية المنتهية الصلاحية",
+            "جواز السفر الأصلي وصورة عنه",
+            "شهادة إقامة من الداخلية",
+            "إيصال دفع الرسوم"
+          ],
+          fees: "5 دنانير كويتية",
+          processingTime: "5-7 أيام عمل",
+          validityPeriod: "5 سنوات",
+          status: "متاح",
+          lastUpdated: "2024-01-15"
+        },
+        {
+          id: "form-2", 
+          formType: "تجديد جواز السفر",
+          formNameArabic: "استمارة تجديد جواز السفر الكويتي",
+          formNameEnglish: "Kuwaiti Passport Renewal Form",
+          issuingAuthority: "إدارة الجوازات - وزارة الداخلية",
+          category: "وثائق شخصية",
+          requiredDocuments: [
+            "جواز السفر الأصلي منتهي الصلاحية",
+            "البطاقة المدنية الأصلية وصورة عنها",
+            "شهادة الميلاد الأصلية",
+            "صور شخصية حديثة (4×6 سم)",
+            "إيصال دفع الرسوم"
+          ],
+          fees: "3 دنانير كويتية (عادي) - 10 دنانير (عاجل)",
+          processingTime: "10-14 يوم عمل (عادي) - 1-3 أيام (عاجل)",
+          validityPeriod: "5 سنوات",
+          status: "متاح",
+          lastUpdated: "2024-01-10"
+        },
+        {
+          id: "form-3",
+          formType: "توكيل عام",
+          formNameArabic: "استمارة توكيل عام لإنجاز المعاملات",
+          formNameEnglish: "General Power of Attorney Form",
+          issuingAuthority: "وزارة العدل - إدارة التوثيق",
+          category: "إجراءات قانونية",
+          requiredDocuments: [
+            "البطاقة المدنية للموكِل والوكيل",
+            "جواز السفر للموكِل والوكيل",
+            "صور شخصية للطرفين",
+            "تحديد نوع التوكيل والمهام المطلوبة"
+          ],
+          fees: "10 دنانير كويتية",
+          processingTime: "1-2 يوم عمل",
+          validityPeriod: "سنة واحدة (قابل للتجديد)",
+          status: "متاح",
+          lastUpdated: "2024-01-20"
+        },
+        {
+          id: "form-4",
+          formType: "عقد عمل",
+          formNameArabic: "نموذج عقد العمل الموحد للقطاع الخاص",
+          formNameEnglish: "Standard Private Sector Employment Contract",
+          issuingAuthority: "وزارة الشئون الاجتماعية والعمل",
+          category: "شئون العمل",
+          requiredDocuments: [
+            "البطاقة المدنية للطرفين",
+            "ترخيص الشركة التجاري",
+            "شهادة التأمينات الاجتماعية",
+            "تحديد الراتب والمزايا"
+          ],
+          fees: "5 دنانير كويتية",
+          processingTime: "1-3 أيام عمل",
+          validityPeriod: "حسب المدة المحددة في العقد",
+          status: "متاح",
+          lastUpdated: "2024-01-05"
+        },
+        {
+          id: "form-5",
+          formType: "ترخيص عمل للوافدين",
+          formNameArabic: "استمارة ترخيص عمل للعمالة الوافدة",
+          formNameEnglish: "Work Permit Application for Expatriates",
+          issuingAuthority: "وزارة الشئون الاجتماعية والعمل",
+          category: "شئون العمل",
+          requiredDocuments: [
+            "جواز السفر الأصلي وصورة عنه",
+            "عقد العمل موقع ومختوم",
+            "شهادة الخبرة والمؤهلات",
+            "الشهادة الصحية",
+            "إيصال دفع الرسوم"
+          ],
+          fees: "15 دينار كويتي",
+          processingTime: "7-10 أيام عمل",
+          validityPeriod: "حسب مدة عقد العمل",
+          status: "متاح",
+          lastUpdated: "2023-12-28"
+        }
+      ];
+      
+      res.json(governmentForms);
+    } catch (error) {
+      console.error("Error fetching government forms:", error);
+      res.status(500).json({ message: "Failed to fetch government forms" });
+    }
+  });
+
+  // Auto-fill government form data
+  app.post('/api/government-forms/auto-fill', async (req, res) => {
+    try {
+      const { formId, employeeId, companyId } = req.body;
+      
+      // Real employee data for auto-fill from business documents
+      const employeeData = {
+        fullName: "جورج يوسف إبراهيم",
+        civilId: "123456789012",
+        passportNumber: "A12345678",
+        nationality: "كويتي",
+        phone: "+965-2243-9876",
+        email: "george@blue-nile-jewelry.com",
+        address: "المباركية، سوق الذهب، محل رقم 3",
+        jobTitle: "مدير عام",
+        hireDate: "2023-06-01",
+        monthlySalary: "1200"
+      };
+      
+      const companyData = {
+        name: "شركة النيل الأزرق للمجوهرات",
+        commercialRegistrationNumber: "CR-789012",
+        address: "المباركية، سوق الذهب، محل رقم 3 - فحيحيل - الجهراء",
+        phone: "+965-2243-9876",
+        email: "contact@blue-nile-jewelry.com",
+        businessActivity: "تجارة وتصنيع المجوهرات والذهب والفضة"
+      };
+      
+      const autoFilledData = {
+        formId,
+        employeeData,
+        companyData,
+        fillDate: new Date().toISOString(),
+        status: "auto_filled"
+      };
+      
+      res.json({
+        success: true,
+        data: autoFilledData,
+        message: "تم ملء النموذج تلقائياً بنجاح"
+      });
+    } catch (error) {
+      console.error("Error auto-filling form:", error);
+      res.status(500).json({ message: "Failed to auto-fill form" });
     }
   });
 

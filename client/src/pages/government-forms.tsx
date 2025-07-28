@@ -41,38 +41,66 @@ export default function GovernmentForms() {
     queryKey: ['/api/employees'],
   });
 
-  const { data: formTemplates = [] } = useQuery({
-    queryKey: ['/api/government-forms/templates'],
+  const { data: governmentFormsData = [] } = useQuery<any[]>({
+    queryKey: ['/api/government-forms'],
   });
 
-  // بيانات النماذج الحكومية
-  const governmentForms = [
+  // Auto-fill form function
+  const handleAutoFill = async (formId: string) => {
+    try {
+      const response = await fetch('/api/government-forms/auto-fill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formId,
+          employeeId: selectedEmployee,
+          companyId: 'demo-company-id'
+        }),
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        setPreviewData(result.data);
+        setIsPreviewOpen(true);
+        toast({
+          title: "تم ملء النموذج",
+          description: result.message,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "خطأ",
+        description: "فشل في ملء النموذج تلقائياً",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Real government forms data from server
+  const governmentForms = governmentFormsData.length > 0 ? governmentFormsData : [
     {
-      id: "manpower_license",
-      category: "licenses",
-      nameAr: "رخصة القوى العاملة",
-      nameEn: "Manpower License",
-      ministry: "وزارة الداخلية - الهيئة العامة للقوى العاملة",
-      description: "طلب إصدار أو تجديد رخصة استقدام عمالة",
-      fields: ["company_name", "license_number", "activity_type", "employee_count", "nationality_breakdown"],
-      icon: Building,
+      id: "form-1",
+      formType: "تجديد الهوية",
+      formNameArabic: "استمارة تجديد بطاقة الهوية المدنية",
+      formNameEnglish: "Civil ID Renewal Form",
+      issuingAuthority: "الهيئة العامة للمعلومات المدنية",
+      category: "وثائق شخصية",
+      icon: FileText,
       color: "bg-blue-500"
     },
     {
-      id: "residence_permit",
-      category: "permits",
-      nameAr: "تصريح إقامة",
-      nameEn: "Residence Permit",
-      ministry: "وزارة الداخلية - الأمن العام",
-      description: "طلب إصدار أو تجديد تصريح إقامة للعمالة الوافدة",
-      fields: ["employee_name", "passport_number", "nationality", "job_title", "salary", "sponsor_info"],
-      icon: Users,
+      id: "form-2",
+      formType: "تجديد جواز السفر",
+      formNameArabic: "استمارة تجديد جواز السفر الكويتي", 
+      formNameEnglish: "Kuwaiti Passport Renewal Form",
+      issuingAuthority: "إدارة الجوازات - وزارة الداخلية",
+      category: "وثائق شخصية",
+      icon: FileCheck,
       color: "bg-green-500"
     },
     {
-      id: "work_permit",
-      category: "permits",
-      nameAr: "تصريح عمل",
+      id: "form-3",
+      formType: "توكيل عام",
       nameEn: "Work Permit",
       ministry: "وزارة التجارة والصناعة",
       description: "تصريح مزاولة مهنة أو حرفة",
@@ -138,21 +166,17 @@ export default function GovernmentForms() {
   ];
 
   const formCategories = [
-    { id: "all", nameAr: "جميع النماذج", count: governmentForms.length },
-    { id: "licenses", nameAr: "التراخيص", count: governmentForms.filter(f => f.category === "licenses").length },
-    { id: "permits", nameAr: "التصاريح", count: governmentForms.filter(f => f.category === "permits").length },
-    { id: "insurance", nameAr: "التأمينات", count: governmentForms.filter(f => f.category === "insurance").length },
-    { id: "disciplinary", nameAr: "التأديبية", count: governmentForms.filter(f => f.category === "disciplinary").length },
-    { id: "financial", nameAr: "المالية", count: governmentForms.filter(f => f.category === "financial").length },
-    { id: "permissions", nameAr: "الأذونات", count: governmentForms.filter(f => f.category === "permissions").length },
-    { id: "termination", nameAr: "إنهاء الخدمة", count: governmentForms.filter(f => f.category === "termination").length }
+    { id: "all", nameAr: "جميع النماذج", count: (governmentForms as any[]).length },
+    { id: "وثائق شخصية", nameAr: "الوثائق الشخصية", count: (governmentForms as any[]).filter((f: any) => f.category === "وثائق شخصية").length },
+    { id: "شئون العمل", nameAr: "شئون العمل", count: (governmentForms as any[]).filter((f: any) => f.category === "شئون العمل").length },
+    { id: "إجراءات قانونية", nameAr: "الإجراءات القانونية", count: (governmentForms as any[]).filter((f: any) => f.category === "إجراءات قانونية").length }
   ];
 
   const [selectedCategory, setSelectedCategory] = useState("all");
 
-  const filteredForms = governmentForms.filter(form => 
+  const filteredForms = (governmentForms as any[]).filter((form: any) => 
     (selectedCategory === "all" || form.category === selectedCategory) &&
-    (form.nameAr.includes(searchQuery) || form.nameEn.includes(searchQuery))
+    (form.formNameArabic?.includes(searchQuery) || form.formNameEnglish?.includes(searchQuery) || form.formType?.includes(searchQuery))
   );
 
   const handleFillForm = (formId: string, employeeId: string) => {
@@ -255,19 +279,19 @@ export default function GovernmentForms() {
 
         <TabsContent value={selectedCategory} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredForms.map((form) => {
-              const IconComponent = form.icon;
+            {filteredForms.map((form: any) => {
+              const IconComponent = form.icon || FileText;
               return (
                 <Card key={form.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 ${form.color} rounded-lg flex items-center justify-center`}>
+                        <div className={`w-12 h-12 ${form.color || 'bg-blue-500'} rounded-lg flex items-center justify-center`}>
                           <IconComponent className="h-6 w-6 text-white" />
                         </div>
                         <div>
-                          <CardTitle className="text-lg">{form.nameAr}</CardTitle>
-                          <p className="text-sm text-muted-foreground">{form.nameEn}</p>
+                          <CardTitle className="text-lg">{form.formNameArabic || form.formType}</CardTitle>
+                          <p className="text-sm text-muted-foreground">{form.formNameEnglish || form.nameEn}</p>
                         </div>
                       </div>
                     </div>
@@ -275,32 +299,34 @@ export default function GovernmentForms() {
                   <CardContent className="space-y-4">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground mb-1">الجهة المختصة:</p>
-                      <p className="text-sm">{form.ministry}</p>
+                      <p className="text-sm">{form.issuingAuthority || form.ministry}</p>
                     </div>
                     
                     <div>
                       <p className="text-sm font-medium text-muted-foreground mb-1">الوصف:</p>
-                      <p className="text-sm">{form.description}</p>
+                      <p className="text-sm">{form.description || 'نموذج حكومي'}</p>
                     </div>
 
-                    <div className="flex flex-wrap gap-1">
-                      {form.fields.slice(0, 3).map((field, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {field.replace(/_/g, ' ')}
-                        </Badge>
-                      ))}
-                      {form.fields.length > 3 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{form.fields.length - 3} المزيد
-                        </Badge>
-                      )}
-                    </div>
+                    {form.requiredDocuments && (
+                      <div className="flex flex-wrap gap-1">
+                        {form.requiredDocuments.slice(0, 2).map((doc: any, index: any) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {doc}
+                          </Badge>
+                        ))}
+                        {form.requiredDocuments.length > 2 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{form.requiredDocuments.length - 2} المزيد
+                          </Badge>
+                        )}
+                      </div>
+                    )}
 
                     <div className="flex items-center gap-2 pt-2">
                       <Button 
                         size="sm" 
                         className="flex-1"
-                        onClick={() => handleFillForm(form.id, selectedEmployee)}
+                        onClick={() => handleAutoFill(form.id)}
                         disabled={!selectedEmployee}
                       >
                         <FileText className="h-4 w-4 ml-2" />
