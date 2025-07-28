@@ -1,0 +1,611 @@
+{
+  "1": {
+    "name": "شركة الاتحاد الخليجي للأقمشة",
+    "licenses": [
+      {
+        "id": "doc-1753697209950-p2bt3",
+        "name": "ترخيص الاتحاد الخليجي للاقمشة 2023.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/ترخيص الاتحاد الخليجي للاقمشة 2023.pdf",
+        "type": "license",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "expiring_soon",
+        "expiryDate": "2024-12-31",
+        "description": "ترخيص تشغيل الأعمال التجارية"
+      }
+    ],
+    "documents": [
+      {
+        "id": "doc-1753697209945-ime49",
+        "name": "استيراد الاتحاد   2025.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/استيراد الاتحاد   2025.pdf",
+        "type": "import_permit",
+        "category": "import",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": "2026-12-31",
+        "description": "تصريح استيراد البضائع من الخارج"
+      },
+      {
+        "id": "doc-1753697209946-j8z1v",
+        "name": "اعتماد توقيع الاتحاد 20250512.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/اعتماد توقيع الاتحاد 20250512.pdf",
+        "type": "certification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": "2026-12-31",
+        "description": "اعتماد توقيع من الجهات المختصة"
+      },
+      {
+        "id": "doc-1753697209948-fgxvo",
+        "name": "الهيئة العامة للقوي العاملة عقد عمل جديد.docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/الهيئة العامة للقوي العاملة عقد عمل جديد.docx",
+        "type": "contract",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209963-owr8q",
+        "name": "طلب اصدار هوية للمرور.docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/طلب اصدار هوية للمرور.docx",
+        "type": "identification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209963-1x25o",
+        "name": "طلب جوازات 2017.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/طلب جوازات 2017.pdf",
+        "type": "passport_service",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209963-pwokv",
+        "name": "عقد تاسيس الاتحاد الخليجي (2).pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/عقد تاسيس الاتحاد الخليجي (2).pdf",
+        "type": "contract",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "عقد تأسيس الشركة والشراكة"
+      },
+      {
+        "id": "doc-1753697209972-462ur",
+        "name": "نموذج هوية 1جوازات.docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/نموذج هوية 1جوازات.docx",
+        "type": "identification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209972-rsxsh",
+        "name": "نموذج هوية جوازات (2).docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/نموذج هوية جوازات (2).docx",
+        "type": "identification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      }
+    ],
+    "employees": 52
+  },
+  "2": {
+    "name": "شركة النيل الأزرق للمجوهرات",
+    "licenses": [
+      {
+        "id": "doc-1753697209950-w0vtm",
+        "name": "ترخيص النيل الازرق الرئيسي مباركية.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/ترخيص النيل الازرق الرئيسي مباركية.pdf",
+        "type": "license",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "ترخيص تشغيل الأعمال التجارية"
+      },
+      {
+        "id": "doc-1753697209951-o8guw",
+        "name": "ترخيص النيل الازرق محل 3 رامين.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/ترخيص النيل الازرق محل 3 رامين.pdf",
+        "type": "license",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "ترخيص تشغيل الأعمال التجارية"
+      },
+      {
+        "id": "doc-1753697209953-w3m1d",
+        "name": "ترخيص شركة النيل الازرق جهراء 16 توافق 24.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/ترخيص شركة النيل الازرق جهراء 16 توافق 24.pdf",
+        "type": "license",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "ترخيص تشغيل الأعمال التجارية"
+      },
+      {
+        "id": "doc-1753697209953-1izc1",
+        "name": "ترخيص شركة النيل الازرق للمجوهرات 2-3 فحيحيل.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/ترخيص شركة النيل الازرق للمجوهرات 2-3 فحيحيل.pdf",
+        "type": "license",
+        "category": "jewelry",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "ترخيص تجارة المجوهرات - متخصص لتجارة الذهب والمجوهرات"
+      },
+      {
+        "id": "doc-1753697209955-ohowm",
+        "name": "ترخيص مكتب النيل الازرق فحيحيل.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/ترخيص مكتب النيل الازرق فحيحيل.pdf",
+        "type": "license",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "ترخيص تشغيل الأعمال التجارية"
+      }
+    ],
+    "documents": [
+      {
+        "id": "doc-1753697209945-kwt0t",
+        "name": "استيراد النيل الازرق للمجوهرات 2025.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/استيراد النيل الازرق للمجوهرات 2025.pdf",
+        "type": "import_permit",
+        "category": "jewelry",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": "2026-12-31",
+        "description": "تصريح استيراد البضائع من الخارج"
+      },
+      {
+        "id": "doc-1753697209946-whx3t",
+        "name": "اعتماد النيل الازرق 20250528.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/اعتماد النيل الازرق 20250528.pdf",
+        "type": "certification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": "2026-12-31",
+        "description": "اعتماد توقيع من الجهات المختصة"
+      },
+      {
+        "id": "doc-1753697209948-fgxvo",
+        "name": "الهيئة العامة للقوي العاملة عقد عمل جديد.docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/الهيئة العامة للقوي العاملة عقد عمل جديد.docx",
+        "type": "contract",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209948-mppuu",
+        "name": "بطاقات شركاء النيل الأزرق للمجوهرات.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/بطاقات شركاء النيل الأزرق للمجوهرات.pdf",
+        "type": "identification",
+        "category": "jewelry",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "مستند رسمي للشركة"
+      },
+      {
+        "id": "doc-1753697209948-c5mwa",
+        "name": "ت مصنع  النيل الازرق.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/ت مصنع  النيل الازرق.pdf",
+        "type": "document",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "مستند رسمي للشركة"
+      },
+      {
+        "id": "doc-1753697209956-h3tyf",
+        "name": "شركة النيل الازرق للمجوهرات نبي ج ج.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/شركة النيل الازرق للمجوهرات نبي ج ج.pdf",
+        "type": "document",
+        "category": "jewelry",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "مستند رسمي للشركة"
+      },
+      {
+        "id": "doc-1753697209963-owr8q",
+        "name": "طلب اصدار هوية للمرور.docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/طلب اصدار هوية للمرور.docx",
+        "type": "identification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209963-1x25o",
+        "name": "طلب جوازات 2017.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/طلب جوازات 2017.pdf",
+        "type": "passport_service",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209963-9t8vc",
+        "name": "عقد تاسيس النيل الازرق.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/عقد تاسيس النيل الازرق.pdf",
+        "type": "contract",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "عقد تأسيس الشركة والشراكة"
+      },
+      {
+        "id": "doc-1753697209972-462ur",
+        "name": "نموذج هوية 1جوازات.docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/نموذج هوية 1جوازات.docx",
+        "type": "identification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209972-rsxsh",
+        "name": "نموذج هوية جوازات (2).docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/نموذج هوية جوازات (2).docx",
+        "type": "identification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      }
+    ],
+    "employees": 56
+  },
+  "3": {
+    "name": "شركة قمة النيل للذهب",
+    "licenses": [
+      {
+        "id": "doc-1753697209953-54nw4",
+        "name": "ترخيص قمة النيل.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/ترخيص قمة النيل.pdf",
+        "type": "license",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "ترخيص تشغيل الأعمال التجارية"
+      }
+    ],
+    "documents": [
+      {
+        "id": "doc-1753697209945-qsycb",
+        "name": "استيراد قمة النيل  2025.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/استيراد قمة النيل  2025.pdf",
+        "type": "import_permit",
+        "category": "import",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": "2026-12-31",
+        "description": "تصريح استيراد البضائع من الخارج"
+      },
+      {
+        "id": "doc-1753697209947-xm2bm",
+        "name": "اعتماد قمة النيل 20250101.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/اعتماد قمة النيل 20250101.pdf",
+        "type": "certification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": "2026-12-31",
+        "description": "اعتماد توقيع من الجهات المختصة"
+      },
+      {
+        "id": "doc-1753697209948-fgxvo",
+        "name": "الهيئة العامة للقوي العاملة عقد عمل جديد.docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/الهيئة العامة للقوي العاملة عقد عمل جديد.docx",
+        "type": "contract",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209948-3exst",
+        "name": "ب م الشركاء قمة النيل (1).pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/ب م الشركاء قمة النيل (1).pdf",
+        "type": "document",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "مستند رسمي للشركة"
+      },
+      {
+        "id": "doc-1753697209963-owr8q",
+        "name": "طلب اصدار هوية للمرور.docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/طلب اصدار هوية للمرور.docx",
+        "type": "identification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209963-1x25o",
+        "name": "طلب جوازات 2017.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/طلب جوازات 2017.pdf",
+        "type": "passport_service",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209964-bzphj",
+        "name": "عقد قمة النيل تاسيس وتعديل (4).pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/عقد قمة النيل تاسيس وتعديل (4).pdf",
+        "type": "contract",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "عقد تأسيس الشركة والشراكة"
+      },
+      {
+        "id": "doc-1753697209972-462ur",
+        "name": "نموذج هوية 1جوازات.docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/نموذج هوية 1جوازات.docx",
+        "type": "identification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209972-rsxsh",
+        "name": "نموذج هوية جوازات (2).docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/نموذج هوية جوازات (2).docx",
+        "type": "identification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      }
+    ],
+    "employees": 31
+  },
+  "4": {
+    "name": "شركة محمد أحمد إبراهيم",
+    "licenses": [
+      {
+        "id": "doc-1753697209953-fs9t6",
+        "name": "ترخيص شركة محمد احمد ابراهيم 2023.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/ترخيص شركة محمد احمد ابراهيم 2023.pdf",
+        "type": "license",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "expiring_soon",
+        "expiryDate": "2024-12-31",
+        "description": "ترخيص تشغيل الأعمال التجارية"
+      }
+    ],
+    "documents": [
+      {
+        "id": "doc-1753697209945-8fy0i",
+        "name": "استيراد شركة محمد احمد 2025.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/استيراد شركة محمد احمد 2025.pdf",
+        "type": "import_permit",
+        "category": "import",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": "2026-12-31",
+        "description": "تصريح استيراد البضائع من الخارج"
+      },
+      {
+        "id": "doc-1753697209947-ixe5z",
+        "name": "اعتماد توقيع شركة محمد احمد 2025.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/اعتماد توقيع شركة محمد احمد 2025.pdf",
+        "type": "certification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": "2026-12-31",
+        "description": "اعتماد توقيع من الجهات المختصة"
+      },
+      {
+        "id": "doc-1753697209948-fgxvo",
+        "name": "الهيئة العامة للقوي العاملة عقد عمل جديد.docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/الهيئة العامة للقوي العاملة عقد عمل جديد.docx",
+        "type": "contract",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209950-aj6q0",
+        "name": "تاسيس شركة محمد احمد ابراهيم.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/تاسيس شركة محمد احمد ابراهيم.pdf",
+        "type": "document",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "مستند رسمي للشركة"
+      },
+      {
+        "id": "doc-1753697209963-owr8q",
+        "name": "طلب اصدار هوية للمرور.docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/طلب اصدار هوية للمرور.docx",
+        "type": "identification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209963-1x25o",
+        "name": "طلب جوازات 2017.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/طلب جوازات 2017.pdf",
+        "type": "passport_service",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209972-462ur",
+        "name": "نموذج هوية 1جوازات.docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/نموذج هوية 1جوازات.docx",
+        "type": "identification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209972-rsxsh",
+        "name": "نموذج هوية جوازات (2).docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/نموذج هوية جوازات (2).docx",
+        "type": "identification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      }
+    ],
+    "employees": 33
+  },
+  "5": {
+    "name": "شركة ميلانو",
+    "licenses": [
+      {
+        "id": "doc-1753697209952-iq8hi",
+        "name": "ترخيص خياط ليزا فاشن ميلانو.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/ترخيص خياط ليزا فاشن ميلانو.pdf",
+        "type": "license",
+        "category": "textiles",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "ترخيص خياطة - يسمح بأعمال الخياطة والتفصيل"
+      }
+    ],
+    "documents": [
+      {
+        "id": "doc-1753697209946-s085l",
+        "name": "اعتماد الشئون ميلانو 20250601.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/اعتماد الشئون ميلانو 20250601.pdf",
+        "type": "certification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": "2026-12-31",
+        "description": "اعتماد توقيع من الجهات المختصة"
+      },
+      {
+        "id": "doc-1753697209948-fgxvo",
+        "name": "الهيئة العامة للقوي العاملة عقد عمل جديد.docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/الهيئة العامة للقوي العاملة عقد عمل جديد.docx",
+        "type": "contract",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209963-owr8q",
+        "name": "طلب اصدار هوية للمرور.docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/طلب اصدار هوية للمرور.docx",
+        "type": "identification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209963-1x25o",
+        "name": "طلب جوازات 2017.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/طلب جوازات 2017.pdf",
+        "type": "passport_service",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209964-lsqrk",
+        "name": "عقد تاسيس ميلانو.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/عقد تاسيس ميلانو.pdf",
+        "type": "contract",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "expiryDate": null,
+        "description": "عقد تأسيس الشركة والشراكة"
+      },
+      {
+        "id": "doc-1753697209972-vg42r",
+        "name": "نرخيص مرمر 2023.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/نرخيص مرمر 2023.pdf",
+        "type": "document",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "expiring_soon",
+        "expiryDate": "2024-12-31",
+        "description": "مستند رسمي للشركة"
+      },
+      {
+        "id": "doc-1753697209972-8nhgh",
+        "name": "نرخيص ميلانو 2023.pdf",
+        "path": "/home/runner/workspace/attached_assets/ملفات/نرخيص ميلانو 2023.pdf",
+        "type": "document",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "expiring_soon",
+        "expiryDate": "2024-12-31",
+        "description": "مستند رسمي للشركة"
+      },
+      {
+        "id": "doc-1753697209972-462ur",
+        "name": "نموذج هوية 1جوازات.docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/نموذج هوية 1جوازات.docx",
+        "type": "identification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      },
+      {
+        "id": "doc-1753697209972-rsxsh",
+        "name": "نموذج هوية جوازات (2).docx",
+        "path": "/home/runner/workspace/attached_assets/ملفات/نموذج هوية جوازات (2).docx",
+        "type": "identification",
+        "category": "general",
+        "uploadDate": "2025-07-28",
+        "status": "active",
+        "description": "مستند عام"
+      }
+    ],
+    "employees": 77
+  }
+}

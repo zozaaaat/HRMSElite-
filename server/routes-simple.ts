@@ -2,6 +2,19 @@ import type { Express } from "express";
 // Enhanced HRMS system with special attention to gold and fabrics companies
 import { createServer, type Server } from "http";
 import { getAllEmployees, getCompanyEmployees, getRealCompanyData } from "./real-employees-data";
+import fs from 'fs';
+import path from 'path';
+
+// Load real documents data
+let realDocumentsData = {};
+try {
+  const documentsPath = path.join(process.cwd(), 'server', 'real-documents.json');
+  const rawData = fs.readFileSync(documentsPath, 'utf8');
+  realDocumentsData = JSON.parse(rawData);
+  console.log('Loaded real documents data successfully');
+} catch (error) {
+  console.error('Error loading real documents data:', error);
+}
 
 // Mock users for authentication
 const mockUsers = [
@@ -187,6 +200,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching companies:", error);
       res.status(500).json({ message: "Failed to fetch companies" });
+    }
+  });
+
+  // Company licenses route with real data
+  app.get('/api/companies/:companyId/licenses', async (req, res) => {
+    try {
+      const { companyId } = req.params;
+      const companyData = realDocumentsData[companyId];
+      if (companyData && companyData.licenses) {
+        console.log(`Returning ${companyData.licenses.length} licenses for company ${companyId}`);
+        res.json(companyData.licenses);
+      } else {
+        res.json([]);
+      }
+    } catch (error) {
+      console.error("Error fetching company licenses:", error);
+      res.status(500).json({ message: "Failed to fetch licenses" });
+    }
+  });
+
+  // Company documents route with real data
+  app.get('/api/companies/:companyId/documents', async (req, res) => {
+    try {
+      const { companyId } = req.params;
+      const companyData = realDocumentsData[companyId];
+      if (companyData && companyData.documents) {
+        console.log(`Returning ${companyData.documents.length} documents for company ${companyId}`);
+        res.json(companyData.documents);
+      } else {
+        res.json([]);
+      }
+    } catch (error) {
+      console.error("Error fetching company documents:", error);
+      res.status(500).json({ message: "Failed to fetch documents" });
+    }
+  });
+
+  // All licenses route
+  app.get('/api/licenses', async (req, res) => {
+    try {
+      const allLicenses = [];
+      Object.values(realDocumentsData).forEach((company: any) => {
+        if (company.licenses) {
+          allLicenses.push(...company.licenses);
+        }
+      });
+      console.log(`Returning ${allLicenses.length} total licenses`);
+      res.json(allLicenses);
+    } catch (error) {
+      console.error("Error fetching all licenses:", error);
+      res.status(500).json({ message: "Failed to fetch licenses" });
+    }
+  });
+
+  // All documents route
+  app.get('/api/documents', async (req, res) => {
+    try {
+      const allDocuments = [];
+      Object.values(realDocumentsData).forEach((company: any) => {
+        if (company.documents) {
+          allDocuments.push(...company.documents);
+        }
+      });
+      console.log(`Returning ${allDocuments.length} total documents`);
+      res.json(allDocuments);
+    } catch (error) {
+      console.error("Error fetching all documents:", error);
+      res.status(500).json({ message: "Failed to fetch documents" });
     }
   });
 
