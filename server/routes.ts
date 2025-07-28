@@ -429,6 +429,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Administrative Employees & Permissions APIs
+  app.get('/api/administrative-employees', async (req, res) => {
+    try {
+      const adminEmployees = [
+        {
+          id: "admin1",
+          fullName: "أحمد محمد علي",
+          jobTitle: "مسؤول الموارد البشرية",
+          role: "administrative_employee",
+          permissions: ["hr", "reports"]
+        },
+        {
+          id: "admin2", 
+          fullName: "فاطمة سالم",
+          jobTitle: "مسؤولة المحاسبة",
+          role: "administrative_employee",
+          permissions: ["accounting", "reports"]
+        },
+        {
+          id: "admin3",
+          fullName: "محمد خالد",
+          jobTitle: "مسؤول المشتريات",
+          role: "administrative_employee", 
+          permissions: ["purchasing", "inventory"]
+        }
+      ];
+      res.json(adminEmployees);
+    } catch (error) {
+      res.status(500).json({ error: 'Server error' });
+    }
+  });
+
+  app.get('/api/permissions/:employeeId', async (req, res) => {
+    try {
+      const { employeeId } = req.params;
+      
+      // Mock permissions data - في التطبيق الحقيقي ستأتي من قاعدة البيانات
+      const mockPermissions = {
+        admin1: {
+          hr: {
+            employees_view: true,
+            employees_create: true,
+            employees_edit: true,
+            employees_delete: false,
+            leaves_approve: true,
+            payroll_process: false,
+            violations_manage: true
+          },
+          reports: {
+            reports_view: true,
+            reports_create: false,
+            reports_export: true,
+            analytics_access: false
+          }
+        },
+        admin2: {
+          accounting: {
+            financial_view: true,
+            invoices_create: true,
+            expenses_approve: true,
+            budgets_manage: false,
+            taxes_process: true,
+            financial_export: true
+          },
+          reports: {
+            reports_view: true,
+            reports_create: true,
+            reports_export: true,
+            analytics_access: true
+          }
+        },
+        admin3: {
+          purchasing: {
+            purchases_view: true,
+            orders_create: true,
+            orders_approve: false,
+            vendors_manage: true
+          },
+          inventory: {
+            inventory_view: true,
+            items_add: true,
+            stock_adjust: false,
+            orders_approve: false,
+            suppliers_manage: true
+          }
+        }
+      };
+
+      res.json(mockPermissions[employeeId] || {});
+    } catch (error) {
+      res.status(500).json({ error: 'Server error' });
+    }
+  });
+
+  app.put('/api/permissions/:employeeId', async (req, res) => {
+    try {
+      const { employeeId } = req.params;
+      const permissions = req.body;
+      
+      console.log(`Updating permissions for employee ${employeeId}:`, permissions);
+      
+      // هنا ستتم معالجة حفظ الصلاحيات في قاعدة البيانات
+      res.json({ success: true, message: "تم تحديث الصلاحيات بنجاح" });
+    } catch (error) {
+      res.status(500).json({ error: 'Server error' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

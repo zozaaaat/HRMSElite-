@@ -38,7 +38,7 @@ export const users = pgTable("users", {
 });
 
 // Enums
-export const userRoleEnum = pgEnum("user_role", ["super_admin", "company_manager", "employee"]);
+export const userRoleEnum = pgEnum("user_role", ["super_admin", "company_manager", "administrative_employee", "supervisor", "worker"]);
 export const employeeStatusEnum = pgEnum("employee_status", ["active", "inactive", "on_leave", "terminated", "archived"]);
 export const employeeTypeEnum = pgEnum("employee_type", ["citizen", "expatriate"]);
 export const licenseStatusEnum = pgEnum("license_status", ["active", "expired", "pending"]);
@@ -84,6 +84,7 @@ export const companyUsers = pgTable("company_users", {
   companyId: varchar("company_id").notNull().references(() => companies.id),
   role: userRoleEnum("role").notNull(),
   permissions: jsonb("permissions").$type<string[]>().default([]),
+  supervisedWorkers: jsonb("supervised_workers").$type<string[]>().default([]), // للمشرفين: قائمة العمال تحت الإشراف
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -211,6 +212,42 @@ export const notifications = pgTable("notifications", {
   relatedEntityId: varchar("related_entity_id"),
   relatedEntityType: varchar("related_entity_type"),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Administrative Employee Permissions - customizable by Company Manager
+export const adminPermissions = pgTable("admin_permissions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyUserId: varchar("company_user_id").notNull().references(() => companyUsers.id),
+  permissionGroup: text("permission_group").notNull(), // مثل: hr, accounting, purchasing, inventory
+  permissions: jsonb("permissions").$type<{
+    canView: boolean;
+    canCreate: boolean;
+    canEdit: boolean;
+    canDelete: boolean;
+    canApprove: boolean;
+    canExport: boolean;
+    specificPermissions?: string[];
+  }>().notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Supervisor Reports - تقارير المشرفين عن العمال
+export const supervisorReports = pgTable("supervisor_reports", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  supervisorId: varchar("supervisor_id").notNull().references(() => companyUsers.id),
+  workerId: varchar("worker_id").notNull().references(() => employees.id),
+  reportType: text("report_type").notNull(), // daily, weekly, monthly, incident
+  subject: text("subject").notNull(),
+  description: text("description").notNull(),
+  priority: text("priority").notNull().default("normal"), // low, normal, high, urgent
+  status: text("status").notNull().default("submitted"), // submitted, reviewed, resolved
+  reportedToId: varchar("reported_to_id").references(() => companyUsers.id), // المدير أو الموظف الإداري المرسل له
+  reviewedBy: varchar("reviewed_by").references(() => companyUsers.id),
+  reviewedAt: timestamp("reviewed_at"),
+  actionTaken: text("action_taken"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Relations

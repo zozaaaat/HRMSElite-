@@ -35,9 +35,11 @@ Preferred communication style: Simple, everyday language.
 ## Key Components
 
 ### Authentication & Authorization
-- **Multi-role system**: Super Admin, Company Manager, Employee
+- **5-role system**: Super Admin, Company Manager, Administrative Employee (customizable), Supervisor, Worker
 - **Session-based authentication** using Replit's OpenID Connect
-- **Granular permissions** system for employee access control
+- **Customizable permissions** for Administrative Employees set by Company Manager
+- **Supervisor role**: Worker with oversight responsibilities over other workers
+- **Worker role**: Any non-administrative position (not limited to manual labor)
 - **Multi-tenant architecture** with company isolation
 
 ### Database Schema
@@ -124,9 +126,14 @@ Preferred communication style: Simple, everyday language.
 
 #### الميزات الأساسية المكتملة:
 - **نظام HRMS متعدد الشركات**: إدارة شاملة مع عزل البيانات
-- **5 أدوار مستخدمين**: Super Admin, Company Manager, Employee, Supervisor, Worker
+- **5 أدوار مستخدمين محددة**:
+  - Super Admin: إدارة النظام العام
+  - Company Manager: إدارة الشركة وتخصيص صلاحيات الموظفين الإداريين
+  - Administrative Employee: صلاحيات قابلة للتخصيص بواسطة مدير الشركة
+  - Supervisor: عامل مع مسؤولية إشراف على عمال آخرين
+  - Worker: أي وظيفة غير إدارية (ليس مقتصر على العمال اليدويين)
 - **واجهة عربية كاملة**: دعم RTL مع تصميم متجاوب
-- **نظام الصلاحيات المتقدم**: تحكم دقيق في الوصول للميزات
+- **نظام الصلاحيات المتقدم**: تخصيص كامل للموظفين الإداريين من قبل مدير الشركة
 - **إدارة الموظفين المتقدمة**: ملفات شاملة مع تتبع الحالة
 - **نظام أرشفة الموظفين**: حفظ آمن للسجلات التاريخية
 

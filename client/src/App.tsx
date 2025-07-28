@@ -26,6 +26,7 @@ import MobileApps from "@/pages/mobile-apps";
 import AccountingSystems from "@/pages/accounting-systems";
 import AssetsManagement from "@/pages/assets-management";
 import GovernmentForms from "@/pages/government-forms";
+import PermissionsManagement from "@/pages/permissions-management";
 
 function Router() {
   return (
@@ -57,6 +58,7 @@ function Router() {
       <Route path="/accounting-systems" component={AccountingSystems} />
       <Route path="/assets-management" component={AssetsManagement} />
       <Route path="/government-forms" component={GovernmentForms} />
+      <Route path="/permissions-management" component={PermissionsManagement} />
       
       {/* 404 page */}
       <Route component={NotFound} />
