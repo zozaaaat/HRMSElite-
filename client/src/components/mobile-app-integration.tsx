@@ -311,11 +311,11 @@ export function MobileAppIntegration({ isOpen, onClose }: MobileAppProps) {
                       <h3 className="text-xl font-semibold">حمل التطبيق الآن</h3>
                       <p className="text-muted-foreground">متوفر لأنظمة iOS و Android</p>
                       <div className="flex items-center gap-4">
-                        <Button className="bg-black text-white hover:bg-gray-800">
+                        <Button className="bg-black text-white hover:bg-gray-800" onClick={() => console.log('تحميل من App Store')}>
                           <Download className="h-4 w-4 mr-2" />
                           App Store
                         </Button>
-                        <Button className="bg-green-600 text-white hover:bg-green-700">
+                        <Button className="bg-green-600 text-white hover:bg-green-700" onClick={() => console.log('تحميل من Google Play')}>
                           <Download className="h-4 w-4 mr-2" />
                           Google Play
                         </Button>

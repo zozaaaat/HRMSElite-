@@ -224,7 +224,7 @@ export function LearningManagement({ isOpen, onClose }: LearningManagementProps)
                         </div>
                       )}
 
-                      <Button className="w-full" variant={course.status === 'not-started' ? 'default' : 'outline'}>
+                      <Button className="w-full" variant={course.status === 'not-started' ? 'default' : 'outline'} onClick={() => console.log('فتح دورة:', course.title)}>
                         {course.status === 'completed' ? (
                           <>
                             <CheckCircle className="h-4 w-4 ml-2" />
@@ -252,7 +252,7 @@ export function LearningManagement({ isOpen, onClose }: LearningManagementProps)
           <TabsContent value="paths" className="space-y-6">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">مسارات التعلم</h3>
-              <Button>
+              <Button onClick={() => console.log('إنشاء مسار تعلم جديد')}>
                 <Target className="h-4 w-4 ml-2" />
                 إنشاء مسار
               </Button>
@@ -291,7 +291,7 @@ export function LearningManagement({ isOpen, onClose }: LearningManagementProps)
                       </div>
                     </div>
 
-                    <Button className="w-full">
+                    <Button className="w-full" onClick={() => console.log('بدء مسار التعلم:', path.title)}>
                       <Play className="h-4 w-4 ml-2" />
                       بدء المسار
                     </Button>
@@ -304,7 +304,7 @@ export function LearningManagement({ isOpen, onClose }: LearningManagementProps)
           <TabsContent value="certificates" className="space-y-6">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">الشهادات والاعتمادات</h3>
-              <Button>
+              <Button onClick={() => console.log('إصدار شهادة جديدة')}>
                 <Award className="h-4 w-4 ml-2" />
                 إصدار شهادة
               </Button>

@@ -219,11 +219,11 @@ export function FinancialManagement({ isOpen, onClose, companyId }: FinancialMan
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">إدارة كشوف المرتبات</h3>
               <div className="flex gap-2">
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => console.log('رفع كشف راتب جديد')}>
                   <Upload className="h-4 w-4 ml-2" />
                   رفع كشف راتب
                 </Button>
-                <Button>
+                <Button onClick={() => console.log('إنشاء كشف راتب جديد')}>
                   <Plus className="h-4 w-4 ml-2" />
                   إنشاء كشف جديد
                 </Button>
@@ -255,7 +255,7 @@ export function FinancialManagement({ isOpen, onClose, companyId }: FinancialMan
                         <Badge className={getStatusColor(record.status)}>
                           {record.status}
                         </Badge>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => console.log('تحميل كشف راتب:', record.month)}>
                           <Download className="h-3 w-3 ml-1" />
                           تحميل
                         </Button>
@@ -309,7 +309,7 @@ export function FinancialManagement({ isOpen, onClose, companyId }: FinancialMan
                         </div>
                       </div>
                     </div>
-                    <Button className="w-full">
+                    <Button className="w-full" onClick={() => console.log('حساب الراتب النهائي')}>
                       <Calculator className="h-4 w-4 ml-2" />
                       حساب الراتب
                     </Button>
@@ -361,7 +361,7 @@ export function FinancialManagement({ isOpen, onClose, companyId }: FinancialMan
                     </div>
                     <div className="text-right">
                       <div className="font-semibold text-blue-600">15 يوم باقي</div>
-                      <Button variant="outline" size="sm" className="mt-2">
+                      <Button variant="outline" size="sm" className="mt-2" onClick={() => console.log('إعداد تقرير ضريبة الربع الأول')}>
                         <FileText className="h-3 w-3 ml-1" />
                         إعداد التقرير
                       </Button>
@@ -378,7 +378,7 @@ export function FinancialManagement({ isOpen, onClose, companyId }: FinancialMan
                     </div>
                     <div className="text-right">
                       <div className="font-semibold text-green-600">مكتمل</div>
-                      <Button variant="outline" size="sm" className="mt-2">
+                      <Button variant="outline" size="sm" className="mt-2" onClick={() => console.log('تحميل تقرير ضريبة القيمة المضافة')}>
                         <Download className="h-3 w-3 ml-1" />
                         تحميل
                       </Button>

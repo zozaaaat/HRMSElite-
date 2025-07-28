@@ -178,7 +178,7 @@ export function WorkflowBuilder({ isOpen, onClose }: WorkflowBuilderProps) {
           <TabsContent value="workflows" className="space-y-6">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold">سير العمل الحالي</h3>
-              <Button>
+              <Button onClick={() => console.log('إنشاء سير عمل جديد')}>
                 <Plus className="h-4 w-4 ml-2" />
                 إنشاء جديد
               </Button>
@@ -209,10 +209,10 @@ export function WorkflowBuilder({ isOpen, onClose }: WorkflowBuilderProps) {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={(e) => {e.stopPropagation(); console.log('إعدادات سير العمل:', workflow.name);}}>
                           <Settings className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={(e) => {e.stopPropagation(); console.log(workflow.status === 'active' ? 'إيقاف سير العمل:' : 'تشغيل سير العمل:', workflow.name);}}>
                           {workflow.status === 'active' ? 
                             <Pause className="h-4 w-4" /> : 
                             <Play className="h-4 w-4" />
@@ -308,7 +308,7 @@ export function WorkflowBuilder({ isOpen, onClose }: WorkflowBuilderProps) {
                     <h4 className="font-semibold mb-2">{template.name}</h4>
                     <p className="text-sm text-muted-foreground mb-4">{template.description}</p>
                     <Badge variant="outline">{template.steps} خطوات</Badge>
-                    <Button className="w-full mt-4" variant="outline">
+                    <Button className="w-full mt-4" variant="outline" onClick={() => console.log('استخدام قالب:', template.name)}>
                       استخدام القالب
                     </Button>
                   </CardContent>

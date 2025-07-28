@@ -280,7 +280,7 @@ export function EmployeeArchiving({ isOpen, onClose, companyId }: EmployeeArchiv
                   className="pr-10"
                 />
               </div>
-              <Button variant="outline">
+              <Button variant="outline" onClick={() => console.log('تصدير الأرشيف')}>
                 <Download className="h-4 w-4 ml-2" />
                 تصدير الأرشيف
               </Button>
@@ -365,7 +365,7 @@ export function EmployeeArchiving({ isOpen, onClose, companyId }: EmployeeArchiv
               <p className="text-muted-foreground mb-6">
                 يمكنك استعادة الموظفين المؤرشفين إذا احتجت لإعادة تفعيل حساباتهم
               </p>
-              <Button variant="outline">
+              <Button variant="outline" onClick={() => console.log('البحث عن موظف مؤرشف')}>
                 <Search className="h-4 w-4 ml-2" />
                 البحث عن موظف مؤرشف
               </Button>

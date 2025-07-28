@@ -70,7 +70,7 @@ export function AIAnalyticsDashboard({ companyId }: AIAnalyticsDashboardProps) {
   const [lastAnalysis, setLastAnalysis] = useState<Date>(new Date());
 
   // Fetch data from API
-  const { data: performanceData, refetch: refetchPerformance } = useQuery({
+  const { data: apiPerformanceData, refetch: refetchPerformance } = useQuery({
     queryKey: [`/api/ai/performance-data`],
     enabled: false
   });
@@ -222,7 +222,7 @@ export function AIAnalyticsDashboard({ companyId }: AIAnalyticsDashboardProps) {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={performanceData || []}>
+                  <LineChart data={apiPerformanceData || performanceData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
@@ -245,7 +245,7 @@ export function AIAnalyticsDashboard({ companyId }: AIAnalyticsDashboardProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {(turnoverData || turnoverPrediction).map((dept: any, index: number) => (
+                  {turnoverPrediction.map((dept: any, index: number) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <div className="font-medium">{dept.department}</div>
@@ -392,7 +392,7 @@ export function AIAnalyticsDashboard({ companyId }: AIAnalyticsDashboardProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {(salaryData || salaryAnalysis).map((position: any, index: number) => (
+                  {salaryAnalysis.map((position: any, index: number) => (
                     <div key={index} className="p-4 border rounded-lg">
                       <div className="flex justify-between items-start mb-2">
                         <div className="font-medium">{position.position}</div>
