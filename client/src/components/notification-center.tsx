@@ -30,8 +30,8 @@ interface NotificationCenterProps {
 export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps) {
   const [activeTab, setActiveTab] = useState("all");
 
-  // Mock notifications data
-  const notifications = [
+  // Initial notifications data
+  const initialNotifications = [
     {
       id: 1,
       type: "urgent",
@@ -84,6 +84,22 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
     }
   ];
 
+  const [notificationsList, setNotificationsList] = useState(initialNotifications);
+
+  const markAsRead = (id: number) => {
+    setNotificationsList(prev => 
+      prev.map(n => n.id === id ? { ...n, read: true } : n)
+    );
+  };
+
+  const deleteNotification = (id: number) => {
+    setNotificationsList(prev => prev.filter(n => n.id !== id));
+  };
+
+  const markAllAsRead = () => {
+    setNotificationsList(prev => prev.map(n => ({ ...n, read: true })));
+  };
+
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'urgent':
@@ -122,7 +138,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
     }
   };
 
-  const filteredNotifications = notifications.filter(notification => {
+  const filteredNotifications = notificationsList.filter(notification => {
     switch (activeTab) {
       case 'unread':
         return !notification.read;
@@ -134,7 +150,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
     }
   });
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notificationsList.filter(n => !n.read).length;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -167,13 +183,13 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="all">
-              الكل ({notifications.length})
+              الكل ({notificationsList.length})
             </TabsTrigger>
             <TabsTrigger value="unread">
               غير مقروءة ({unreadCount})
             </TabsTrigger>
             <TabsTrigger value="urgent">
-              عاجل ({notifications.filter(n => n.type === 'urgent' || n.type === 'warning').length})
+              عاجل ({notificationsList.filter(n => n.type === 'urgent' || n.type === 'warning').length})
             </TabsTrigger>
           </TabsList>
 
@@ -196,7 +212,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
                         className={`cursor-pointer transition-all hover:shadow-md ${
                           notification.read ? 'opacity-70' : ''
                         } ${getNotificationColor(notification.type)}`}
-                        onClick={() => console.log('فتح إشعار:', notification.title)}
+                        onClick={() => markAsRead(notification.id)}
                       >
                         <CardContent className="p-4">
                           <div className="flex items-start gap-3">
@@ -241,7 +257,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
                                   <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => {e.stopPropagation(); console.log('خيارات إضافية:', notification.title);}}>
                                     <MoreHorizontal className="h-3 w-3" />
                                   </Button>
-                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => {e.stopPropagation(); console.log('حذف إشعار:', notification.title);}}>
+                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => {e.stopPropagation(); deleteNotification(notification.id);}}>
                                     <X className="h-3 w-3" />
                                   </Button>
                                 </div>
@@ -261,7 +277,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
         {/* Action Buttons */}
         <div className="flex items-center justify-between pt-4 border-t">
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => console.log('تسجيل الكل كمقروء')}>
+            <Button variant="outline" size="sm" onClick={markAllAsRead} disabled={unreadCount === 0}>
               <CheckCircle className="h-4 w-4 ml-2" />
               تسجيل الكل كمقروء
             </Button>
