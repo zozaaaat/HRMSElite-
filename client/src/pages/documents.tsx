@@ -48,10 +48,12 @@ function DocumentsContent() {
 
   const uploadMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      return await apiRequest('/api/documents/upload', {
+      const response = await fetch('/api/documents/upload', {
         method: 'POST',
         body: formData,
       });
+      if (!response.ok) throw new Error('Upload failed');
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
@@ -60,9 +62,11 @@ function DocumentsContent() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await apiRequest(`/api/documents/${id}`, {
+      const response = await fetch(`/api/documents/${id}`, {
         method: 'DELETE',
       });
+      if (!response.ok) throw new Error('Delete failed');
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
