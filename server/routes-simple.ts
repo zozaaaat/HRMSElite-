@@ -1,6 +1,7 @@
 import type { Express } from "express";
 // Enhanced HRMS system with special attention to gold and fabrics companies
 import { createServer, type Server } from "http";
+import { getAllEmployees, getCompanyEmployees, getRealCompanyData } from "./real-employees-data";
 
 // Mock users for authentication
 const mockUsers = [
@@ -106,7 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           industry: "أقمشة ومنسوجات",
           size: "متوسطة",
           status: "active",
-          employeeCount: 15,
+          employeeCount: 51,
           businessActivity: "تجارة الأقمشة بالجملة والتجزئة",
           location: "المباركية",
           licenseTypes: ["تجاري", "استيراد"],
@@ -125,7 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           industry: "مجوهرات وذهب",
           size: "صغيرة",
           status: "active",
-          employeeCount: 12,
+          employeeCount: 57,
           businessActivity: "تجارة وتصنيع المجوهرات والذهب والفضة",
           location: "المباركية - فحيحيل - الجهراء",
           licenseTypes: ["تجاري", "صناعي", "مجوهرات"],
@@ -135,7 +136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           id: "3",
-          name: "شركة قمة النيل الخالد",
+          name: "شركة قمة النيل للذهب",
           description: "شركة تجارية متعددة الأنشطة في البضائع العامة",
           address: "الجهراء، السوق التجاري، الكويت",
           phone: "+965-2455-1234",
@@ -144,7 +145,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           industry: "تجارة عامة",
           size: "صغيرة",
           status: "active",
-          employeeCount: 8,
+          employeeCount: 38,
           businessActivity: "تجارة البضائع العامة والمواد الاستهلاكية",
           location: "الجهراء",
           licenseTypes: ["تجاري", "استيراد"]
@@ -160,7 +161,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           industry: "استيراد وتصدير",
           size: "صغيرة",
           status: "active",
-          employeeCount: 6,
+          employeeCount: 52,
           businessActivity: "استيراد وتصدير البضائع المختلفة",
           location: "الصليبية",
           licenseTypes: ["استيراد", "تصدير", "تجاري"]
@@ -176,7 +177,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           industry: "أزياء وملابس",
           size: "متوسطة",
           status: "active",
-          employeeCount: 18,
+          employeeCount: 75,
           businessActivity: "تجارة الملابس والأزياء الجاهزة",
           location: "الصفاة",
           licenseTypes: ["تجاري", "خياطة"]
