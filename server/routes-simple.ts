@@ -1190,6 +1190,188 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // License Management APIs
+  app.get('/api/licenses/main/:companyId', async (req, res) => {
+    try {
+      const { companyId } = req.params;
+      
+      const mockMainLicenses = [
+        {
+          id: "license-1",
+          companyId: companyId,
+          licenseNumber: "ML-2024-001",
+          licenseType: "رخصة تجارية رئيسية",
+          issuingAuthority: "وزارة التجارة والاستثمار",
+          issueDate: "2024-01-15",
+          expiryDate: "2025-01-15",
+          status: "active",
+          description: "رخصة تجارية أساسية لممارسة النشاط التجاري",
+          attachments: [],
+          subLicenses: [
+            {
+              id: "sub-1",
+              mainLicenseId: "license-1",
+              subLicenseNumber: "SL-2024-001-A",
+              subLicenseType: "رخصة استيراد وتصدير",
+              issuingAuthority: "وزارة التجارة",
+              issueDate: "2024-02-01",
+              expiryDate: "2025-02-01",
+              status: "active",
+              description: "رخصة فرعية للاستيراد والتصدير",
+              attachments: [],
+              employeeAssignments: [
+                {
+                  id: "assign-1",
+                  employeeId: "1",
+                  employeeName: "أحمد محمد العلي",
+                  position: "مدير الاستيراد",
+                  department: "التجارة الخارجية",
+                  assignedDate: "2024-02-15",
+                  isActive: true,
+                  notes: "مسؤول عن عمليات الاستيراد الرئيسية"
+                }
+              ]
+            },
+            {
+              id: "sub-2",
+              mainLicenseId: "license-1",
+              subLicenseNumber: "SL-2024-001-B",
+              subLicenseType: "رخصة التسويق الإلكتروني",
+              issuingAuthority: "وزارة التجارة الإلكترونية",
+              issueDate: "2024-03-01",
+              expiryDate: "2024-08-01", // منتهية
+              status: "expired",
+              description: "رخصة فرعية للتسويق الإلكتروني",
+              attachments: [],
+              employeeAssignments: []
+            }
+          ],
+          employeeAssignments: [
+            {
+              id: "assign-main-1",
+              employeeId: "2",
+              employeeName: "سارة أحمد الزهراني",
+              position: "مديرة الامتثال",
+              department: "الشئون القانونية",
+              assignedDate: "2024-01-20",
+              isActive: true,
+              notes: "مسؤولة عن متابعة التراخيص والامتثال"
+            }
+          ]
+        },
+        {
+          id: "license-2",
+          companyId: companyId,
+          licenseNumber: "ML-2024-002",
+          licenseType: "رخصة صناعية",
+          issuingAuthority: "وزارة الصناعة والثروة المعدنية",
+          issueDate: "2023-06-01",
+          expiryDate: "2025-06-01",
+          status: "active",
+          description: "رخصة للأنشطة الصناعية والتصنيع",
+          attachments: [],
+          subLicenses: [
+            {
+              id: "sub-3",
+              mainLicenseId: "license-2",
+              subLicenseNumber: "SL-2023-002-A",
+              subLicenseType: "رخصة السلامة والصحة المهنية",
+              issuingAuthority: "وزارة الموارد البشرية",
+              issueDate: "2023-07-01",
+              expiryDate: "2024-12-15", // ستنتهي قريباً
+              status: "pending_renewal",
+              description: "رخصة السلامة والصحة المهنية للعمال",
+              attachments: [],
+              employeeAssignments: [
+                {
+                  id: "assign-2",
+                  employeeId: "4",
+                  employeeName: "محمد علي السالم",
+                  position: "مسؤول السلامة",
+                  department: "السلامة المهنية",
+                  assignedDate: "2023-07-15",
+                  isActive: true,
+                  notes: "مسؤول عن تطبيق معايير السلامة"
+                }
+              ]
+            }
+          ],
+          employeeAssignments: []
+        }
+      ];
+
+      res.json(mockMainLicenses);
+    } catch (error) {
+      console.error("Error fetching main licenses:", error);
+      res.status(500).json({ message: "Failed to fetch main licenses" });
+    }
+  });
+
+  app.post('/api/licenses/main', async (req, res) => {
+    try {
+      const licenseData = req.body;
+      
+      const newLicense = {
+        id: `license-${Date.now()}`,
+        ...licenseData,
+        status: 'active',
+        subLicenses: [],
+        employeeAssignments: [],
+        attachments: []
+      };
+
+      console.log('Creating new main license:', newLicense);
+      
+      res.status(201).json(newLicense);
+    } catch (error) {
+      console.error("Error creating main license:", error);
+      res.status(500).json({ message: "Failed to create main license" });
+    }
+  });
+
+  app.post('/api/licenses/sub', async (req, res) => {
+    try {
+      const subLicenseData = req.body;
+      
+      const newSubLicense = {
+        id: `sub-${Date.now()}`,
+        ...subLicenseData,
+        status: 'active',
+        employeeAssignments: [],
+        attachments: []
+      };
+
+      console.log('Creating new sub license:', newSubLicense);
+      
+      res.status(201).json(newSubLicense);
+    } catch (error) {
+      console.error("Error creating sub license:", error);
+      res.status(500).json({ message: "Failed to create sub license" });
+    }
+  });
+
+  app.post('/api/licenses/assign-employee', async (req, res) => {
+    try {
+      const { employeeId, licenseId, notes } = req.body;
+      
+      const newAssignment = {
+        id: `assign-${Date.now()}`,
+        employeeId,
+        licenseId,
+        assignedDate: new Date().toISOString(),
+        isActive: true,
+        notes
+      };
+
+      console.log('Creating new employee assignment:', newAssignment);
+      
+      res.status(201).json(newAssignment);
+    } catch (error) {
+      console.error("Error assigning employee:", error);
+      res.status(500).json({ message: "Failed to assign employee" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
