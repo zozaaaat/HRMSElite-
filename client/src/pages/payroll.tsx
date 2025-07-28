@@ -1,243 +1,205 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
-import { 
-  DollarSign, 
-  FileText, 
-  Download, 
-  Eye,
-  Calculator,
-  TrendingUp,
-  TrendingDown,
-  AlertCircle,
-  CheckCircle,
-  Calendar
-} from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
+import { 
+  DollarSign,
+  Calculator,
+  Download,
+  FileText,
+  TrendingUp,
+  Users,
+  Calendar,
+  Eye,
+  Plus,
+  Receipt,
+  PieChart
+} from "lucide-react";
 
 interface PayrollRecord {
   id: string;
-  employeeId: string;
   employeeName: string;
-  position: string;
-  basicSalary: number;
+  employeeId: string;
+  baseSalary: number;
   allowances: number;
-  deductions: number;
   overtime: number;
+  deductions: number;
+  taxes: number;
+  socialInsurance: number;
   netSalary: number;
-  status: string;
-  month: string;
-  year: number;
+  status: 'processed' | 'pending' | 'paid';
+  paymentDate?: string;
 }
 
-interface SalaryDetails {
-  basic: number;
-  housing: number;
-  transport: number;
-  food: number;
-  other: number;
-  overtime: number;
-  tax: number;
-  insurance: number;
-  loans: number;
-  absences: number;
+interface PayrollSummary {
+  totalEmployees: number;
+  totalGrossSalary: number;
+  totalDeductions: number;
+  totalNetSalary: number;
+  averageSalary: number;
+  overtimeHours: number;
+  totalTaxes: number;
 }
 
 export default function PayrollPage() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedEmployee, setSelectedEmployee] = useState<PayrollRecord | null>(null);
-  const [showDetails, setShowDetails] = useState(false);
+  const [isProcessingPayroll, setIsProcessingPayroll] = useState(false);
 
-  // جلب سجلات الرواتب
-  const { data: payrollRecords = [] } = useQuery<PayrollRecord[]>({
-    queryKey: ["/api/payroll", selectedMonth, selectedYear],
+  // جلب ملخص الرواتب
+  const { data: payrollSummary } = useQuery<PayrollSummary>({
+    queryKey: ["/api/payroll/summary", selectedMonth, selectedYear],
   });
 
-  // حساب الإحصائيات
-  const totalPayroll = payrollRecords.reduce((sum, record) => sum + record.netSalary, 0);
-  const totalEmployees = payrollRecords.length;
-  const averageSalary = totalEmployees > 0 ? totalPayroll / totalEmployees : 0;
-  const totalDeductions = payrollRecords.reduce((sum, record) => sum + record.deductions, 0);
+  // جلب سجلات الرواتب
+  const { data: payrollRecords, isLoading } = useQuery<PayrollRecord[]>({
+    queryKey: ["/api/payroll/records", selectedMonth, selectedYear],
+  });
+
+  // معالجة الرواتب الشهرية
+  const processPayrollMutation = useMutation({
+    mutationFn: (data: { month: number; year: number }) => 
+      apiRequest("/api/payroll/process", "POST", data),
+    onSuccess: () => {
+      toast({
+        title: "تم معالجة الرواتب",
+        description: "تم حساب وإعداد كشوف الرواتب لجميع الموظفين",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/payroll"] });
+      setIsProcessingPayroll(false);
+    },
+  });
+
+  const getStatusBadge = (status: string) => {
+    const statusMap = {
+      processed: { label: "معالج", variant: "secondary" as const, color: "text-blue-600" },
+      pending: { label: "قيد المعالجة", variant: "outline" as const, color: "text-orange-600" },
+      paid: { label: "مدفوع", variant: "default" as const, color: "text-green-600" }
+    };
+    const statusInfo = statusMap[status as keyof typeof statusMap] || statusMap.pending;
+    return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>;
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('ar-KW', { 
+      style: 'currency', 
+      currency: 'KWD',
+      minimumFractionDigits: 2 
+    }).format(amount);
+  };
 
   const handleProcessPayroll = () => {
-    toast({
-      title: "تتم معالجة الرواتب",
-      description: "جاري معالجة رواتب الشهر الحالي...",
+    setIsProcessingPayroll(true);
+    processPayrollMutation.mutate({
+      month: selectedMonth,
+      year: selectedYear
     });
   };
 
-  const handleExportPayslips = () => {
+  const handleExportPayroll = (format: string) => {
     toast({
-      title: "تصدير كشوف الرواتب",
-      description: "جاري تجهيز ملفات كشوف الرواتب للتحميل",
+      title: `تصدير ${format.toUpperCase()}`,
+      description: "تم تصدير كشوف الرواتب بنجاح",
     });
   };
 
-  const getSalaryDetails = (record: PayrollRecord): SalaryDetails => {
-    return {
-      basic: record.basicSalary,
-      housing: record.basicSalary * 0.25,
-      transport: 500,
-      food: 300,
-      other: 200,
-      overtime: record.overtime,
-      tax: record.basicSalary * 0.05,
-      insurance: record.basicSalary * 0.09,
-      loans: 0,
-      absences: 0
-    };
-  };
-
-  const mockPayrollData: PayrollRecord[] = [
+  // بيانات تجريبية للرواتب
+  const mockPayrollRecords: PayrollRecord[] = [
     {
       id: "1",
-      employeeId: "EMP001",
       employeeName: "أحمد محمد علي",
-      position: "مدير تنفيذي",
-      basicSalary: 15000,
-      allowances: 5000,
-      deductions: 2850,
-      overtime: 1200,
-      netSalary: 18350,
+      employeeId: "EMP001",
+      baseSalary: 1200,
+      allowances: 300,
+      overtime: 150,
+      deductions: 50,
+      taxes: 120,
+      socialInsurance: 85,
+      netSalary: 1395,
       status: "paid",
-      month: selectedMonth.toString(),
-      year: selectedYear
+      paymentDate: "2025-01-25"
     },
     {
       id: "2",
-      employeeId: "EMP002",
       employeeName: "فاطمة أحمد سالم",
-      position: "محاسب أول",
-      basicSalary: 8000,
-      allowances: 2500,
-      deductions: 1420,
-      overtime: 0,
-      netSalary: 9080,
-      status: "pending",
-      month: selectedMonth.toString(),
-      year: selectedYear
+      employeeId: "EMP002",
+      baseSalary: 950,
+      allowances: 200,
+      overtime: 75,
+      deductions: 25,
+      taxes: 90,
+      socialInsurance: 68,
+      netSalary: 1042,
+      status: "paid",
+      paymentDate: "2025-01-25"
     },
     {
       id: "3",
-      employeeId: "EMP003",
       employeeName: "محمد عبدالله الحربي",
-      position: "مطور برمجيات",
-      basicSalary: 10000,
-      allowances: 3000,
-      deductions: 1790,
-      overtime: 800,
-      netSalary: 12010,
-      status: "paid",
-      month: selectedMonth.toString(),
-      year: selectedYear
+      employeeId: "EMP003",
+      baseSalary: 1500,
+      allowances: 400,
+      overtime: 200,
+      deductions: 75,
+      taxes: 155,
+      socialInsurance: 105,
+      netSalary: 1765,
+      status: "processed"
+    },
+    {
+      id: "4",
+      employeeName: "سارة عبدالرحمن القحطاني",
+      employeeId: "EMP004",
+      baseSalary: 800,
+      allowances: 150,
+      overtime: 50,
+      deductions: 20,
+      taxes: 70,
+      socialInsurance: 58,
+      netSalary: 852,
+      status: "pending"
     }
   ];
 
-  const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-      paid: { label: "مدفوع", variant: "default" },
-      pending: { label: "قيد المعالجة", variant: "secondary" },
-      failed: { label: "فشل", variant: "destructive" },
-      cancelled: { label: "ملغي", variant: "outline" }
-    };
-    
-    const statusInfo = statusMap[status] || { label: status, variant: "outline" };
-    return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>;
+  const mockSummary: PayrollSummary = {
+    totalEmployees: 167,
+    totalGrossSalary: 180500,
+    totalDeductions: 25600,
+    totalNetSalary: 154900,
+    averageSalary: 1081,
+    overtimeHours: 2340,
+    totalTaxes: 18200
   };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">إدارة الرواتب</h1>
+          <h1 className="text-3xl font-bold">نظام الرواتب</h1>
           <p className="text-muted-foreground mt-2">
-            معالجة وإدارة رواتب الموظفين
+            إدارة وحساب رواتب الموظفين الشهرية
           </p>
         </div>
         
         <div className="flex gap-3">
-          <Button onClick={handleProcessPayroll} className="gap-2">
-            <Calculator className="h-4 w-4" />
-            معالجة الرواتب
-          </Button>
-          <Button variant="outline" onClick={handleExportPayslips} className="gap-2">
-            <Download className="h-4 w-4" />
-            تصدير الكشوف
-          </Button>
-        </div>
-      </div>
-
-      {/* بطاقات الإحصائيات */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">إجمالي الرواتب</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalPayroll.toLocaleString('ar-SA')} د.ك</div>
-            <p className="text-xs text-muted-foreground mt-1">لشهر {selectedMonth}/{selectedYear}</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">عدد الموظفين</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalEmployees}</div>
-            <div className="flex items-center gap-1 mt-1">
-              <CheckCircle className="h-3 w-3 text-green-600" />
-              <span className="text-xs text-green-600">{mockPayrollData.filter(r => r.status === 'paid').length} مدفوع</span>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">متوسط الراتب</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{averageSalary.toLocaleString('ar-SA')} د.ك</div>
-            <div className="flex items-center gap-1 mt-1">
-              <TrendingUp className="h-3 w-3 text-green-600" />
-              <span className="text-xs text-green-600">+5% عن الشهر الماضي</span>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">إجمالي الخصومات</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalDeductions.toLocaleString('ar-SA')} د.ك</div>
-            <div className="flex items-center gap-1 mt-1">
-              <TrendingDown className="h-3 w-3 text-red-600" />
-              <span className="text-xs text-muted-foreground">ضرائب وتأمينات</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* اختيار الشهر والسنة */}
-      <Card>
-        <CardHeader>
-          <CardTitle>فترة الرواتب</CardTitle>
-        </CardHeader>
-        <CardContent className="flex gap-4">
-          <Select value={selectedMonth.toString()} onValueChange={(v) => setSelectedMonth(parseInt(v))}>
-            <SelectTrigger className="w-[200px]">
+          <Select 
+            value={selectedMonth.toString()} 
+            onValueChange={(value) => setSelectedMonth(parseInt(value))}
+          >
+            <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -255,160 +217,336 @@ export default function PayrollPage() {
               <SelectItem value="12">ديسمبر</SelectItem>
             </SelectContent>
           </Select>
-          
-          <Select value={selectedYear.toString()} onValueChange={(v) => setSelectedYear(parseInt(v))}>
-            <SelectTrigger className="w-[150px]">
+
+          <Select 
+            value={selectedYear.toString()} 
+            onValueChange={(value) => setSelectedYear(parseInt(value))}
+          >
+            <SelectTrigger className="w-24">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="2024">2024</SelectItem>
               <SelectItem value="2025">2025</SelectItem>
+              <SelectItem value="2026">2026</SelectItem>
             </SelectContent>
           </Select>
-        </CardContent>
-      </Card>
 
-      {/* جدول الرواتب */}
-      <Card>
-        <CardHeader>
-          <CardTitle>كشف الرواتب</CardTitle>
-          <CardDescription>
-            تفاصيل رواتب الموظفين لشهر {selectedMonth}/{selectedYear}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-right">الموظف</TableHead>
-                <TableHead className="text-right">المنصب</TableHead>
-                <TableHead className="text-right">الراتب الأساسي</TableHead>
-                <TableHead className="text-right">البدلات</TableHead>
-                <TableHead className="text-right">الخصومات</TableHead>
-                <TableHead className="text-right">الإضافي</TableHead>
-                <TableHead className="text-right">الصافي</TableHead>
-                <TableHead className="text-right">الحالة</TableHead>
-                <TableHead className="text-right">الإجراءات</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {mockPayrollData.map((record) => (
-                <TableRow key={record.id}>
-                  <TableCell className="font-medium">{record.employeeName}</TableCell>
-                  <TableCell>{record.position}</TableCell>
-                  <TableCell>{record.basicSalary.toLocaleString('ar-SA')}</TableCell>
-                  <TableCell className="text-green-600">+{record.allowances.toLocaleString('ar-SA')}</TableCell>
-                  <TableCell className="text-red-600">-{record.deductions.toLocaleString('ar-SA')}</TableCell>
-                  <TableCell>{record.overtime > 0 ? `+${record.overtime.toLocaleString('ar-SA')}` : '-'}</TableCell>
-                  <TableCell className="font-bold">{record.netSalary.toLocaleString('ar-SA')}</TableCell>
-                  <TableCell>{getStatusBadge(record.status)}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => {
-                        setSelectedEmployee(record);
-                        setShowDetails(true);
-                      }}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+          <Button 
+            onClick={handleProcessPayroll}
+            disabled={isProcessingPayroll}
+            className="gap-2"
+          >
+            <Calculator className="h-4 w-4" />
+            {isProcessingPayroll ? "جاري المعالجة..." : "معالجة الرواتب"}
+          </Button>
+        </div>
+      </div>
 
-      {/* نافذة تفاصيل الراتب */}
-      <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>تفاصيل راتب {selectedEmployee?.employeeName}</DialogTitle>
-            <DialogDescription>
-              كشف تفصيلي لمكونات الراتب
-            </DialogDescription>
-          </DialogHeader>
-          
-          {selectedEmployee && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-semibold mb-2">الاستحقاقات</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>الراتب الأساسي</span>
-                      <span>{selectedEmployee.basicSalary.toLocaleString('ar-SA')} د.ك</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>بدل السكن</span>
-                      <span>{(selectedEmployee.basicSalary * 0.25).toLocaleString('ar-SA')} د.ك</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>بدل المواصلات</span>
-                      <span>500 د.ك</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>بدل الطعام</span>
-                      <span>300 د.ك</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>بدلات أخرى</span>
-                      <span>200 د.ك</span>
-                    </div>
-                    {selectedEmployee.overtime > 0 && (
-                      <div className="flex justify-between text-green-600">
-                        <span>ساعات إضافية</span>
-                        <span>{selectedEmployee.overtime.toLocaleString('ar-SA')} د.ك</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                <div>
-                  <h4 className="font-semibold mb-2">الخصومات</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between text-red-600">
-                      <span>ضريبة الدخل (5%)</span>
-                      <span>{(selectedEmployee.basicSalary * 0.05).toLocaleString('ar-SA')} د.ك</span>
-                    </div>
-                    <div className="flex justify-between text-red-600">
-                      <span>التأمينات الاجتماعية (9%)</span>
-                      <span>{(selectedEmployee.basicSalary * 0.09).toLocaleString('ar-SA')} د.ك</span>
-                    </div>
-                    <div className="flex justify-between text-red-600">
-                      <span>قروض</span>
-                      <span>0 د.ك</span>
-                    </div>
-                    <div className="flex justify-between text-red-600">
-                      <span>خصم غياب</span>
-                      <span>0 د.ك</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="border-t pt-4">
-                <div className="flex justify-between text-lg font-bold">
-                  <span>صافي الراتب</span>
-                  <span className="text-green-600">{selectedEmployee.netSalary.toLocaleString('ar-SA')} د.ك</span>
-                </div>
-              </div>
-              
-              <div className="flex gap-3 justify-end">
-                <Button variant="outline" onClick={() => setShowDetails(false)}>
-                  إغلاق
-                </Button>
-                <Button className="gap-2">
-                  <FileText className="h-4 w-4" />
-                  طباعة الكشف
-                </Button>
-              </div>
+      {/* بطاقات الملخص */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              إجمالي الموظفين
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{mockSummary.totalEmployees}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-green-600" />
+              إجمالي الرواتب
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold text-green-600">
+              {formatCurrency(mockSummary.totalGrossSalary)}
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
+            <p className="text-xs text-muted-foreground">قبل الخصومات</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <Receipt className="h-4 w-4 text-red-600" />
+              إجمالي الخصومات
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold text-red-600">
+              {formatCurrency(mockSummary.totalDeductions)}
+            </div>
+            <p className="text-xs text-muted-foreground">ضرائب وتأمينات</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-blue-600" />
+              صافي الرواتب
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-xl font-bold text-blue-600">
+              {formatCurrency(mockSummary.totalNetSalary)}
+            </div>
+            <p className="text-xs text-muted-foreground">بعد الخصومات</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="payroll" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="payroll">كشوف الرواتب</TabsTrigger>
+          <TabsTrigger value="processing">المعالجة</TabsTrigger>
+          <TabsTrigger value="reports">التقارير</TabsTrigger>
+          <TabsTrigger value="settings">الإعدادات</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="payroll">
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>كشوف الرواتب - {selectedMonth}/{selectedYear}</CardTitle>
+                  <CardDescription>
+                    تفاصيل رواتب جميع الموظفين للشهر المحدد
+                  </CardDescription>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => handleExportPayroll("excel")} className="gap-2">
+                    <FileText className="h-4 w-4" />
+                    Excel
+                  </Button>
+                  <Button variant="outline" onClick={() => handleExportPayroll("pdf")} className="gap-2">
+                    <Download className="h-4 w-4" />
+                    PDF
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-right">الموظف</TableHead>
+                    <TableHead className="text-right">الراتب الأساسي</TableHead>
+                    <TableHead className="text-right">البدلات</TableHead>
+                    <TableHead className="text-right">الساعات الإضافية</TableHead>
+                    <TableHead className="text-right">الخصومات</TableHead>
+                    <TableHead className="text-right">الضرائب</TableHead>
+                    <TableHead className="text-right">صافي الراتب</TableHead>
+                    <TableHead className="text-right">الحالة</TableHead>
+                    <TableHead className="text-right">الإجراءات</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {mockPayrollRecords.map((record) => (
+                    <TableRow key={record.id}>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{record.employeeName}</div>
+                          <div className="text-sm text-muted-foreground">{record.employeeId}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {formatCurrency(record.baseSalary)}
+                      </TableCell>
+                      <TableCell className="font-mono text-green-600">
+                        +{formatCurrency(record.allowances)}
+                      </TableCell>
+                      <TableCell className="font-mono text-blue-600">
+                        +{formatCurrency(record.overtime)}
+                      </TableCell>
+                      <TableCell className="font-mono text-red-600">
+                        -{formatCurrency(record.deductions)}
+                      </TableCell>
+                      <TableCell className="font-mono text-orange-600">
+                        -{formatCurrency(record.taxes)}
+                      </TableCell>
+                      <TableCell className="font-mono font-bold text-lg">
+                        {formatCurrency(record.netSalary)}
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(record.status)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon">
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="processing">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>معالجة الرواتب التلقائية</CardTitle>
+                <CardDescription>
+                  حساب الرواتب بناءً على الحضور والبدلات المعرفة
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>عدد أيام العمل</Label>
+                    <Input type="number" defaultValue="22" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>ساعات العمل اليومية</Label>
+                    <Input type="number" defaultValue="8" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>معدل الساعة الإضافية</Label>
+                  <Select defaultValue="1.5">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1.25">125% من الراتب الأساسي</SelectItem>
+                      <SelectItem value="1.5">150% من الراتب الأساسي</SelectItem>
+                      <SelectItem value="2">200% من الراتب الأساسي</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button className="w-full gap-2">
+                  <Calculator className="h-4 w-4" />
+                  بدء المعالجة التلقائية
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>إعدادات الضرائب والخصومات</CardTitle>
+                <CardDescription>
+                  تكوين معدلات الضرائب والتأمينات الاجتماعية
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>معدل ضريبة الدخل (%)</Label>
+                  <Input type="number" defaultValue="7.5" step="0.1" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>التأمين الاجتماعي (%)</Label>
+                  <Input type="number" defaultValue="5.5" step="0.1" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>تأمين طبي (%)</Label>
+                  <Input type="number" defaultValue="2" step="0.1" />
+                </div>
+
+                <Button variant="outline" className="w-full">
+                  حفظ الإعدادات
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="reports">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <PieChart className="h-5 w-5 text-blue-500" />
+                  تقرير توزيع الرواتب
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  توزيع الرواتب حسب الأقسام والمناصب
+                </p>
+                <Button className="w-full gap-2">
+                  <Eye className="h-4 w-4" />
+                  عرض التقرير
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-green-500" />
+                  تقرير الساعات الإضافية
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  تحليل الساعات الإضافية وتكلفتها
+                </p>
+                <Button className="w-full gap-2">
+                  <Eye className="h-4 w-4" />
+                  عرض التقرير
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Receipt className="h-5 w-5 text-orange-500" />
+                  تقرير الضرائب والخصومات
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  ملخص الضرائب والتأمينات المخصومة
+                </p>
+                <Button className="w-full gap-2">
+                  <Eye className="h-4 w-4" />
+                  عرض التقرير
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="settings">
+          <Card>
+            <CardHeader>
+              <CardTitle>إعدادات نظام الرواتب</CardTitle>
+              <CardDescription>
+                تكوين القواعد والمعايير لحساب الرواتب
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center">
+                <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">إعدادات الرواتب</h3>
+                <p className="text-muted-foreground">
+                  تكوين معايير الحساب والبدلات والخصومات
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

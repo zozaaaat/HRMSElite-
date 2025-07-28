@@ -1,33 +1,34 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { format } from "date-fns";
+import { ar } from "date-fns/locale";
+import type { DateRange } from "react-day-picker";
 import { 
   Calendar as CalendarIcon,
   Plus,
-  Search,
-  Eye,
-  Check,
-  X,
   Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  User,
   FileText,
-  AlertCircle
+  Filter,
+  Eye
 } from "lucide-react";
-import { format } from "date-fns";
-import { ar } from "date-fns/locale";
-import { cn } from "@/lib/utils";
 
 interface LeaveRequest {
   id: string;
@@ -35,123 +36,151 @@ interface LeaveRequest {
   leaveType: string;
   startDate: string;
   endDate: string;
+  days: number;
   reason: string;
-  status: string;
-  requestDate: string;
+  status: 'pending' | 'approved' | 'rejected';
+  appliedDate: string;
   approvedBy?: string;
-  rejectionReason?: string;
 }
 
 interface LeaveBalance {
   annual: number;
+  used: number;
+  remaining: number;
   sick: number;
   emergency: number;
-  usedAnnual: number;
-  usedSick: number;
-  usedEmergency: number;
 }
 
 export default function LeaveRequestsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTab, setSelectedTab] = useState("pending");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
-  // نموذج طلب إجازة
-  const [formData, setFormData] = useState({
-    leaveType: "",
-    startDate: undefined as Date | undefined,
-    endDate: undefined as Date | undefined,
-    reason: ""
+  const [isNewRequestOpen, setIsNewRequestOpen] = useState(false);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [newRequest, setNewRequest] = useState({
+    leaveType: '',
+    startDate: '',
+    endDate: '',
+    reason: ''
   });
 
   // جلب طلبات الإجازات
-  const { data: leaveRequests = [] } = useQuery<LeaveRequest[]>({
+  const { data: leaveRequests, isLoading } = useQuery<LeaveRequest[]>({
     queryKey: ["/api/leave-requests"],
   });
 
-  // جلب رصيد الإجازات
+  // جلب رصيد الإجازات للموظف الحالي
   const { data: leaveBalance } = useQuery<LeaveBalance>({
-    queryKey: ["/api/leave-balance"],
+    queryKey: ["/api/leave-balance/current-user"],
   });
 
-  // إرسال طلب إجازة
-  const submitLeaveMutation = useMutation({
-    mutationFn: async (data: typeof formData) => {
-      return await apiRequest("/api/leave-requests", "POST", data);
-    },
+  // إرسال طلب إجازة جديد
+  const submitRequestMutation = useMutation({
+    mutationFn: (requestData: any) => 
+      apiRequest("/api/leave-requests", "POST", requestData),
     onSuccess: () => {
       toast({
         title: "تم إرسال الطلب",
-        description: "تم إرسال طلب الإجازة بنجاح",
+        description: "تم إرسال طلب الإجازة بنجاح وهو قيد المراجعة",
       });
-      setIsDialogOpen(false);
-      setFormData({
-        leaveType: "",
-        startDate: undefined,
-        endDate: undefined,
-        reason: ""
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/leave-requests"] });
-    },
-  });
-
-  // الموافقة على طلب
-  const approveMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await apiRequest(`/api/leave-requests/${id}/approve`, "PATCH");
-    },
-    onSuccess: () => {
-      toast({
-        title: "تمت الموافقة",
-        description: "تمت الموافقة على طلب الإجازة",
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/leave-requests"] });
-    },
-  });
-
-  // رفض طلب
-  const rejectMutation = useMutation({
-    mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
-      return await apiRequest(`/api/leave-requests/${id}/reject`, "PATCH", { reason });
-    },
-    onSuccess: () => {
-      toast({
-        title: "تم الرفض",
-        description: "تم رفض طلب الإجازة",
-      });
+      setIsNewRequestOpen(false);
       queryClient.invalidateQueries({ queryKey: ["/api/leave-requests"] });
     },
   });
 
   const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-      pending: { label: "قيد المراجعة", variant: "secondary" },
-      approved: { label: "موافق عليه", variant: "default" },
-      rejected: { label: "مرفوض", variant: "destructive" },
+    const statusMap = {
+      pending: { 
+        label: "قيد المراجعة", 
+        variant: "secondary" as const, 
+        icon: Clock,
+        color: "text-orange-600"
+      },
+      approved: { 
+        label: "موافق", 
+        variant: "default" as const, 
+        icon: CheckCircle,
+        color: "text-green-600"
+      },
+      rejected: { 
+        label: "مرفوض", 
+        variant: "destructive" as const, 
+        icon: XCircle,
+        color: "text-red-600"
+      }
     };
+    const statusInfo = statusMap[status as keyof typeof statusMap] || statusMap.pending;
+    const StatusIcon = statusInfo.icon;
     
-    const statusInfo = statusMap[status] || { label: status, variant: "outline" };
-    return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>;
+    return (
+      <Badge variant={statusInfo.variant} className="gap-1">
+        <StatusIcon className="h-3 w-3" />
+        {statusInfo.label}
+      </Badge>
+    );
   };
 
   const getLeaveTypeLabel = (type: string) => {
-    const types: Record<string, string> = {
+    const typeMap: Record<string, string> = {
       annual: "إجازة سنوية",
       sick: "إجازة مرضية",
       emergency: "إجازة طارئة",
       maternity: "إجازة أمومة",
+      paternity: "إجازة أبوة",
+      study: "إجازة دراسية",
       unpaid: "إجازة بدون راتب"
     };
-    return types[type] || type;
+    return typeMap[type] || type;
   };
 
-  const filteredRequests = leaveRequests.filter(request => {
-    const matchesSearch = request.employeeName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTab = selectedTab === "all" || request.status === selectedTab;
-    return matchesSearch && matchesTab;
-  });
+  const handleSubmitRequest = () => {
+    if (!newRequest.leaveType || !newRequest.startDate || !newRequest.endDate || !newRequest.reason) {
+      toast({
+        title: "خطأ في البيانات",
+        description: "يرجى تعبئة جميع الحقول المطلوبة",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const startDate = new Date(newRequest.startDate);
+    const endDate = new Date(newRequest.endDate);
+    const timeDiff = endDate.getTime() - startDate.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+
+    submitRequestMutation.mutate({
+      ...newRequest,
+      days: daysDiff,
+      employeeId: "current-user"
+    });
+  };
+
+  // بيانات تجريبية إضافية للطلبات
+  const mockRequests: LeaveRequest[] = [
+    ...leaveRequests || [],
+    {
+      id: "3",
+      employeeName: "محمد عبدالله الحربي",
+      leaveType: "annual",
+      startDate: "2025-02-10",
+      endDate: "2025-02-14",
+      days: 5,
+      reason: "قضاء عطلة مع العائلة",
+      status: "pending",
+      appliedDate: "2025-01-28"
+    },
+    {
+      id: "4",
+      employeeName: "سارة عبدالرحمن القحطاني",
+      leaveType: "sick",
+      startDate: "2025-01-29",
+      endDate: "2025-01-30",
+      days: 2,
+      reason: "مراجعة طبية",
+      status: "approved",
+      appliedDate: "2025-01-28",
+      approvedBy: "أحمد محمد علي"
+    }
+  ];
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -159,29 +188,31 @@ export default function LeaveRequestsPage() {
         <div>
           <h1 className="text-3xl font-bold">طلبات الإجازات</h1>
           <p className="text-muted-foreground mt-2">
-            إدارة طلبات الإجازات والموافقات
+            إدارة طلبات الإجازات ومتابعة الرصيد المتاح
           </p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isNewRequestOpen} onOpenChange={setIsNewRequestOpen}>
           <DialogTrigger asChild>
             <Button className="gap-2">
               <Plus className="h-4 w-4" />
               طلب إجازة جديد
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>طلب إجازة جديد</DialogTitle>
               <DialogDescription>
-                املأ البيانات المطلوبة لتقديم طلب إجازة
+                قم بتعبئة تفاصيل طلب الإجازة
               </DialogDescription>
             </DialogHeader>
-            
-            <div className="space-y-4 py-4">
+            <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="leaveType">نوع الإجازة</Label>
-                <Select value={formData.leaveType} onValueChange={(value) => setFormData({ ...formData, leaveType: value })}>
+                <Label htmlFor="leave-type">نوع الإجازة</Label>
+                <Select 
+                  value={newRequest.leaveType} 
+                  onValueChange={(value) => setNewRequest({ ...newRequest, leaveType: value })}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="اختر نوع الإجازة" />
                   </SelectTrigger>
@@ -190,250 +221,275 @@ export default function LeaveRequestsPage() {
                     <SelectItem value="sick">إجازة مرضية</SelectItem>
                     <SelectItem value="emergency">إجازة طارئة</SelectItem>
                     <SelectItem value="maternity">إجازة أمومة</SelectItem>
+                    <SelectItem value="paternity">إجازة أبوة</SelectItem>
+                    <SelectItem value="study">إجازة دراسية</SelectItem>
                     <SelectItem value="unpaid">إجازة بدون راتب</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>من تاريخ</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-right",
-                          !formData.startDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="ml-2 h-4 w-4" />
-                        {formData.startDate ? format(formData.startDate, "PPP", { locale: ar }) : "اختر التاريخ"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.startDate}
-                        onSelect={(date) => setFormData({ ...formData, startDate: date })}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <Label htmlFor="start-date">تاريخ البداية</Label>
+                  <Input
+                    id="start-date"
+                    type="date"
+                    value={newRequest.startDate}
+                    onChange={(e) => setNewRequest({ ...newRequest, startDate: e.target.value })}
+                  />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>إلى تاريخ</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-right",
-                          !formData.endDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="ml-2 h-4 w-4" />
-                        {formData.endDate ? format(formData.endDate, "PPP", { locale: ar }) : "اختر التاريخ"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.endDate}
-                        onSelect={(date) => setFormData({ ...formData, endDate: date })}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <Label htmlFor="end-date">تاريخ النهاية</Label>
+                  <Input
+                    id="end-date"
+                    type="date"
+                    value={newRequest.endDate}
+                    onChange={(e) => setNewRequest({ ...newRequest, endDate: e.target.value })}
+                  />
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="reason">سبب الإجازة</Label>
                 <Textarea
                   id="reason"
                   placeholder="اذكر سبب طلب الإجازة..."
-                  value={formData.reason}
-                  onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                  rows={4}
+                  rows={3}
+                  value={newRequest.reason}
+                  onChange={(e) => setNewRequest({ ...newRequest, reason: e.target.value })}
                 />
               </div>
-            </div>
-            
-            <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                إلغاء
-              </Button>
+
               <Button 
-                onClick={() => submitLeaveMutation.mutate(formData)}
-                disabled={!formData.leaveType || !formData.startDate || !formData.endDate || !formData.reason}
+                onClick={handleSubmitRequest}
+                disabled={submitRequestMutation.isPending}
+                className="w-full"
               >
-                إرسال الطلب
+                {submitRequestMutation.isPending ? "جاري الإرسال..." : "إرسال الطلب"}
               </Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* رصيد الإجازات */}
-      {leaveBalance && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">الإجازة السنوية</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {leaveBalance.annual - leaveBalance.usedAnnual} / {leaveBalance.annual}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">يوم متبقي</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">الإجازة المرضية</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {leaveBalance.sick - leaveBalance.usedSick} / {leaveBalance.sick}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">يوم متبقي</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">الإجازة الطارئة</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {leaveBalance.emergency - leaveBalance.usedEmergency} / {leaveBalance.emergency}
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">يوم متبقي</p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* طلبات الإجازات */}
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-        <div className="flex justify-between items-center">
-          <TabsList>
-            <TabsTrigger value="pending">قيد المراجعة</TabsTrigger>
-            <TabsTrigger value="approved">الموافق عليها</TabsTrigger>
-            <TabsTrigger value="rejected">المرفوضة</TabsTrigger>
-            <TabsTrigger value="all">جميع الطلبات</TabsTrigger>
-          </TabsList>
-          
-          <div className="relative">
-            <Search className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="بحث بالاسم..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pr-9 w-64"
-            />
-          </div>
-        </div>
-
+      {/* بطاقات رصيد الإجازات */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-right">الموظف</TableHead>
-                  <TableHead className="text-right">نوع الإجازة</TableHead>
-                  <TableHead className="text-right">من تاريخ</TableHead>
-                  <TableHead className="text-right">إلى تاريخ</TableHead>
-                  <TableHead className="text-right">المدة</TableHead>
-                  <TableHead className="text-right">الحالة</TableHead>
-                  <TableHead className="text-right">الإجراءات</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredRequests.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      لا توجد طلبات إجازات
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredRequests.map((request) => {
-                    const startDate = new Date(request.startDate);
-                    const endDate = new Date(request.endDate);
-                    const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-                    
-                    return (
-                      <TableRow key={request.id}>
-                        <TableCell className="font-medium">{request.employeeName}</TableCell>
-                        <TableCell>{getLeaveTypeLabel(request.leaveType)}</TableCell>
-                        <TableCell>{format(startDate, "dd/MM/yyyy")}</TableCell>
-                        <TableCell>{format(endDate, "dd/MM/yyyy")}</TableCell>
-                        <TableCell>{days} يوم</TableCell>
-                        <TableCell>{getStatusBadge(request.status)}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="ghost" size="icon">
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>تفاصيل طلب الإجازة</DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-4">
-                                  <div>
-                                    <p className="text-sm font-medium">السبب:</p>
-                                    <p className="text-sm text-muted-foreground mt-1">{request.reason}</p>
-                                  </div>
-                                  {request.approvedBy && (
-                                    <div>
-                                      <p className="text-sm font-medium">تمت الموافقة بواسطة:</p>
-                                      <p className="text-sm text-muted-foreground mt-1">{request.approvedBy}</p>
-                                    </div>
-                                  )}
-                                  {request.rejectionReason && (
-                                    <div>
-                                      <p className="text-sm font-medium">سبب الرفض:</p>
-                                      <p className="text-sm text-muted-foreground mt-1">{request.rejectionReason}</p>
-                                    </div>
-                                  )}
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                            
-                            {request.status === "pending" && (
-                              <>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => approveMutation.mutate(request.id)}
-                                >
-                                  <Check className="h-4 w-4 text-green-600" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => rejectMutation.mutate({ id: request.id, reason: "سبب الرفض" })}
-                                >
-                                  <X className="h-4 w-4 text-red-600" />
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">الرصيد السنوي</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">
+              {leaveBalance?.annual || 30}
+            </div>
+            <p className="text-xs text-muted-foreground">يوم إجازة سنوية</p>
           </CardContent>
         </Card>
+        
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">المستخدم</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">
+              {leaveBalance?.used || 12}
+            </div>
+            <p className="text-xs text-muted-foreground">يوم مستخدم</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">المتبقي</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {leaveBalance?.remaining || 18}
+            </div>
+            <p className="text-xs text-muted-foreground">يوم متبقي</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">الإجازات المرضية</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-600">
+              {leaveBalance?.sick || 15}
+            </div>
+            <p className="text-xs text-muted-foreground">يوم إجازة مرضية</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="my-requests" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="my-requests">طلباتي</TabsTrigger>
+          <TabsTrigger value="all-requests">جميع الطلبات</TabsTrigger>
+          <TabsTrigger value="pending">قيد المراجعة</TabsTrigger>
+          <TabsTrigger value="calendar">التقويم</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="my-requests">
+          <Card>
+            <CardHeader>
+              <CardTitle>طلبات الإجازة الخاصة بي</CardTitle>
+              <CardDescription>
+                جميع طلباتك السابقة والحالية للإجازات
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-right">نوع الإجازة</TableHead>
+                    <TableHead className="text-right">التاريخ</TableHead>
+                    <TableHead className="text-right">المدة</TableHead>
+                    <TableHead className="text-right">السبب</TableHead>
+                    <TableHead className="text-right">الحالة</TableHead>
+                    <TableHead className="text-right">تاريخ التقديم</TableHead>
+                    <TableHead className="text-right">الإجراءات</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {mockRequests.slice(0, 3).map((request) => (
+                    <TableRow key={request.id}>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {getLeaveTypeLabel(request.leaveType)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          <div>{format(new Date(request.startDate), "dd/MM/yyyy")}</div>
+                          <div className="text-muted-foreground">إلى {format(new Date(request.endDate), "dd/MM/yyyy")}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-medium">{request.days} أيام</span>
+                      </TableCell>
+                      <TableCell className="max-w-xs">
+                        <p className="text-sm truncate">{request.reason}</p>
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(request.status)}
+                      </TableCell>
+                      <TableCell>
+                        {format(new Date(request.appliedDate), "dd/MM/yyyy")}
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="icon">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="all-requests">
+          <Card>
+            <CardHeader>
+              <CardTitle>جميع طلبات الإجازات</CardTitle>
+              <CardDescription>
+                طلبات الإجازة من جميع الموظفين في الشركة
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-right">الموظف</TableHead>
+                    <TableHead className="text-right">نوع الإجازة</TableHead>
+                    <TableHead className="text-right">التاريخ</TableHead>
+                    <TableHead className="text-right">المدة</TableHead>
+                    <TableHead className="text-right">الحالة</TableHead>
+                    <TableHead className="text-right">الإجراءات</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {mockRequests.map((request) => (
+                    <TableRow key={request.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">{request.employeeName}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {getLeaveTypeLabel(request.leaveType)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {format(new Date(request.startDate), "dd/MM")} - {format(new Date(request.endDate), "dd/MM")}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="font-medium">{request.days} أيام</span>
+                      </TableCell>
+                      <TableCell>
+                        {getStatusBadge(request.status)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          {request.status === 'pending' && (
+                            <>
+                              <Button variant="ghost" size="icon" className="text-green-600">
+                                <CheckCircle className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="text-red-600">
+                                <XCircle className="h-4 w-4" />
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="pending">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <AlertCircle className="h-12 w-12 mx-auto text-orange-500 mb-4" />
+                <h3 className="text-lg font-medium mb-2">الطلبات قيد المراجعة</h3>
+                <p className="text-muted-foreground mb-4">
+                  {mockRequests.filter(r => r.status === 'pending').length} طلب ينتظر الموافقة
+                </p>
+                <Button>مراجعة الطلبات</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="calendar">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <CalendarIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">تقويم الإجازات</h3>
+                <p className="text-muted-foreground">
+                  عرض جميع الإجازات على التقويم الشهري
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );

@@ -1,299 +1,393 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
-import {
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { format } from "date-fns";
+import { ar } from "date-fns/locale";
+import { 
   Bell,
-  AlertTriangle,
-  CheckCircle,
-  Info,
-  Calendar,
-  Users,
-  Clock,
+  Check,
   X,
-  MoreHorizontal,
+  Clock,
+  User,
+  AlertTriangle,
+  Info,
+  CheckCircle,
+  Calendar,
+  DollarSign,
+  FileText,
   Settings,
-  Filter,
-  Search
+  MoreVertical
 } from "lucide-react";
 
-interface NotificationCenterProps {
-  isOpen: boolean;
-  onClose: () => void;
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'warning' | 'success' | 'error' | 'system';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  read: boolean;
+  createdAt: string;
+  category: 'attendance' | 'leave' | 'payroll' | 'system' | 'training' | 'general';
+  actionUrl?: string;
+  metadata?: any;
 }
 
-export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps) {
-  const [activeTab, setActiveTab] = useState("all");
+interface NotificationCenterProps {
+  className?: string;
+}
 
-  // Initial notifications data
-  const initialNotifications = [
-    {
-      id: 1,
-      type: "urgent",
-      title: "تنبيه: انتهاء صلاحية رخصة الشركة",
-      message: "ستنتهي صلاحية رخصة شركة التقنية المتقدمة خلال 7 أيام",
-      timestamp: "منذ 10 دقائق",
-      read: false,
-      company: "التقنية المتقدمة",
-      category: "licenses"
+export function NotificationCenter({ className }: NotificationCenterProps) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [isOpen, setIsOpen] = useState(false);
+
+  // جلب الإشعارات
+  const { data: notifications = [], isLoading } = useQuery<Notification[]>({
+    queryKey: ["/api/notifications"],
+  });
+
+  // تحديث حالة الإشعارات
+  const markAsReadMutation = useMutation({
+    mutationFn: (notificationId: string) => 
+      apiRequest(`/api/notifications/${notificationId}/read`, "PATCH"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
     },
+  });
+
+  // حذف الإشعار
+  const deleteNotificationMutation = useMutation({
+    mutationFn: (notificationId: string) => 
+      apiRequest(`/api/notifications/${notificationId}`, "DELETE"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
+      toast({
+        title: "تم حذف الإشعار",
+        description: "تم حذف الإشعار بنجاح",
+      });
+    },
+  });
+
+  // إشعارات تجريبية
+  const mockNotifications: Notification[] = [
     {
-      id: 2,
-      type: "info",
+      id: "1",
       title: "طلب إجازة جديد",
-      message: "تم تقديم طلب إجازة من أحمد محمد للمراجعة",
-      timestamp: "منذ 30 دقيقة",
+      message: "محمد عبدالله الحربي قدم طلب إجازة سنوية لمدة 5 أيام",
+      type: "info",
+      priority: "medium",
       read: false,
-      company: "الشركة التجارية",
-      category: "leave"
+      createdAt: "2025-01-28T10:30:00Z",
+      category: "leave",
+      actionUrl: "/leave-requests"
     },
     {
-      id: 3,
-      type: "success",
-      title: "تم تسجيل موظف جديد",
-      message: "تم تسجيل فاطمة علي بنجاح في قسم الموارد البشرية",
-      timestamp: "منذ ساعة",
-      read: true,
-      company: "المؤسسة الصناعية",
-      category: "employee"
-    },
-    {
-      id: 4,
+      id: "2",
+      title: "تأخير في الحضور",
+      message: "5 موظفين سجلوا حضورهم متأخرين اليوم",
       type: "warning",
-      title: "تحديث نظام الحضور",
-      message: "يتطلب نظام الحضور تحديث لضمان الأمان",
-      timestamp: "منذ 2 ساعة",
+      priority: "medium",
       read: false,
-      company: "جميع الشركات",
+      createdAt: "2025-01-28T08:45:00Z",
+      category: "attendance",
+      actionUrl: "/attendance"
+    },
+    {
+      id: "3",
+      title: "تم معالجة الرواتب",
+      message: "تم إنهاء معالجة رواتب شهر يناير لجميع الموظفين",
+      type: "success",
+      priority: "high",
+      read: true,
+      createdAt: "2025-01-27T16:20:00Z",
+      category: "payroll",
+      actionUrl: "/payroll"
+    },
+    {
+      id: "4",
+      title: "انتهاء صلاحية ترخيص",
+      message: "ترخيص العمل الخاص بشركة النيل الأزرق سينتهي خلال 30 يوم",
+      type: "warning",
+      priority: "high",
+      read: false,
+      createdAt: "2025-01-27T14:15:00Z",
+      category: "system",
+      actionUrl: "/license-management"
+    },
+    {
+      id: "5",
+      title: "تحديث النظام",
+      message: "تم تحديث نظام إدارة الموارد البشرية إلى الإصدار 2.1.0",
+      type: "system",
+      priority: "low",
+      read: true,
+      createdAt: "2025-01-26T12:00:00Z",
       category: "system"
     },
     {
-      id: 5,
+      id: "6",
+      title: "دورة تدريبية جديدة",
+      message: "تم إضافة دورة 'إدارة الوقت والإنتاجية' لبرنامج التدريب",
       type: "info",
-      title: "تقرير الأداء الشهري",
-      message: "تقرير أداء شهر يناير جاهز للمراجعة",
-      timestamp: "منذ 3 ساعات",
-      read: true,
-      company: "الشركة التجارية",
-      category: "reports"
+      priority: "low",
+      read: false,
+      createdAt: "2025-01-26T09:30:00Z",
+      category: "training",
+      actionUrl: "/training"
     }
   ];
 
-  const [notificationsList, setNotificationsList] = useState(initialNotifications);
-
-  const markAsRead = (id: number) => {
-    setNotificationsList(prev => 
-      prev.map(n => n.id === id ? { ...n, read: true } : n)
-    );
-  };
-
-  const deleteNotification = (id: number) => {
-    setNotificationsList(prev => prev.filter(n => n.id !== id));
-  };
-
-  const markAllAsRead = () => {
-    setNotificationsList(prev => prev.map(n => ({ ...n, read: true })));
-  };
+  const allNotifications = [...notifications, ...mockNotifications];
+  const unreadCount = allNotifications.filter(n => !n.read).length;
 
   const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'urgent':
-        return <AlertTriangle className="h-4 w-4 text-red-500" />;
-      case 'warning':
-        return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      case 'success':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'info':
-      default:
-        return <Info className="h-4 w-4 text-blue-500" />;
-    }
+    const iconMap = {
+      info: Info,
+      warning: AlertTriangle,
+      success: CheckCircle,
+      error: X,
+      system: Settings
+    };
+    const IconComponent = iconMap[type as keyof typeof iconMap] || Info;
+    return IconComponent;
   };
 
-  const getNotificationColor = (type: string) => {
-    switch (type) {
-      case 'urgent':
-        return 'border-red-200 bg-red-50';
-      case 'warning':
-        return 'border-yellow-200 bg-yellow-50';
-      case 'success':
-        return 'border-green-200 bg-green-50';
-      case 'info':
-      default:
-        return 'border-blue-200 bg-blue-50';
-    }
+  const getNotificationColor = (type: string, priority: string) => {
+    if (priority === 'urgent') return 'text-red-600 bg-red-50';
+    
+    const colorMap = {
+      info: 'text-blue-600 bg-blue-50',
+      warning: 'text-orange-600 bg-orange-50',
+      success: 'text-green-600 bg-green-50',
+      error: 'text-red-600 bg-red-50',
+      system: 'text-purple-600 bg-purple-50'
+    };
+    return colorMap[type as keyof typeof colorMap] || 'text-gray-600 bg-gray-50';
   };
 
-  const getTypeText = (type: string) => {
-    switch (type) {
-      case 'urgent': return 'عاجل';
-      case 'warning': return 'تحذير';
-      case 'success': return 'نجح';
-      case 'info': return 'معلومة';
-      default: return 'عام';
-    }
+  const getCategoryLabel = (category: string) => {
+    const categoryMap = {
+      attendance: 'الحضور',
+      leave: 'الإجازات',
+      payroll: 'الرواتب',
+      system: 'النظام',
+      training: 'التدريب',
+      general: 'عام'
+    };
+    return categoryMap[category as keyof typeof categoryMap] || 'عام';
   };
 
-  const filteredNotifications = notificationsList.filter(notification => {
-    switch (activeTab) {
-      case 'unread':
-        return !notification.read;
-      case 'urgent':
-        return notification.type === 'urgent' || notification.type === 'warning';
-      case 'all':
-      default:
-        return true;
-    }
-  });
+  const handleMarkAsRead = (notificationId: string) => {
+    markAsReadMutation.mutate(notificationId);
+  };
 
-  const unreadCount = notificationsList.filter(n => !n.read).length;
+  const handleDeleteNotification = (notificationId: string) => {
+    deleteNotificationMutation.mutate(notificationId);
+  };
+
+  const handleMarkAllAsRead = () => {
+    allNotifications
+      .filter(n => !n.read)
+      .forEach(n => markAsReadMutation.mutate(n.id));
+  };
+
+  const filterNotificationsByCategory = (category: string) => {
+    if (category === 'all') return allNotifications;
+    return allNotifications.filter(n => n.category === category);
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl h-[80vh] overflow-hidden">
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Bell className="h-5 w-5 text-blue-600" />
-              مركز الإشعارات
-              {unreadCount > 0 && (
-                <Badge variant="destructive" className="text-xs">
-                  {unreadCount}
-                </Badge>
-              )}
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="icon" className="relative">
+          <Bell className="h-5 w-5" />
+          {unreadCount > 0 && (
+            <Badge 
+              variant="destructive" 
+              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center text-xs p-0"
+            >
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </Badge>
+          )}
+        </Button>
+      </PopoverTrigger>
+      
+      <PopoverContent className="w-96 p-0" align="end">
+        <Card className="border-0 shadow-lg">
+          <CardHeader className="border-b">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">الإشعارات</CardTitle>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">{unreadCount} جديد</Badge>
+                {unreadCount > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleMarkAllAsRead}
+                    className="text-xs"
+                  >
+                    قراءة الكل
+                  </Button>
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={() => console.log('إعدادات الإشعارات')}>
-                <Settings className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="sm" onClick={() => console.log('فلترة الإشعارات')}>
-                <Filter className="h-4 w-4" />
-              </Button>
-            </div>
-          </DialogTitle>
-          <DialogDescription>
-            عرض وإدارة جميع الإشعارات والتنبيهات الخاصة بالنظام
-          </DialogDescription>
-        </DialogHeader>
+          </CardHeader>
+          
+          <CardContent className="p-0">
+            <Tabs defaultValue="all" className="w-full">
+              <div className="border-b">
+                <TabsList className="grid w-full grid-cols-4 rounded-none h-auto">
+                  <TabsTrigger value="all" className="text-xs">الكل</TabsTrigger>
+                  <TabsTrigger value="leave" className="text-xs">الإجازات</TabsTrigger>
+                  <TabsTrigger value="attendance" className="text-xs">الحضور</TabsTrigger>
+                  <TabsTrigger value="payroll" className="text-xs">الرواتب</TabsTrigger>
+                </TabsList>
+              </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="all">
-              الكل ({notificationsList.length})
-            </TabsTrigger>
-            <TabsTrigger value="unread">
-              غير مقروءة ({unreadCount})
-            </TabsTrigger>
-            <TabsTrigger value="urgent">
-              عاجل ({notificationsList.filter(n => n.type === 'urgent' || n.type === 'warning').length})
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="flex-1 mt-4">
-            <TabsContent value={activeTab} className="m-0 h-full">
-              <ScrollArea className="h-[500px] pr-4">
-                {filteredNotifications.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Bell className="h-16 w-16 mx-auto mb-4 text-muted-foreground/30" />
-                    <h3 className="text-lg font-medium mb-2">لا توجد إشعارات</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {activeTab === 'unread' ? 'جميع الإشعارات مقروءة' : 'لا توجد إشعارات في هذا القسم'}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {filteredNotifications.map((notification) => (
-                      <Card 
-                        key={notification.id} 
-                        className={`cursor-pointer transition-all hover:shadow-md ${
-                          notification.read ? 'opacity-70' : ''
-                        } ${getNotificationColor(notification.type)}`}
-                        onClick={() => markAsRead(notification.id)}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-start gap-3">
-                            <div className="mt-1">
-                              {getNotificationIcon(notification.type)}
-                            </div>
-                            
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex-1">
-                                  <h4 className="font-medium text-sm text-foreground line-clamp-1">
-                                    {notification.title}
-                                  </h4>
-                                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                                    {notification.message}
-                                  </p>
-                                </div>
-                                
-                                <div className="flex items-center gap-2">
-                                  <Badge variant="outline" className="text-xs">
-                                    {getTypeText(notification.type)}
-                                  </Badge>
-                                  {!notification.read && (
-                                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                  )}
-                                </div>
+              <TabsContent value="all" className="mt-0">
+                <ScrollArea className="h-96">
+                  <div className="space-y-1 p-2">
+                    {allNotifications.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p>لا توجد إشعارات</p>
+                      </div>
+                    ) : (
+                      allNotifications.map((notification) => {
+                        const IconComponent = getNotificationIcon(notification.type);
+                        const colorClasses = getNotificationColor(notification.type, notification.priority);
+                        
+                        return (
+                          <div
+                            key={notification.id}
+                            className={`p-3 rounded-lg border transition-colors hover:bg-gray-50 ${
+                              !notification.read ? 'bg-blue-50/50 border-blue-200' : 'bg-white'
+                            }`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`p-2 rounded-full ${colorClasses}`}>
+                                <IconComponent className="h-4 w-4" />
                               </div>
                               
-                              <div className="flex items-center justify-between mt-3">
-                                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-1">
+                                  <h4 className={`text-sm font-medium ${!notification.read ? 'font-semibold' : ''}`}>
+                                    {notification.title}
+                                  </h4>
                                   <div className="flex items-center gap-1">
-                                    <Clock className="h-3 w-3" />
-                                    {notification.timestamp}
-                                  </div>
-                                  <div className="flex items-center gap-1">
-                                    <Users className="h-3 w-3" />
-                                    {notification.company}
+                                    <Badge variant="outline" className="text-xs">
+                                      {getCategoryLabel(notification.category)}
+                                    </Badge>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-6 w-6"
+                                      onClick={() => handleDeleteNotification(notification.id)}
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </Button>
                                   </div>
                                 </div>
                                 
-                                <div className="flex items-center gap-1">
-                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => {e.stopPropagation(); console.log('خيارات إضافية:', notification.title);}}>
-                                    <MoreHorizontal className="h-3 w-3" />
-                                  </Button>
-                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => {e.stopPropagation(); deleteNotification(notification.id);}}>
-                                    <X className="h-3 w-3" />
-                                  </Button>
+                                <p className="text-sm text-muted-foreground mb-2">
+                                  {notification.message}
+                                </p>
+                                
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-muted-foreground">
+                                    {format(new Date(notification.createdAt), "dd/MM/yyyy - HH:mm", { locale: ar })}
+                                  </span>
+                                  
+                                  <div className="flex items-center gap-1">
+                                    {!notification.read && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 px-2 text-xs"
+                                        onClick={() => handleMarkAsRead(notification.id)}
+                                      >
+                                        <Check className="h-3 w-3 mr-1" />
+                                        قراءة
+                                      </Button>
+                                    )}
+                                    
+                                    {notification.actionUrl && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 px-2 text-xs"
+                                        onClick={() => {
+                                          window.location.href = notification.actionUrl!;
+                                          setIsOpen(false);
+                                        }}
+                                      >
+                                        عرض
+                                      </Button>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                        );
+                      })
+                    )}
                   </div>
-                )}
-              </ScrollArea>
-            </TabsContent>
-          </div>
-        </Tabs>
+                </ScrollArea>
+              </TabsContent>
 
-        {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-4 border-t">
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={markAllAsRead} disabled={unreadCount === 0}>
-              <CheckCircle className="h-4 w-4 ml-2" />
-              تسجيل الكل كمقروء
-            </Button>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => console.log('فتح إعدادات الإشعارات')}>
-              <Settings className="h-4 w-4 ml-2" />
-              إعدادات الإشعارات
-            </Button>
-            <Button onClick={onClose}>
-              إغلاق
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+              {['leave', 'attendance', 'payroll'].map(category => (
+                <TabsContent key={category} value={category} className="mt-0">
+                  <ScrollArea className="h-96">
+                    <div className="space-y-1 p-2">
+                      {filterNotificationsByCategory(category).map((notification) => {
+                        const IconComponent = getNotificationIcon(notification.type);
+                        const colorClasses = getNotificationColor(notification.type, notification.priority);
+                        
+                        return (
+                          <div
+                            key={notification.id}
+                            className={`p-3 rounded-lg border transition-colors hover:bg-gray-50 ${
+                              !notification.read ? 'bg-blue-50/50 border-blue-200' : 'bg-white'
+                            }`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`p-2 rounded-full ${colorClasses}`}>
+                                <IconComponent className="h-4 w-4" />
+                              </div>
+                              
+                              <div className="flex-1 min-w-0">
+                                <h4 className={`text-sm font-medium mb-1 ${!notification.read ? 'font-semibold' : ''}`}>
+                                  {notification.title}
+                                </h4>
+                                <p className="text-sm text-muted-foreground mb-2">
+                                  {notification.message}
+                                </p>
+                                <span className="text-xs text-muted-foreground">
+                                  {format(new Date(notification.createdAt), "dd/MM/yyyy - HH:mm", { locale: ar })}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </ScrollArea>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </CardContent>
+        </Card>
+      </PopoverContent>
+    </Popover>
   );
 }
+
+export default NotificationCenter;
