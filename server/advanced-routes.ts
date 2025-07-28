@@ -229,6 +229,189 @@ export function registerAdvancedRoutes(app: Express) {
     res.json(documents);
   });
 
+  // التدريب والتطوير
+  app.get("/api/training/courses", async (req, res) => {
+    const courses = [
+      {
+        id: "1",
+        title: "أساسيات إدارة الموارد البشرية",
+        description: "تعلم المفاهيم الأساسية لإدارة الموارد البشرية والممارسات الحديثة",
+        instructor: "د. محمد السالم",
+        duration: "8 ساعات",
+        level: "مبتدئ",
+        category: "hr",
+        enrolledCount: 45,
+        rating: 4.8,
+        progress: 75,
+        status: "active"
+      },
+      {
+        id: "2",
+        title: "القيادة الفعالة",
+        description: "تطوير مهارات القيادة والإدارة الناجحة للفرق",
+        instructor: "أ. سارة القحطاني",
+        duration: "12 ساعة",
+        level: "متوسط",
+        category: "leadership",
+        enrolledCount: 32,
+        rating: 4.9,
+        progress: 30,
+        status: "active"
+      }
+    ];
+    res.json(courses);
+  });
+
+  // التوظيف والاستقطاب
+  app.get("/api/recruitment/jobs", async (req, res) => {
+    const jobs = [
+      {
+        id: "1",
+        title: "مطور واجهات أمامية",
+        department: "تقنية المعلومات",
+        location: "الرياض",
+        type: "دوام كامل",
+        experience: "3-5 سنوات",
+        salary: "15,000 - 20,000 ريال",
+        postedDate: "2025-01-20",
+        status: "active",
+        applicants: 12
+      },
+      {
+        id: "2",
+        title: "محاسب أول",
+        department: "المالية",
+        location: "جدة",
+        type: "دوام كامل",
+        experience: "5+ سنوات",
+        salary: "12,000 - 18,000 ريال",
+        postedDate: "2025-01-15",
+        status: "active",
+        applicants: 8
+      }
+    ];
+    res.json(jobs);
+  });
+
+  app.get("/api/recruitment/applicants", async (req, res) => {
+    const applicants = [
+      {
+        id: "1",
+        name: "عبدالله محمد السعيد",
+        email: "abdullah@example.com",
+        phone: "+966 55 123 4567",
+        position: "مطور واجهات أمامية",
+        experience: "4 سنوات",
+        education: "بكالوريوس علوم الحاسب",
+        applicationDate: "2025-01-22",
+        status: "screening",
+        rating: 4.5
+      },
+      {
+        id: "2",
+        name: "نورا أحمد الشمري",
+        email: "nora@example.com",
+        phone: "+966 50 987 6543",
+        position: "محاسب أول",
+        experience: "6 سنوات",
+        education: "بكالوريوس محاسبة",
+        applicationDate: "2025-01-18",
+        status: "interview",
+        rating: 4.8
+      }
+    ];
+    res.json(applicants);
+  });
+
+  // تقييم الأداء
+  app.get("/api/performance/overview", async (req, res) => {
+    const performanceData = [
+      { month: "يناير", performance: 75, target: 80 },
+      { month: "فبراير", performance: 82, target: 80 },
+      { month: "مارس", performance: 78, target: 80 },
+      { month: "أبريل", performance: 85, target: 80 },
+      { month: "مايو", performance: 88, target: 85 },
+      { month: "يونيو", performance: 92, target: 85 }
+    ];
+    res.json(performanceData);
+  });
+
+  // الحضور والانصراف
+  app.get("/api/attendance/today", async (req, res) => {
+    const todayStats = {
+      present: 142,
+      absent: 8,
+      late: 5,
+      onLeave: 12,
+      totalEmployees: 167,
+      currentTime: new Date().toLocaleTimeString('ar-SA', { 
+        timeZone: 'Asia/Riyadh',
+        hour12: true 
+      })
+    };
+    res.json(todayStats);
+  });
+
+  app.post("/api/attendance/checkin", async (req, res) => {
+    const { employeeId } = req.body;
+    res.json({
+      success: true,
+      message: "تم تسجيل الحضور بنجاح",
+      time: new Date().toLocaleTimeString('ar-SA', { timeZone: 'Asia/Riyadh' })
+    });
+  });
+
+  app.post("/api/attendance/checkout", async (req, res) => {
+    const { employeeId } = req.body;
+    res.json({
+      success: true,
+      message: "تم تسجيل الانصراف بنجاح",
+      time: new Date().toLocaleTimeString('ar-SA', { timeZone: 'Asia/Riyadh' }),
+      workingHours: "8.5 ساعة"
+    });
+  });
+
+  // طلبات الإجازات
+  app.get("/api/leave-requests", async (req, res) => {
+    const leaveRequests = [
+      {
+        id: "1",
+        employeeName: "أحمد محمد علي",
+        leaveType: "annual",
+        startDate: "2025-02-01",
+        endDate: "2025-02-05",
+        days: 5,
+        reason: "إجازة عائلية",
+        status: "pending",
+        appliedDate: "2025-01-20"
+      },
+      {
+        id: "2",
+        employeeName: "فاطمة أحمد سالم",
+        leaveType: "sick",
+        startDate: "2025-01-25",
+        endDate: "2025-01-26",
+        days: 2,
+        reason: "إجازة مرضية",
+        status: "approved",
+        appliedDate: "2025-01-24"
+      }
+    ];
+    res.json(leaveRequests);
+  });
+
+  app.get("/api/leave-balance/:employeeId", async (req, res) => {
+    const { employeeId } = req.params;
+    const balance = {
+      annual: 30,
+      used: 12,
+      remaining: 18,
+      sick: 15,
+      emergency: 7
+    };
+    res.json(balance);
+  });
+
   // Employee stats endpoint
   app.get("/api/employees/stats", isAuthenticated, async (req, res) => {
     try {

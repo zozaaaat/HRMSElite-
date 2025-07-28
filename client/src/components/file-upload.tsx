@@ -1,263 +1,196 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, DragEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/hooks/use-toast";
-import { 
-  Upload, 
-  FileText, 
-  Image, 
-  File, 
-  X,
-  CheckCircle,
-  AlertCircle
-} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { X, Upload, File, FileText, Image, AlertCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface FileUploadProps {
-  onUpload: (files: File[]) => void;
+  onUpload?: (files: File[]) => void;
   accept?: string;
-  multiple?: boolean;
-  maxSize?: number; // بالميجابايت
+  maxSize?: number; // في MB
   maxFiles?: number;
+  multiple?: boolean;
 }
 
-interface UploadedFile {
-  file: File;
+interface UploadFile extends File {
+  id: string;
   progress: number;
-  status: "uploading" | "success" | "error";
-  error?: string;
+  status: 'uploading' | 'success' | 'error';
 }
 
-export function FileUpload({
-  onUpload,
-  accept = "*",
-  multiple = true,
-  maxSize = 10,
-  maxFiles = 5
+export function FileUpload({ 
+  onUpload, 
+  accept = "*", 
+  maxSize = 10, 
+  maxFiles = 5,
+  multiple = true 
 }: FileUploadProps) {
-  const { toast } = useToast();
-  const [isDragging, setIsDragging] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
+  const [isDragActive, setIsDragActive] = useState(false);
 
-  const handleDrag = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setIsDragging(true);
-    } else if (e.type === "dragleave") {
-      setIsDragging(false);
-    }
-  }, []);
-
-  const validateFile = (file: File): string | null => {
-    // التحقق من الحجم
-    if (file.size > maxSize * 1024 * 1024) {
-      return `حجم الملف يتجاوز ${maxSize} ميجابايت`;
-    }
-    
-    // التحقق من النوع إذا كان محدد
-    if (accept !== "*") {
-      const acceptedTypes = accept.split(",").map(t => t.trim());
-      const fileType = file.type || "";
-      const fileExt = "." + file.name.split(".").pop()?.toLowerCase();
-      
-      const isAccepted = acceptedTypes.some(type => {
-        if (type.startsWith(".")) {
-          return fileExt === type.toLowerCase();
-        }
-        return fileType.match(new RegExp(type.replace("*", ".*")));
-      });
-      
-      if (!isAccepted) {
-        return "نوع الملف غير مدعوم";
-      }
-    }
-    
-    return null;
-  };
-
-  const processFiles = (files: FileList | null) => {
+  const handleFiles = useCallback((files: FileList | null) => {
     if (!files) return;
     
     const fileArray = Array.from(files);
-    
-    // التحقق من عدد الملفات
-    if (uploadedFiles.length + fileArray.length > maxFiles) {
-      toast({
-        title: "تجاوز عدد الملفات المسموح",
-        description: `الحد الأقصى ${maxFiles} ملفات`,
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    const newFiles: UploadedFile[] = [];
-    const validFiles: File[] = [];
-    
-    fileArray.forEach(file => {
-      const error = validateFile(file);
-      if (error) {
-        newFiles.push({
-          file,
-          progress: 0,
-          status: "error",
-          error
-        });
-      } else {
-        newFiles.push({
-          file,
-          progress: 0,
-          status: "uploading"
-        });
-        validFiles.push(file);
-      }
-    });
-    
-    setUploadedFiles([...uploadedFiles, ...newFiles]);
-    
+    const newFiles = fileArray.map(file => ({
+      ...file,
+      id: Math.random().toString(36).substr(2, 9),
+      progress: 0,
+      status: 'uploading' as const
+    }));
+
+    setUploadFiles(prev => [...prev, ...newFiles]);
+
     // محاكاة رفع الملفات
-    validFiles.forEach((file, index) => {
-      const fileIndex = uploadedFiles.length + index;
-      let progress = 0;
-      
-      const interval = setInterval(() => {
-        progress += 10;
-        
-        setUploadedFiles(prev => {
-          const updated = [...prev];
-          if (updated[fileIndex]) {
-            updated[fileIndex].progress = progress;
-            
-            if (progress >= 100) {
-              updated[fileIndex].status = "success";
-              clearInterval(interval);
-            }
-          }
-          return updated;
-        });
-      }, 200);
+    newFiles.forEach(file => {
+      simulateUpload(file);
     });
-    
-    if (validFiles.length > 0) {
-      onUpload(validFiles);
+
+    if (onUpload) {
+      onUpload(fileArray);
     }
+  }, [onUpload]);
+
+  const simulateUpload = (file: UploadFile) => {
+    const interval = setInterval(() => {
+      setUploadFiles(prev => prev.map(f => {
+        if (f.id === file.id) {
+          const newProgress = f.progress + 10;
+          if (newProgress >= 100) {
+            clearInterval(interval);
+            return { ...f, progress: 100, status: 'success' };
+          }
+          return { ...f, progress: newProgress };
+        }
+        return f;
+      }));
+    }, 200);
   };
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
+  const removeFile = (fileId: string) => {
+    setUploadFiles(prev => prev.filter(f => f.id !== fileId));
+  };
+
+  const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    
-    processFiles(e.dataTransfer.files);
-  }, [uploadedFiles.length]);
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    processFiles(e.target.files);
+    setIsDragActive(true);
   };
 
-  const removeFile = (index: number) => {
-    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+  const handleDragLeave = (e: DragEvent) => {
+    e.preventDefault();
+    setIsDragActive(false);
   };
 
-  const getFileIcon = (file: File) => {
-    if (file.type.startsWith("image/")) {
+  const handleDrop = (e: DragEvent) => {
+    e.preventDefault();
+    setIsDragActive(false);
+    handleFiles(e.dataTransfer.files);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFiles(e.target.files);
+  };
+
+  const getFileIcon = (fileName: string) => {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif'].includes(extension || '')) {
       return <Image className="h-4 w-4" />;
-    } else if (file.type.includes("pdf") || file.type.includes("document")) {
+    }
+    if (['pdf', 'doc', 'docx'].includes(extension || '')) {
       return <FileText className="h-4 w-4" />;
     }
     return <File className="h-4 w-4" />;
   };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + " B";
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   return (
     <div className="space-y-4">
-      <Card
-        className={`border-2 border-dashed transition-colors ${
-          isDragging ? "border-primary bg-primary/5" : "border-muted-foreground/25"
-        }`}
-        onDragEnter={handleDrag}
-        onDragLeave={handleDrag}
-        onDragOver={handleDrag}
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
         onDrop={handleDrop}
+        className={cn(
+          "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors",
+          isDragActive 
+            ? "border-primary bg-primary/5" 
+            : "border-muted-foreground/25 hover:border-primary/50"
+        )}
+        onClick={() => document.getElementById('file-input')?.click()}
       >
-        <CardContent className="p-8">
-          <div className="text-center">
-            <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-sm text-muted-foreground mb-2">
-              اسحب الملفات هنا أو انقر للاختيار
+        <input 
+          id="file-input"
+          type="file"
+          multiple={multiple}
+          accept={accept === "*" ? undefined : accept}
+          onChange={handleInputChange}
+          className="hidden"
+        />
+        <Upload className="h-10 w-10 mx-auto mb-4 text-muted-foreground" />
+        {isDragActive ? (
+          <p className="text-lg mb-2">أفلت الملفات هنا...</p>
+        ) : (
+          <div>
+            <p className="text-lg mb-2">اسحب الملفات هنا أو انقر للاختيار</p>
+            <p className="text-sm text-muted-foreground">
+              الحد الأقصى: {maxSize} MB لكل ملف، {maxFiles} ملفات كحد أقصى
             </p>
-            <p className="text-xs text-muted-foreground mb-4">
-              الحد الأقصى {maxSize} ميجابايت لكل ملف
-            </p>
-            <input
-              type="file"
-              id="file-upload"
-              className="hidden"
-              accept={accept}
-              multiple={multiple}
-              onChange={handleFileSelect}
-            />
-            <Button asChild variant="outline">
-              <label htmlFor="file-upload" className="cursor-pointer">
-                اختر الملفات
-              </label>
-            </Button>
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
 
-      {/* قائمة الملفات المرفوعة */}
-      {uploadedFiles.length > 0 && (
-        <div className="space-y-2">
-          {uploadedFiles.map((item, index) => (
-            <Card key={index} className="overflow-hidden">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-3">
-                  {getFileIcon(item.file)}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="text-sm font-medium truncate">{item.file.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatFileSize(item.file.size)}
-                      </p>
-                    </div>
-                    
-                    {item.status === "uploading" && (
-                      <Progress value={item.progress} className="h-1" />
-                    )}
-                    
-                    {item.status === "error" && (
-                      <p className="text-xs text-destructive flex items-center gap-1">
-                        <AlertCircle className="h-3 w-3" />
-                        {item.error}
-                      </p>
-                    )}
-                    
-                    {item.status === "success" && (
-                      <p className="text-xs text-green-600 flex items-center gap-1">
-                        <CheckCircle className="h-3 w-3" />
-                        تم الرفع بنجاح
-                      </p>
-                    )}
-                  </div>
-                  
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => removeFile(index)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+      {uploadFiles.length > 0 && (
+        <div className="space-y-3">
+          <h4 className="font-medium">الملفات المرفوعة:</h4>
+          {uploadFiles.map((file) => (
+            <div key={file.id} className="flex items-center gap-3 p-3 border rounded-lg">
+              <div className="flex items-center gap-2 flex-1">
+                {getFileIcon(file.name)}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{file.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatFileSize(file.size)}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {file.status === 'uploading' && (
+                  <div className="w-24">
+                    <Progress value={file.progress} className="h-2" />
+                  </div>
+                )}
+                
+                {file.status === 'success' && (
+                  <Badge variant="default" className="bg-green-100 text-green-800">
+                    مكتمل
+                  </Badge>
+                )}
+                
+                {file.status === 'error' && (
+                  <Badge variant="destructive">
+                    <AlertCircle className="h-3 w-3 mr-1" />
+                    خطأ
+                  </Badge>
+                )}
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeFile(file.id)}
+                  className="h-8 w-8"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           ))}
         </div>
       )}
