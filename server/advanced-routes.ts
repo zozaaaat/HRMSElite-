@@ -162,6 +162,73 @@ export function registerAdvancedRoutes(app: Express) {
     });
   });
 
+  // نظام الرواتب
+  app.get("/api/payroll", async (req, res) => {
+    const { month, year } = req.query;
+    const payrollRecords = [
+      {
+        id: "1",
+        employeeId: "EMP001",
+        employeeName: "أحمد محمد علي",
+        position: "مدير تنفيذي",
+        basicSalary: 15000,
+        allowances: 5000,
+        deductions: 2850,
+        overtime: 1200,
+        netSalary: 18350,
+        status: "paid",
+        month: month || "1",
+        year: year || 2025
+      },
+      {
+        id: "2",
+        employeeId: "EMP002",
+        employeeName: "فاطمة أحمد سالم",
+        position: "محاسب أول",
+        basicSalary: 8000,
+        allowances: 2500,
+        deductions: 1420,
+        overtime: 0,
+        netSalary: 9080,
+        status: "pending",
+        month: month || "1",
+        year: year || 2025
+      }
+    ];
+    res.json(payrollRecords);
+  });
+
+  // نظام المستندات
+  app.get("/api/documents", async (req, res) => {
+    const documents = [
+      {
+        id: "1",
+        name: "عقد العمل - أحمد محمد.pdf",
+        type: "application/pdf",
+        category: "contracts",
+        size: "2.5 MB",
+        uploadedBy: "مدير الموارد البشرية",
+        uploadDate: "2025-01-15",
+        lastModified: "2025-01-15",
+        status: "active",
+        tags: ["عقود", "موظفين جدد"]
+      },
+      {
+        id: "2",
+        name: "سياسة العمل عن بعد.docx",
+        type: "application/docx",
+        category: "policies",
+        size: "1.2 MB",
+        uploadedBy: "الإدارة العليا",
+        uploadDate: "2025-01-10",
+        lastModified: "2025-01-20",
+        status: "active",
+        tags: ["سياسات", "العمل عن بعد"]
+      }
+    ];
+    res.json(documents);
+  });
+
   // Employee stats endpoint
   app.get("/api/employees/stats", isAuthenticated, async (req, res) => {
     try {
