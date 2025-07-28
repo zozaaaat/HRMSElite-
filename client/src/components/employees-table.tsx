@@ -185,10 +185,10 @@ export function EmployeesTable({ employees, companyId, showActions = false }: Em
                 <span className="font-medium">{filteredEmployees.length}</span> نتيجة
               </div>
               <div className="flex space-x-reverse space-x-2">
-                <Button variant="outline" size="sm" disabled>
+                <Button variant="outline" size="sm" disabled onClick={() => console.log('الصفحة السابقة')}>
                   السابق
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => console.log('الصفحة التالية')}>
                   التالي
                 </Button>
               </div>

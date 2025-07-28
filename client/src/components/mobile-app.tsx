@@ -208,7 +208,7 @@ export function MobileApp({ companyId }: MobileAppProps) {
               ))}
             </div>
 
-            <Button className="w-full" variant="outline">
+            <Button className="w-full" variant="outline" onClick={() => console.log('عرض جميع الإشعارات الفورية')}>
               عرض جميع الإشعارات
             </Button>
           </CardContent>
@@ -233,11 +233,11 @@ export function MobileApp({ companyId }: MobileAppProps) {
                 يمكن للموظفين مسح رمز QR لتحميل التطبيق
               </p>
               <div className="space-y-2">
-                <Button className="w-full">
+                <Button className="w-full" onClick={() => console.log('إنشاء رابط تحميل التطبيق المحمول')}>
                   <Download className="ml-2 h-4 w-4" />
                   إنشاء رابط تحميل
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" onClick={() => console.log('إرسال رابط التحميل للموظفين')}>
                   إرسال رابط للموظفين
                 </Button>
               </div>

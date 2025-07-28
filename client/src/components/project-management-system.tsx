@@ -559,13 +559,13 @@ export function ProjectManagementSystem() {
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => console.log('تحرير المهمة:', task.title)}>
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => console.log('عرض تعليقات المهمة:', task.title)}>
                             <MessageSquare className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" onClick={() => console.log('عرض مرفقات المهمة:', task.title)}>
                             <Paperclip className="h-4 w-4" />
                           </Button>
                         </div>

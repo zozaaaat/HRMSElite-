@@ -211,7 +211,7 @@ export function AccountingIntegration() {
             <Sync className="h-4 w-4 mr-2" />
             مزامنة الآن
           </Button>
-          <Button>
+          <Button onClick={() => console.log('إضافة تكامل محاسبي جديد')}>
             <Link2 className="h-4 w-4 mr-2" />
             إضافة تكامل
           </Button>
@@ -429,11 +429,11 @@ export function AccountingIntegration() {
                   <div className="flex items-center gap-2">
                     {integration.status === 'connected' ? (
                       <>
-                        <Button variant="outline" size="sm" className="flex-1">
+                        <Button variant="outline" size="sm" className="flex-1" onClick={() => console.log('إعدادات النظام المحاسبي', integration.name)}>
                           <Settings className="h-4 w-4 mr-2" />
                           إعدادات
                         </Button>
-                        <Button variant="outline" size="sm" className="flex-1">
+                        <Button variant="outline" size="sm" className="flex-1" onClick={() => console.log('قطع اتصال النظام المحاسبي', integration.name)}>
                           قطع الاتصال
                         </Button>
                       </>
@@ -548,8 +548,8 @@ export function AccountingIntegration() {
               </div>
               
               <div className="flex justify-end gap-2">
-                <Button variant="outline">إلغاء</Button>
-                <Button>حفظ الإعدادات</Button>
+                <Button variant="outline" onClick={() => console.log('إلغاء تغييرات إعدادات المزامنة')}>إلغاء</Button>
+                <Button onClick={() => console.log('حفظ إعدادات المزامنة')}>حفظ الإعدادات</Button>
               </div>
             </CardContent>
           </Card>
@@ -647,19 +647,19 @@ export function AccountingIntegration() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={() => console.log('تصدير بيانات النظام المحاسبي')}>
                   <Download className="h-4 w-4 mr-2" />
                   تصدير البيانات
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={() => console.log('استيراد بيانات للنظام المحاسبي')}>
                   <Upload className="h-4 w-4 mr-2" />
                   استيراد البيانات
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={() => console.log('إعادة تعيين إعدادات المزامنة')}>
                   <RefreshCw className="h-4 w-4 mr-2" />
                   إعادة تعيين المزامنة
                 </Button>
-                <Button variant="destructive" className="w-full justify-start">
+                <Button variant="destructive" className="w-full justify-start" onClick={() => console.log('تأكيد حذف جميع بيانات المزامنة')}>
                   <AlertTriangle className="h-4 w-4 mr-2" />
                   حذف جميع البيانات
                 </Button>
