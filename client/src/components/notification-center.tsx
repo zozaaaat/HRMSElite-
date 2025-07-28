@@ -75,19 +75,8 @@ export function NotificationCenter({ className }: NotificationCenterProps) {
     },
   });
 
-  // إشعارات تجريبية
+  // إشعارات تجريبية - بدون إشعارات قبول/رفض للعمال
   const mockNotifications: Notification[] = [
-    {
-      id: "1",
-      title: "طلب إجازة جديد",
-      message: "محمد عبدالله الحربي قدم طلب إجازة سنوية لمدة 5 أيام",
-      type: "info",
-      priority: "medium",
-      read: false,
-      createdAt: "2025-01-28T10:30:00Z",
-      category: "leave",
-      actionUrl: "/leave-requests"
-    },
     {
       id: "2",
       title: "تأخير في الحضور",

@@ -273,56 +273,8 @@ export default function LeaveRequestsPage() {
         </Dialog>
       </div>
 
-      {/* بطاقات رصيد الإجازات */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">الرصيد السنوي</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
-              {leaveBalance?.annual || 30}
-            </div>
-            <p className="text-xs text-muted-foreground">يوم إجازة سنوية</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">المستخدم</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">
-              {leaveBalance?.used || 12}
-            </div>
-            <p className="text-xs text-muted-foreground">يوم مستخدم</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">المتبقي</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {leaveBalance?.remaining || 18}
-            </div>
-            <p className="text-xs text-muted-foreground">يوم متبقي</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">الإجازات المرضية</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-600">
-              {leaveBalance?.sick || 15}
-            </div>
-            <p className="text-xs text-muted-foreground">يوم إجازة مرضية</p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* بطاقات رصيد الإجازات - فقط للإداريين */}
+      {/* هذه البطاقات مخفية للعمال العاديين */}
 
       <Tabs defaultValue="my-requests" className="space-y-4">
         <TabsList>
