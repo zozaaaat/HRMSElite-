@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import { registerSpecializedRoutes } from "./specialized-routes";
 import { createServer, type Server } from "http";
 
 // Mock users for authentication
@@ -92,7 +93,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Companies route - return mock data
   app.get('/api/companies', async (req, res) => {
     try {
-      // Real companies extracted from business documents
+      // Real companies extracted from business documents - Focus on Gold & Fabrics
       const mockCompanies = [
         {
           id: "1",
@@ -108,7 +109,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           employeeCount: 15,
           businessActivity: "تجارة الأقمشة بالجملة والتجزئة",
           location: "المباركية",
-          licenseTypes: ["تجاري", "استيراد"]
+          licenseTypes: ["تجاري", "استيراد"],
+          // Specialized fields for fabrics business
+          fabricTypes: ["حرير", "قطن", "صوف", "كتان", "شيفون", "ساتان", "دانتيل"],
+          suppliers: ["تركيا", "الهند", "الصين", "إيطاليا"],
+          seasonalDemand: {
+            "الربيع": ["أقمشة خفيفة", "ألوان زاهية"],
+            "الصيف": ["قطن", "كتان", "أقمشة تهوية"],
+            "الخريف": ["أقمشة متوسطة", "ألوان دافئة"],
+            "الشتاء": ["صوف", "أقمشة ثقيلة", "مخمل"]
+          },
+          inventoryCategories: ["رجالي", "نسائي", "أطفال", "منزلي", "تنجيد"],
+          pricingTiers: ["جملة", "نصف جملة", "تجزئة"]
         },
         {
           id: "2",
@@ -124,7 +136,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           employeeCount: 12,
           businessActivity: "تجارة وتصنيع المجوهرات والذهب والفضة",
           location: "المباركية - فحيحيل - الجهراء",
-          licenseTypes: ["تجاري", "صناعي", "مجوهرات"]
+          licenseTypes: ["تجاري", "صناعي", "مجوهرات"],
+          // Specialized fields for gold & jewelry business
+          goldTypes: ["ذهب عيار 18", "ذهب عيار 21", "ذهب عيار 24", "ذهب أبيض", "ذهب وردي"],
+          jewelryCategories: ["خواتم", "أساور", "قلائد", "أقراط", "دبل", "طقم كامل"],
+          preciousStones: ["ألماس", "زمرد", "ياقوت", "لؤلؤ", "عقيق"],
+          craftsmen: ["صائغ رئيسي", "مساعد صائغ", "مقيم أحجار", "مصمم"],
+          dailyGoldPrice: "سعر الذهب اليومي حسب البورصة",
+          customerTypes: ["عملاء مناسبات", "عملاء استثمار", "تجار تجزئة"],
+          services: ["تصنيع حسب الطلب", "صيانة وتلميع", "تقييم المجوهرات", "شراء الذهب المستعمل"]
         },
         {
           id: "3",
@@ -1599,6 +1619,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to auto-fill form" });
     }
   });
+
+  // Register specialized routes for Gold & Fabrics businesses
+  registerSpecializedRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

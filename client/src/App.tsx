@@ -30,6 +30,8 @@ import GovernmentForms from "@/pages/government-forms";
 import PermissionsManagement from "@/pages/permissions-management";
 import LicenseManagementPage from "@/pages/license-management";
 import IntelligentDashboard from "@/pages/intelligent-dashboard";
+import GoldManagement from "@/pages/gold-management";
+import FabricsManagement from "@/pages/fabrics-management";
 
 function Router() {
   return (
@@ -65,6 +67,8 @@ function Router() {
       <Route path="/permissions-management" component={PermissionsManagement} />
       <Route path="/license-management" component={LicenseManagementPage} />
       <Route path="/intelligent-dashboard" component={IntelligentDashboard} />
+      <Route path="/gold-management" component={GoldManagement} />
+      <Route path="/fabrics-management" component={FabricsManagement} />
       
       {/* 404 page */}
       <Route component={NotFound} />
