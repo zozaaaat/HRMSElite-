@@ -2,6 +2,8 @@ import type { Express } from "express";
 // Enhanced HRMS system with special attention to gold and fabrics companies
 import { createServer, type Server } from "http";
 import { getAllEmployees, getCompanyEmployees, getRealCompanyData } from "./real-employees-data";
+import { getAllLicenses, getCompanyLicenses, getAllDocuments, getCompanyDocuments } from "./real-employees-data";
+import { getAllRequests, getCompanyRequests } from "./real-employees-data";
 import fs from 'fs';
 import path from 'path';
 
@@ -1676,6 +1678,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error auto-filling form:", error);
       res.status(500).json({ message: "Failed to auto-fill form" });
+    }
+  });
+
+  // Request routes - Government forms and requests
+  app.get('/api/requests', async (req, res) => {
+    try {
+      const allRequests = getAllRequests();
+      console.log(`Returning ${allRequests.length} total requests`);
+      res.json(allRequests);
+    } catch (error) {
+      console.error("Error fetching requests:", error);
+      res.status(500).json({ message: "Failed to fetch requests" });
+    }
+  });
+  
+  app.get('/api/companies/:id/requests', async (req, res) => {
+    try {
+      const companyId = req.params.id;
+      const requests = getCompanyRequests(companyId);
+      console.log(`Returning ${requests.length} requests for company ${companyId}`);
+      res.json(requests);
+    } catch (error) {
+      console.error("Error fetching company requests:", error);
+      res.status(500).json({ message: "Failed to fetch company requests" });
     }
   });
 
