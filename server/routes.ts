@@ -388,7 +388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           name: user.name,
           role: user.role,
           email: user.email,
-          companyId: user.companyId
+          companyId: (user as any).companyId || null
         }
       });
     } catch (error) {

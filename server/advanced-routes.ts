@@ -2,6 +2,166 @@ import type { Express } from "express";
 import { isAuthenticated } from "./replitAuth";
 
 export function registerAdvancedRoutes(app: Express) {
+  // نظام الإجازات
+  app.get("/api/leave-requests", async (req, res) => {
+    const leaveRequests = [
+      {
+        id: "1",
+        employeeName: "أحمد محمد علي",
+        leaveType: "annual",
+        startDate: "2025-02-01",
+        endDate: "2025-02-05",
+        reason: "إجازة سنوية للسفر مع العائلة",
+        status: "pending",
+        requestDate: "2025-01-28",
+      },
+      {
+        id: "2",
+        employeeName: "فاطمة أحمد سالم",
+        leaveType: "sick",
+        startDate: "2025-01-25",
+        endDate: "2025-01-27",
+        reason: "إجازة مرضية - تقرير طبي مرفق",
+        status: "approved",
+        requestDate: "2025-01-24",
+        approvedBy: "مدير الموارد البشرية"
+      },
+      {
+        id: "3",
+        employeeName: "محمد عبدالله الحربي",
+        leaveType: "emergency",
+        startDate: "2025-01-20",
+        endDate: "2025-01-20",
+        reason: "ظرف طارئ عائلي",
+        status: "rejected",
+        requestDate: "2025-01-20",
+        rejectionReason: "لم يتم تقديم المستندات المطلوبة"
+      }
+    ];
+    res.json(leaveRequests);
+  });
+
+  app.get("/api/leave-balance", async (req, res) => {
+    const balance = {
+      annual: 21,
+      sick: 30,
+      emergency: 7,
+      usedAnnual: 5,
+      usedSick: 2,
+      usedEmergency: 1
+    };
+    res.json(balance);
+  });
+
+  app.post("/api/leave-requests", async (req, res) => {
+    res.json({ success: true, message: "تم إرسال طلب الإجازة بنجاح", id: Date.now().toString() });
+  });
+
+  app.patch("/api/leave-requests/:id/approve", async (req, res) => {
+    res.json({ success: true, message: "تمت الموافقة على الطلب" });
+  });
+
+  app.patch("/api/leave-requests/:id/reject", async (req, res) => {
+    res.json({ success: true, message: "تم رفض الطلب" });
+  });
+
+  // نظام الحضور والانصراف
+  app.get("/api/attendance", async (req, res) => {
+    const today = new Date().toISOString().split('T')[0];
+    const attendanceRecords = [
+      {
+        id: "1",
+        employeeId: "emp001",
+        employeeName: "أحمد محمد علي",
+        date: today,
+        checkIn: "08:15",
+        checkOut: "17:30",
+        status: "present",
+        workHours: "9.25",
+        overtimeHours: "1.25"
+      },
+      {
+        id: "2",
+        employeeId: "emp002",
+        employeeName: "فاطمة أحمد سالم",
+        date: today,
+        checkIn: "08:00",
+        checkOut: null,
+        status: "present",
+        workHours: "0",
+        overtimeHours: "0"
+      },
+      {
+        id: "3",
+        employeeId: "emp003",
+        employeeName: "محمد عبدالله الحربي",
+        date: today,
+        checkIn: "09:45",
+        checkOut: "18:00",
+        status: "late",
+        workHours: "8.25",
+        overtimeHours: "0"
+      },
+      {
+        id: "4",
+        employeeId: "emp004",
+        employeeName: "سارة عبدالرحمن القحطاني",
+        date: today,
+        checkIn: null,
+        checkOut: null,
+        status: "absent",
+        workHours: "0",
+        overtimeHours: "0"
+      },
+      {
+        id: "5",
+        employeeId: "emp005",
+        employeeName: "خالد سعد المطيري",
+        date: today,
+        checkIn: null,
+        checkOut: null,
+        status: "holiday",
+        workHours: "0",
+        overtimeHours: "0"
+      }
+    ];
+    res.json(attendanceRecords);
+  });
+
+  app.post("/api/attendance/check-in", async (req, res) => {
+    const currentTime = new Date();
+    const timeString = currentTime.toLocaleTimeString('ar-SA', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false 
+    });
+    
+    res.json({ 
+      success: true, 
+      message: "تم تسجيل الحضور بنجاح",
+      checkInTime: timeString,
+      employeeId: "emp001"
+    });
+  });
+
+  app.post("/api/attendance/check-out", async (req, res) => {
+    const currentTime = new Date();
+    const timeString = currentTime.toLocaleTimeString('ar-SA', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false 
+    });
+    
+    res.json({ 
+      success: true, 
+      message: "تم تسجيل الانصراف بنجاح",
+      checkOutTime: timeString,
+      employeeId: "emp001",
+      workHours: "8.5",
+      overtimeHours: "0.5"
+    });
+  });
+
   // Employee stats endpoint
   app.get("/api/employees/stats", isAuthenticated, async (req, res) => {
     try {

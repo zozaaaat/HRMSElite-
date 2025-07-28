@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuHeader,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -35,9 +34,7 @@ export function NotificationsDropdown() {
 
   const markAsReadMutation = useMutation({
     mutationFn: async (id: string) => {
-      await apiRequest(`/api/notifications/${id}/read`, {
-        method: "PATCH",
-      });
+      await apiRequest(`/api/notifications/${id}/read`, "PATCH");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
@@ -85,14 +82,14 @@ export function NotificationsDropdown() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80">
-        <DropdownMenuHeader className="font-semibold flex justify-between items-center">
+        <div className="px-3 py-2 font-semibold flex justify-between items-center border-b">
           <span>الإشعارات</span>
           {unreadCount > 0 && (
             <span className="text-sm text-muted-foreground">
               {unreadCount} غير مقروء
             </span>
           )}
-        </DropdownMenuHeader>
+        </div>
         <DropdownMenuSeparator />
         <ScrollArea className="h-[400px]">
           {notifications.length === 0 ? (
