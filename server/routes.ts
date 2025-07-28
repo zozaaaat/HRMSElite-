@@ -1350,6 +1350,416 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Employee Management APIs
+  app.get('/api/employees', isAuthenticated, async (req, res) => {
+    try {
+      const employees = [
+        {
+          id: "1",
+          name: "أحمد محمد علي",
+          position: "مدير المبيعات",
+          department: "المبيعات",
+          email: "ahmed@company.com",
+          phone: "+966501234567",
+          hireDate: "2023-01-15",
+          salary: 8000,
+          status: "active"
+        },
+        {
+          id: "2",
+          name: "فاطمة سالم أحمد",
+          position: "محاسبة",
+          department: "المحاسبة",
+          email: "fatima@company.com",
+          phone: "+966507654321",
+          hireDate: "2023-03-20",
+          salary: 6500,
+          status: "active"
+        },
+        {
+          id: "3",
+          name: "خالد عبدالرحمن",
+          position: "مطور برمجيات",
+          department: "التكنولوجيا",
+          email: "khalid@company.com",
+          phone: "+966509876543",
+          hireDate: "2023-02-10",
+          salary: 7500,
+          status: "active"
+        }
+      ];
+      res.json(employees);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+      res.status(500).json({ message: "Failed to fetch employees" });
+    }
+  });
+
+  app.post('/api/employees', isAuthenticated, async (req, res) => {
+    try {
+      const newEmployee = {
+        id: Date.now().toString(),
+        ...req.body,
+        hireDate: new Date().toISOString().split('T')[0],
+        status: "active"
+      };
+      res.json(newEmployee);
+    } catch (error) {
+      console.error("Error creating employee:", error);
+      res.status(500).json({ message: "Failed to create employee" });
+    }
+  });
+
+  // Attendance APIs
+  app.get('/api/attendance/today', isAuthenticated, async (req, res) => {
+    try {
+      const todayAttendance = {
+        date: new Date().toISOString().split('T')[0],
+        totalEmployees: 45,
+        present: 42,
+        absent: 3,
+        late: 5,
+        attendanceRecords: [
+          {
+            employeeId: "1",
+            employeeName: "أحمد محمد علي",
+            checkIn: "08:30",
+            checkOut: null,
+            status: "present",
+            workingHours: "7:30"
+          },
+          {
+            employeeId: "2", 
+            employeeName: "فاطمة سالم أحمد",
+            checkIn: "08:15",
+            checkOut: "17:00",
+            status: "present",
+            workingHours: "8:45"
+          },
+          {
+            employeeId: "3",
+            employeeName: "خالد عبدالرحمن",
+            checkIn: null,
+            checkOut: null,
+            status: "absent",
+            workingHours: "0:00"
+          }
+        ]
+      };
+      res.json(todayAttendance);
+    } catch (error) {
+      console.error("Error fetching attendance:", error);
+      res.status(500).json({ message: "Failed to fetch attendance data" });
+    }
+  });
+
+  app.post('/api/attendance/checkin', isAuthenticated, async (req, res) => {
+    try {
+      const { employeeId } = req.body;
+      const checkInRecord = {
+        employeeId,
+        checkInTime: new Date().toLocaleTimeString('ar-SA', { hour12: false }),
+        date: new Date().toISOString().split('T')[0],
+        status: "checked_in"
+      };
+      res.json(checkInRecord);
+    } catch (error) {
+      console.error("Error recording check-in:", error);
+      res.status(500).json({ message: "Failed to record check-in" });
+    }
+  });
+
+  app.post('/api/attendance/checkout', isAuthenticated, async (req, res) => {
+    try {
+      const { employeeId } = req.body;
+      const checkOutRecord = {
+        employeeId,
+        checkOutTime: new Date().toLocaleTimeString('ar-SA', { hour12: false }),
+        date: new Date().toISOString().split('T')[0],
+        totalHours: "8:30",
+        status: "checked_out"
+      };
+      res.json(checkOutRecord);
+    } catch (error) {
+      console.error("Error recording check-out:", error);
+      res.status(500).json({ message: "Failed to record check-out" });
+    }
+  });
+
+  // Leave Requests APIs
+  app.get('/api/leave-requests', isAuthenticated, async (req, res) => {
+    try {
+      const leaveRequests = [
+        {
+          id: "1",
+          employeeId: "1",
+          employeeName: "أحمد محمد علي",
+          leaveType: "annual",
+          startDate: "2025-02-15",
+          endDate: "2025-02-20", 
+          days: 6,
+          reason: "إجازة سنوية",
+          status: "pending",
+          submissionDate: "2025-01-28"
+        },
+        {
+          id: "2",
+          employeeId: "2",
+          employeeName: "فاطمة سالم أحمد",
+          leaveType: "sick",
+          startDate: "2025-01-30",
+          endDate: "2025-01-31",
+          days: 2,
+          reason: "مرض",
+          status: "approved",
+          submissionDate: "2025-01-29"
+        },
+        {
+          id: "3",
+          employeeId: "3",
+          employeeName: "خالد عبدالرحمن",
+          leaveType: "emergency",
+          startDate: "2025-02-05",
+          endDate: "2025-02-05",
+          days: 1,
+          reason: "ظرف طارئ",
+          status: "rejected",
+          submissionDate: "2025-01-25"
+        }
+      ];
+      res.json(leaveRequests);
+    } catch (error) {
+      console.error("Error fetching leave requests:", error);
+      res.status(500).json({ message: "Failed to fetch leave requests" });
+    }
+  });
+
+  app.get('/api/leave-balance/:employeeId', isAuthenticated, async (req, res) => {
+    try {
+      const { employeeId } = req.params;
+      const leaveBalance = {
+        employeeId,
+        annual: { total: 30, used: 8, remaining: 22 },
+        sick: { total: 15, used: 3, remaining: 12 },
+        emergency: { total: 7, used: 1, remaining: 6 },
+        maternity: { total: 90, used: 0, remaining: 90 }
+      };
+      res.json(leaveBalance);
+    } catch (error) {
+      console.error("Error fetching leave balance:", error);
+      res.status(500).json({ message: "Failed to fetch leave balance" });
+    }
+  });
+
+  app.post('/api/leave-requests', isAuthenticated, async (req, res) => {
+    try {
+      const newRequest = {
+        id: Date.now().toString(),
+        ...req.body,
+        status: "pending",
+        submissionDate: new Date().toISOString().split('T')[0]
+      };
+      res.json(newRequest);
+    } catch (error) {
+      console.error("Error creating leave request:", error);
+      res.status(500).json({ message: "Failed to create leave request" });
+    }
+  });
+
+  // Payroll APIs
+  app.get('/api/payroll', isAuthenticated, async (req, res) => {
+    try {
+      const payrollData = [
+        {
+          employeeId: "1",
+          employeeName: "أحمد محمد علي",
+          month: "2025-01",
+          basicSalary: 8000,
+          allowances: 1200,
+          overtime: 400,
+          deductions: 800,
+          netSalary: 8800,
+          status: "processed"
+        },
+        {
+          employeeId: "2",
+          employeeName: "فاطمة سالم أحمد",
+          month: "2025-01",
+          basicSalary: 6500,
+          allowances: 900,
+          overtime: 200,
+          deductions: 650,
+          netSalary: 6950,
+          status: "processed"
+        },
+        {
+          employeeId: "3",
+          employeeName: "خالد عبدالرحمن",
+          month: "2025-01",
+          basicSalary: 7500,
+          allowances: 1000,
+          overtime: 300,
+          deductions: 750,
+          netSalary: 8050,
+          status: "pending"
+        }
+      ];
+      res.json(payrollData);
+    } catch (error) {
+      console.error("Error fetching payroll data:", error);
+      res.status(500).json({ message: "Failed to fetch payroll data" });
+    }
+  });
+
+  // Documents APIs
+  app.get('/api/documents', isAuthenticated, async (req, res) => {
+    try {
+      const documents = [
+        {
+          id: "1",
+          name: "عقد العمل - أحمد محمد علي.pdf",
+          type: "contract",
+          category: "contracts",
+          size: "2.5 MB",
+          uploadDate: "2025-01-20",
+          uploadedBy: "مدير الموارد البشرية",
+          employee: "أحمد محمد علي",
+          status: "active"
+        },
+        {
+          id: "2",
+          name: "كشف المرتب - يناير 2025.xlsx", 
+          type: "payroll",
+          category: "payroll",
+          size: "1.2 MB",
+          uploadDate: "2025-01-15",
+          uploadedBy: "محاسب الرواتب",
+          employee: "جميع الموظفين",
+          status: "processed"
+        },
+        {
+          id: "3",
+          name: "تقرير الأداء السنوي.pdf",
+          type: "report",
+          category: "reports",
+          size: "5.8 MB",
+          uploadDate: "2025-01-10",
+          uploadedBy: "مدير الشركة",
+          employee: "إدارة الشركة",
+          status: "reviewed"
+        }
+      ];
+      res.json(documents);
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+      res.status(500).json({ message: "Failed to fetch documents" });
+    }
+  });
+
+  app.post('/api/documents/upload', isAuthenticated, async (req, res) => {
+    try {
+      // Mock file upload response
+      const uploadedDocument = {
+        id: Date.now().toString(),
+        name: "مستند_جديد.pdf",
+        size: "1.5 MB",
+        uploadDate: new Date().toISOString().split('T')[0],
+        status: "uploaded"
+      };
+      res.json(uploadedDocument);
+    } catch (error) {
+      console.error("Error uploading document:", error);
+      res.status(500).json({ message: "Failed to upload document" });
+    }
+  });
+
+  app.delete('/api/documents/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      res.json({ message: "Document deleted successfully", id });
+    } catch (error) {
+      console.error("Error deleting document:", error);
+      res.status(500).json({ message: "Failed to delete document" });
+    }
+  });
+
+  // Notifications APIs
+  app.get('/api/notifications', isAuthenticated, async (req, res) => {
+    try {
+      const notifications = [
+        {
+          id: "1",
+          type: "leave_request",
+          title: "طلب إجازة جديد",
+          message: "أحمد محمد علي قدّم طلب إجازة سنوية",
+          isRead: false,
+          createdAt: "2025-01-28T10:30:00Z",
+          actionUrl: "/leave-requests"
+        },
+        {
+          id: "2",
+          type: "attendance_alert",
+          title: "تنبيه حضور",
+          message: "3 موظفين متأخرين اليوم",
+          isRead: false,
+          createdAt: "2025-01-28T08:35:00Z",
+          actionUrl: "/attendance"
+        },
+        {
+          id: "3",
+          type: "payroll_complete",
+          title: "معالجة الرواتب",
+          message: "تم معالجة رواتب شهر يناير بنجاح",
+          isRead: true,
+          createdAt: "2025-01-27T16:00:00Z",
+          actionUrl: "/payroll"
+        },
+        {
+          id: "4",
+          type: "document_uploaded",
+          title: "مستند جديد",
+          message: "تم رفع تقرير الأداء الشهري",
+          isRead: true,
+          createdAt: "2025-01-26T14:20:00Z",
+          actionUrl: "/documents"
+        },
+        {
+          id: "5",
+          type: "training_reminder",
+          title: "تذكير تدريب",
+          message: "دورة إدارة الأداء تبدأ غداً",
+          isRead: false,
+          createdAt: "2025-01-25T12:00:00Z",
+          actionUrl: "/training"
+        }
+      ];
+      res.json(notifications);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      res.status(500).json({ message: "Failed to fetch notifications" });
+    }
+  });
+
+  app.put('/api/notifications/:id/read', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      res.json({ message: "Notification marked as read", id });
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      res.status(500).json({ message: "Failed to mark notification as read" });
+    }
+  });
+
+  app.delete('/api/notifications/:id', isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      res.json({ message: "Notification deleted successfully", id });
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+      res.status(500).json({ message: "Failed to delete notification" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

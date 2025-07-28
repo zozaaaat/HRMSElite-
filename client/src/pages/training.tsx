@@ -5,23 +5,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   BookOpen, 
   Users, 
-  Clock, 
-  Award,
-  Play,
-  Star,
+  Award, 
   Calendar,
+  Clock,
+  Play,
   CheckCircle,
   Plus,
   Search,
   Filter,
+  User,
   Target,
-  TrendingUp
+  TrendingUp,
+  Bookmark
 } from "lucide-react";
 import { SharedLayout } from "@/components/shared-layout";
-import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Training() {
   return (
@@ -37,74 +40,176 @@ export default function Training() {
 
 function TrainingContent() {
   const [activeTab, setActiveTab] = useState("courses");
-  const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const queryClient = useQueryClient();
 
-  // Fetch training data
-  const { data: courses = [], isLoading: coursesLoading } = useQuery({
+  const { data: trainingData, isLoading } = useQuery({
     queryKey: ['/api/training/courses'],
+  });
+
+  const enrollMutation = useMutation({
+    mutationFn: async ({ courseId, employeeId }: { courseId: string; employeeId: string }) => {
+      return await apiRequest('/api/training/enroll', {
+        method: 'POST',
+        body: JSON.stringify({ courseId, employeeId }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/training'] });
+    }
   });
 
   const mockCourses = [
     {
       id: "1",
       title: "أساسيات إدارة الموارد البشرية",
-      instructor: "د. محمد السالم",
-      duration: "8 ساعات",
-      enrolledCount: 45,
-      rating: 4.8,
-      status: "available",
-      category: "HR",
+      description: "دورة شاملة تغطي مبادئ وممارسات إدارة الموارد البشرية الحديثة",
+      category: "hr",
       level: "مبتدئ",
-      description: "دورة شاملة في أساسيات إدارة الموارد البشرية",
-      completionRate: 78
+      duration: "8 ساعات",
+      instructor: "د. أحمد السيد",
+      enrolledCount: 24,
+      maxCapacity: 30,
+      startDate: "2025-02-01",
+      status: "upcoming",
+      progress: 0,
+      rating: 4.8,
+      certificate: true
     },
     {
-      id: "2",
-      title: "القيادة الفعالة",
-      instructor: "أ. سارة القحطاني", 
+      id: "2", 
+      title: "إدارة الأداء والتقييم",
+      description: "تعلم كيفية تطوير أنظمة تقييم الأداء الفعالة وإدارة دورات المراجعة",
+      category: "performance",
+      level: "متوسط",
       duration: "12 ساعة",
-      enrolledCount: 32,
+      instructor: "أ. فاطمة محمود",
+      enrolledCount: 18,
+      maxCapacity: 25,
+      startDate: "2025-01-25",
+      status: "ongoing",
+      progress: 65,
       rating: 4.9,
-      status: "available",
-      category: "Leadership",
-      level: "متقدم",
-      description: "تطوير مهارات القيادة والإدارة الفعالة",
-      completionRate: 65
+      certificate: true
     },
     {
       id: "3",
-      title: "إدارة الوقت والإنتاجية",
-      instructor: "م. خالد العتيبي",
-      duration: "6 ساعات",
-      enrolledCount: 67,
+      title: "قوانين العمل والامتثال",
+      description: "دراسة شاملة لقوانين العمل المحلية ومتطلبات الامتثال القانوني",
+      category: "legal",
+      level: "متقدم",
+      duration: "16 ساعة",
+      instructor: "أ. محمد عبدالله",
+      enrolledCount: 12,
+      maxCapacity: 20,
+      startDate: "2025-01-20",
+      status: "ongoing",
+      progress: 40,
       rating: 4.7,
-      status: "available",
-      category: "Productivity",
-      level: "متوسط",
-      description: "استراتيجيات فعالة لإدارة الوقت وزيادة الإنتاجية",
-      completionRate: 82
+      certificate: true
+    },
+    {
+      id: "4",
+      title: "التدريب على برامج الحاسوب",
+      description: "تدريب متقدم على أنظمة إدارة الموارد البشرية وبرامج المكتب",
+      category: "technical",
+      level: "مبتدئ",
+      duration: "6 ساعات",
+      instructor: "م. خالد أحمد",
+      enrolledCount: 30,
+      maxCapacity: 30,
+      startDate: "2025-01-15",
+      status: "completed",
+      progress: 100,
+      rating: 4.6,
+      certificate: true
     }
   ];
 
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      'HR': 'bg-blue-100 text-blue-800',
-      'Leadership': 'bg-purple-100 text-purple-800',
-      'Productivity': 'bg-green-100 text-green-800',
-      'Technology': 'bg-orange-100 text-orange-800',
-      'Sales': 'bg-red-100 text-red-800'
-    };
-    return colors[category] || 'bg-gray-100 text-gray-800';
+  const mockEmployeeProgress = [
+    {
+      id: "1",
+      employeeName: "أحمد محمد علي",
+      department: "المبيعات",
+      coursesEnrolled: 3,
+      coursesCompleted: 2,
+      totalHours: 26,
+      certificatesEarned: 2,
+      currentCourse: "إدارة الأداء والتقييم",
+      progress: 65,
+      lastActivity: "2025-01-28"
+    },
+    {
+      id: "2",
+      employeeName: "فاطمة سالم أحمد",
+      department: "المحاسبة",
+      coursesEnrolled: 2,
+      coursesCompleted: 1,
+      totalHours: 14,
+      certificatesEarned: 1,
+      currentCourse: "قوانين العمل والامتثال",
+      progress: 40,
+      lastActivity: "2025-01-27"
+    },
+    {
+      id: "3",
+      employeeName: "خالد عبدالرحمن",
+      department: "التكنولوجيا",
+      coursesEnrolled: 4,
+      coursesCompleted: 3,
+      totalHours: 38,
+      certificatesEarned: 3,
+      currentCourse: "أساسيات إدارة الموارد البشرية",
+      progress: 0,
+      lastActivity: "2025-01-26"
+    }
+  ];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'upcoming': return 'bg-blue-100 text-blue-800';
+      case 'ongoing': return 'bg-green-100 text-green-800';
+      case 'completed': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'upcoming': return 'قادمة';
+      case 'ongoing': return 'جارية';
+      case 'completed': return 'مكتملة';
+      default: return status;
+    }
   };
 
   const getLevelColor = (level: string) => {
-    const colors: Record<string, string> = {
-      'مبتدئ': 'bg-green-500',
-      'متوسط': 'bg-yellow-500',
-      'متقدم': 'bg-red-500'
-    };
-    return colors[level] || 'bg-gray-500';
+    switch (level) {
+      case 'مبتدئ': return 'bg-green-100 text-green-800';
+      case 'متوسط': return 'bg-yellow-100 text-yellow-800';
+      case 'متقدم': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
+
+  const getCategoryText = (category: string) => {
+    switch (category) {
+      case 'hr': return 'موارد بشرية';
+      case 'performance': return 'إدارة الأداء';
+      case 'legal': return 'قانونية';
+      case 'technical': return 'تقنية';
+      default: return category;
+    }
+  };
+
+  const filteredCourses = mockCourses.filter(course => {
+    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory;
+    
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-100 dark:from-gray-900 dark:to-gray-800">
@@ -114,19 +219,99 @@ function TrainingContent() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">التدريب والتطوير</h1>
             <p className="text-gray-600 dark:text-gray-300 mt-1">
-              منصة التعلم المؤسسي وتطوير مهارات الموظفين
+              برامج تدريبية شاملة لتطوير مهارات الموظفين
             </p>
           </div>
           <div className="flex gap-3">
             <Button variant="outline">
-              <Search className="h-4 w-4 ml-2" />
-              البحث في الدورات
+              <Filter className="h-4 w-4 ml-2" />
+              تصفية
             </Button>
             <Button className="bg-purple-600 hover:bg-purple-700">
               <Plus className="h-4 w-4 ml-2" />
-              إضافة دورة جديدة
+              دورة جديدة
             </Button>
           </div>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="relative">
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="البحث في الدورات..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pr-10"
+            />
+          </div>
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger>
+              <SelectValue placeholder="جميع الفئات" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">جميع الفئات</SelectItem>
+              <SelectItem value="hr">موارد بشرية</SelectItem>
+              <SelectItem value="performance">إدارة الأداء</SelectItem>
+              <SelectItem value="legal">قانونية</SelectItem>
+              <SelectItem value="technical">تقنية</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <BookOpen className="h-4 w-4" />
+            <span>المجموع: {filteredCourses.length} دورة</span>
+          </div>
+        </div>
+
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <BookOpen className="h-8 w-8 text-purple-500" />
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">إجمالي الدورات</p>
+                  <p className="text-2xl font-bold">24</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <Users className="h-8 w-8 text-blue-500" />
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">المتدربون النشطون</p>
+                  <p className="text-2xl font-bold">84</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <Award className="h-8 w-8 text-yellow-500" />
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">شهادات مُنحت</p>
+                  <p className="text-2xl font-bold">156</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="h-8 w-8 text-green-500" />
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">معدل الإتمام</p>
+                  <p className="text-2xl font-bold">87%</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Tabs */}
@@ -134,136 +319,228 @@ function TrainingContent() {
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="courses" className="flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
-              الدورات التدريبية
+              الدورات
             </TabsTrigger>
-            <TabsTrigger value="progress" className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              التقدم والإنجازات
+            <TabsTrigger value="employees" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              تقدم الموظفين
             </TabsTrigger>
-            <TabsTrigger value="certifications" className="flex items-center gap-2">
+            <TabsTrigger value="certificates" className="flex items-center gap-2">
               <Award className="h-4 w-4" />
               الشهادات
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <TabsTrigger value="reports" className="flex items-center gap-2">
               <Target className="h-4 w-4" />
-              التحليلات
+              التقارير
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="courses" className="space-y-6">
-            {/* Statistics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <BookOpen className="h-8 w-8 text-purple-500" />
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">إجمالي الدورات</p>
-                      <p className="text-2xl font-bold">24</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <Users className="h-8 w-8 text-blue-500" />
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">المتدربون النشطون</p>
-                      <p className="text-2xl font-bold">187</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <Award className="h-8 w-8 text-gold-500" />
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">الشهادات الممنوحة</p>
-                      <p className="text-2xl font-bold">156</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <Clock className="h-8 w-8 text-green-500" />
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">ساعات التدريب</p>
-                      <p className="text-2xl font-bold">1,245</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Courses Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockCourses.map((course) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {filteredCourses.map((course) => (
                 <Card key={course.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <CardTitle className="text-lg line-clamp-2 mb-2">
-                          {course.title}
-                        </CardTitle>
-                        <CardDescription className="line-clamp-2">
-                          {course.description}
-                        </CardDescription>
+                        <CardTitle className="text-lg mb-2">{course.title}</CardTitle>
+                        <CardDescription>{course.description}</CardDescription>
                       </div>
-                      <Badge className={getCategoryColor(course.category)}>
-                        {course.category}
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        {course.duration}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        {course.enrolledCount} متدرب
+                      <div className="flex gap-2">
+                        <Badge className={getStatusColor(course.status)}>
+                          {getStatusText(course.status)}
+                        </Badge>
+                        <Badge className={getLevelColor(course.level)}>
+                          {course.level}
+                        </Badge>
                       </div>
                     </div>
                   </CardHeader>
-                  
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">المدرب:</span>
-                        <span className="font-medium">{course.instructor}</span>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600">المستوى:</span>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
                         <div className="flex items-center gap-2">
-                          <div className={`w-3 h-3 rounded-full ${getLevelColor(course.level)}`}></div>
-                          <span className="font-medium">{course.level}</span>
+                          <User className="h-4 w-4 text-gray-500" />
+                          <span>{course.instructor}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-gray-500" />
+                          <span>{course.duration}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-gray-500" />
+                          <span>{course.startDate}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-gray-500" />
+                          <span>{course.enrolledCount}/{course.maxCapacity}</span>
                         </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">معدل الإكمال:</span>
-                          <span className="font-medium">{course.completionRate}%</span>
+                      {course.progress > 0 && (
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>التقدم</span>
+                            <span>{course.progress}%</span>
+                          </div>
+                          <Progress value={course.progress} className="h-2" />
                         </div>
-                        <Progress value={course.completionRate} className="h-2" />
-                      </div>
+                      )}
 
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                          <span className="font-medium">{course.rating}</span>
+                        <div className="flex items-center gap-2">
+                          <Award className="h-4 w-4 text-yellow-500" />
+                          <span className="text-sm">تقييم: {course.rating}</span>
+                          {course.certificate && (
+                            <Badge variant="outline" className="text-xs">
+                              شهادة معتمدة
+                            </Badge>
+                          )}
                         </div>
-                        <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-                          <Play className="h-4 w-4 ml-1" />
-                          بدء الدورة
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline">
+                            <Bookmark className="h-4 w-4 ml-1" />
+                            حفظ
+                          </Button>
+                          <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                            <Play className="h-4 w-4 ml-1" />
+                            {course.status === 'completed' ? 'مراجعة' : 'بدء'}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="employees" className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
+              {mockEmployeeProgress.map((employee) => (
+                <Card key={employee.id} className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
+                          {employee.employeeName}
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-300">{employee.department}</p>
+                        <p className="text-sm text-gray-500">آخر نشاط: {employee.lastActivity}</p>
+                      </div>
+                      <Button size="sm" variant="outline">
+                        تفاصيل التقدم
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-semibold mb-3">الإحصائيات</h4>
+                        <div className="space-y-3">
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-600">الدورات المسجلة:</span>
+                            <span className="font-medium">{employee.coursesEnrolled}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-600">الدورات المكتملة:</span>
+                            <span className="font-medium">{employee.coursesCompleted}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-600">إجمالي الساعات:</span>
+                            <span className="font-medium">{employee.totalHours} ساعة</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-600">الشهادات المكتسبة:</span>
+                            <span className="font-medium">{employee.certificatesEarned}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="font-semibold mb-3">الدورة الحالية</h4>
+                        <div className="space-y-3">
+                          <div>
+                            <div className="flex justify-between text-sm mb-1">
+                              <span>{employee.currentCourse}</span>
+                              <span>{employee.progress}%</span>
+                            </div>
+                            <Progress value={employee.progress} className="h-2" />
+                          </div>
+                          
+                          <div className="flex items-center gap-2 text-sm">
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                            <span>معدل الإتمام: {Math.round((employee.coursesCompleted / employee.coursesEnrolled) * 100)}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="certificates" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                {
+                  id: "1",
+                  courseName: "أساسيات إدارة الموارد البشرية",
+                  employeeName: "أحمد محمد علي",
+                  completionDate: "2025-01-20",
+                  score: "95%",
+                  instructor: "د. أحمد السيد",
+                  status: "issued"
+                },
+                {
+                  id: "2",
+                  courseName: "التدريب على برامج الحاسوب", 
+                  employeeName: "خالد عبدالرحمن",
+                  completionDate: "2025-01-18",
+                  score: "88%",
+                  instructor: "م. خالد أحمد",
+                  status: "issued"
+                },
+                {
+                  id: "3",
+                  courseName: "إدارة الأداء والتقييم",
+                  employeeName: "فاطمة سالم أحمد",
+                  completionDate: "2025-01-15",
+                  score: "92%",
+                  instructor: "أ. فاطمة محمود",
+                  status: "pending"
+                }
+              ].map((cert) => (
+                <Card key={cert.id} className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="text-center space-y-4">
+                      <Award className="h-16 w-16 text-yellow-500 mx-auto" />
+                      
+                      <div>
+                        <h3 className="font-bold text-lg mb-2">{cert.courseName}</h3>
+                        <p className="text-gray-600 dark:text-gray-300">{cert.employeeName}</p>
+                      </div>
+
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">تاريخ الإتمام:</span>
+                          <span>{cert.completionDate}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">النتيجة:</span>
+                          <span className="font-medium text-green-600">{cert.score}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">المدرب:</span>
+                          <span>{cert.instructor}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" className="flex-1">
+                          عرض الشهادة
+                        </Button>
+                        <Button size="sm" className="flex-1 bg-purple-600 hover:bg-purple-700">
+                          تحميل PDF
                         </Button>
                       </div>
                     </div>
@@ -273,147 +550,55 @@ function TrainingContent() {
             </div>
           </TabsContent>
 
-          <TabsContent value="progress" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>التقدم العام في التدريب</CardTitle>
-                <CardDescription>نظرة شاملة على إنجازات الموظفين في برامج التدريب</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-purple-600">89%</div>
-                      <div className="text-sm text-gray-600">معدل الإكمال العام</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-blue-600">4.7</div>
-                      <div className="text-sm text-gray-600">متوسط التقييم</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-green-600">156</div>
-                      <div className="text-sm text-gray-600">شهادة مكتملة</div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3 className="font-semibold">أفضل المتدربين هذا الشهر</h3>
-                    {[
-                      { name: "أحمد محمد علي", progress: 95, courses: 4 },
-                      { name: "فاطمة سالم أحمد", progress: 92, courses: 3 },
-                      { name: "خالد عبدالرحمن", progress: 89, courses: 5 }
-                    ].map((trainee, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <div>
-                          <div className="font-medium">{trainee.name}</div>
-                          <div className="text-sm text-gray-600">{trainee.courses} دورات مكتملة</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="font-bold text-purple-600">{trainee.progress}%</div>
-                          <div className="text-sm text-gray-600">نسبة الإنجاز</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="certifications" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                {
-                  title: "شهادة إدارة الموارد البشرية",
-                  issuer: "معهد التدريب المهني",
-                  recipients: 45,
-                  validUntil: "2026-12-31"
-                },
-                {
-                  title: "شهادة القيادة المتقدمة",
-                  issuer: "أكاديمية القيادة",
-                  recipients: 28,
-                  validUntil: "2025-12-31"
-                },
-                {
-                  title: "شهادة إدارة المشاريع",
-                  issuer: "معهد إدارة المشاريع",
-                  recipients: 35,
-                  validUntil: "2027-06-30"
-                }
-              ].map((cert, index) => (
-                <Card key={index}>
-                  <CardHeader>
-                    <div className="flex items-center gap-3">
-                      <Award className="h-8 w-8 text-yellow-500" />
-                      <div>
-                        <CardTitle className="text-lg">{cert.title}</CardTitle>
-                        <CardDescription>{cert.issuer}</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">عدد الحاصلين:</span>
-                        <span className="font-medium">{cert.recipients} موظف</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">صالحة حتى:</span>
-                        <span className="font-medium">{cert.validUntil}</span>
-                      </div>
-                      <Button size="sm" variant="outline" className="w-full">
-                        <CheckCircle className="h-4 w-4 ml-2" />
-                        عرض الحاصلين
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="analytics" className="space-y-6">
+          <TabsContent value="reports" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>الأداء الشهري</CardTitle>
+                  <CardTitle>تقرير الإتمام الشهري</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">87%</div>
-                      <div className="text-sm text-gray-600">معدل إكمال الدورات</div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>دورات مكتملة</span>
-                        <span className="font-medium">156</span>
+                    {[
+                      { month: "يناير 2025", completed: 23, total: 30, percentage: 77 },
+                      { month: "ديسمبر 2024", completed: 28, total: 32, percentage: 88 },
+                      { month: "نوفمبر 2024", completed: 19, total: 25, percentage: 76 },
+                      { month: "أكتوبر 2024", completed: 31, total: 35, percentage: 89 }
+                    ].map((report, index) => (
+                      <div key={index} className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>{report.month}</span>
+                          <span>{report.completed}/{report.total} ({report.percentage}%)</span>
+                        </div>
+                        <Progress value={report.percentage} className="h-2" />
                       </div>
-                      <Progress value={87} className="h-2" />
-                    </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle>التوزيع حسب الأقسام</CardTitle>
+                  <CardTitle>أداء الأقسام</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {[
-                      { department: "الموارد البشرية", percentage: 35 },
-                      { department: "المبيعات", percentage: 28 },
-                      { department: "التسويق", percentage: 22 },
-                      { department: "المحاسبة", percentage: 15 }
+                      { department: "المبيعات", employees: 15, completed: 89 },
+                      { department: "المحاسبة", employees: 8, completed: 95 },
+                      { department: "التكنولوجيا", employees: 6, completed: 83 },
+                      { department: "الموارد البشرية", employees: 5, completed: 92 }
                     ].map((dept, index) => (
-                      <div key={index} className="space-y-1">
-                        <div className="flex justify-between text-sm">
-                          <span>{dept.department}</span>
-                          <span className="font-medium">{dept.percentage}%</span>
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div>
+                          <div className="font-medium">{dept.department}</div>
+                          <div className="text-sm text-gray-600">{dept.employees} موظف</div>
                         </div>
-                        <Progress value={dept.percentage} className="h-2" />
+                        <div className="text-right">
+                          <div className="font-bold text-lg text-purple-600">
+                            {dept.completed}%
+                          </div>
+                          <div className="text-sm text-gray-600">معدل الإتمام</div>
+                        </div>
                       </div>
                     ))}
                   </div>
