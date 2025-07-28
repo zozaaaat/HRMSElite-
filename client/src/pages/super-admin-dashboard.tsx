@@ -562,17 +562,16 @@ function SuperAdminContent() {
       <FinancialManagement
         isOpen={financialManagementOpen}
         onClose={() => setFinancialManagementOpen(false)}
+        companyId="system"
       />
 
       <EmployeeArchiving
         isOpen={employeeArchivingOpen}
         onClose={() => setEmployeeArchivingOpen(false)}
+        companyId="system"
       />
 
-      <NotificationCenter 
-        isOpen={notificationCenterOpen} 
-        onClose={() => setNotificationCenterOpen(false)} 
-      />
+      {notificationCenterOpen && <NotificationCenter />}
     </div>
   );
 }

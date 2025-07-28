@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SharedLayout } from "@/components/shared-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -72,7 +73,7 @@ export default function EmployeesPage() {
   return (
     <SharedLayout 
       userRole="company_manager" 
-      userName="مدير الشركة" 
+      userName="مدير الشركة"
       companyName="شركة النيل الأزرق للمجوهرات"
     >
       <EmployeesContent />

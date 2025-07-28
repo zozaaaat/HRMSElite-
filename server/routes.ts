@@ -1350,12 +1350,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Employee Management APIs
+  // Employee Management APIs - مع فصل البيانات حسب الشركة
   app.get('/api/employees', isAuthenticated, async (req, res) => {
     try {
+      const companyId = req.query.companyId as string;
+      if (!companyId) {
+        return res.status(400).json({ message: "Company ID is required" });
+      }
+      
       const employees = [
         {
           id: "1",
+          companyId,
           name: "أحمد محمد علي",
           position: "مدير المبيعات",
           department: "المبيعات",
@@ -1367,6 +1373,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           id: "2",
+          companyId,
           name: "فاطمة سالم أحمد",
           position: "محاسبة",
           department: "المحاسبة",
@@ -1378,6 +1385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           id: "3",
+          companyId,
           name: "خالد عبدالرحمن",
           position: "مطور برمجيات",
           department: "التكنولوجيا",
@@ -1397,9 +1405,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/employees', isAuthenticated, async (req, res) => {
     try {
+      const companyId = req.body.companyId;
+      if (!companyId) {
+        return res.status(400).json({ message: "Company ID is required" });
+      }
+      
       const newEmployee = {
         id: Date.now().toString(),
         ...req.body,
+        companyId,
         hireDate: new Date().toISOString().split('T')[0],
         status: "active"
       };
@@ -1410,10 +1424,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Attendance APIs
+  // Attendance APIs - مع فصل البيانات حسب الشركة
   app.get('/api/attendance/today', isAuthenticated, async (req, res) => {
     try {
+      const companyId = req.query.companyId as string;
+      if (!companyId) {
+        return res.status(400).json({ message: "Company ID is required" });
+      }
+      
       const todayAttendance = {
+        companyId,
         date: new Date().toISOString().split('T')[0],
         totalEmployees: 45,
         present: 42,
@@ -1486,12 +1506,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Leave Requests APIs
+  // Leave Requests APIs - مع فصل البيانات حسب الشركة
   app.get('/api/leave-requests', isAuthenticated, async (req, res) => {
     try {
+      const companyId = req.query.companyId as string;
+      if (!companyId) {
+        return res.status(400).json({ message: "Company ID is required" });
+      }
+      
       const leaveRequests = [
         {
           id: "1",
+          companyId,
           employeeId: "1",
           employeeName: "أحمد محمد علي",
           leaveType: "annual",
@@ -1504,6 +1530,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           id: "2",
+          companyId,
           employeeId: "2",
           employeeName: "فاطمة سالم أحمد",
           leaveType: "sick",
@@ -1516,6 +1543,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           id: "3",
+          companyId,
           employeeId: "3",
           employeeName: "خالد عبدالرحمن",
           leaveType: "emergency",
@@ -1566,11 +1594,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Payroll APIs
+  // Payroll APIs - مع فصل البيانات حسب الشركة
   app.get('/api/payroll', isAuthenticated, async (req, res) => {
     try {
+      const companyId = req.query.companyId as string;
+      if (!companyId) {
+        return res.status(400).json({ message: "Company ID is required" });
+      }
+      
       const payrollData = [
         {
+          companyId,
           employeeId: "1",
           employeeName: "أحمد محمد علي",
           month: "2025-01",
@@ -1582,6 +1616,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           status: "processed"
         },
         {
+          companyId,
           employeeId: "2",
           employeeName: "فاطمة سالم أحمد",
           month: "2025-01",
@@ -1593,6 +1628,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           status: "processed"
         },
         {
+          companyId,
           employeeId: "3",
           employeeName: "خالد عبدالرحمن",
           month: "2025-01",
@@ -1611,12 +1647,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Documents APIs
+  // Documents APIs - مع فصل البيانات حسب الشركة
   app.get('/api/documents', isAuthenticated, async (req, res) => {
     try {
+      const companyId = req.query.companyId as string;
+      if (!companyId) {
+        return res.status(400).json({ message: "Company ID is required" });
+      }
+      
       const documents = [
         {
           id: "1",
+          companyId,
           name: "عقد العمل - أحمد محمد علي.pdf",
           type: "contract",
           category: "contracts",
@@ -1628,6 +1670,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           id: "2",
+          companyId,
           name: "كشف المرتب - يناير 2025.xlsx", 
           type: "payroll",
           category: "payroll",
@@ -1639,6 +1682,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
         {
           id: "3",
+          companyId,
           name: "تقرير الأداء السنوي.pdf",
           type: "report",
           category: "reports",

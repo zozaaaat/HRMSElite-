@@ -18,8 +18,7 @@ import {
   Calendar,
   User,
   FileImage,
-  FilePdf,
-  FileSpreadsheet,
+  File,
   Plus
 } from "lucide-react";
 import { SharedLayout } from "@/components/shared-layout";
@@ -81,7 +80,7 @@ function DocumentsContent() {
       uploadedBy: "مدير الموارد البشرية",
       employee: "أحمد محمد علي",
       status: "active",
-      icon: FilePdf
+      icon: File
     },
     {
       id: "2", 
@@ -93,7 +92,7 @@ function DocumentsContent() {
       uploadedBy: "محاسب الرواتب",
       employee: "جميع الموظفين",
       status: "processed",
-      icon: FileSpreadsheet
+      icon: FileText
     },
     {
       id: "3",
@@ -105,7 +104,7 @@ function DocumentsContent() {
       uploadedBy: "مدير الشركة",
       employee: "إدارة الشركة",
       status: "reviewed",
-      icon: FilePdf
+      icon: File
     },
     {
       id: "4",
@@ -129,7 +128,7 @@ function DocumentsContent() {
       uploadedBy: "خالد عبدالرحمن",
       employee: "خالد عبدالرحمن",
       status: "pending",
-      icon: FilePdf
+      icon: File
     }
   ];
 
@@ -257,11 +256,11 @@ function DocumentsContent() {
               الكل
             </TabsTrigger>
             <TabsTrigger value="contracts" className="flex items-center gap-2">
-              <FilePdf className="h-4 w-4" />
+              <File className="h-4 w-4" />
               عقود
             </TabsTrigger>
             <TabsTrigger value="payroll" className="flex items-center gap-2">
-              <FileSpreadsheet className="h-4 w-4" />
+              <FileText className="h-4 w-4" />
               رواتب
             </TabsTrigger>
             <TabsTrigger value="reports" className="flex items-center gap-2">
@@ -273,7 +272,7 @@ function DocumentsContent() {
               شخصية
             </TabsTrigger>
             <TabsTrigger value="leaves" className="flex items-center gap-2">
-              <FilePdf className="h-4 w-4" />
+              <File className="h-4 w-4" />
               إجازات
             </TabsTrigger>
           </TabsList>
