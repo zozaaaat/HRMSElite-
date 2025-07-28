@@ -356,14 +356,14 @@ export default function EmployeeDashboard() {
                     <CardContent className="p-6 text-center">
                       <BarChart3 className="h-12 w-12 text-blue-500 mx-auto mb-3" />
                       <h4 className="font-semibold">تقرير الحضور الشهري</h4>
-                      <Button className="mt-3" size="sm">إنشاء</Button>
+                      <Button className="mt-3" size="sm" onClick={() => setLocation(`/reports?company=${companyId}&type=attendance`)}>إنشاء</Button>
                     </CardContent>
                   </Card>
                   <Card className="cursor-pointer hover:shadow-lg transition-shadow">
                     <CardContent className="p-6 text-center">
                       <DollarSign className="h-12 w-12 text-green-500 mx-auto mb-3" />
                       <h4 className="font-semibold">تقرير الرواتب</h4>
-                      <Button className="mt-3" size="sm">إنشاء</Button>
+                      <Button className="mt-3" size="sm" onClick={() => setLocation(`/reports?company=${companyId}&type=salary`)}>إنشاء</Button>
                     </CardContent>
                   </Card>
                 </div>
@@ -376,7 +376,7 @@ export default function EmployeeDashboard() {
               <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">طلباتي</h3>
               <p className="text-muted-foreground mb-4">عرض وإدارة طلباتك</p>
-              <Button>
+              <Button onClick={() => setLocation(`/employees?company=${companyId}&tab=requests`)}>
                 عرض جميع الطلبات
               </Button>
             </div>
@@ -387,7 +387,7 @@ export default function EmployeeDashboard() {
               <User className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">الملف الشخصي</h3>
               <p className="text-muted-foreground mb-4">عرض وتحديث البيانات الشخصية</p>
-              <Button>
+              <Button onClick={() => setLocation(`/settings?company=${companyId}&tab=profile`)}>
                 تحديث الملف الشخصي
               </Button>
             </div>

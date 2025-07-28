@@ -421,7 +421,7 @@ export default function SuperAdminDashboard() {
             <h2 className="text-2xl font-bold">إدارة النظام</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/settings'}>
                 <CardContent className="p-6 text-center">
                   <Settings className="h-12 w-12 text-gray-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">إعدادات النظام</h3>
@@ -429,7 +429,7 @@ export default function SuperAdminDashboard() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/employees'}>
                 <CardContent className="p-6 text-center">
                   <Users className="h-12 w-12 text-blue-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">إدارة المستخدمين</h3>
@@ -437,7 +437,7 @@ export default function SuperAdminDashboard() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => window.location.href = '/reports'}>
                 <CardContent className="p-6 text-center">
                   <FileText className="h-12 w-12 text-green-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">سجلات النظام</h3>

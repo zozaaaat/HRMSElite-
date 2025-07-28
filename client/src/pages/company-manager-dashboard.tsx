@@ -22,11 +22,13 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
+import { useLocation } from "wouter";
 
 export default function CompanyManagerDashboard() {
   const { user } = useAuth();
   const { theme, setTheme } = useTheme();
   const [activeTab, setActiveTab] = useState("overview");
+  const [, setLocation] = useLocation();
 
   const urlParams = new URLSearchParams(window.location.search);
   const companyId = urlParams.get('company') || '1';
@@ -163,7 +165,7 @@ export default function CompanyManagerDashboard() {
 
           <TabsContent value="ai">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/ai-analytics'}>
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/ai-analytics?company=${companyId}`)}>
                 <CardContent className="p-6 text-center">
                   <BarChart3 className="h-12 w-12 text-purple-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">تحليلات الذكاء الاصطناعي</h3>
@@ -171,7 +173,7 @@ export default function CompanyManagerDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/project-management'}>
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/project-management?company=${companyId}`)}>
                 <CardContent className="p-6 text-center">
                   <Calendar className="h-12 w-12 text-blue-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">إدارة المشاريع</h3>
@@ -179,7 +181,7 @@ export default function CompanyManagerDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/mobile-apps'}>
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/mobile-apps?company=${companyId}`)}>
                 <CardContent className="p-6 text-center">
                   <Users className="h-12 w-12 text-green-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">التطبيق المحمول</h3>
@@ -187,7 +189,7 @@ export default function CompanyManagerDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/accounting-systems'}>
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/accounting-systems?company=${companyId}`)}>
                 <CardContent className="p-6 text-center">
                   <DollarSign className="h-12 w-12 text-orange-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">أنظمة المحاسبة</h3>
@@ -195,7 +197,7 @@ export default function CompanyManagerDashboard() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/assets-management'}>
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setLocation(`/assets-management?company=${companyId}`)}>
                 <CardContent className="p-6 text-center">
                   <Package className="h-12 w-12 text-purple-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">إدارة الأصول</h3>
@@ -210,7 +212,7 @@ export default function CompanyManagerDashboard() {
               <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">التقارير</h3>
               <p className="text-muted-foreground mb-4">اطلع على تقارير الشركة المفصلة</p>
-              <Button onClick={() => window.location.href = '/reports'}>
+              <Button onClick={() => setLocation(`/reports?company=${companyId}`)}>
                 عرض التقارير
               </Button>
             </div>
@@ -221,7 +223,7 @@ export default function CompanyManagerDashboard() {
               <Settings className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">إعدادات الشركة</h3>
               <p className="text-muted-foreground mb-4">تكوين إعدادات الشركة</p>
-              <Button onClick={() => window.location.href = '/settings'}>
+              <Button onClick={() => setLocation(`/settings?company=${companyId}`)}>
                 فتح الإعدادات
               </Button>
             </div>
