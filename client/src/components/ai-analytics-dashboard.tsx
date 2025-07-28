@@ -1,547 +1,547 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Brain, TrendingUp, TrendingDown, Users, DollarSign, AlertTriangle, Lightbulb, BarChart3, PieChart, LineChart, Target, Clock, UserCheck, Building2, Calendar, Zap, ChevronRight, Bot, Activity, Sparkles } from "lucide-react";
-import { LineChart as RechartsLineChart, AreaChart, BarChart, PieChart as RechartsPieChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Line, Area, Bar, Cell, Pie } from "recharts";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { useQuery } from "@tanstack/react-query";
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  Users, 
+  DollarSign, 
+  Brain,
+  BarChart3,
+  PieChart,
+  Target,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Zap,
+  Activity,
+  Calendar,
+  Filter,
+  Download
+} from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Cell } from 'recharts';
+import { SmartAssistant } from "./smart-assistant";
 
-interface AIAnalyticsProps {
-  companyId?: string;
+interface AIAnalyticsDashboardProps {
+  companyId: string;
 }
 
-interface Prediction {
-  id: string;
-  title: string;
-  type: "turnover" | "recruitment" | "performance" | "cost" | "satisfaction";
-  prediction: string;
-  confidence: number;
-  impact: "high" | "medium" | "low";
-  timeframe: string;
-  recommendation: string;
-  data: any[];
-}
+// Mock data for AI analytics
+const performanceData = [
+  { month: 'يناير', productivity: 85, satisfaction: 78, retention: 92 },
+  { month: 'فبراير', productivity: 88, satisfaction: 82, retention: 89 },
+  { month: 'مارس', productivity: 92, satisfaction: 85, retention: 94 },
+  { month: 'أبريل', productivity: 89, satisfaction: 80, retention: 91 },
+  { month: 'مايو', productivity: 94, satisfaction: 88, retention: 96 },
+  { month: 'يونيو', productivity: 96, satisfaction: 91, retention: 98 }
+];
 
-interface AIInsight {
-  id: string;
-  category: "performance" | "attendance" | "cost" | "satisfaction" | "risk";
-  title: string;
-  description: string;
-  severity: "critical" | "warning" | "info" | "success";
-  actionRequired: boolean;
-  suggestion: string;
-  confidence: number;
-}
+const turnoverPrediction = [
+  { department: 'المبيعات', risk: 85, employees: 24, prediction: 'عالي' },
+  { department: 'التقنية', risk: 35, employees: 18, prediction: 'منخفض' },
+  { department: 'المحاسبة', risk: 62, employees: 12, prediction: 'متوسط' },
+  { department: 'الموارد البشرية', risk: 28, employees: 8, prediction: 'منخفض' },
+  { department: 'التسويق', risk: 71, employees: 15, prediction: 'متوسط' }
+];
 
-export function AIAnalyticsDashboard({ companyId }: AIAnalyticsProps) {
-  const [selectedTimeframe, setSelectedTimeframe] = useState("month");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [activeTab, setActiveTab] = useState("predictions");
-  
-  // Mock AI predictions data
-  const mockPredictions: Prediction[] = [
+const salaryAnalysis = [
+  { position: 'مطور برمجيات', current: 8500, market: 9200, gap: 700, recommendation: 'زيادة راتب' },
+  { position: 'مدير مبيعات', current: 12000, market: 11500, gap: -500, recommendation: 'راتب مناسب' },
+  { position: 'محاسب', current: 6500, market: 7000, gap: 500, recommendation: 'مراجعة راتب' },
+  { position: 'مصمم جرافيك', current: 5500, market: 5800, gap: 300, recommendation: 'زيادة طفيفة' }
+];
+
+const hiringForecast = [
+  { month: 'يوليو', planned: 8, predicted: 6, budget: 45000 },
+  { month: 'أغسطس', planned: 12, predicted: 10, budget: 68000 },
+  { month: 'سبتمبر', planned: 6, predicted: 8, budget: 52000 },
+  { month: 'أكتوبر', planned: 15, predicted: 12, budget: 82000 }
+];
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+
+export function AIAnalyticsDashboard({ companyId }: AIAnalyticsDashboardProps) {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [lastAnalysis, setLastAnalysis] = useState<Date>(new Date());
+
+  // Fetch data from API
+  const { data: performanceData, refetch: refetchPerformance } = useQuery({
+    queryKey: [`/api/ai/performance-data`],
+    enabled: false
+  });
+
+  const { data: turnoverData } = useQuery({
+    queryKey: [`/api/ai/turnover-prediction`],
+    enabled: false
+  });
+
+  const { data: salaryData } = useQuery({
+    queryKey: [`/api/ai/salary-analysis`],
+    enabled: false
+  });
+
+  const { data: hiringData } = useQuery({
+    queryKey: [`/api/ai/hiring-forecast`],
+    enabled: false
+  });
+
+  const runAnalysis = () => {
+    setIsAnalyzing(true);
+    
+    // Refetch all data
+    refetchPerformance();
+    
+    setTimeout(() => {
+      setIsAnalyzing(false);  
+      setLastAnalysis(new Date());
+    }, 3000);
+  };
+
+  const insights = [
     {
-      id: "1",
-      title: "معدل دوران الموظفين",
-      type: "turnover",
-      prediction: "ارتفاع متوقع بنسبة 15% خلال الربع القادم",
-      confidence: 85,
-      impact: "high",
-      timeframe: "3 أشهر",
-      recommendation: "تطبيق برامج الاحتفاظ بالمواهب وتحسين بيئة العمل",
-      data: [
-        { month: "يناير", actual: 5, predicted: 6 },
-        { month: "فبراير", actual: 7, predicted: 8 },
-        { month: "مارس", actual: 6, predicted: 9 },
-        { month: "أبريل", actual: null, predicted: 12 },
-        { month: "مايو", actual: null, predicted: 14 },
-        { month: "يونيو", actual: null, predicted: 15 }
-      ]
+      type: 'success',
+      title: 'تحسن الإنتاجية',
+      description: 'ارتفاع الإنتاجية بنسبة 12% خلال الشهرين الماضيين',
+      impact: 'إيجابي',
+      confidence: 94
     },
     {
-      id: "2", 
-      title: "احتياجات التوظيف",
-      type: "recruitment",
-      prediction: "الحاجة لتوظيف 25 موظف جديد خلال الشهرين القادمين",
-      confidence: 78,
-      impact: "medium",
-      timeframe: "2 شهر",
-      recommendation: "بدء حملة توظيف مبكرة والتواصل مع وكالات التوظيف",
-      data: [
-        { month: "أبريل", openings: 8, filled: 5 },
-        { month: "مايو", openings: 12, filled: 0 },
-        { month: "يونيو", openings: 15, filled: 0 }
-      ]
+      type: 'warning',
+      title: 'خطر دوران عالي',
+      description: 'قسم المبيعات يواجه خطر دوران موظفين عالي (85%)',
+      impact: 'سلبي',
+      confidence: 87
     },
     {
-      id: "3",
-      title: "التكاليف التشغيلية", 
-      type: "cost",
-      prediction: "توفير محتمل 12% من تكاليف الموارد البشرية",
-      confidence: 72,
-      impact: "medium",
-      timeframe: "6 أشهر",
-      recommendation: "أتمتة العمليات الإدارية وتحسين كفاءة الفرق",
-      data: [
-        { month: "يناير", current: 45000, optimized: 42000 },
-        { month: "فبراير", current: 47000, optimized: 43000 },
-        { month: "مارس", current: 46000, optimized: 41000 }
-      ]
-    }
-  ];
-
-  const mockInsights: AIInsight[] = [
-    {
-      id: "1",
-      category: "attendance", 
-      title: "انخفاض في معدل الحضور",
-      description: "انخفاض ملحوظ في معدل الحضور بنسبة 8% خلال الأسبوعين الماضيين في قسم التسويق",
-      severity: "warning",
-      actionRequired: true,
-      suggestion: "مراجعة سياسات الحضور والتحدث مع مديري القسم لفهم الأسباب",
+      type: 'info',
+      title: 'فجوة رواتب',
+      description: 'متوسط فجوة الرواتب 8% تحت معدل السوق',
+      impact: 'متوسط',
       confidence: 92
-    },
-    {
-      id: "2",
-      category: "performance",
-      title: "تحسن في الأداء العام",
-      description: "ارتفاع في مؤشرات الأداء بنسبة 12% بعد تطبيق البرنامج التدريبي الجديد",
-      severity: "success", 
-      actionRequired: false,
-      suggestion: "مواصلة البرنامج التدريبي وتوسيعه لأقسام أخرى",
-      confidence: 88
-    },
-    {
-      id: "3",
-      category: "risk",
-      title: "مخاطر فقدان المواهب الرئيسية",
-      description: "3 موظفين من كبار المطورين يظهرون علامات عدم رضا وفقاً لتحليل البيانات",
-      severity: "critical",
-      actionRequired: true,
-      suggestion: "إجراء مقابلات شخصية وتقديم حوافز أو ترقيات للاحتفاظ بهم",
-      confidence: 85
-    },
-    {
-      id: "4",
-      category: "cost",
-      title: "فرصة لتوفير التكاليف",
-      description: "إمكانية توفير 18,000 ريال شهرياً من خلال إعادة تنظيم ساعات العمل الإضافية",
-      severity: "info",
-      actionRequired: false,
-      suggestion: "مراجعة جداول العمل وتوزيع المهام بكفاءة أكبر",
-      confidence: 76
     }
   ];
-
-  const performanceMetrics = [
-    { name: "يناير", productivity: 85, satisfaction: 78, retention: 92 },
-    { name: "فبراير", productivity: 88, satisfaction: 82, retention: 89 },
-    { name: "مارس", productivity: 91, satisfaction: 85, retention: 87 },
-    { name: "أبريل", productivity: 87, satisfaction: 79, retention: 90 },
-    { name: "مايو", productivity: 93, satisfaction: 88, retention: 94 },
-    { name: "يونيو", productivity: 89, satisfaction: 86, retention: 91 }
-  ];
-
-  const departmentAnalysis = [
-    { name: "الموارد البشرية", employees: 12, avgSalary: 8500, satisfaction: 88, turnover: 5 },
-    { name: "التسويق", employees: 18, avgSalary: 7200, satisfaction: 75, turnover: 12 },
-    { name: "المبيعات", employees: 25, avgSalary: 6800, satisfaction: 82, turnover: 8 },
-    { name: "التطوير", employees: 15, avgSalary: 9200, satisfaction: 91, turnover: 3 },
-    { name: "المالية", employees: 8, avgSalary: 8800, satisfaction: 85, turnover: 6 }
-  ];
-
-  const generateNewInsights = async () => {
-    setIsGenerating(true);
-    // Simulate AI processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsGenerating(false);
-  };
-
-  const getSeverityIcon = (severity: string) => {
-    switch (severity) {
-      case "critical": return <AlertTriangle className="h-4 w-4 text-red-500" />;
-      case "warning": return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      case "success": return <UserCheck className="h-4 w-4 text-green-500" />;
-      default: return <Lightbulb className="h-4 w-4 text-blue-500" />;
-    }
-  };
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case "critical": return "border-red-200 bg-red-50 dark:bg-red-950";
-      case "warning": return "border-yellow-200 bg-yellow-50 dark:bg-yellow-950"; 
-      case "success": return "border-green-200 bg-green-50 dark:bg-green-950";
-      default: return "border-blue-200 bg-blue-50 dark:bg-blue-950";
-    }
-  };
-
-  const getImpactColor = (impact: string) => {
-    switch (impact) {
-      case "high": return "bg-red-500";
-      case "medium": return "bg-yellow-500";
-      default: return "bg-green-500";
-    }
-  };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="min-h-screen bg-background p-6" dir="rtl">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Brain className="h-6 w-6 text-purple-600" />
-            تحليلات الذكاء الاصطناعي
-          </h1>
-          <p className="text-muted-foreground">
-            تحليل البيانات والتنبؤات الذكية لاتخاذ قرارات أفضل
-          </p>
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              الذكاء الاصطناعي للموارد البشرية
+            </h1>
+            <p className="text-muted-foreground">
+              تحليلات ذكية وتنبؤات مستقبلية لبيانات الموارد البشرية
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              onClick={runAnalysis}
+              disabled={isAnalyzing}
+              className="gap-2"
+            >
+              {isAnalyzing ? (
+                <>
+                  <Activity className="h-4 w-4 animate-spin" />
+                  جاري التحليل...
+                </>
+              ) : (
+                <>
+                  <Brain className="h-4 w-4" />
+                  تشغيل التحليل
+                </>
+              )}
+            </Button>
+            <Button variant="outline" className="gap-2">
+              <Download className="h-4 w-4" />
+              تصدير التقرير
+            </Button>
+          </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="week">أسبوع</SelectItem>
-              <SelectItem value="month">شهر</SelectItem>
-              <SelectItem value="quarter">ربع سنة</SelectItem>
-              <SelectItem value="year">سنة</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Button
-            onClick={generateNewInsights}
-            disabled={isGenerating}
-            className="bg-purple-600 hover:bg-purple-700"
-          >
-            {isGenerating ? (
-              <>
-                <Sparkles className="h-4 w-4 mr-2 animate-spin" />
-                جاري التحليل...
-              </>
-            ) : (
-              <>
-                <Bot className="h-4 w-4 mr-2" />
-                تحليل جديد
-              </>
-            )}
-          </Button>
+        <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            آخر تحليل: {lastAnalysis.toLocaleString('ar-SA')}
+          </div>
+          <div className="flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            دقة التنبؤات: 92%
+          </div>
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">دقة التنبؤات</p>
-                <p className="text-2xl font-bold text-green-600">87%</p>
+      {/* AI Insights Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        {insights.map((insight, index) => (
+          <Card key={index} className="border-l-4 border-l-blue-500">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">{insight.title}</CardTitle>
+                <Badge variant={insight.type === 'success' ? 'default' : insight.type === 'warning' ? 'destructive' : 'secondary'}>
+                  {insight.impact}
+                </Badge>
               </div>
-              <Target className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">التوصيات النشطة</p>
-                <p className="text-2xl font-bold text-blue-600">12</p>
-              </div>
-              <Lightbulb className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">المخاطر المكتشفة</p>
-                <p className="text-2xl font-bold text-red-600">3</p>
-              </div>
-              <AlertTriangle className="h-8 w-8 text-red-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">التوفير المتوقع</p>
-                <p className="text-2xl font-bold text-purple-600">85K</p>
-              </div>
-              <DollarSign className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="predictions">التنبؤات</TabsTrigger>
-          <TabsTrigger value="insights">الرؤى الذكية</TabsTrigger>
-          <TabsTrigger value="performance">تحليل الأداء</TabsTrigger>
-          <TabsTrigger value="departments">تحليل الأقسام</TabsTrigger>
-        </TabsList>
-
-        {/* Predictions Tab */}
-        <TabsContent value="predictions" className="space-y-4">
-          <div className="grid gap-4">
-            {mockPredictions.map((prediction) => (
-              <Card key={prediction.id} className="overflow-hidden">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle className="text-lg">{prediction.title}</CardTitle>
-                      <CardDescription>{prediction.prediction}</CardDescription>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className={`text-white ${getImpactColor(prediction.impact)}`}>
-                        {prediction.impact === "high" ? "تأثير عالي" : 
-                         prediction.impact === "medium" ? "تأثير متوسط" : "تأثير منخفض"}
-                      </Badge>
-                      <Badge variant="secondary">
-                        {prediction.confidence}% دقة
-                      </Badge>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Prediction Chart */}
-                  <div className="h-48">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RechartsLineChart data={prediction.data}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        {prediction.type === "turnover" && (
-                          <>
-                            <Line
-                              type="monotone"
-                              dataKey="actual"
-                              stroke="#8884d8"
-                              name="البيانات الفعلية"
-                              strokeWidth={2}
-                            />
-                            <Line
-                              type="monotone"
-                              dataKey="predicted"
-                              stroke="#ff7300"
-                              strokeDasharray="5 5"
-                              name="التنبؤات"
-                              strokeWidth={2}
-                            />
-                          </>
-                        )}
-                        {prediction.type === "recruitment" && (
-                          <>
-                            <Bar dataKey="openings" fill="#8884d8" name="الوظائف المتاحة" />
-                            <Bar dataKey="filled" fill="#82ca9d" name="تم شغلها" />
-                          </>
-                        )}
-                        {prediction.type === "cost" && (
-                          <>
-                            <Line
-                              type="monotone"
-                              dataKey="current"
-                              stroke="#ff7300"
-                              name="التكلفة الحالية"
-                              strokeWidth={2}
-                            />
-                            <Line
-                              type="monotone"
-                              dataKey="optimized"
-                              stroke="#82ca9d"
-                              name="التكلفة المحسنة"
-                              strokeWidth={2}
-                            />
-                          </>
-                        )}
-                      </RechartsLineChart>
-                    </ResponsiveContainer>
-                  </div>
-                  
-                  <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                    <Lightbulb className="h-5 w-5 text-blue-600 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-blue-900 dark:text-blue-100">التوصية</p>
-                      <p className="text-sm text-blue-800 dark:text-blue-200">{prediction.recommendation}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        {/* Insights Tab */}
-        <TabsContent value="insights" className="space-y-4">
-          <div className="grid gap-4">
-            {mockInsights.map((insight) => (
-              <Card key={insight.id} className={getSeverityColor(insight.severity)}>
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    {getSeverityIcon(insight.severity)}
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="font-semibold">{insight.title}</h3>
-                          <p className="text-sm text-muted-foreground">{insight.description}</p>
-                        </div>
-                        <Badge variant="outline">{insight.confidence}% ثقة</Badge>
-                      </div>
-                      
-                      {insight.actionRequired && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <Clock className="h-4 w-4" />
-                          <span className="font-medium">يتطلب إجراءً</span>
-                        </div>
-                      )}
-                      
-                      <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
-                        <p className="text-sm">
-                          <span className="font-medium">الاقتراح: </span>
-                          {insight.suggestion}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        {/* Performance Analysis Tab */}
-        <TabsContent value="performance" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>تحليل الأداء الشهري</CardTitle>
-              <CardDescription>
-                مؤشرات الأداء الرئيسية خلال الستة أشهر الماضية
-              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={performanceMetrics}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Area
-                      type="monotone"
-                      dataKey="productivity"
-                      stackId="1"
-                      stroke="#8884d8"
-                      fill="#8884d8"
-                      name="الإنتاجية"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="satisfaction"
-                      stackId="1"
-                      stroke="#82ca9d"
-                      fill="#82ca9d"
-                      name="الرضا الوظيفي"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="retention"
-                      stackId="1"
-                      stroke="#ffc658"
-                      fill="#ffc658"
-                      name="الاحتفاظ بالموظفين"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+              <p className="text-sm text-muted-foreground mb-3">{insight.description}</p>
+              <div className="flex items-center justify-between text-xs">
+                <span>مستوى الثقة</span>
+                <span className="font-medium">{insight.confidence}%</span>
               </div>
+              <Progress value={insight.confidence} className="mt-1" />
             </CardContent>
           </Card>
-        </TabsContent>
+        ))}
+      </div>
 
-        {/* Departments Analysis Tab */}
-        <TabsContent value="departments" className="space-y-4">
+      {/* Tabs for Different Analytics */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
+          <TabsTrigger value="performance">تحليل الأداء</TabsTrigger>
+          <TabsTrigger value="predictions">التنبؤات</TabsTrigger>
+          <TabsTrigger value="recommendations">التوصيات</TabsTrigger>
+          <TabsTrigger value="assistant">المساعد الذكي</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Performance Trends */}
             <Card>
               <CardHeader>
-                <CardTitle>مقارنة الأقسام</CardTitle>
-                <CardDescription>
-                  تحليل مفصل لأداء الأقسام المختلفة
-                </CardDescription>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  اتجاهات الأداء
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={performanceData || []}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="productivity" stroke="#8884d8" name="الإنتاجية" />
+                    <Line type="monotone" dataKey="satisfaction" stroke="#82ca9d" name="الرضا الوظيفي" />
+                    <Line type="monotone" dataKey="retention" stroke="#ffc658" name="الاحتفاظ بالموظفين" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Turnover Risk */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5" />
+                  تحليل مخاطر الدوران
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {departmentAnalysis.map((dept, index) => (
+                  {(turnoverData || turnoverPrediction).map((dept: any, index: number) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="space-y-1">
-                        <p className="font-medium">{dept.name}</p>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span>{dept.employees} موظف</span>
-                          <span>{dept.avgSalary.toLocaleString()} ر.س</span>
-                        </div>
+                      <div>
+                        <div className="font-medium">{dept.department}</div>
+                        <div className="text-sm text-muted-foreground">{dept.employees} موظف</div>
                       </div>
-                      <div className="text-left space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm">الرضا:</span>
-                          <Badge variant={dept.satisfaction > 85 ? "default" : "secondary"}>
-                            {dept.satisfaction}%
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm">الدوران:</span>
-                          <Badge variant={dept.turnover > 10 ? "destructive" : "default"}>
-                            {dept.turnover}%
-                          </Badge>
-                        </div>
+                      <div className="text-left">
+                        <Badge variant={dept.risk > 70 ? 'destructive' : dept.risk > 50 ? 'secondary' : 'default'}>
+                          {dept.prediction}
+                        </Badge>
+                        <div className="text-sm mt-1">{dept.risk}%</div>
                       </div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </TabsContent>
 
+        <TabsContent value="performance" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Productivity Analysis */}
             <Card>
               <CardHeader>
-                <CardTitle>توزيع الموظفين</CardTitle>
-                <CardDescription>
-                  التوزيع الحالي للموظفين حسب القسم
-                </CardDescription>
+                <CardTitle>تحليل الإنتاجية حسب القسم</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RechartsPieChart>
-                      <Pie
-                        data={departmentAnalysis}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, value }: { name: string; value: number }) => `${name}: ${value}`}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="employees"
-                      >
-                        {departmentAnalysis.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 50%)`} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </RechartsPieChart>
-                  </ResponsiveContainer>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={turnoverPrediction}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="department" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="employees" fill="#8884d8" name="عدد الموظفين" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Performance Metrics */}
+            <Card>
+              <CardHeader>
+                <CardTitle>مؤشرات الأداء الرئيسية</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>الإنتاجية العامة</span>
+                      <span>94%</span>
+                    </div>
+                    <Progress value={94} />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>رضا الموظفين</span>
+                      <span>88%</span>
+                    </div>
+                    <Progress value={88} />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>معدل الاحتفاظ</span>
+                      <span>96%</span>
+                    </div>
+                    <Progress value={96} />
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span>كفاءة التوظيف</span>
+                      <span>82%</span>
+                    </div>
+                    <Progress value={82} />
+                  </div>
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="predictions" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Hiring Forecast */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  توقعات التوظيف
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={hiringForecast}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="planned" fill="#8884d8" name="مخطط" />
+                    <Bar dataKey="predicted" fill="#82ca9d" name="متوقع" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Budget Predictions */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5" />
+                  توقعات الميزانية
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {hiringForecast.map((month, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <div className="font-medium">{month.month}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {month.predicted} موظف متوقع
+                        </div>
+                      </div>
+                      <div className="text-left">
+                        <div className="font-medium">{month.budget.toLocaleString()} ر.س</div>
+                        <div className="text-sm text-muted-foreground">ميزانية متوقعة</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="recommendations" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Salary Recommendations */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  توصيات الرواتب
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {(salaryData || salaryAnalysis).map((position: any, index: number) => (
+                    <div key={index} className="p-4 border rounded-lg">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="font-medium">{position.position}</div>
+                        <Badge variant={position.gap > 0 ? 'destructive' : 'default'}>
+                          {position.recommendation}
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">الراتب الحالي:</span>
+                          <div className="font-medium">{position.current.toLocaleString()} ر.س</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">راتب السوق:</span>
+                          <div className="font-medium">{position.market.toLocaleString()} ر.س</div>
+                        </div>
+                      </div>
+                      {position.gap !== 0 && (
+                        <div className="mt-2 text-sm">
+                          <span className="text-muted-foreground">الفجوة:</span>
+                          <span className={`font-medium ml-1 ${position.gap > 0 ? 'text-red-500' : 'text-green-500'}`}>
+                            {position.gap > 0 ? '+' : ''}{position.gap.toLocaleString()} ر.س
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Action Items */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5" />
+                  خطة العمل المقترحة
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg">
+                    <AlertTriangle className="h-5 w-5 text-red-500 mt-0.5" />
+                    <div>
+                      <div className="font-medium text-red-700 dark:text-red-300">عاجل</div>
+                      <div className="text-sm text-red-600 dark:text-red-400">
+                        مراجعة أسباب دوران الموظفين في قسم المبيعات
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 p-3 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                    <Clock className="h-5 w-5 text-yellow-500 mt-0.5" />
+                    <div>
+                      <div className="font-medium text-yellow-700 dark:text-yellow-300">متوسط الأولوية</div>
+                      <div className="text-sm text-yellow-600 dark:text-yellow-400">
+                        مراجعة رواتب المطورين لتقليل فجوة السوق
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
+                    <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                    <div>
+                      <div className="font-medium text-green-700 dark:text-green-300">مقترح</div>
+                      <div className="text-sm text-green-600 dark:text-green-400">
+                        تطوير برامج تدريب لتحسين الإنتاجية
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <Brain className="h-5 w-5 text-blue-500 mt-0.5" />
+                    <div>
+                      <div className="font-medium text-blue-700 dark:text-blue-300">تحسين مستقبلي</div>
+                      <div className="text-sm text-blue-600 dark:text-blue-400">
+                        إنشاء برنامج تقدير الموظفين المتميزين
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="assistant" className="space-y-6">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div className="xl:col-span-2">
+              <SmartAssistant companyId={companyId} />
+            </div>
+            
+            {/* AI Quick Stats */}
+            <div className="space-y-4">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">إحصائيات الذكاء الاصطناعي</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">دقة التنبؤات</span>
+                    <span className="font-bold text-green-600">94%</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">التحليلات المكتملة</span>
+                    <span className="font-bold">1,247</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">التوفير المحقق</span>
+                    <span className="font-bold text-blue-600">245,000 ر.س</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">وقت الاستجابة</span>
+                    <span className="font-bold">0.8 ثانية</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">التوصيات السريعة</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="p-3 bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <AlertTriangle className="h-4 w-4 text-orange-500" />
+                      <span className="text-sm font-medium">تنبيه</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">مراجعة سياسات الحضور في قسم التسويق</p>
+                  </div>
+                  
+                  <div className="p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <TrendingUp className="h-4 w-4 text-green-500" />
+                      <span className="text-sm font-medium">فرصة</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">توسيع برنامج التدريب للأقسام الأخرى</p>
+                  </div>
+                  
+                  <div className="p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <div className="flex items-center gap-2 mb-1">
+                      <DollarSign className="h-4 w-4 text-blue-500" />
+                      <span className="text-sm font-medium">توفير</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">أتمتة العمليات يوفر 15% من التكاليف</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </TabsContent>
       </Tabs>

@@ -452,6 +452,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(analysis);
   });
 
+  // AI Analytics endpoints - new ones
+  app.get('/api/ai/performance-data', (req, res) => {
+    res.json([
+      { month: 'يناير', productivity: 85, satisfaction: 78, retention: 92 },
+      { month: 'فبراير', productivity: 88, satisfaction: 82, retention: 89 },
+      { month: 'مارس', productivity: 92, satisfaction: 85, retention: 94 },
+      { month: 'أبريل', productivity: 89, satisfaction: 80, retention: 91 },
+      { month: 'مايو', productivity: 94, satisfaction: 88, retention: 96 },
+      { month: 'يونيو', productivity: 96, satisfaction: 91, retention: 98 }
+    ]);
+  });
+
+  app.get('/api/ai/turnover-prediction', (req, res) => {
+    res.json([
+      { department: 'المبيعات', risk: 85, employees: 24, prediction: 'عالي' },
+      { department: 'التقنية', risk: 35, employees: 18, prediction: 'منخفض' },
+      { department: 'المحاسبة', risk: 62, employees: 12, prediction: 'متوسط' },
+      { department: 'الموارد البشرية', risk: 28, employees: 8, prediction: 'منخفض' },
+      { department: 'التسويق', risk: 71, employees: 15, prediction: 'متوسط' }
+    ]);
+  });
+
+  app.get('/api/ai/salary-analysis', (req, res) => {
+    res.json([
+      { position: 'مطور برمجيات', current: 8500, market: 9200, gap: 700, recommendation: 'زيادة راتب' },
+      { position: 'مدير مبيعات', current: 12000, market: 11500, gap: -500, recommendation: 'راتب مناسب' },
+      { position: 'محاسب', current: 6500, market: 7000, gap: 500, recommendation: 'مراجعة راتب' },
+      { position: 'مصمم جرافيك', current: 5500, market: 5800, gap: 300, recommendation: 'زيادة طفيفة' }
+    ]);
+  });
+
+  app.get('/api/ai/hiring-forecast', (req, res) => {
+    res.json([
+      { month: 'يوليو', planned: 8, predicted: 6, budget: 45000 },
+      { month: 'أغسطس', planned: 12, predicted: 10, budget: 68000 },
+      { month: 'سبتمبر', planned: 6, predicted: 8, budget: 52000 },
+      { month: 'أكتوبر', planned: 15, predicted: 12, budget: 82000 }
+    ]);
+  });
+
+  app.post('/api/ai/run-analysis', (req, res) => {
+    // Simulate AI analysis processing
+    setTimeout(() => {
+      res.json({
+        success: true,
+        analysisId: Date.now().toString(),
+        insights: [
+          {
+            type: 'success',
+            title: 'تحسن الإنتاجية',
+            description: 'ارتفاع الإنتاجية بنسبة 12% خلال الشهرين الماضيين',
+            impact: 'إيجابي',
+            confidence: 94
+          },
+          {
+            type: 'warning',
+            title: 'خطر دوران عالي',
+            description: 'قسم المبيعات يواجه خطر دوران موظفين عالي (85%)',
+            impact: 'سلبي',
+            confidence: 87
+          }
+        ],
+        timestamp: new Date().toISOString()
+      });
+    }, 2000);
+  });
+
   app.post('/api/ai/generate-insights', (req, res) => {
     // Simulate AI processing time
     setTimeout(() => {

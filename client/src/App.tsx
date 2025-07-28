@@ -20,7 +20,7 @@ import Employees from "@/pages/employees";
 import Reports from "@/pages/reports";
 import SettingsPage from "@/pages/settings";
 import NotFound from "@/pages/not-found";
-import AIAnalytics from "@/pages/ai-analytics";
+import AIAnalyticsPage from "@/pages/ai-analytics";
 import ProjectManagement from "@/pages/project-management";
 import MobileApps from "@/pages/mobile-apps";
 import AccountingSystems from "@/pages/accounting-systems";
@@ -50,7 +50,7 @@ function Router() {
       <Route path="/employees" component={Employees} />
       <Route path="/reports" component={Reports} />
       <Route path="/settings" component={SettingsPage} />
-      <Route path="/ai-analytics" component={AIAnalytics} />
+      <Route path="/ai-analytics" component={AIAnalyticsPage} />
       <Route path="/project-management" component={ProjectManagement} />
       <Route path="/mobile-apps" component={MobileApps} />
       <Route path="/accounting-systems" component={AccountingSystems} />
