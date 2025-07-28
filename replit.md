@@ -7,6 +7,7 @@ This is a comprehensive multi-tenant Human Resources Management System (HRMS) bu
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Focus approach: Comprehensive HRMS system that supports all business types, with enhanced features for gold and fabrics industries (the most common client types), rather than separate specialized modules.
 
 ## System Architecture
 

@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { registerSpecializedRoutes } from "./specialized-routes";
+// Enhanced HRMS system with special attention to gold and fabrics companies
 import { createServer, type Server } from "http";
 
 // Mock users for authentication
@@ -110,17 +110,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           businessActivity: "تجارة الأقمشة بالجملة والتجزئة",
           location: "المباركية",
           licenseTypes: ["تجاري", "استيراد"],
-          // Specialized fields for fabrics business
-          fabricTypes: ["حرير", "قطن", "صوف", "كتان", "شيفون", "ساتان", "دانتيل"],
-          suppliers: ["تركيا", "الهند", "الصين", "إيطاليا"],
-          seasonalDemand: {
-            "الربيع": ["أقمشة خفيفة", "ألوان زاهية"],
-            "الصيف": ["قطن", "كتان", "أقمشة تهوية"],
-            "الخريف": ["أقمشة متوسطة", "ألوان دافئة"],
-            "الشتاء": ["صوف", "أقمشة ثقيلة", "مخمل"]
-          },
-          inventoryCategories: ["رجالي", "نسائي", "أطفال", "منزلي", "تنجيد"],
-          pricingTiers: ["جملة", "نصف جملة", "تجزئة"]
+          // Enhanced inventory management for fabrics business
+          specialtyItems: ["أقمشة حريرية", "أقمشة قطنية", "مواد خام"],
+          businessType: "أقمشة"
         },
         {
           id: "2",
@@ -137,14 +129,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           businessActivity: "تجارة وتصنيع المجوهرات والذهب والفضة",
           location: "المباركية - فحيحيل - الجهراء",
           licenseTypes: ["تجاري", "صناعي", "مجوهرات"],
-          // Specialized fields for gold & jewelry business
-          goldTypes: ["ذهب عيار 18", "ذهب عيار 21", "ذهب عيار 24", "ذهب أبيض", "ذهب وردي"],
-          jewelryCategories: ["خواتم", "أساور", "قلائد", "أقراط", "دبل", "طقم كامل"],
-          preciousStones: ["ألماس", "زمرد", "ياقوت", "لؤلؤ", "عقيق"],
-          craftsmen: ["صائغ رئيسي", "مساعد صائغ", "مقيم أحجار", "مصمم"],
-          dailyGoldPrice: "سعر الذهب اليومي حسب البورصة",
-          customerTypes: ["عملاء مناسبات", "عملاء استثمار", "تجار تجزئة"],
-          services: ["تصنيع حسب الطلب", "صيانة وتلميع", "تقييم المجوهرات", "شراء الذهب المستعمل"]
+          // Enhanced inventory management for gold business
+          specialtyItems: ["ذهب خام", "مجوهرات جاهزة", "أحجار كريمة"],
+          businessType: "ذهب ومجوهرات"
         },
         {
           id: "3",
@@ -1620,8 +1607,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Register specialized routes for Gold & Fabrics businesses
-  registerSpecializedRoutes(app);
+  // Enhanced features for gold and fabrics companies (integrated within main system)
+  // registerSpecializedRoutes(app); // Removed - keeping system unified
 
   const httpServer = createServer(app);
   return httpServer;
