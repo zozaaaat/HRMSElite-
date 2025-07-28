@@ -1,429 +1,236 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { ar } from "date-fns/locale";
-import {
-  FileText,
-  Download,
-  Printer,
-  Share2,
+import { Badge } from "@/components/ui/badge";
+import { 
+  FileText, 
+  Download, 
+  Printer, 
   Calendar as CalendarIcon,
-  BarChart3,
-  PieChart,
-  TrendingUp,
   Users,
-  Building2,
   DollarSign,
   Clock,
-  Target,
-  Award,
-  AlertCircle,
-  CheckCircle
+  TrendingUp,
+  FileSpreadsheet,
+  BarChart
 } from "lucide-react";
+import { format } from "date-fns";
+import { ar } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 export default function Reports() {
-  const [activeTab, setActiveTab] = useState("overview");
-  const [dateRange, setDateRange] = useState<Date | undefined>(new Date());
-  const [reportType, setReportType] = useState("monthly");
+  const [selectedReport, setSelectedReport] = useState("attendance");
+  const [dateFrom, setDateFrom] = useState<Date>();
+  const [dateTo, setDateTo] = useState<Date>();
+  const [selectedCompany, setSelectedCompany] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("");
 
-  // Mock reports data
   const reportTypes = [
-    {
-      id: "attendance",
-      name: "تقرير الحضور والانصراف",
-      description: "تقرير شامل عن حضور الموظفين والإجازات",
-      icon: Clock,
-      color: "blue",
-      lastGenerated: "2024-01-25",
-      status: "ready"
-    },
-    {
-      id: "payroll",
-      name: "تقرير المرتبات",
-      description: "تفاصيل المرتبات والمكافآت والخصومات",
-      icon: DollarSign,
-      color: "green",
-      lastGenerated: "2024-01-24",
-      status: "ready"
-    },
-    {
-      id: "performance",
-      name: "تقرير الأداء",
-      description: "تقييم أداء الموظفين والأقسام",
-      icon: Target,
-      color: "purple",
-      lastGenerated: "2024-01-23",
-      status: "processing"
-    },
-    {
-      id: "recruitment",
-      name: "تقرير التوظيف",
-      description: "إحصائيات التوظيف والمتقدمين",
-      icon: Users,
-      color: "orange",
-      lastGenerated: "2024-01-22",
-      status: "ready"
-    },
-    {
-      id: "training",
-      name: "تقرير التدريب",
-      description: "تقدم التدريب والشهادات المكتسبة",
-      icon: Award,
-      color: "indigo",
-      lastGenerated: "2024-01-21",
-      status: "ready"
-    },
-    {
-      id: "compliance",
-      name: "تقرير الامتثال",
-      description: "حالة التراخيص والامتثال القانوني",
-      icon: CheckCircle,
-      color: "teal",
-      lastGenerated: "2024-01-20",
-      status: "error"
-    }
+    { id: "attendance", name: "تقرير الحضور والانصراف", icon: Clock },
+    { id: "payroll", name: "كشف الرواتب", icon: DollarSign },
+    { id: "employees", name: "تقرير الموظفين", icon: Users },
+    { id: "leaves", name: "تقرير الإجازات", icon: CalendarIcon },
+    { id: "performance", name: "تقرير الأداء", icon: TrendingUp },
+    { id: "licenses", name: "تقرير التراخيص", icon: FileText },
   ];
 
-  const quickStats = {
-    totalReports: 127,
-    pendingReports: 8,
-    scheduledReports: 15,
-    downloadedToday: 23
+  const handleGenerateReport = () => {
+    // هنا سيتم توليد التقرير
+    console.log("Generating report:", {
+      type: selectedReport,
+      dateFrom,
+      dateTo,
+      company: selectedCompany,
+      department: selectedDepartment
+    });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "ready": return "bg-green-100 text-green-800 border-green-200";
-      case "processing": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "error": return "bg-red-100 text-red-800 border-red-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
-    }
+  const handlePrint = () => {
+    window.print();
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "ready": return "جاهز";
-      case "processing": return "قيد المعالجة";
-      case "error": return "خطأ";
-      default: return "غير محدد";
-    }
-  };
-
-  const getColorClasses = (color: string) => {
-    const colors: Record<string, string> = {
-      blue: "from-blue-50 to-blue-100 border-blue-200 text-blue-700",
-      green: "from-green-50 to-green-100 border-green-200 text-green-700",
-      purple: "from-purple-50 to-purple-100 border-purple-200 text-purple-700",
-      orange: "from-orange-50 to-orange-100 border-orange-200 text-orange-700",
-      indigo: "from-indigo-50 to-indigo-100 border-indigo-200 text-indigo-700",
-      teal: "from-teal-50 to-teal-100 border-teal-200 text-teal-700"
-    };
-    return colors[color] || colors.blue;
+  const handleExport = (format: 'pdf' | 'excel') => {
+    console.log(`Exporting as ${format}`);
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">التقارير والإحصائيات</h1>
-          <p className="text-muted-foreground mt-2">تقارير شاملة وتحليلات متقدمة لجميع جوانب الموارد البشرية</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="gap-2">
-                <CalendarIcon className="h-4 w-4" />
-                {dateRange ? format(dateRange, "PPP", { locale: ar }) : "اختر التاريخ"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={dateRange}
-                onSelect={setDateRange}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-          <Button className="gap-2" onClick={() => console.log('إنشاء تقرير مخصص')}>
-            <FileText className="h-4 w-4" />
-            إنشاء تقرير مخصص
-          </Button>
+          <h1 className="text-3xl font-bold">التقارير</h1>
+          <p className="text-muted-foreground mt-2">
+            إنشاء وتصدير التقارير المختلفة
+          </p>
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-blue-600">إجمالي التقارير</p>
-                <p className="text-3xl font-bold text-blue-700">{quickStats.totalReports}</p>
-              </div>
-              <FileText className="h-8 w-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-yellow-600">قيد المعالجة</p>
-                <p className="text-3xl font-bold text-yellow-700">{quickStats.pendingReports}</p>
-              </div>
-              <Clock className="h-8 w-8 text-yellow-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-green-600">تقارير مجدولة</p>
-                <p className="text-3xl font-bold text-green-700">{quickStats.scheduledReports}</p>
-              </div>
-              <CalendarIcon className="h-8 w-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-purple-600">تحميلات اليوم</p>
-                <p className="text-3xl font-bold text-purple-700">{quickStats.downloadedToday}</p>
-              </div>
-              <Download className="h-8 w-8 text-purple-500" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
-          <TabsTrigger value="standard">التقارير القياسية</TabsTrigger>
-          <TabsTrigger value="custom">التقارير المخصصة</TabsTrigger>
-          <TabsTrigger value="scheduled">التقارير المجدولة</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-6">
-          {/* Recent Reports */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* قائمة التقارير */}
+        <div className="lg:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
-                التقارير الحديثة
-              </CardTitle>
+              <CardTitle>أنواع التقارير</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {reportTypes.slice(0, 4).map((report) => (
-                  <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className={`p-3 rounded-lg bg-gradient-to-br ${getColorClasses(report.color)}`}>
-                        <report.icon className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">{report.name}</h4>
-                        <p className="text-sm text-muted-foreground">{report.description}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          آخر إنشاء: {new Date(report.lastGenerated).toLocaleDateString('ar-SA')}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Badge className={getStatusColor(report.status)}>
-                        {getStatusText(report.status)}
-                      </Badge>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => console.log('تحميل تقرير:', report.name)}>
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => console.log('مشاركة تقرير:', report.name)}>
-                          <Share2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+            <CardContent className="p-0">
+              <div className="space-y-1 p-4">
+                {reportTypes.map((report) => (
+                  <Button
+                    key={report.id}
+                    variant={selectedReport === report.id ? "default" : "ghost"}
+                    className="w-full justify-start gap-2"
+                    onClick={() => setSelectedReport(report.id)}
+                  >
+                    <report.icon className="h-4 w-4" />
+                    {report.name}
+                  </Button>
                 ))}
               </div>
             </CardContent>
           </Card>
+        </div>
 
-          {/* Charts Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>إحصائيات التحميل الشهرية</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center py-12">
-                <BarChart3 className="h-16 w-16 mx-auto mb-4 text-muted-foreground/30" />
-                <h3 className="text-lg font-medium mb-2">رسم بياني للتحميلات</h3>
-                <p className="text-sm text-muted-foreground">
-                  عرض إحصائيات التحميل على مدار الأشهر الماضية
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>أشهر التقارير</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center py-12">
-                <PieChart className="h-16 w-16 mx-auto mb-4 text-muted-foreground/30" />
-                <h3 className="text-lg font-medium mb-2">مخطط دائري</h3>
-                <p className="text-sm text-muted-foreground">
-                  توزيع التقارير الأكثر استخداماً
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="standard" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-semibold">التقارير القياسية</h3>
-            <Select value={reportType} onValueChange={setReportType}>
-              <SelectTrigger className="w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="daily">يومي</SelectItem>
-                <SelectItem value="weekly">أسبوعي</SelectItem>
-                <SelectItem value="monthly">شهري</SelectItem>
-                <SelectItem value="quarterly">ربع سنوي</SelectItem>
-                <SelectItem value="yearly">سنوي</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {reportTypes.map((report) => (
-              <Card key={report.id} className={`border-2 bg-gradient-to-br ${getColorClasses(report.color)} hover:shadow-lg transition-shadow cursor-pointer`}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <report.icon className="h-8 w-8" />
-                    <Badge className={getStatusColor(report.status)}>
-                      {getStatusText(report.status)}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-lg">{report.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm opacity-90">{report.description}</p>
-                  
-                  <div className="flex items-center justify-between text-xs opacity-75">
-                    <span>آخر تحديث:</span>
-                    <span>{new Date(report.lastGenerated).toLocaleDateString('ar-SA')}</span>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="secondary" 
-                      size="sm" 
-                      className="flex-1"
-                      disabled={report.status !== "ready"}
-                      onClick={() => console.log('تحميل:', report.name)}
-                    >
-                      <Download className="h-4 w-4 ml-2" />
-                      تحميل
-                    </Button>
-                    <Button variant="secondary" size="sm" onClick={() => console.log('طباعة:', report.name)}>
-                      <Printer className="h-4 w-4" />
-                    </Button>
-                    <Button variant="secondary" size="sm" onClick={() => console.log('مشاركة:', report.name)}>
-                      <Share2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="custom" className="space-y-6">
+        {/* إعدادات التقرير */}
+        <div className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>إنشاء تقرير مخصص</CardTitle>
+              <CardTitle>إعدادات التقرير</CardTitle>
+              <CardDescription>
+                حدد معايير التقرير المطلوب
+              </CardDescription>
             </CardHeader>
-            <CardContent className="text-center py-12">
-              <FileText className="h-16 w-16 mx-auto mb-4 text-muted-foreground/30" />
-              <h3 className="text-lg font-medium mb-2">منشئ التقارير المخصصة</h3>
-              <p className="text-sm text-muted-foreground mb-6">
-                قم بإنشاء تقارير مخصصة حسب احتياجاتك المحددة
-              </p>
-              <Button className="gap-2" onClick={() => console.log('بدء إنشاء تقرير مخصص')}>
-                <FileText className="h-4 w-4" />
-                بدء إنشاء تقرير مخصص
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            <CardContent className="space-y-6">
+              {/* الفترة الزمنية */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>من تاريخ</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-right",
+                          !dateFrom && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="ml-2 h-4 w-4" />
+                        {dateFrom ? format(dateFrom, "PPP", { locale: ar }) : "اختر التاريخ"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={dateFrom}
+                        onSelect={setDateFrom}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
 
-        <TabsContent value="scheduled" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>التقارير المجدولة</CardTitle>
-                <Button variant="outline" className="gap-2">
-                  <CalendarIcon className="h-4 w-4" />
-                  إضافة جدولة جديدة
+                <div className="space-y-2">
+                  <Label>إلى تاريخ</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-right",
+                          !dateTo && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="ml-2 h-4 w-4" />
+                        {dateTo ? format(dateTo, "PPP", { locale: ar }) : "اختر التاريخ"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={dateTo}
+                        onSelect={setDateTo}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+
+              {/* الشركة والقسم */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>الشركة</Label>
+                  <Select value={selectedCompany} onValueChange={setSelectedCompany}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="اختر الشركة" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">جميع الشركات</SelectItem>
+                      <SelectItem value="1">شركة الاتحاد الخليجي</SelectItem>
+                      <SelectItem value="2">شركة النيل الأزرق</SelectItem>
+                      <SelectItem value="3">شركة قمة النيل</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>القسم</Label>
+                  <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="اختر القسم" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">جميع الأقسام</SelectItem>
+                      <SelectItem value="sales">المبيعات</SelectItem>
+                      <SelectItem value="hr">الموارد البشرية</SelectItem>
+                      <SelectItem value="finance">المالية</SelectItem>
+                      <SelectItem value="it">تقنية المعلومات</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* أزرار الإجراءات */}
+              <div className="flex flex-wrap gap-3">
+                <Button onClick={handleGenerateReport} className="gap-2">
+                  <BarChart className="h-4 w-4" />
+                  توليد التقرير
+                </Button>
+                <Button variant="outline" onClick={handlePrint} className="gap-2">
+                  <Printer className="h-4 w-4" />
+                  طباعة
+                </Button>
+                <Button variant="outline" onClick={() => handleExport('pdf')} className="gap-2">
+                  <FileText className="h-4 w-4" />
+                  تصدير PDF
+                </Button>
+                <Button variant="outline" onClick={() => handleExport('excel')} className="gap-2">
+                  <FileSpreadsheet className="h-4 w-4" />
+                  تصدير Excel
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* معاينة التقرير */}
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>معاينة التقرير</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100">
-                      <Clock className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium">تقرير الحضور الأسبوعي</h4>
-                      <p className="text-sm text-muted-foreground">كل يوم أحد الساعة 9:00 صباحاً</p>
-                      <p className="text-xs text-muted-foreground">التالي: الأحد 28 يناير 2024</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge className="bg-green-100 text-green-800">نشط</Badge>
-                    <Button variant="ghost" size="sm">تعديل</Button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-lg bg-gradient-to-br from-green-50 to-green-100">
-                      <DollarSign className="h-6 w-6 text-green-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium">تقرير المرتبات الشهري</h4>
-                      <p className="text-sm text-muted-foreground">نهاية كل شهر</p>
-                      <p className="text-xs text-muted-foreground">التالي: 31 يناير 2024</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge className="bg-green-100 text-green-800">نشط</Badge>
-                    <Button variant="ghost" size="sm">تعديل</Button>
-                  </div>
-                </div>
+              <div className="min-h-[400px] bg-muted/50 rounded-lg p-8 text-center text-muted-foreground">
+                <FileText className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                <p>اختر نوع التقرير وحدد المعايير لعرض المعاينة</p>
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
     </div>
   );
 }

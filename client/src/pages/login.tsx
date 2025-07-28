@@ -1,263 +1,138 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useMutation } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, User, Lock, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { 
-  Lock, 
-  User, 
-  ArrowRight, 
-  Building2, 
-  Shield, 
-  Eye, 
-  EyeOff,
-  ArrowLeft 
-} from "lucide-react";
-import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
-
-const loginSchema = z.object({
-  username: z.string().min(3, "اسم المستخدم يجب أن يكون على الأقل 3 أحرف"),
-  password: z.string().min(6, "كلمة المرور يجب أن تكون على الأقل 6 أحرف")
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
-  const [location, setLocation] = useLocation();
-  const [showPassword, setShowPassword] = useState(false);
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
-
-  // Extract company info from URL
-  const urlParams = new URLSearchParams(location.split('?')[1] || '');
-  const selectedCompanyId = urlParams.get('company') || '';
-  const selectedCompanyName = urlParams.get('name') || 'الشركة المحددة';
-
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      username: "",
-      password: ""
-    }
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    username: "",
+    password: ""
   });
 
-  const loginMutation = useMutation({
-    mutationFn: async (data: LoginFormData) => {
-      const response = await fetch(`/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...data,
-          companyId: selectedCompanyId
-        })
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "فشل في تسجيل الدخول");
-      }
-      
-      return response.json();
-    },
-    onSuccess: (response: any) => {
-      toast({
-        title: "تم تسجيل الدخول بنجاح",
-        description: `مرحباً ${response.user.name}`,
-      });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
-      // توجيه المستخدم حسب الدور
-      const userRole = response.user.role;
-      switch (userRole) {
-        case 'super_admin':
-          setLocation('/super-admin');
-          break;
-        case 'company_manager':
-          setLocation('/company-manager');
-          break;
-        case 'employee':
-          setLocation('/employee');
-          break;
-        case 'supervisor':
-          setLocation('/supervisor');
-          break;
-        case 'worker':
-          setLocation('/worker');
-          break;
-        default:
-          setLocation('/super-admin');
+    try {
+      // هنا سيتم إضافة API تسجيل الدخول الفعلي
+      // مؤقتاً: محاكاة تسجيل الدخول
+      if (formData.username && formData.password) {
+        // تحديد الواجهة حسب اسم المستخدم (مؤقت)
+        let dashboard = "/worker-dashboard";
+        
+        if (formData.username.includes("gu_2")) {
+          dashboard = "/company-manager-dashboard";
+        } else if (formData.username.includes("gu_4") || formData.username.includes("gu_6")) {
+          dashboard = "/employee-dashboard";
+        } else if (formData.username.includes("admin")) {
+          dashboard = "/super-admin-dashboard";
+        }
+
+        toast({
+          title: "تسجيل دخول ناجح",
+          description: `مرحباً بك في نظام Zeylab HRMS`,
+        });
+
+        setTimeout(() => {
+          setLocation(dashboard);
+        }, 1000);
+      } else {
+        setError("يرجى إدخال اسم المستخدم وكلمة المرور");
       }
-    },
-    onError: (error: any) => {
-      const errorMessage = error?.message || "تحقق من اسم المستخدم وكلمة المرور";
-      toast({
-        title: "فشل في تسجيل الدخول",
-        description: errorMessage,
-        variant: "destructive",
-      });
+    } catch (err) {
+      setError("خطأ في تسجيل الدخول. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setIsLoading(false);
     }
-  });
-
-  const onSubmit = (data: LoginFormData) => {
-    loginMutation.mutate(data);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-8" 
-         style={{ direction: 'rtl' }}>
-      <div className="w-full max-w-md space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center mb-6">
-            <div className="flex items-center gap-4">
-              <img 
-                src={zeylabLogo} 
-                alt="Zeylab Logo" 
-                className="w-16 h-16 object-contain"
-              />
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Zeylab
-              </h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4 w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
+            <User className="h-10 w-10 text-primary" />
+          </div>
+          <CardTitle className="text-2xl">تسجيل الدخول</CardTitle>
+          <CardDescription>
+            نظام إدارة الموارد البشرية - Zeylab HRMS
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
+            <div className="space-y-2">
+              <Label htmlFor="username">اسم المستخدم</Label>
+              <div className="relative">
+                <User className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="أدخل اسم المستخدم"
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  className="pr-10"
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">كلمة المرور</Label>
+              <div className="relative">
+                <Lock className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="أدخل كلمة المرور"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="pr-10"
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                  جاري تسجيل الدخول...
+                </>
+              ) : (
+                "تسجيل الدخول"
+              )}
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center text-sm text-muted-foreground">
+            <p className="mb-2">أمثلة على حسابات تجريبية:</p>
+            <div className="space-y-1 text-xs">
+              <p>مدير شركة: gu_2 | Zeylab@2025</p>
+              <p>موظف إداري: gu_4 | Zeylab@2025</p>
+              <p>عامل: gu_3 | Zeylab@2025</p>
             </div>
           </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">تسجيل الدخول</h2>
-            <p className="text-gray-600 mt-2">ادخل بياناتك للوصول إلى نظام إدارة الموارد البشرية</p>
-          </div>
-        </div>
-
-        {/* Company Info */}
-        <Card className="border-blue-200 bg-blue-50/50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Building2 className="h-5 w-5 text-blue-600" />
-              <div>
-                <p className="font-medium text-blue-900">{selectedCompanyName}</p>
-                <p className="text-sm text-blue-600">الشركة المحددة للدخول</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Login Form */}
-        <Card className="shadow-lg border-0">
-          <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-2xl text-center">بيانات الدخول</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="username" className="text-right">اسم المستخدم</Label>
-                <div className="relative">
-                  <User className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="username"
-                    {...form.register("username")}
-                    placeholder="أدخل اسم المستخدم"
-                    className="pr-10"
-                    disabled={loginMutation.isPending}
-                  />
-                </div>
-                {form.formState.errors.username && (
-                  <p className="text-sm text-red-500 text-right">
-                    {form.formState.errors.username.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-right">كلمة المرور</Label>
-                <div className="relative">
-                  <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    {...form.register("password")}
-                    placeholder="أدخل كلمة المرور"
-                    className="pr-10 pl-10"
-                    disabled={loginMutation.isPending}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-                {form.formState.errors.password && (
-                  <p className="text-sm text-red-500 text-right">
-                    {form.formState.errors.password.message}
-                  </p>
-                )}
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full h-12 text-lg gap-2"
-                disabled={loginMutation.isPending}
-              >
-                {loginMutation.isPending ? (
-                  "جاري تسجيل الدخول..."
-                ) : (
-                  <>
-                    دخول
-                    <ArrowRight className="h-5 w-5" />
-                  </>
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Demo Users */}
-        <Card className="border-amber-200 bg-amber-50/50">
-          <CardContent className="p-4">
-            <h3 className="font-medium text-amber-900 mb-3">مستخدمين تجريبيين:</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-amber-700">سوبر أدمن:</span>
-                <span className="text-amber-800 font-mono">admin / admin123</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-amber-700">مدير شركة:</span>
-                <span className="text-amber-800 font-mono">manager / manager123</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-amber-700">موظف:</span>
-                <span className="text-amber-800 font-mono">employee / emp123</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-amber-700">مشرف:</span>
-                <span className="text-amber-800 font-mono">supervisor / super123</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-amber-700">عامل:</span>
-                <span className="text-amber-800 font-mono">worker / work123</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Back to Company Selection */}
-        <div className="text-center">
-          <Button 
-            variant="outline" 
-            onClick={() => setLocation('/')}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            العودة لاختيار الشركة
-          </Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
