@@ -1,7 +1,7 @@
 import { EarlyWarningSystem } from "@/components/early-warning-system";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocation } from "wouter";
-import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, LogOut, ArrowRight } from "lucide-react";
 import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";

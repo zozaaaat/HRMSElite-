@@ -1084,6 +1084,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(201).json(newCategory);
   });
 
+  // Early Warning System routes
+  app.get('/api/early-warnings/:companyId', async (req, res) => {
+    try {
+      const { companyId } = req.params;
+      
+      const alerts = [
+        {
+          id: 1,
+          type: "turnover_risk",
+          severity: "high",
+          title: "خطر ارتفاع معدل دوران الموظفين",
+          description: "معدل دوران الموظفين في قسم المبيعات وصل إلى 8.5% هذا الشهر",
+          impact: "قد يؤثر على الأداء العام للقسم",
+          recommendation: "مراجعة رواتب ومكافآت قسم المبيعات",
+          timestamp: new Date().toISOString(),
+          department: "المبيعات",
+          value: 8.5,
+          threshold: 5.0,
+          trend: "increasing"
+        },
+        {
+          id: 2,
+          type: "budget_variance",
+          severity: "medium",
+          title: "تجاوز الميزانية المخصصة للرواتب",
+          description: "الإنفاق على الرواتب تجاوز الميزانية بنسبة 12%",
+          impact: "ضغط على الميزانية العامة للشركة",
+          recommendation: "مراجعة هيكل الرواتب والمكافآت",
+          timestamp: new Date().toISOString(),
+          department: "المالية",
+          value: 112,
+          threshold: 100,
+          trend: "increasing"
+        },
+        {
+          id: 3,
+          type: "satisfaction_drop",
+          severity: "medium",
+          title: "انخفاض رضا الموظفين",
+          description: "رضا الموظفين في قسم التسويق انخفض إلى 68%",
+          impact: "قد يؤدي إلى زيادة معدل الاستقالات",
+          recommendation: "إجراء جلسات استماع مع موظفي التسويق",
+          timestamp: new Date().toISOString(),
+          department: "التسويق",
+          value: 68,
+          threshold: 70,
+          trend: "decreasing"
+        }
+      ];
+
+      res.json(alerts);
+    } catch (error) {
+      console.error("Error fetching early warnings:", error);
+      res.status(500).json({ message: "Failed to fetch early warnings" });
+    }
+  });
+
+  app.get('/api/trend-analysis/:companyId', async (req, res) => {
+    try {
+      const trends = {
+        turnover: [
+          { month: 'سبتمبر', value: 3.2, threshold: 5.0 },
+          { month: 'أكتوبر', value: 4.1, threshold: 5.0 },
+          { month: 'نوفمبر', value: 5.8, threshold: 5.0 },
+          { month: 'ديسمبر', value: 6.2, threshold: 5.0 },
+          { month: 'يناير', value: 7.1, threshold: 5.0 }
+        ],
+        satisfaction: [
+          { month: 'سبتمبر', value: 85, threshold: 70 },
+          { month: 'أكتوبر', value: 82, threshold: 70 },
+          { month: 'نوفمبر', value: 78, threshold: 70 },
+          { month: 'ديسمبر', value: 74, threshold: 70 },
+          { month: 'يناير', value: 71, threshold: 70 }
+        ],
+        budget: [
+          { month: 'سبتمبر', value: 95, threshold: 100 },
+          { month: 'أكتوبر', value: 98, threshold: 100 },
+          { month: 'نوفمبر', value: 103, threshold: 100 },
+          { month: 'ديسمبر', value: 108, threshold: 100 },
+          { month: 'يناير', value: 112, threshold: 100 }
+        ]
+      };
+
+      res.json(trends);
+    } catch (error) {
+      console.error("Error fetching trend analysis:", error);
+      res.status(500).json({ message: "Failed to fetch trend analysis" });
+    }
+  });
+
+  app.post('/api/early-warnings/settings', async (req, res) => {
+    try {
+      const { settings, companyId } = req.body;
+      
+      console.log(`Updating early warning settings for company ${companyId}:`, settings);
+      
+      res.json({ 
+        success: true, 
+        message: "تم حفظ إعدادات التنبيه بنجاح" 
+      });
+    } catch (error) {
+      console.error("Error updating early warning settings:", error);
+      res.status(500).json({ message: "Failed to update settings" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
