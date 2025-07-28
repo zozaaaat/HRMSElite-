@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import {
   Bell,
   AlertTriangle,
@@ -151,14 +151,17 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
               )}
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={() => console.log('إعدادات الإشعارات')}>
                 <Settings className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" onClick={() => console.log('فلترة الإشعارات')}>
                 <Filter className="h-4 w-4" />
               </Button>
             </div>
           </DialogTitle>
+          <DialogDescription>
+            عرض وإدارة جميع الإشعارات والتنبيهات الخاصة بالنظام
+          </DialogDescription>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
@@ -193,6 +196,7 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
                         className={`cursor-pointer transition-all hover:shadow-md ${
                           notification.read ? 'opacity-70' : ''
                         } ${getNotificationColor(notification.type)}`}
+                        onClick={() => console.log('فتح إشعار:', notification.title)}
                       >
                         <CardContent className="p-4">
                           <div className="flex items-start gap-3">
@@ -234,10 +238,10 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
                                 </div>
                                 
                                 <div className="flex items-center gap-1">
-                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => {e.stopPropagation(); console.log('خيارات إضافية:', notification.title);}}>
                                     <MoreHorizontal className="h-3 w-3" />
                                   </Button>
-                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => {e.stopPropagation(); console.log('حذف إشعار:', notification.title);}}>
                                     <X className="h-3 w-3" />
                                   </Button>
                                 </div>
@@ -257,14 +261,14 @@ export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps)
         {/* Action Buttons */}
         <div className="flex items-center justify-between pt-4 border-t">
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => console.log('تسجيل الكل كمقروء')}>
               <CheckCircle className="h-4 w-4 ml-2" />
-              تسيل الكل كمقروء
+              تسجيل الكل كمقروء
             </Button>
           </div>
           
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => console.log('فتح إعدادات الإشعارات')}>
               <Settings className="h-4 w-4 ml-2" />
               إعدادات الإشعارات
             </Button>
