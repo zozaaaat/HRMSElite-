@@ -1,170 +1,115 @@
-// Service Worker for Zeylab HRMS PWA
+// Zeylab HRMS Service Worker
 const CACHE_NAME = 'zeylab-hrms-v1.0.0';
-const STATIC_CACHE = 'zeylab-static-v1';
-const RUNTIME_CACHE = 'zeylab-runtime-v1';
-
-// Static assets to cache
-const STATIC_ASSETS = [
+const urlsToCache = [
   '/',
-  '/index.html',
   '/manifest.json',
   '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/icons/icon-512x512.png',
+  // Add other static assets
 ];
 
-// API endpoints to cache
-const API_CACHE_PATTERNS = [
-  /^\/api\/companies/,
-  /^\/api\/employees/,
-  /^\/api\/system\/health/,
-  /^\/api\/quick-stats/
-];
-
-// Install event - cache static assets
+// Install event - cache resources
 self.addEventListener('install', (event) => {
-  console.log('Service Worker: Installing...');
   event.waitUntil(
-    caches.open(STATIC_CACHE)
+    caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Service Worker: Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
+        console.log('HRMS Service Worker: Caching app shell');
+        return cache.addAll(urlsToCache);
       })
-      .then(() => self.skipWaiting())
+      .then(() => {
+        console.log('HRMS Service Worker: Skip waiting');
+        return self.skipWaiting();
+      })
   );
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker: Activating...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== STATIC_CACHE && cacheName !== RUNTIME_CACHE) {
-            console.log('Service Worker: Deleting old cache:', cacheName);
+          if (cacheName !== CACHE_NAME) {
+            console.log('HRMS Service Worker: Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
-    }).then(() => self.clients.claim())
-  );
-});
-
-// Fetch event - serve cached content when offline
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // Handle API requests
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(
-      caches.open(RUNTIME_CACHE).then((cache) => {
-        return fetch(request)
-          .then((response) => {
-            // Cache successful API responses
-            if (response.status === 200) {
-              const responseClone = response.clone();
-              
-              // Only cache specific API patterns
-              const shouldCache = API_CACHE_PATTERNS.some(pattern => 
-                pattern.test(url.pathname)
-              );
-              
-              if (shouldCache) {
-                cache.put(request, responseClone);
-              }
-            }
-            return response;
-          })
-          .catch(() => {
-            // Return cached API response if offline
-            return cache.match(request).then((cachedResponse) => {
-              if (cachedResponse) {
-                return cachedResponse;
-              }
-              // Return offline fallback for API
-              return new Response(
-                JSON.stringify({
-                  error: 'Offline',
-                  message: 'لا يوجد اتصال بالإنترنت',
-                  cached: true
-                }),
-                {
-                  status: 200,
-                  headers: { 'Content-Type': 'application/json' }
-                }
-              );
-            });
-          });
-      })
-    );
-    return;
-  }
-
-  // Handle static assets and pages
-  event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetch(request).then((response) => {
-        // Don't cache non-successful responses
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
-        }
-
-        // Cache new resources
-        const responseClone = response.clone();
-        caches.open(RUNTIME_CACHE).then((cache) => {
-          cache.put(request, responseClone);
-        });
-
-        return response;
-      }).catch(() => {
-        // Return offline page if available
-        if (request.destination === 'document') {
-          return caches.match('/index.html');
-        }
-      });
+    }).then(() => {
+      console.log('HRMS Service Worker: Claiming clients');
+      return self.clients.claim();
     })
   );
 });
 
-// Background sync for offline data
-self.addEventListener('sync', (event) => {
-  console.log('Service Worker: Background sync triggered');
-  
-  if (event.tag === 'hrms-data-sync') {
-    event.waitUntil(syncOfflineData());
+// Fetch event - serve from cache, fallback to network
+self.addEventListener('fetch', (event) => {
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') {
+    return;
   }
+
+  // Skip API requests (let them go to network)
+  if (event.request.url.includes('/api/')) {
+    return;
+  }
+
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        // Return cached version or fetch from network
+        if (response) {
+          console.log('HRMS Service Worker: Serving from cache:', event.request.url);
+          return response;
+        }
+        
+        console.log('HRMS Service Worker: Fetching from network:', event.request.url);
+        return fetch(event.request).then((response) => {
+          // Don't cache non-successful responses
+          if (!response || response.status !== 200 || response.type !== 'basic') {
+            return response;
+          }
+
+          // Clone the response
+          const responseToCache = response.clone();
+
+          caches.open(CACHE_NAME)
+            .then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+
+          return response;
+        });
+      }
+    )
+  );
 });
 
-// Push notifications for HRMS updates
+// Push notification handling
 self.addEventListener('push', (event) => {
-  if (!event.data) return;
-
-  const data = event.data.json();
+  console.log('HRMS Service Worker: Push message received');
+  
   const options = {
-    body: data.message || 'تحديث جديد في نظام إدارة الموارد البشرية',
+    body: event.data ? event.data.text() : 'إشعار جديد من نظام الموارد البشرية',
     icon: '/icons/icon-192x192.png',
-    badge: '/icons/icon-72x72.png',
-    vibrate: [200, 100, 200],
-    data: data.url || '/',
+    badge: '/icons/icon-192x192.png',
+    vibrate: [100, 50, 100],
+    data: {
+      dateOfArrival: Date.now(),
+      primaryKey: '1'
+    },
     actions: [
       {
-        action: 'open',
+        action: 'explore',
         title: 'فتح التطبيق',
-        icon: '/icons/icon-72x72.png'
+        icon: '/icons/icon-192x192.png'
       },
       {
         action: 'close',
         title: 'إغلاق',
-        icon: '/icons/icon-72x72.png'
-      }
-    ],
-    requireInteraction: true,
-    tag: 'hrms-notification'
+        icon: '/icons/icon-192x192.png'
+      },
+    ]
   };
 
   event.waitUntil(
@@ -172,42 +117,70 @@ self.addEventListener('push', (event) => {
   );
 });
 
-// Notification click handler
+// Notification click handling
 self.addEventListener('notificationclick', (event) => {
+  console.log('HRMS Service Worker: Notification click received');
+  
   event.notification.close();
 
-  if (event.action === 'close') {
-    return;
+  if (event.action === 'explore') {
+    // Open the app
+    event.waitUntil(
+      clients.openWindow('/')
+    );
+  } else if (event.action === 'close') {
+    // Just close the notification
+    event.notification.close();
+  } else {
+    // Default action - open the app
+    event.waitUntil(
+      clients.openWindow('/')
+    );
   }
-
-  // Open or focus the app
-  event.waitUntil(
-    clients.matchAll({ type: 'window' }).then((clientList) => {
-      for (const client of clientList) {
-        if (client.url.includes(self.registration.scope) && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      
-      // Open new window if no existing window
-      return clients.openWindow(event.notification.data || '/');
-    })
-  );
 });
 
-// Helper function to sync offline data
-async function syncOfflineData() {
-  try {
-    // Get offline stored data and sync with server
-    const cache = await caches.open(RUNTIME_CACHE);
-    const requests = await cache.keys();
-    
-    console.log('Service Worker: Syncing offline data...');
-    
-    // Here you could implement logic to sync offline changes
-    // with the server when connection is restored
-    
-  } catch (error) {
-    console.error('Service Worker: Sync failed:', error);
+// Background sync
+self.addEventListener('sync', (event) => {
+  console.log('HRMS Service Worker: Background sync triggered');
+  
+  if (event.tag === 'attendance-sync') {
+    event.waitUntil(syncAttendanceData());
   }
+});
+
+// Sync attendance data when back online
+async function syncAttendanceData() {
+  try {
+    // Get offline attendance data from IndexedDB
+    const attendanceData = await getOfflineAttendanceData();
+    
+    if (attendanceData.length > 0) {
+      // Send to server
+      for (const record of attendanceData) {
+        await fetch('/api/attendance/sync', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(record)
+        });
+      }
+      
+      // Clear offline data after successful sync
+      await clearOfflineAttendanceData();
+      console.log('HRMS Service Worker: Attendance data synced successfully');
+    }
+  } catch (error) {
+    console.error('HRMS Service Worker: Error syncing attendance data:', error);
+  }
+}
+
+// Helper functions for offline data management
+async function getOfflineAttendanceData() {
+  // Implementation would use IndexedDB
+  return [];
+}
+
+async function clearOfflineAttendanceData() {
+  // Implementation would clear IndexedDB
 }

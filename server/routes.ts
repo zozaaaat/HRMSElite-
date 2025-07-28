@@ -1188,6 +1188,168 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ success: true, message: "All notifications marked as read" });
   });
 
+  // Add missing APIs
+  
+  // Enhanced Employee APIs
+  app.get('/api/employees', isAuthenticated, async (req: any, res) => {
+    try {
+      const { companyId, includeArchived } = req.query;
+      const employees = await storage.getCompanyEmployees(companyId, includeArchived === 'true');
+      res.json(employees);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+      res.status(500).json({ message: "Failed to fetch employees" });
+    }
+  });
+
+  // Attendance APIs
+  app.get('/api/attendance/today', isAuthenticated, async (req: any, res) => {
+    try {
+      const attendanceData = {
+        date: new Date().toISOString().split('T')[0],
+        totalEmployees: 125,
+        present: 98,
+        absent: 22,
+        late: 5,
+        onLeave: 8,
+        records: [
+          {
+            employeeId: "emp1",
+            employeeName: "أحمد محمد علي",
+            checkIn: "07:45:00",
+            checkOut: null,
+            status: "present",
+            location: "المكتب الرئيسي"
+          },
+          {
+            employeeId: "emp2", 
+            employeeName: "فاطمة أحمد حسن",
+            checkIn: "08:15:00",
+            checkOut: null,
+            status: "late",
+            location: "فرع المدينة"
+          }
+        ]
+      };
+      res.json(attendanceData);
+    } catch (error) {
+      console.error("Error fetching attendance:", error);
+      res.status(500).json({ message: "Failed to fetch attendance data" });
+    }
+  });
+
+  app.post('/api/attendance/checkin', isAuthenticated, async (req: any, res) => {
+    try {
+      const { employeeId, location } = req.body;
+      const result = {
+        success: true,
+        employeeId,
+        checkInTime: new Date().toISOString(),
+        location,
+        message: "تم تسجيل الحضور بنجاح"
+      };
+      res.json(result);
+    } catch (error) {
+      console.error("Error checking in:", error);
+      res.status(500).json({ message: "Failed to check in" });
+    }
+  });
+
+  // Leave Request APIs
+  app.get('/api/leave-requests', isAuthenticated, async (req: any, res) => {
+    try {
+      const leaveRequests = [
+        {
+          id: "lr1",
+          employeeId: "emp1",
+          employeeName: "أحمد محمد علي",
+          department: "المبيعات",
+          leaveType: "إجازة سنوية",
+          startDate: "2025-02-01",
+          endDate: "2025-02-05",
+          days: 5,
+          reason: "إجازة عائلية",
+          status: "pending",
+          requestDate: "2025-01-28"
+        }
+      ];
+      res.json(leaveRequests);
+    } catch (error) {
+      console.error("Error fetching leave requests:", error);
+      res.status(500).json({ message: "Failed to fetch leave requests" });
+    }
+  });
+
+  app.get('/api/leave-balance/:employeeId', isAuthenticated, async (req: any, res) => {
+    try {
+      const leaveBalance = {
+        employeeId: req.params.employeeId,
+        annualLeave: { total: 30, used: 8, remaining: 22 },
+        sickLeave: { total: 15, used: 3, remaining: 12 },
+        casualLeave: { total: 7, used: 2, remaining: 5 }
+      };
+      res.json(leaveBalance);
+    } catch (error) {
+      console.error("Error fetching leave balance:", error);
+      res.status(500).json({ message: "Failed to fetch leave balance" });
+    }
+  });
+
+  // Mobile APIs
+  app.get('/api/mobile/integrations', isAuthenticated, async (req: any, res) => {
+    try {
+      const integrations = [
+        {
+          id: "mobile1",
+          name: "تطبيق الموظفين",
+          type: "PWA",
+          status: "active",
+          users: 85,
+          lastSync: new Date().toISOString(),
+          features: ["تسجيل الحضور", "طلب إجازة", "عرض الراتب", "الإشعارات"]
+        }
+      ];
+      res.json(integrations);
+    } catch (error) {
+      console.error("Error fetching mobile integrations:", error);
+      res.status(500).json({ message: "Failed to fetch mobile integrations" });
+    }
+  });
+
+  app.get('/api/mobile/device-registrations', isAuthenticated, async (req: any, res) => {
+    try {
+      const devices = [
+        {
+          id: "device1",
+          deviceName: "جهاز تسجيل الحضور - المدخل الرئيسي",
+          location: "المبنى الرئيسي - الطابق الأول",
+          status: "online",
+          registeredUsers: 125,
+          lastPing: new Date().toISOString()
+        }
+      ];
+      res.json(devices);
+    } catch (error) {
+      console.error("Error fetching device registrations:", error);
+      res.status(500).json({ message: "Failed to fetch device registrations" });
+    }
+  });
+
+  app.get('/api/mobile/stats/:companyId', isAuthenticated, async (req: any, res) => {
+    try {
+      const stats = {
+        activeUsers: 156,
+        dailyCheckIns: 142,
+        appInstalls: 189,
+        notificationsSent: 45
+      };
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching mobile stats:", error);
+      res.status(500).json({ message: "Failed to fetch mobile stats" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

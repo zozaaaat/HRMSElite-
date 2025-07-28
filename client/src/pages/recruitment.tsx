@@ -1,59 +1,30 @@
 import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
 import { 
-  UserPlus, 
-  Search, 
-  Briefcase,
-  Users,
-  Calendar,
-  FileText,
+  Briefcase, 
+  Users, 
+  MapPin, 
+  Clock,
   Eye,
-  Download,
-  Mail,
-  Phone,
-  MapPin,
-  DollarSign
+  CheckCircle,
+  X,
+  Plus,
+  Search,
+  Filter,
+  Calendar,
+  Star,
+  TrendingUp,
+  UserCheck
 } from "lucide-react";
 import { SharedLayout } from "@/components/shared-layout";
+import { useToast } from "@/hooks/use-toast";
 
-interface JobPosting {
-  id: string;
-  title: string;
-  department: string;
-  location: string;
-  type: string;
-  experience: string;
-  salary: string;
-  postedDate: string;
-  status: string;
-  applicants: number;
-}
-
-interface Applicant {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  position: string;
-  experience: string;
-  education: string;
-  applicationDate: string;
-  status: string;
-  rating: number;
-  cv?: string;
-}
-
-export default function RecruitmentPage() {
+export default function Recruitment() {
   return (
     <SharedLayout 
       userRole="company_manager" 
@@ -66,436 +37,480 @@ export default function RecruitmentPage() {
 }
 
 function RecruitmentContent() {
+  const [activeTab, setActiveTab] = useState("jobs");
   const { toast } = useToast();
-  const [showNewJobDialog, setShowNewJobDialog] = useState(false);
-  const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(null);
-  const [jobFormData, setJobFormData] = useState({
-    title: "",
-    department: "",
-    location: "",
-    type: "",
-    experience: "",
-    salary: "",
-    description: "",
-    requirements: ""
+
+  const { data: jobs = [], isLoading: jobsLoading } = useQuery({
+    queryKey: ['/api/recruitment/jobs'],
   });
 
-  const jobPostings: JobPosting[] = [
+  const { data: applicants = [], isLoading: applicantsLoading } = useQuery({
+    queryKey: ['/api/recruitment/applicants'],
+  });
+
+  const mockJobs = [
     {
       id: "1",
-      title: "مطور واجهات أمامية",
-      department: "تقنية المعلومات",
-      location: "الرياض",
-      type: "دوام كامل",
-      experience: "3-5 سنوات",
-      salary: "15,000 - 20,000 ريال",
-      postedDate: "2025-01-20",
-      status: "active",
-      applicants: 12
-    },
-    {
-      id: "2",
       title: "محاسب أول",
-      department: "المالية",
-      location: "جدة",
+      department: "المحاسبة",
+      location: "الكويت",
       type: "دوام كامل",
-      experience: "5+ سنوات",
-      salary: "12,000 - 18,000 ريال",
-      postedDate: "2025-01-15",
+      applicants: 25,
       status: "active",
-      applicants: 8
-    },
-    {
-      id: "3",
-      title: "أخصائي موارد بشرية",
-      department: "الموارد البشرية",
-      location: "الدمام",
-      type: "دوام جزئي",
-      experience: "2-3 سنوات",
-      salary: "8,000 - 12,000 ريال",
-      postedDate: "2025-01-10",
-      status: "closed",
-      applicants: 25
-    }
-  ];
-
-  const applicants: Applicant[] = [
-    {
-      id: "1",
-      name: "عبدالله محمد السعيد",
-      email: "abdullah@example.com",
-      phone: "+966 55 123 4567",
-      position: "مطور واجهات أمامية",
-      experience: "4 سنوات",
-      education: "بكالوريوس علوم الحاسب",
-      applicationDate: "2025-01-22",
-      status: "screening",
-      rating: 4.5
+      postedDate: "2025-01-20",
+      deadline: "2025-02-20",
+      experience: "3-5 سنوات",
+      salary: "800-1200 د.ك",
+      description: "مطلوب محاسب أول للعمل في قسم المحاسبة"
     },
     {
       id: "2",
-      name: "نورا أحمد الشمري",
-      email: "nora@example.com",
-      phone: "+966 50 987 6543",
-      position: "محاسب أول",
-      experience: "6 سنوات",
-      education: "بكالوريوس محاسبة",
-      applicationDate: "2025-01-18",
-      status: "interview",
-      rating: 4.8
+      title: "مطور تطبيقات",
+      department: "التكنولوجيا",
+      location: "الكويت",
+      type: "دوام كامل",
+      applicants: 18,
+      status: "active",
+      postedDate: "2025-01-18",
+      deadline: "2025-02-15",
+      experience: "2-4 سنوات",
+      salary: "1000-1500 د.ك",
+      description: "مطلوب مطور تطبيقات للعمل على تطوير الأنظمة"
     },
     {
       id: "3",
-      name: "فيصل عبدالرحمن القرني",
-      email: "faisal@example.com",
-      phone: "+966 54 555 1234",
-      position: "أخصائي موارد بشرية",
-      experience: "3 سنوات",
-      education: "بكالوريوس إدارة أعمال",
-      applicationDate: "2025-01-12",
-      status: "rejected",
-      rating: 3.2
+      title: "مسؤول موارد بشرية",
+      department: "الموارد البشرية",
+      location: "الكويت",
+      type: "دوام جزئي",
+      applicants: 32,
+      status: "closed",
+      postedDate: "2025-01-10",
+      deadline: "2025-01-25",
+      experience: "5+ سنوات",
+      salary: "1200-1800 د.ك",
+      description: "مطلوب مسؤول موارد بشرية ذو خبرة عالية"
     }
   ];
 
-  const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-      active: { label: "نشط", variant: "default" },
-      closed: { label: "مغلق", variant: "secondary" },
-      screening: { label: "قيد المراجعة", variant: "outline" },
-      interview: { label: "مقابلة", variant: "default" },
-      rejected: { label: "مرفوض", variant: "destructive" },
-      hired: { label: "تم التوظيف", variant: "default" }
+  const mockApplicants = [
+    {
+      id: "1",
+      name: "أحمد محمد علي",
+      email: "ahmed@email.com",
+      phone: "+965 9999 8888",
+      position: "محاسب أول",
+      experience: "4 سنوات",
+      status: "pending",
+      appliedDate: "2025-01-22",
+      rating: 4.2,
+      cv: "cv_ahmed.pdf"
+    },
+    {
+      id: "2",
+      name: "فاطمة سالم أحمد",
+      email: "fatima@email.com",
+      phone: "+965 7777 6666",
+      position: "مطور تطبيقات",
+      experience: "3 سنوات",
+      status: "interview",
+      appliedDate: "2025-01-20",
+      rating: 4.8,
+      cv: "cv_fatima.pdf"
+    },
+    {
+      id: "3",
+      name: "محمد عبدالله خالد",
+      email: "mohammed@email.com",
+      phone: "+965 5555 4444",
+      position: "مسؤول موارد بشرية",
+      experience: "6 سنوات",
+      status: "accepted",
+      appliedDate: "2025-01-15",
+      rating: 4.9,
+      cv: "cv_mohammed.pdf"
+    }
+  ];
+
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      'active': 'bg-green-100 text-green-800',
+      'closed': 'bg-red-100 text-red-800',
+      'draft': 'bg-gray-100 text-gray-800',
+      'pending': 'bg-yellow-100 text-yellow-800',
+      'interview': 'bg-blue-100 text-blue-800',
+      'accepted': 'bg-green-100 text-green-800',
+      'rejected': 'bg-red-100 text-red-800'
     };
-    
-    const statusInfo = statusMap[status] || { label: status, variant: "outline" };
-    return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>;
+    return colors[status] || colors.pending;
   };
 
-  const handlePostJob = () => {
-    toast({
-      title: "تم نشر الوظيفة",
-      description: "تم نشر الوظيفة بنجاح وستظهر في البوابة",
-    });
-    setShowNewJobDialog(false);
-    setJobFormData({
-      title: "",
-      department: "",
-      location: "",
-      type: "",
-      experience: "",
-      salary: "",
-      description: "",
-      requirements: ""
-    });
+  const getStatusName = (status: string) => {
+    const names: Record<string, string> = {
+      'active': 'نشط',
+      'closed': 'مغلق',
+      'draft': 'مسودة',
+      'pending': 'قيد المراجعة',
+      'interview': 'مقابلة',
+      'accepted': 'مقبول',
+      'rejected': 'مرفوض'
+    };
+    return names[status] || 'غير محدد';
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">التوظيف والاستقطاب</h1>
-          <p className="text-muted-foreground mt-2">
-            إدارة الوظائف الشاغرة وطلبات التوظيف
-          </p>
-        </div>
-        
-        <Dialog open={showNewJobDialog} onOpenChange={setShowNewJobDialog}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <UserPlus className="h-4 w-4" />
-              نشر وظيفة جديدة
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">التوظيف والاستقطاب</h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">
+              إدارة الوظائف الشاغرة والمتقدمين وعمليات التوظيف
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <Button variant="outline">
+              <Search className="h-4 w-4 ml-2" />
+              البحث
             </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>نشر وظيفة جديدة</DialogTitle>
-              <DialogDescription>
-                املأ تفاصيل الوظيفة المطلوبة
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">المسمى الوظيفي</Label>
-                  <Input
-                    id="title"
-                    value={jobFormData.title}
-                    onChange={(e) => setJobFormData({ ...jobFormData, title: e.target.value })}
-                    placeholder="مثال: مطور برمجيات"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="department">القسم</Label>
-                  <Select value={jobFormData.department} onValueChange={(v) => setJobFormData({ ...jobFormData, department: v })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="اختر القسم" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="it">تقنية المعلومات</SelectItem>
-                      <SelectItem value="hr">الموارد البشرية</SelectItem>
-                      <SelectItem value="finance">المالية</SelectItem>
-                      <SelectItem value="marketing">التسويق</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="location">الموقع</Label>
-                  <Input
-                    id="location"
-                    value={jobFormData.location}
-                    onChange={(e) => setJobFormData({ ...jobFormData, location: e.target.value })}
-                    placeholder="مثال: الرياض"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="type">نوع الوظيفة</Label>
-                  <Select value={jobFormData.type} onValueChange={(v) => setJobFormData({ ...jobFormData, type: v })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="اختر النوع" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="full">دوام كامل</SelectItem>
-                      <SelectItem value="part">دوام جزئي</SelectItem>
-                      <SelectItem value="contract">عقد مؤقت</SelectItem>
-                      <SelectItem value="remote">عن بعد</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="experience">سنوات الخبرة</Label>
-                  <Input
-                    id="experience"
-                    value={jobFormData.experience}
-                    onChange={(e) => setJobFormData({ ...jobFormData, experience: e.target.value })}
-                    placeholder="مثال: 3-5 سنوات"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="salary">نطاق الراتب</Label>
-                  <Input
-                    id="salary"
-                    value={jobFormData.salary}
-                    onChange={(e) => setJobFormData({ ...jobFormData, salary: e.target.value })}
-                    placeholder="مثال: 10,000 - 15,000 ريال"
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="description">وصف الوظيفة</Label>
-                <Textarea
-                  id="description"
-                  value={jobFormData.description}
-                  onChange={(e) => setJobFormData({ ...jobFormData, description: e.target.value })}
-                  placeholder="اكتب وصف تفصيلي للوظيفة..."
-                  rows={4}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="requirements">المتطلبات</Label>
-                <Textarea
-                  id="requirements"
-                  value={jobFormData.requirements}
-                  onChange={(e) => setJobFormData({ ...jobFormData, requirements: e.target.value })}
-                  placeholder="اكتب متطلبات الوظيفة..."
-                  rows={4}
-                />
-              </div>
-              
-              <div className="flex justify-end gap-3">
-                <Button variant="outline" onClick={() => setShowNewJobDialog(false)}>
-                  إلغاء
-                </Button>
-                <Button onClick={handlePostJob}>
-                  نشر الوظيفة
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+            <Button className="bg-orange-600 hover:bg-orange-700">
+              <Plus className="h-4 w-4 ml-2" />
+              إضافة وظيفة جديدة
+            </Button>
+          </div>
+        </div>
 
-      {/* إحصائيات التوظيف */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="jobs" className="flex items-center gap-2">
               <Briefcase className="h-4 w-4" />
-              الوظائف النشطة
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2</div>
-            <p className="text-xs text-muted-foreground">من أصل 3 وظائف</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              الوظائف الشاغرة
+            </TabsTrigger>
+            <TabsTrigger value="applicants" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              إجمالي المتقدمين
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">45</div>
-            <p className="text-xs text-muted-foreground">هذا الشهر</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              المتقدمون
+            </TabsTrigger>
+            <TabsTrigger value="interviews" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              المقابلات المجدولة
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">8</div>
-            <p className="text-xs text-muted-foreground">هذا الأسبوع</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <UserPlus className="h-4 w-4" />
-              تم التوظيف
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">3</div>
-            <p className="text-xs text-muted-foreground">هذا الشهر</p>
-          </CardContent>
-        </Card>
-      </div>
+              المقابلات
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              التحليلات
+            </TabsTrigger>
+          </TabsList>
 
-      <Tabs defaultValue="jobs" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="jobs">الوظائف الشاغرة</TabsTrigger>
-          <TabsTrigger value="applicants">المتقدمون</TabsTrigger>
-          <TabsTrigger value="interviews">المقابلات</TabsTrigger>
-        </TabsList>
+          <TabsContent value="jobs" className="space-y-6">
+            {/* Statistics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <Briefcase className="h-8 w-8 text-orange-500" />
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">الوظائف النشطة</p>
+                      <p className="text-2xl font-bold">12</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-        <TabsContent value="jobs">
-          <Card>
-            <CardHeader>
-              <CardTitle>الوظائف الشاغرة</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-right">المسمى الوظيفي</TableHead>
-                    <TableHead className="text-right">القسم</TableHead>
-                    <TableHead className="text-right">الموقع</TableHead>
-                    <TableHead className="text-right">النوع</TableHead>
-                    <TableHead className="text-right">الخبرة</TableHead>
-                    <TableHead className="text-right">المتقدمون</TableHead>
-                    <TableHead className="text-right">الحالة</TableHead>
-                    <TableHead className="text-right">الإجراءات</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {jobPostings.map((job) => (
-                    <TableRow key={job.id}>
-                      <TableCell className="font-medium">{job.title}</TableCell>
-                      <TableCell>{job.department}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {job.location}
-                        </div>
-                      </TableCell>
-                      <TableCell>{job.type}</TableCell>
-                      <TableCell>{job.experience}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{job.applicants} متقدم</Badge>
-                      </TableCell>
-                      <TableCell>{getStatusBadge(job.status)}</TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="icon">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <Users className="h-8 w-8 text-blue-500" />
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">إجمالي المتقدمين</p>
+                      <p className="text-2xl font-bold">187</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-        <TabsContent value="applicants">
-          <Card>
-            <CardHeader>
-              <CardTitle>المتقدمون للوظائف</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-right">الاسم</TableHead>
-                    <TableHead className="text-right">الوظيفة</TableHead>
-                    <TableHead className="text-right">الخبرة</TableHead>
-                    <TableHead className="text-right">التعليم</TableHead>
-                    <TableHead className="text-right">تاريخ التقديم</TableHead>
-                    <TableHead className="text-right">الحالة</TableHead>
-                    <TableHead className="text-right">الإجراءات</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {applicants.map((applicant) => (
-                    <TableRow key={applicant.id}>
-                      <TableCell>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <Calendar className="h-8 w-8 text-purple-500" />
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">المقابلات المجدولة</p>
+                      <p className="text-2xl font-bold">23</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3">
+                    <UserCheck className="h-8 w-8 text-green-500" />
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">تم توظيفهم هذا الشهر</p>
+                      <p className="text-2xl font-bold">8</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Jobs Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {mockJobs.map((job) => (
+                <Card key={job.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg line-clamp-2 mb-2">
+                          {job.title}
+                        </CardTitle>
+                        <CardDescription className="line-clamp-2">
+                          {job.description}
+                        </CardDescription>
+                      </div>
+                      <Badge className={getStatusColor(job.status)}>
+                        {getStatusName(job.status)}
+                      </Badge>
+                    </div>
+                    
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        {job.location}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        {job.type}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        {job.applicants} متقدم
+                      </div>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <div className="font-medium">{applicant.name}</div>
-                          <div className="text-sm text-muted-foreground">{applicant.email}</div>
+                          <span className="text-gray-600">القسم:</span>
+                          <p className="font-medium">{job.department}</p>
                         </div>
-                      </TableCell>
-                      <TableCell>{applicant.position}</TableCell>
-                      <TableCell>{applicant.experience}</TableCell>
-                      <TableCell>{applicant.education}</TableCell>
-                      <TableCell>{applicant.applicationDate}</TableCell>
-                      <TableCell>{getStatusBadge(applicant.status)}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button variant="ghost" size="icon">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon">
-                            <Download className="h-4 w-4" />
-                          </Button>
+                        <div>
+                          <span className="text-gray-600">الخبرة:</span>
+                          <p className="font-medium">{job.experience}</p>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                      </div>
 
-        <TabsContent value="interviews">
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-center text-muted-foreground">جدول المقابلات قيد التطوير...</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-600">الراتب:</span>
+                          <p className="font-medium">{job.salary}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">آخر موعد:</span>
+                          <p className="font-medium">{job.deadline}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 pt-2">
+                        <Button size="sm" variant="outline" className="flex-1">
+                          <Eye className="h-4 w-4 ml-1" />
+                          عرض
+                        </Button>
+                        <Button size="sm" className="flex-1 bg-orange-600 hover:bg-orange-700">
+                          <Users className="h-4 w-4 ml-1" />
+                          المتقدمون
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="applicants" className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
+              {mockApplicants.map((applicant) => (
+                <Card key={applicant.id} className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div>
+                            <h3 className="text-xl font-bold">{applicant.name}</h3>
+                            <p className="text-gray-600">{applicant.position}</p>
+                          </div>
+                          <Badge className={getStatusColor(applicant.status)}>
+                            {getStatusName(applicant.status)}
+                          </Badge>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <span className="text-gray-600">البريد الإلكتروني:</span>
+                            <p className="font-medium">{applicant.email}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">الهاتف:</span>
+                            <p className="font-medium">{applicant.phone}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">الخبرة:</span>
+                            <p className="font-medium">{applicant.experience}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-4 mt-4">
+                          <div className="flex items-center gap-1">
+                            <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                            <span className="font-medium">{applicant.rating}</span>
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            تاريخ التقديم: {applicant.appliedDate}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline">
+                          <Eye className="h-4 w-4 ml-1" />
+                          عرض السيرة
+                        </Button>
+                        <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                          <CheckCircle className="h-4 w-4 ml-1" />
+                          قبول
+                        </Button>
+                        <Button size="sm" variant="destructive">
+                          <X className="h-4 w-4 ml-1" />
+                          رفض
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="interviews" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[
+                {
+                  candidate: "أحمد محمد علي",
+                  position: "محاسب أول",
+                  date: "2025-01-30",
+                  time: "10:00 ص",
+                  interviewer: "مدير المحاسبة",
+                  status: "scheduled"
+                },
+                {
+                  candidate: "فاطمة سالم أحمد",
+                  position: "مطور تطبيقات",
+                  date: "2025-01-31",
+                  time: "2:00 م",
+                  interviewer: "مدير التكنولوجيا",
+                  status: "scheduled"
+                },
+                {
+                  candidate: "خالد عبدالرحمن",
+                  position: "مسؤول مبيعات",
+                  date: "2025-02-01",
+                  time: "11:00 ص",
+                  interviewer: "مدير المبيعات",
+                  status: "completed"
+                }
+              ].map((interview, index) => (
+                <Card key={index}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">{interview.candidate}</CardTitle>
+                      <Badge className={getStatusColor(interview.status)}>
+                        {interview.status === 'scheduled' ? 'مجدولة' : 'مكتملة'}
+                      </Badge>
+                    </div>
+                    <CardDescription>{interview.position}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-600">التاريخ:</span>
+                          <p className="font-medium">{interview.date}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">الوقت:</span>
+                          <p className="font-medium">{interview.time}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-gray-600">المقابل:</span>
+                        <p className="font-medium">{interview.interviewer}</p>
+                      </div>
+                      <div className="flex gap-2 pt-2">
+                        <Button size="sm" variant="outline" className="flex-1">
+                          <Calendar className="h-4 w-4 ml-1" />
+                          إعادة جدولة
+                        </Button>
+                        <Button size="sm" className="flex-1">
+                          <Eye className="h-4 w-4 ml-1" />
+                          التفاصيل
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>معدل التوظيف الشهري</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-green-600">65%</div>
+                      <div className="text-sm text-gray-600">معدل نجاح التوظيف</div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>المتقدمون المقبولون</span>
+                        <span className="font-medium">24 من 37</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>أكثر الوظائف طلباً</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {[
+                      { position: "مطور تطبيقات", applications: 45 },
+                      { position: "محاسب", applications: 38 },
+                      { position: "مسؤول مبيعات", applications: 32 },
+                      { position: "مصمم جرافيك", applications: 28 }
+                    ].map((job, index) => (
+                      <div key={index} className="flex justify-between items-center">
+                        <span className="text-sm">{job.position}</span>
+                        <span className="font-medium">{job.applications} طلب</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }

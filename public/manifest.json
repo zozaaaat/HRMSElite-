@@ -1,98 +1,103 @@
 {
   "name": "Zeylab HRMS - نظام إدارة الموارد البشرية",
   "short_name": "Zeylab HRMS",
-  "description": "نظام إدارة الموارد البشرية الشامل للشركات العربية",
+  "description": "نظام إدارة الموارد البشرية الشامل والمتقدم من زيلاب",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0066CC",
   "orientation": "portrait-primary",
-  "dir": "rtl",
+  "theme_color": "#2563eb",
+  "background_color": "#ffffff",
   "lang": "ar",
-  "categories": ["business", "productivity"],
+  "dir": "rtl",
+  "categories": ["business", "productivity", "utilities"],
+  "scope": "/",
   "icons": [
     {
-      "src": "/icons/icon-72x72.png",
+      "src": "/icon-72x72.png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-96x96.png",
+      "src": "/icon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-128x128.png",
+      "src": "/icon-128x128.png",
       "sizes": "128x128",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-144x144.png",
+      "src": "/icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-152x152.png",
+      "src": "/icon-152x152.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-192x192.svg",
+      "src": "/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-512x512.svg",
+      "src": "/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "maskable any"
     }
   ],
   "screenshots": [
     {
-      "src": "/screenshots/desktop-home.png",
-      "sizes": "1280x720",
+      "src": "/screenshot-wide.png",
+      "sizes": "1024x593",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "الشاشة الرئيسية - سطح المكتب"
+      "label": "لوحة التحكم الرئيسية"
     },
     {
-      "src": "/screenshots/mobile-dashboard.png", 
-      "sizes": "375x812",
+      "src": "/screenshot-narrow.png",
+      "sizes": "540x720",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "لوحة التحكم - الهاتف المحمول"
+      "label": "واجهة التطبيق المحمول"
     }
   ],
-  "related_applications": [],
-  "prefer_related_applications": false,
   "shortcuts": [
     {
       "name": "لوحة التحكم",
-      "short_name": "التحكم",
-      "description": "الوصول السريع للوحة التحكم",
+      "short_name": "لوحة التحكم",
+      "description": "الوصول السريع للوحة التحكم الرئيسية",
       "url": "/dashboard",
       "icons": [
         {
-          "src": "/icons/shortcut-dashboard.png",
+          "src": "/shortcut-dashboard.png",
           "sizes": "96x96"
         }
       ]
     },
     {
-      "name": "الموظفون",
-      "short_name": "الموظفون", 
-      "description": "إدارة الموظفين",
+      "name": "الموظفين",
+      "short_name": "الموظفين",
+      "description": "إدارة بيانات الموظفين",
       "url": "/employees",
       "icons": [
         {
-          "src": "/icons/shortcut-employees.png",
+          "src": "/shortcut-employees.png",
           "sizes": "96x96"
         }
       ]
@@ -101,13 +106,40 @@
       "name": "الحضور",
       "short_name": "الحضور",
       "description": "تسجيل الحضور والانصراف",
-      "url": "/attendance", 
+      "url": "/attendance",
       "icons": [
         {
-          "src": "/icons/shortcut-attendance.png",
+          "src": "/shortcut-attendance.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "التقارير",
+      "short_name": "التقارير",
+      "description": "عرض التقارير والإحصائيات",
+      "url": "/reports",
+      "icons": [
+        {
+          "src": "/shortcut-reports.png",
           "sizes": "96x96"
         }
       ]
     }
-  ]
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://hrms.zeylab.com/"
+    }
+  ],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "handle_links": "preferred",
+  "capture_links": "existing-client-navigate"
 }
