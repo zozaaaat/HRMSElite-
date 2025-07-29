@@ -46,8 +46,10 @@ function SuperAdminDashboard() {
   const { data: totalEmployees = [] } = useQuery({ queryKey: ["/api/employees"] });
   const { data: systemStats } = useQuery({ queryKey: ["/api/system/stats"] });
 
-  const activeCompanies = companies.filter((c: any) => c.status === 'active').length;
-  const totalUsers = totalEmployees.length;
+  const companiesArray = Array.isArray(companies) ? companies : [];
+  const activeCompanies = companiesArray.filter((c: any) => c.status === 'active').length;
+  const totalEmployeesArray = Array.isArray(totalEmployees) ? totalEmployees : [];
+  const totalUsers = totalEmployeesArray.length;
 
   return (
     <div className="space-y-6">
@@ -58,8 +60,8 @@ function SuperAdminDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">إجمالي الشركات</p>
-                <p className="text-3xl font-bold">{companies.length}</p>
-                <p className="text-xs text-green-600">+{Math.floor(companies.length * 0.1)} هذا الشهر</p>
+                <p className="text-3xl font-bold">{companiesArray.length}</p>
+                <p className="text-xs text-green-600">+{Math.floor(companiesArray.length * 0.1)} هذا الشهر</p>
               </div>
               <Building2 className="h-12 w-12 text-blue-600" />
             </div>
@@ -72,7 +74,7 @@ function SuperAdminDashboard() {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">الشركات النشطة</p>
                 <p className="text-3xl font-bold">{activeCompanies}</p>
-                <p className="text-xs text-green-600">{((activeCompanies/companies.length)*100).toFixed(1)}% من الإجمالي</p>
+                <p className="text-xs text-green-600">{companiesArray.length > 0 ? ((activeCompanies/companiesArray.length)*100).toFixed(1) : 0}% من الإجمالي</p>
               </div>
               <CheckCircle className="h-12 w-12 text-green-600" />
             </div>
@@ -167,14 +169,18 @@ function SuperAdminDashboard() {
 function CompanyManagerDashboard({ companyId }: { companyId: string }) {
   const { data: company } = useQuery({ queryKey: ["/api/companies", companyId] });
   const { data: employees = [] } = useQuery({ queryKey: ["/api/companies", companyId, "employees"] });
-  const { data: attendance = [] } = useQuery({ queryKey: ["/api/attendance", { companyId }] });
-  const { data: leaves = [] } = useQuery({ queryKey: ["/api/leaves", { companyId }] });
+  const { data: attendance = [] } = useQuery({ queryKey: ["/api/attendance", companyId] });
+  const { data: leaves = [] } = useQuery({ queryKey: ["/api/leaves", companyId] });
 
-  const activeEmployees = employees.filter((e: any) => e.status === 'active').length;
-  const todayAttendance = attendance.filter((a: any) => 
+  const employeesArray = Array.isArray(employees) ? employees : [];
+  const attendanceArray = Array.isArray(attendance) ? attendance : [];
+  const leavesArray = Array.isArray(leaves) ? leaves : [];
+
+  const activeEmployees = employeesArray.filter((e: any) => e.status === 'active').length;
+  const todayAttendance = attendanceArray.filter((a: any) => 
     format(new Date(a.date), 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
   ).length;
-  const pendingLeaves = leaves.filter((l: any) => l.status === 'pending').length;
+  const pendingLeaves = leavesArray.filter((l: any) => l.status === 'pending').length;
 
   return (
     <div className="space-y-6">
@@ -183,14 +189,14 @@ function CompanyManagerDashboard({ companyId }: { companyId: string }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5" />
-            {company?.name || company?.commercialFileName}
+            {(company as any)?.name || (company as any)?.commercialFileName || "اسم الشركة"}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-blue-50 rounded-lg">
               <Users className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-              <p className="text-2xl font-bold">{employees.length}</p>
+              <p className="text-2xl font-bold">{employeesArray.length}</p>
               <p className="text-sm text-muted-foreground">إجمالي الموظفين</p>
             </div>
             <div className="text-center p-4 bg-green-50 rounded-lg">
@@ -406,7 +412,8 @@ function WorkerDashboard({ userId }: { userId: string }) {
     queryKey: ["/api/leaves", "employee", userId] 
   });
 
-  const thisMonthAttendance = myAttendance.filter((a: any) => {
+  const attendanceArray = Array.isArray(myAttendance) ? myAttendance : [];
+  const thisMonthAttendance = attendanceArray.filter((a: any) => {
     const attendanceDate = new Date(a.date);
     const now = new Date();
     return attendanceDate.getMonth() === now.getMonth() && attendanceDate.getFullYear() === now.getFullYear();
@@ -419,7 +426,7 @@ function WorkerDashboard({ userId }: { userId: string }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            مرحباً، {employee?.fullName}
+            مرحباً، {(employee as any)?.fullName || "الموظف"}
           </CardTitle>
         </CardHeader>
         <CardContent>

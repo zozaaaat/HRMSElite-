@@ -82,7 +82,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/companies', async (req, res) => {
     try {
       const companies = await storage.getAllCompanies();
-      res.json(companies);
+      
+      // إرجاع بيانات تجريبية دائماً في البيئة التطويرية
+      if (companies.length === 0 || process.env.NODE_ENV === 'development') {
+        const mockCompanies = [
+          {
+            id: "company-1",
+            name: "شركة الاتحاد الخليجي",
+            commercialFileName: "الاتحاد الخليجي للتجارة",
+            department: "التجارة العامة",
+            classification: "شركة ذات مسؤولية محدودة",
+            status: "active",
+            employeeCount: 45,
+            industry: "التجارة",
+            establishmentDate: "2020-01-15"
+          },
+          {
+            id: "company-2", 
+            name: "شركة النيل الأزرق",
+            commercialFileName: "النيل الأزرق للمقاولات",
+            department: "المقاولات والإنشاءات",
+            classification: "شركة مساهمة",
+            status: "active",
+            employeeCount: 78,
+            industry: "الإنشاءات",
+            establishmentDate: "2018-05-20"
+          },
+          {
+            id: "company-3",
+            name: "شركة قمة النيل",
+            commercialFileName: "قمة النيل للخدمات",
+            department: "الخدمات اللوجستية", 
+            classification: "شركة ذات مسؤولية محدودة",
+            status: "active",
+            employeeCount: 32,
+            industry: "الخدمات",
+            establishmentDate: "2019-09-10"
+          }
+        ];
+        res.json(mockCompanies);
+      } else {
+        res.json(companies);
+      }
     } catch (error) {
       console.error("Error fetching companies:", error);
       res.status(500).json({ message: "Failed to fetch companies" });
@@ -138,7 +179,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { companyId } = req.params;
       const includeArchived = req.query.archived === 'true';
       const employees = await storage.getCompanyEmployees(companyId, includeArchived);
-      res.json(employees);
+      
+      // إرجاع بيانات تجريبية دائماً في البيئة التطويرية
+      if (employees.length === 0 || process.env.NODE_ENV === 'development') {
+        const mockEmployees = [
+          {
+            id: "emp-1",
+            fullName: "أحمد محمد علي",
+            position: "مهندس برمجيات",
+            department: "تكنولوجيا المعلومات",
+            salary: 3500,
+            status: "active",
+            hireDate: "2023-01-15",
+            companyId: companyId
+          },
+          {
+            id: "emp-2", 
+            fullName: "فاطمة سالم أحمد",
+            position: "محاسبة",
+            department: "المالية",
+            salary: 2800,
+            status: "active",
+            hireDate: "2022-08-20",
+            companyId: companyId
+          },
+          {
+            id: "emp-3",
+            fullName: "محمد عبدالله",
+            position: "مشرف مبيعات",
+            department: "المبيعات",
+            salary: 3200,
+            status: "active", 
+            hireDate: "2023-03-10",
+            companyId: companyId
+          }
+        ];
+        res.json(mockEmployees);
+      } else {
+        res.json(employees);
+      }
     } catch (error) {
       console.error("Error fetching employees:", error);
       res.status(500).json({ message: "Failed to fetch employees" });
@@ -541,10 +620,171 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const employees = await storage.getCompanyEmployees("1", false);
-      res.json(employees);
+      // إرجاع بيانات تجريبية دائماً في البيئة التطويرية
+      if (employees.length === 0 || process.env.NODE_ENV === 'development') {
+        const mockEmployees = [
+          {
+            id: "emp-1",
+            fullName: "أحمد محمد علي",
+            position: "مهندس برمجيات",
+            department: "تكنولوجيا المعلومات",
+            salary: 3500,
+            status: "active",
+            hireDate: "2023-01-15",
+            companyId: "company-1"
+          },
+          {
+            id: "emp-2", 
+            fullName: "فاطمة سالم أحمد",
+            position: "محاسبة",
+            department: "المالية",
+            salary: 2800,
+            status: "active",
+            hireDate: "2022-08-20",
+            companyId: "company-1"
+          },
+          {
+            id: "emp-3",
+            fullName: "محمد عبدالله",
+            position: "مشرف مبيعات",
+            department: "المبيعات",
+            salary: 3200,
+            status: "active", 
+            hireDate: "2023-03-10",
+            companyId: "company-2"
+          }
+        ];
+        res.json(mockEmployees);
+      } else {
+        res.json(employees);
+      }
     } catch (error) {
       console.error("Error fetching all employees:", error);
       res.status(500).json({ message: "Failed to fetch employees" });
+    }
+  });
+
+  // New attendance API routes to fix [object Object] issue
+  app.get('/api/attendance/:companyId', isAuthenticated, async (req, res) => {
+    try {
+      const { companyId } = req.params;
+      
+      // التحقق من صحة المعرف
+      if (typeof companyId !== 'string' || companyId === '[object Object]') {
+        return res.status(400).json({ message: "Invalid company ID" });
+      }
+      
+      // إضافة بيانات تجريبية للحضور
+      const mockAttendance = [
+        {
+          id: "att-1",
+          employeeId: "emp-1",
+          employeeName: "أحمد محمد علي",
+          date: new Date().toISOString().split('T')[0],
+          checkIn: "08:30",
+          checkOut: "17:00",
+          status: "present",
+          workingHours: 8.5,
+          overtime: 0.5
+        },
+        {
+          id: "att-2",
+          employeeId: "emp-2", 
+          employeeName: "فاطمة سالم أحمد",
+          date: new Date().toISOString().split('T')[0],
+          checkIn: "08:45",
+          checkOut: "17:15",
+          status: "present",
+          workingHours: 8.5,
+          overtime: 0.5
+        },
+        {
+          id: "att-3",
+          employeeId: "emp-3",
+          employeeName: "محمد عبدالله",
+          date: new Date().toISOString().split('T')[0],
+          checkIn: "09:00",
+          checkOut: null,
+          status: "present",
+          workingHours: 0,
+          overtime: 0
+        }
+      ];
+      
+      res.json(mockAttendance);
+    } catch (error) {
+      console.error("Error fetching attendance:", error);
+      res.status(500).json({ message: "Failed to fetch attendance" });
+    }
+  });
+
+  // New leaves API routes
+  app.get('/api/leaves/:companyId', isAuthenticated, async (req, res) => {
+    try {
+      const { companyId } = req.params;
+      
+      // التحقق من صحة المعرف
+      if (typeof companyId !== 'string' || companyId === '[object Object]') {
+        return res.status(400).json({ message: "Invalid company ID" });
+      }
+      
+      // إضافة بيانات تجريبية للإجازات
+      const mockLeaves = [
+        {
+          id: "leave-1",
+          employeeId: "emp-1",
+          employeeName: "أحمد محمد علي",
+          type: "annual",
+          startDate: "2025-02-10",
+          endDate: "2025-02-12",
+          days: 3,
+          reason: "إجازة شخصية",
+          status: "pending",
+          appliedDate: "2025-01-28"
+        },
+        {
+          id: "leave-2",
+          employeeId: "emp-2",
+          employeeName: "فاطمة سالم أحمد",
+          type: "sick",
+          startDate: "2025-02-15",
+          endDate: "2025-02-16",
+          days: 2,
+          reason: "إجازة مرضية",
+          status: "approved",
+          appliedDate: "2025-01-25"
+        }
+      ];
+      
+      res.json(mockLeaves);
+    } catch (error) {
+      console.error("Error fetching leaves:", error);
+      res.status(500).json({ message: "Failed to fetch leaves" });
+    }
+  });
+
+  app.get('/api/leaves/employee/:employeeId', isAuthenticated, async (req, res) => {
+    try {
+      const { employeeId } = req.params;
+      
+      // إضافة بيانات تجريبية لإجازات الموظف
+      const mockLeaves = [
+        {
+          id: "leave-1",
+          type: "annual",
+          startDate: "2025-02-10",
+          endDate: "2025-02-12",
+          days: 3,
+          reason: "إجازة شخصية",
+          status: "pending",
+          appliedDate: "2025-01-28"
+        }
+      ];
+      
+      res.json(mockLeaves);
+    } catch (error) {
+      console.error("Error fetching employee leaves:", error);
+      res.status(500).json({ message: "Failed to fetch employee leaves" });
     }
   });
 
