@@ -1,17 +1,17 @@
 @echo off
-chcp 65001 >nul 2>&1
-title Zeylab HRMS Standalone
+title Zeylab HRMS Standalone Demo
 color 0A
 cls
 
 echo.
 echo ===============================================
 echo        Zeylab HRMS Standalone Demo
-echo     Standalone Version - No Installation
+echo     Human Resource Management System
 echo ===============================================
 echo.
 echo Starting Zeylab HRMS System...
-echo This will open your browser automatically
+echo Browser will open automatically at http://localhost:3000
+echo Please wait...
 echo.
 
 node ZeylabHRMS-Standalone.js
@@ -19,7 +19,8 @@ node ZeylabHRMS-Standalone.js
 if errorlevel 1 (
     echo.
     echo Error: Could not start the system
-    echo Try running as administrator or check if Node.js is installed
+    echo Make sure Node.js is installed
+    echo Download from: https://nodejs.org
     echo.
     pause
 ) else (
