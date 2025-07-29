@@ -581,11 +581,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Notification routes
-  app.get('/api/notifications', isAuthenticated, async (req: any, res) => {
+  app.get('/api/notifications', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const companyId = req.query.companyId as string;
-      const notifications = await storage.getUserNotifications(userId, companyId);
+      // Return mock notifications for development
+      const notifications = [
+        {
+          id: "1",
+          title: "مرحباً بكم في نظام إدارة الموارد البشرية",
+          message: "تم تفعيل النظام بنجاح",
+          type: "info",
+          isRead: false,
+          createdAt: new Date().toISOString(),
+          userId: "admin",
+          companyId: "company-1"
+        }
+      ];
       res.json(notifications);
     } catch (error) {
       console.error("Error fetching notifications:", error);

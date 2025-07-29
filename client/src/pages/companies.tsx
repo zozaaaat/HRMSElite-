@@ -85,10 +85,7 @@ export default function Companies() {
 
   const addCompanyMutation = useMutation({
     mutationFn: async (data: CompanyFormData) => {
-      return await apiRequest("/api/companies", {
-        method: "POST", 
-        body: data
-      });
+      return await apiRequest("/api/companies", "POST", data);
     },
     onSuccess: () => {
       setIsAddDialogOpen(false);

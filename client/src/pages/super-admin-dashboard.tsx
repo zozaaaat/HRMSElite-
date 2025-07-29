@@ -139,26 +139,26 @@ function SuperAdminContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <StatsCard
                 title="إجمالي الشركات"
-                value={companies.length.toString()}
-                icon={Building2}
+                value={companies.length}
+                icon="building"
                 color="blue"
               />
               <StatsCard
                 title="إجمالي الموظفين"
-                value={stats?.totalEmployees?.toString() || "0"}
-                icon={Users}
+                value={stats?.totalEmployees || 0}
+                icon="users"
                 color="green"
               />
               <StatsCard
                 title="المستخدمين النشطين"
-                value={stats?.activeUsers?.toString() || "0"}
-                icon={Activity}
+                value={stats?.activeUsers || 0}
+                icon="users"
                 color="orange"
               />
               <StatsCard
                 title="حالة النظام"
-                value="مستقر"
-                icon={Shield}
+                value={1}
+                icon="check"
                 color="purple"
               />
             </div>
@@ -189,7 +189,6 @@ function SuperAdminContent() {
                 <CompanyCard
                   key={company.id}
                   company={company}
-                  onClick={() => setLocation(`/company-dashboard/${company.id}`)}
                 />
               ))}
             </div>
@@ -199,26 +198,26 @@ function SuperAdminContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
               <StatsCard
                 title="حالة النظام"
-                value="مستقر"
-                icon={Activity}
+                value={1}
+                icon="check"
                 color="green"
               />
               <StatsCard
                 title="استخدام الخادم"
-                value="78%"
-                icon={TrendingUp}
+                value={78}
+                icon="users"
                 color="blue"
               />
               <StatsCard
                 title="قاعدة البيانات"
-                value="متصلة"
-                icon={Shield}
+                value={1}
+                icon="check"
                 color="green"
               />
               <StatsCard
                 title="التحديث الأخير"
-                value="29 يناير"
-                icon={FileText}
+                value={29}
+                icon="certificate"
                 color="purple"
               />
             </div>

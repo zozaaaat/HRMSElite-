@@ -398,12 +398,12 @@ export class DatabaseStorage implements IStorage {
     const licenseEmployees = await db
       .select()
       .from(employees)
-      .where(and(eq(employees.licenseId, id), eq(employees.isArchived, false))) as any;
+      .where(and(eq(employees.licenseId, id), eq(employees.isArchived, false)));
 
     const licenseDocuments = await db
       .select()
       .from(documents)
-      .where(eq(documents.licenseId, id)) as any;
+      .where(eq(documents.licenseId, id));
 
     return {
       ...license.licenses,
@@ -414,7 +414,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createLicense(license: InsertLicense): Promise<License> {
-    const [newLicense] = await db.insert(licenses).values(license).returning();
+    const [newLicense] = await db.insert(licenses).values(license).returning() as License[];
     return newLicense;
   }
 
