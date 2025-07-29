@@ -13,8 +13,13 @@ import {
 
 const app = express();
 
-// Trust proxy for rate limiting
-app.set('trust proxy', true);
+// Trust proxy for rate limiting - configure more securely
+// Only trust proxies from known sources in production
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1); // Trust first proxy
+} else {
+  app.set('trust proxy', false); // Don't trust proxy in development
+}
 
 // Apply security middleware
 app.use(securityHeaders);

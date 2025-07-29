@@ -34,6 +34,11 @@ export const createRateLimit = (windowMs: number = 15 * 60 * 1000, max: number =
     },
     standardHeaders: true,
     legacyHeaders: false,
+    // Skip rate limiting for development or disable trust proxy validation
+    skip: process.env.NODE_ENV === 'development' ? () => false : undefined,
+    validate: {
+      trustProxy: false, // Disable trust proxy validation
+    },
     handler: (req, res) => {
       res.status(429).json({
         error: 'تم تجاوز الحد المسموح من الطلبات',
