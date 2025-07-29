@@ -1,25 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * Zeylab HRMS - Production Ready Standalone Server
- * النسخة الإنتاجية المستقلة لنظام إدارة الموارد البشرية
- * 
- * تشمل:
- * - خادم Express مدمج
- * - جميع APIs المطلوبة
- * - نظام الأمان المتقدم
- * - البيانات الحقيقية مدمجة
- * - واجهة عربية كاملة
- * - مكونات متقدمة للإنتاج
+ * Zeylab HRMS - Standalone CommonJS Version
+ * النسخة المستقلة المتوافقة مع جميع بيئات Node.js
  */
 
-import express from 'express';
-import path from 'path';
-import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const express = require('express');
+const path = require('path');
+const { spawn } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -108,11 +96,12 @@ app.get('/health', (req, res) => {
     status: 'OK',
     timestamp: new Date().toISOString(),
     version: '2.1.0',
-    environment: 'production'
+    environment: 'production',
+    nodeVersion: process.version
   });
 });
 
-// Frontend route - serve index.html for all non-API routes
+// Frontend route
 app.get('*', (req, res) => {
   res.send(`
 <!DOCTYPE html>
@@ -195,6 +184,14 @@ app.get('*', (req, res) => {
             margin: 2rem 0;
             border: 1px solid #c3e6cb;
         }
+        .success {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            border: 1px solid #bee5eb;
+        }
         .apis {
             background: #f8f9fa;
             padding: 1.5rem;
@@ -222,10 +219,14 @@ app.get('*', (req, res) => {
     <div class="container">
         <div class="logo">HR</div>
         <h1>نظام إدارة الموارد البشرية</h1>
-        <div class="subtitle">Zeylab HRMS - النسخة الإنتاجية المتقدمة</div>
+        <div class="subtitle">Zeylab HRMS - النسخة المتوافقة</div>
+        
+        <div class="success">
+            ✅ تم حل مشكلة ES Module! الخادم يعمل بنجاح
+        </div>
         
         <div class="status">
-            ✅ الخادم يعمل بنجاح على المنفذ ${PORT}
+            🚀 النظام جاهز - المنفذ ${PORT} - Node.js ${process.version}
         </div>
         
         <div class="features">
@@ -259,7 +260,7 @@ app.get('*', (req, res) => {
         
         <div class="footer">
             <p>© 2025 Zeylab HRMS - جميع الحقوق محفوظة</p>
-            <p>الإصدار 2.1.0 - تم التطوير بواسطة فريق Zeylab</p>
+            <p>الإصدار 2.1.0 - CommonJS Compatible</p>
         </div>
     </div>
 </body>
@@ -278,7 +279,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`
 ╔══════════════════════════════════════════════════════════════╗
 ║                    Zeylab HRMS Server                        ║
-║                 النسخة الإنتاجية المتقدمة                    ║
+║              CommonJS Compatible Version                     ║
 ╠══════════════════════════════════════════════════════════════╣
 ║  🚀 الخادم يعمل على المنفذ: ${PORT}                        ║
 ║  🌐 الرابط: http://localhost:${PORT}                      ║
@@ -286,8 +287,8 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 ║  ❤️  الحالة: http://localhost:${PORT}/health               ║
 ╠══════════════════════════════════════════════════════════════╣
 ║  📈 ${companies.length} شركات | ${employees.length} موظفين | ${documents.length} مستندات | ${licenses.length} تراخيص          ║
-║  ✅ جميع APIs تعمل بنجاح                                   ║
-║  🔒 الأمان المتقدم مفعل                                    ║
+║  ✅ مشكلة ES Module محلولة                                 ║
+║  🔧 CommonJS متوافق مع جميع البيئات                       ║
 ║  🎯 جاهز للاستخدام الإنتاجي                               ║
 ╚══════════════════════════════════════════════════════════════╝
   `);
@@ -325,4 +326,4 @@ process.on('SIGINT', () => {
   });
 });
 
-export default app;
+module.exports = app;
