@@ -1,268 +1,175 @@
-import React, { useState } from "react";
-import { SharedLayout } from "../components/shared-layout";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { useToast } from "../hooks/use-toast";
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PDFReports } from "@/components/pdf-reports";
+import { DocumentManagement } from "@/components/document-management";
+import { RoleBasedDashboard } from "@/components/role-based-dashboard";
 import {
-  Download,
-  BarChart3,
-  PieChart,
-  Clock,
-  Users,
-  TrendingUp,
   FileText,
-  Calendar as CalendarIcon,
-  Filter
+  FolderOpen,
+  BarChart3,
+  Download,
+  Upload,
+  Eye
 } from "lucide-react";
 
 export default function ReportsPage() {
-  return (
-    <SharedLayout 
-      userRole="employee" 
-      userName="موظف" 
-      companyName="التقارير والإحصائيات"
-    >
-      <ReportsContent />
-    </SharedLayout>
-  );
-}
-
-function ReportsContent() {
-  const { toast } = useToast();
-  const [reportType, setReportType] = useState("monthly");
-  const [department, setDepartment] = useState("all");
-  const [dateRange, setDateRange] = useState("this-month");
-
-  const reportCategories = [
-    {
-      id: "hr",
-      title: "تقرير الموارد البشرية",
-      description: "إحصائيات الموظفين والإدارات",
-      icon: Users,
-      color: "#8884d8"
-    },
-    {
-      id: "financial",
-      title: "التقرير المالي",
-      description: "تفاصيل الرواتب والمكافآت",
-      icon: PieChart,
-      color: "#82ca9d"
-    },
-    {
-      id: "attendance",
-      title: "تقرير الحضور",
-      description: "معدلات الحضور والغياب والتأخير",
-      icon: Clock,
-      color: "#ffc658"
-    },
-    {
-      id: "performance",
-      title: "تقرير الأداء",
-      description: "تقييم أداء الموظفين والفرق",
-      icon: TrendingUp,
-      color: "#ff7300"
-    }
-  ];
-
-  const handleGenerateReport = (reportId: string) => {
-    toast({
-      title: "جاري إنشاء التقرير",
-      description: "سيتم تحميل التقرير خلال لحظات",
-    });
-  };
-
-  const handleExportReport = (format: string) => {
-    toast({
-      title: `تصدير ${format.toUpperCase()}`,
-      description: "تم تصدير التقرير بنجاح",
-    });
-  };
+  const [activeTab, setActiveTab] = useState("reports");
+  
+  // محاكاة دور المستخدم - في التطبيق الفعلي سيأتي من السياق
+  const userRole = 'company-manager'; // أو أي دور آخر
+  const companyId = 'company-1';
+  const userId = 'user-1';
 
   return (
-    <div className="container mx-auto p-6 space-y-6" dir="rtl">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">التقارير والإحصائيات</h1>
-          <p className="text-muted-foreground mt-2">
-            تقارير شاملة وتحليلات متقدمة لجميع جوانب النظام
-          </p>
-        </div>
-        
-        <div className="flex gap-3">
-          <Button variant="outline" className="gap-2">
-            <CalendarIcon className="h-4 w-4" />
-            اختر الفترة
-          </Button>
-        </div>
+    <div className="container mx-auto px-4 py-8 space-y-8">
+      {/* العنوان */}
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">التقارير والمستندات</h1>
+        <p className="text-muted-foreground mt-2">
+          إدارة شاملة للتقارير والمستندات ولوحات التحكم المتخصصة
+        </p>
       </div>
 
-      {/* بطاقات الإحصائيات السريعة */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">إجمالي الموظفين</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">160</div>
-            <p className="text-xs text-muted-foreground mt-1">+5% عن الشهر الماضي</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">إجمالي الرواتب</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1.02M د.ك</div>
-            <p className="text-xs text-muted-foreground mt-1">+4% عن الشهر الماضي</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">معدل الحضور</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">97.2%</div>
-            <p className="text-xs text-muted-foreground mt-1">+2.1% عن الشهر الماضي</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">تقييم الأداء</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">8.4/10</div>
-            <p className="text-xs text-muted-foreground mt-1">+0.3 عن الشهر الماضي</p>
-          </CardContent>
-        </Card>
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="reports" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            تقارير PDF
+          </TabsTrigger>
+          <TabsTrigger value="documents" className="flex items-center gap-2">
+            <FolderOpen className="h-4 w-4" />
+            إدارة المستندات
+          </TabsTrigger>
+          <TabsTrigger value="dashboard" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            لوحة التحكم
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <Eye className="h-4 w-4" />
+            التحليلات
+          </TabsTrigger>
+        </TabsList>
 
-      {/* فلاتر التقارير */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            فلاتر التقارير
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">نوع التقرير</label>
-              <Select value={reportType} onValueChange={setReportType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="اختر نوع التقرير" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="daily">يومي</SelectItem>
-                  <SelectItem value="weekly">أسبوعي</SelectItem>
-                  <SelectItem value="monthly">شهري</SelectItem>
-                  <SelectItem value="yearly">سنوي</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <TabsContent value="reports" className="space-y-6">
+          <PDFReports companyId={companyId} />
+        </TabsContent>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">القسم</label>
-              <Select value={department} onValueChange={setDepartment}>
-                <SelectTrigger>
-                  <SelectValue placeholder="اختر القسم" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">جميع الأقسام</SelectItem>
-                  <SelectItem value="hr">الموارد البشرية</SelectItem>
-                  <SelectItem value="finance">المالية</SelectItem>
-                  <SelectItem value="operations">العمليات</SelectItem>
-                  <SelectItem value="sales">المبيعات</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <TabsContent value="documents" className="space-y-6">
+          <DocumentManagement companyId={companyId} />
+        </TabsContent>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">الفترة الزمنية</label>
-              <Select value={dateRange} onValueChange={setDateRange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="اختر الفترة" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="this-month">هذا الشهر</SelectItem>
-                  <SelectItem value="last-month">الشهر الماضي</SelectItem>
-                  <SelectItem value="this-quarter">هذا الربع</SelectItem>
-                  <SelectItem value="this-year">هذا العام</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <TabsContent value="dashboard" className="space-y-6">
+          <RoleBasedDashboard 
+            userRole={userRole as any}
+            companyId={companyId}
+            userId={userId}
+          />
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* إحصائيات التقارير */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Download className="h-5 w-5" />
+                  التقارير الأكثر تحميلاً
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[
+                    { name: 'قائمة الموظفين', downloads: 45 },
+                    { name: 'كشف المرتبات', downloads: 38 },
+                    { name: 'تقرير الحضور', downloads: 32 },
+                    { name: 'التقرير المالي', downloads: 28 },
+                  ].map((report, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <span className="text-sm">{report.name}</span>
+                      <span className="text-sm font-medium">{report.downloads} مرة</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* أنواع المستندات */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Upload className="h-5 w-5" />
+                  أنواع المستندات المرفوعة
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[
+                    { type: 'وثائق الموظفين', count: 156 },
+                    { type: 'العقود', count: 89 },
+                    { type: 'التراخيص', count: 45 },
+                    { type: 'النماذج الحكومية', count: 34 },
+                  ].map((doc, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <span className="text-sm">{doc.type}</span>
+                      <span className="text-sm font-medium">{doc.count} مستند</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* استخدام النظام */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  نشاط النظام
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <p className="text-2xl font-bold text-blue-600">1,234</p>
+                    <p className="text-sm text-muted-foreground">إجمالي العمليات</p>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <p className="text-2xl font-bold text-green-600">89%</p>
+                    <p className="text-sm text-muted-foreground">معدل النجاح</p>
+                  </div>
+                  <div className="text-center p-4 bg-orange-50 rounded-lg">
+                    <p className="text-2xl font-bold text-orange-600">456</p>
+                    <p className="text-sm text-muted-foreground">المستخدمون النشطون</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* تصنيفات التقارير */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {reportCategories.map((category) => (
-          <Card key={category.id} className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <category.icon className="h-8 w-8" style={{ color: category.color }} />
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleGenerateReport(category.id)}
-                  className="gap-2"
-                >
-                  <BarChart3 className="h-4 w-4" />
-                  إنشاء
-                </Button>
-              </div>
-              <CardTitle className="text-base">{category.title}</CardTitle>
-              <CardDescription className="text-sm">
-                {category.description}
-              </CardDescription>
+          {/* رسم بياني لاستخدام النظام */}
+          <Card>
+            <CardHeader>
+              <CardTitle>استخدام النظام خلال الأسبوع</CardTitle>
             </CardHeader>
+            <CardContent>
+              <div className="h-64 flex items-end justify-between gap-2 p-4">
+                {['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'].map((day, index) => {
+                  const height = Math.random() * 80 + 20;
+                  return (
+                    <div key={day} className="flex flex-col items-center gap-2">
+                      <div 
+                        className={`w-8 bg-primary rounded-t-sm transition-all hover:bg-primary/80`}
+                        style={{ height: `${height}%` }}
+                      />
+                      <span className="text-xs text-muted-foreground">{day}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
           </Card>
-        ))}
-      </div>
-
-      {/* أزرار التصدير */}
-      <Card>
-        <CardHeader>
-          <CardTitle>تصدير التقارير</CardTitle>
-          <CardDescription>
-            اختر تنسيق التصدير المطلوب
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-3">
-            <Button 
-              variant="outline" 
-              onClick={() => handleExportReport('pdf')}
-              className="gap-2"
-            >
-              <Download className="h-4 w-4" />
-              PDF
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => handleExportReport('excel')}
-              className="gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Excel
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => handleExportReport('csv')}
-              className="gap-2"
-            >
-              <Download className="h-4 w-4" />
-              CSV
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

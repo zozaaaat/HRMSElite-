@@ -1,38 +1,14 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Badge } from "../components/ui/badge";
-import { Input } from "../components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { 
-  FileText, 
-  Upload, 
-  Download, 
-  Eye, 
-  Trash2,
-  Filter,
-  Search,
-  FolderOpen,
-  Calendar,
-  User,
-  FileImage,
-  File,
-  Plus
-} from "lucide-react";
-import { SharedLayout } from "../components/shared-layout";
-import { apiRequest } from "@/lib/queryClient";
+import React, { useState } from 'react';
+import { DocumentManagement } from "@/components/document-management";
 
-export default function Documents() {
+export default function DocumentsPage() {
+  // محاكاة معرف الشركة - في التطبيق الفعلي سيأتي من السياق
+  const companyId = 'company-1';
+
   return (
-    <SharedLayout 
-      userRole="company_manager" 
-      userName="مدير الشركة" 
-      companyName="شركة النيل الأزرق للمجوهرات"
-    >
-      <DocumentsContent />
-    </SharedLayout>
+    <div className="container mx-auto px-4 py-8">
+      <DocumentManagement companyId={companyId} />
+    </div>
   );
 }
 
