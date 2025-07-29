@@ -552,8 +552,11 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(employeeDeductions.createdAt));
   }
 
-  async createDeduction(deduction: InsertEmployeeDeduction): Promise<EmployeeDeduction> {
-    const [newDeduction] = await db.insert(employeeDeductions).values(deduction).returning();
+  async createDeduction(deduction: InsertEmployeeDeduction, processedBy: string): Promise<EmployeeDeduction> {
+    const [newDeduction] = await db
+      .insert(employeeDeductions)
+      .values([{ ...deduction, processedBy }])
+      .returning();
     return newDeduction;
   }
 
@@ -565,8 +568,11 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(employeeViolations.createdAt));
   }
 
-  async createViolation(violation: InsertEmployeeViolation): Promise<EmployeeViolation> {
-    const [newViolation] = await db.insert(employeeViolations).values(violation).returning();
+  async createViolation(violation: InsertEmployeeViolation, reportedBy: string): Promise<EmployeeViolation> {
+    const [newViolation] = await db
+      .insert(employeeViolations)
+      .values([{ ...violation, reportedBy }])
+      .returning();
     return newViolation;
   }
 
@@ -576,8 +582,11 @@ export class DatabaseStorage implements IStorage {
     return document;
   }
 
-  async createDocument(document: InsertDocument): Promise<Document> {
-    const [newDocument] = await db.insert(documents).values(document).returning();
+  async createDocument(document: InsertDocument, uploadedBy: string): Promise<Document> {
+    const [newDocument] = await db
+      .insert(documents)
+      .values([{ ...document, uploadedBy }])
+      .returning();
     return newDocument;
   }
 
@@ -592,31 +601,6 @@ export class DatabaseStorage implements IStorage {
 
   async deleteDocument(id: string): Promise<void> {
     await db.delete(documents).where(eq(documents.id, id));
-  }
-
-  async createDeduction(deduction: InsertEmployeeDeduction, processedBy: string): Promise<EmployeeDeduction> {
-    const [newDeduction] = await db
-      .insert(employeeDeductions)
-      .values({ ...deduction, processedBy })
-      .returning();
-    return newDeduction;
-  }
-
-  // Violation operations
-  async getEmployeeViolations(employeeId: string): Promise<EmployeeViolation[]> {
-    return await db
-      .select()
-      .from(employeeViolations)
-      .where(eq(employeeViolations.employeeId, employeeId))
-      .orderBy(desc(employeeViolations.createdAt));
-  }
-
-  async createViolation(violation: InsertEmployeeViolation, reportedBy: string): Promise<EmployeeViolation> {
-    const [newViolation] = await db
-      .insert(employeeViolations)
-      .values({ ...violation, reportedBy })
-      .returning();
-    return newViolation;
   }
 
   // Document operations
@@ -639,18 +623,6 @@ export class DatabaseStorage implements IStorage {
       .from(documents)
       .where(condition)
       .orderBy(desc(documents.createdAt));
-  }
-
-  async createDocument(document: InsertDocument, uploadedBy: string): Promise<Document> {
-    const [newDocument] = await db
-      .insert(documents)
-      .values({ ...document, uploadedBy })
-      .returning();
-    return newDocument;
-  }
-
-  async deleteDocument(id: string): Promise<void> {
-    await db.delete(documents).where(eq(documents.id, id));
   }
 
   // Notification operations
