@@ -116,7 +116,7 @@ export const companyUsers = pgTable("company_users", {
 });
 
 // Licenses table - Enhanced for various license types
-export const licenses = pgTable("licenses", {
+export const licenses: any = pgTable("licenses", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   companyId: varchar("company_id").notNull().references(() => companies.id),
   licenseNumber: varchar("license_number").notNull(),
@@ -142,7 +142,7 @@ export const licenses = pgTable("licenses", {
   firePermit: varchar("fire_permit"), // تصريح الدفاع المدني
   healthPermit: varchar("health_permit"), // تصريح الصحة (للمطاعم والمختبرات)
   environmentPermit: varchar("environment_permit"), // تصريح البيئة
-  parentLicenseId: varchar("parent_license_id").references(() => licenses.id), // للتراخيص الفرعية
+  parentLicenseId: varchar("parent_license_id"), // للتراخيص الفرعية
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -191,7 +191,7 @@ export const employees = pgTable("employees", {
   probationPeriod: integer("probation_period"), // فترة التجريب بالأشهر
   workLocation: text("work_location"), // مكان العمل
   department: text("department"), // القسم
-  directSupervisor: varchar("direct_supervisor").references(() => employees.id), // المشرف المباشر
+  directSupervisor: varchar("direct_supervisor"), // المشرف المباشر
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

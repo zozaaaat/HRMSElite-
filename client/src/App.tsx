@@ -29,6 +29,7 @@ import DocumentsPage from "@/pages/documents";
 import TrainingPage from "@/pages/training";
 import RecruitmentPage from "@/pages/recruitment";
 import PerformancePage from "@/pages/performance";
+import AdvancedSearchPage from "@/pages/advanced-search";
 // Focus on comprehensive HRMS with enhanced support for gold and fabrics companies
 
 function Router() {
@@ -64,6 +65,7 @@ function Router() {
       <Route path="/training" component={TrainingPage} />
       <Route path="/recruitment" component={RecruitmentPage} />
       <Route path="/performance" component={PerformancePage} />
+      <Route path="/advanced-search" component={AdvancedSearchPage} />
       {/* Removed specialized pages - keeping system unified */}
       
       {/* 404 page */}

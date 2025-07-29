@@ -104,15 +104,9 @@ export default function EnhancedCompanyForm({ isOpen, onClose, editingCompany }:
       };
       
       if (editingCompany) {
-        return await apiRequest(`/api/companies/${editingCompany.id}`, {
-          method: "PUT",
-          body: companyData
-        });
+        return await apiRequest(`/api/companies/${editingCompany.id}`, "PUT", companyData);
       } else {
-        return await apiRequest("/api/companies", {
-          method: "POST",
-          body: companyData
-        });
+        return await apiRequest("/api/companies", "POST", companyData);
       }
     },
     onSuccess: () => {
@@ -619,3 +613,5 @@ export default function EnhancedCompanyForm({ isOpen, onClose, editingCompany }:
     </Dialog>
   );
 }
+
+export { EnhancedCompanyForm };
