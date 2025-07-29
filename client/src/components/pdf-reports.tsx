@@ -76,7 +76,7 @@ const reportTemplates: ReportTemplate[] = [
     fields: ['name', 'attendanceDays', 'absenceDays', 'lateDays', 'overtime'],
     filters: ['month', 'department', 'attendanceStatus'],
   },
-  
+
   // تقارير الشركات
   {
     id: 'company-overview',
@@ -174,7 +174,7 @@ export function PDFReports({ companyId }: PDFReportsProps) {
 
       // محاكاة تحميل الملف
       const filename = `${selectedTemplate.name}_${format(new Date(), 'yyyy-MM-dd')}.${formatType}`;
-      
+
       toast({
         title: "تم إنشاء التقرير",
         description: `تم إنشاء ${filename} بنجاح`,
@@ -182,7 +182,7 @@ export function PDFReports({ companyId }: PDFReportsProps) {
 
       // في التطبيق الفعلي، سيتم تحميل الملف هنا
       console.log('تحميل التقرير:', reportData);
-      
+
     } catch (error) {
       toast({
         title: "خطأ",
