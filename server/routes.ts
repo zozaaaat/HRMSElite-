@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./mock-storage";
-import { registerAdvancedRoutes } from "./advanced-routes";
+import { storage } from "./storage";
+// Removed advanced routes import as file was deleted
 import { insertCompanySchema, insertEmployeeSchema, insertLicenseSchema, insertEmployeeLeaveSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -626,7 +626,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Register advanced routes
-  registerAdvancedRoutes(app);
 
   // Login route
   app.post('/api/auth/login', async (req, res) => {
@@ -1098,7 +1097,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Register advanced routes
-  registerAdvancedRoutes(app);
 
   // Advanced System APIs for Production
   app.get("/api/system/health", (req, res) => {
