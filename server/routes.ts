@@ -13,13 +13,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const userId = req.headers['x-user-id'] || '1';
     
     req.user = {
-      claims: {
-        sub: userId,
-        role: userRole,
-        email: "user@company.com",
-        firstName: "محمد",
-        lastName: "أحمد"
-      }
+      sub: userId,
+      role: userRole,
+      email: "user@company.com",
+      firstName: "محمد",
+      lastName: "أحمد"
     };
     next();
   };
@@ -38,7 +36,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.sub;
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
