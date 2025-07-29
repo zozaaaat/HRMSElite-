@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+import { useAuth } from "../hooks/useAuth";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Badge } from "../components/ui/badge";
 import { 
   User, 
   Calendar, 
@@ -29,8 +29,8 @@ import {
   BookOpen,
   Award
 } from "lucide-react";
-import { SharedLayout } from "@/components/shared-layout";
-import { useTheme } from "@/components/theme-provider";
+import { SharedLayout } from "../components/shared-layout";
+import { useTheme } from "../components/theme-provider";
 // Logo import removed
 import { useLocation } from "wouter";
 

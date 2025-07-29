@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
 import { Bell, LogOut, Menu, User } from "lucide-react";
 
 interface SharedLayoutProps {

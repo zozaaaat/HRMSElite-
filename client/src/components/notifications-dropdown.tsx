@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
 import { Bell, Check, AlertCircle, FileText, Calendar, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+} from "./ui/dropdown-menu";
+import { Badge } from "./ui/badge";
+import { ScrollArea } from "./ui/scroll-area";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest } from "../lib/queryClient";
 
 interface Notification {
   id: string;

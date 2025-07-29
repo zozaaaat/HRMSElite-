@@ -1,20 +1,20 @@
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
+import { useAuth } from "../hooks/useAuth";
+import { Button } from "../components/ui/button";
 import { Bell, Sun, Moon, LogOut, Bot, BarChart3, Workflow, Users2, GraduationCap, DollarSign, Smartphone, Eye } from "lucide-react";
-import { AIAssistant } from "@/components/ai-assistant";
-import { BIDashboard } from "@/components/bi-dashboard";
-import { WorkflowBuilder } from "@/components/workflow-builder";
-import { LearningManagement } from "@/components/learning-management";
-import { FinancialManagement } from "@/components/financial-management";
-import { MobileApp } from "@/components/mobile-app";
-import { Employee360 } from "@/components/employee-360";
-import { useTheme } from "@/components/theme-provider";
-import { Sidebar } from "@/components/sidebar";
-import { StatsCard } from "@/components/stats-card";
-import { EmployeesTable } from "@/components/employees-table";
+import { AIAssistant } from "../components/ai-assistant";
+import { BIDashboard } from "../components/bi-dashboard";
+import { WorkflowBuilder } from "../components/workflow-builder";
+import { LearningManagement } from "../components/learning-management";
+import { FinancialManagement } from "../components/financial-management";
+import { MobileApp } from "../components/mobile-app";
+import { Employee360 } from "../components/employee-360";
+import { useTheme } from "../components/theme-provider";
+import { Sidebar } from "../components/sidebar";
+import { StatsCard } from "../components/stats-card";
+import { EmployeesTable } from "../components/employees-table";
 import type { Employee } from "@shared/schema";
 
 export default function CompanyDashboard() {
