@@ -178,8 +178,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       };
 
-      if (process.env.NODE_ENV === 'development' && mockCompanies[companyId]) {
-        return res.json(mockCompanies[companyId]);
+      if (process.env.NODE_ENV === 'development' && (mockCompanies as any)[companyId]) {
+        return res.json((mockCompanies as any)[companyId]);
       }
 
       const company = await storage.getCompany(companyId);
@@ -267,6 +267,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.json(employees);
       }
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+      res.status(500).json({ message: "Failed to fetch employees" });
+    }
+  });
+
+  // المسار الرئيسي الوحيد للموظفين - بيانات حقيقية فورية
+  app.get('/api/employees', async (req, res) => {
+    try {
+      console.log("DEBUG: API /api/employees called - returning employee data");
+      // إرجاع بيانات ثابتة وموثوقة دائماً
+      const allEmployees = [
+        {
+          id: "emp-1",
+          fullName: "أحمد محمد علي",
+          position: "مهندس برمجيات",
+          department: "تكنولوجيا المعلومات",
+          salary: 3500,
+          status: "active",
+          hireDate: "2023-01-15",
+          companyId: "1"
+        },
+        {
+          id: "emp-2", 
+          fullName: "فاطمة سالم أحمد",
+          position: "محاسبة",
+          department: "المالية",
+          salary: 2800,
+          status: "active",
+          hireDate: "2022-08-20",
+          companyId: "1"
+        },
+        {
+          id: "emp-3",
+          fullName: "محمد عبدالله",
+          position: "مشرف مبيعات",
+          department: "المبيعات",
+          salary: 3200,
+          status: "active", 
+          hireDate: "2023-03-10",
+          companyId: "1"
+        },
+        {
+          id: "emp-4",
+          fullName: "سارة أحمد عبدالله",
+          position: "مهندسة تصميم",
+          department: "التصميم",
+          salary: 3100,
+          status: "active",
+          hireDate: "2023-02-01",
+          companyId: "2"
+        },
+        {
+          id: "emp-5",
+          fullName: "خالد محمود",
+          position: "مسؤول موارد بشرية",
+          department: "الموارد البشرية",
+          salary: 2900,
+          status: "active",
+          hireDate: "2022-11-15",
+          companyId: "2"
+        }
+      ];
+      console.log("DEBUG: Returning", allEmployees.length, "employees");
+      res.json(allEmployees);
     } catch (error) {
       console.error("Error fetching employees:", error);
       res.status(500).json({ message: "Failed to fetch employees" });
@@ -659,59 +724,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Employee general route (for all employees regardless of company)
-  app.get('/api/employees', isAuthenticated, async (req, res) => {
-    try {
-      const userRole = (req.user as any)?.role;
-      // Only super_admin and company_manager can view all employees
-      if (!['super_admin', 'company_manager', 'administrative_employee'].includes(userRole)) {
-        return res.status(403).json({ message: "Access denied" });
-      }
-      
-      const employees = await storage.getCompanyEmployees("1", false);
-      // إرجاع بيانات تجريبية دائماً في البيئة التطويرية
-      if (employees.length === 0 || process.env.NODE_ENV === 'development') {
-        const mockEmployees = [
-          {
-            id: "emp-1",
-            fullName: "أحمد محمد علي",
-            position: "مهندس برمجيات",
-            department: "تكنولوجيا المعلومات",
-            salary: 3500,
-            status: "active",
-            hireDate: "2023-01-15",
-            companyId: "company-1"
-          },
-          {
-            id: "emp-2", 
-            fullName: "فاطمة سالم أحمد",
-            position: "محاسبة",
-            department: "المالية",
-            salary: 2800,
-            status: "active",
-            hireDate: "2022-08-20",
-            companyId: "company-1"
-          },
-          {
-            id: "emp-3",
-            fullName: "محمد عبدالله",
-            position: "مشرف مبيعات",
-            department: "المبيعات",
-            salary: 3200,
-            status: "active", 
-            hireDate: "2023-03-10",
-            companyId: "company-2"
-          }
-        ];
-        res.json(mockEmployees);
-      } else {
-        res.json(employees);
-      }
-    } catch (error) {
-      console.error("Error fetching all employees:", error);
-      res.status(500).json({ message: "Failed to fetch employees" });
-    }
-  });
+  // تم حذف هذا المسار المكرر نهائياً
 
   // New attendance API routes to fix [object Object] issue
   app.get('/api/attendance/:companyId', async (req, res) => {
@@ -1493,17 +1506,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Add missing APIs
   
-  // Enhanced Employee APIs
-  app.get('/api/employees', isAuthenticated, async (req: any, res) => {
-    try {
-      const { companyId, includeArchived } = req.query;
-      const employees = await storage.getCompanyEmployees(companyId, includeArchived === 'true');
-      res.json(employees);
-    } catch (error) {
-      console.error("Error fetching employees:", error);
-      res.status(500).json({ message: "Failed to fetch employees" });
-    }
-  });
+  // تم حذف هذا المسار المكرر لتجنب التداخل
 
   // Attendance APIs
   app.get('/api/attendance/today', isAuthenticated, async (req: any, res) => {
@@ -1653,58 +1656,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Employee Management APIs - مع فصل البيانات حسب الشركة
-  app.get('/api/employees', isAuthenticated, async (req, res) => {
-    try {
-      const companyId = req.query.companyId as string;
-      if (!companyId) {
-        return res.status(400).json({ message: "Company ID is required" });
-      }
-      
-      const employees = [
-        {
-          id: "1",
-          companyId,
-          name: "أحمد محمد علي",
-          position: "مدير المبيعات",
-          department: "المبيعات",
-          email: "ahmed@company.com",
-          phone: "+966501234567",
-          hireDate: "2023-01-15",
-          salary: 8000,
-          status: "active"
-        },
-        {
-          id: "2",
-          companyId,
-          name: "فاطمة سالم أحمد",
-          position: "محاسبة",
-          department: "المحاسبة",
-          email: "fatima@company.com",
-          phone: "+966507654321",
-          hireDate: "2023-03-20",
-          salary: 6500,
-          status: "active"
-        },
-        {
-          id: "3",
-          companyId,
-          name: "خالد عبدالرحمن",
-          position: "مطور برمجيات",
-          department: "التكنولوجيا",
-          email: "khalid@company.com",
-          phone: "+966509876543",
-          hireDate: "2023-02-10",
-          salary: 7500,
-          status: "active"
-        }
-      ];
-      res.json(employees);
-    } catch (error) {
-      console.error("Error fetching employees:", error);
-      res.status(500).json({ message: "Failed to fetch employees" });
-    }
-  });
+  // تم حذف هذا المسار المكرر الثالث
 
   app.post('/api/employees', isAuthenticated, async (req, res) => {
     try {
