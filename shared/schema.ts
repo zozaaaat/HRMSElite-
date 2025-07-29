@@ -764,23 +764,18 @@ export const licensesExtendedRelations = relations(licenses, ({ one, many }) => 
   documents: many(documents),
 }));
 
-// Additional smart types
-export type Project = typeof projects.$inferSelect;
-export type InsertProject = typeof projects.$inferInsert;
-export type Task = typeof tasks.$inferSelect;
-export type InsertTask = typeof tasks.$inferInsert;
-export type Department = typeof departments.$inferSelect;
-export type InsertDepartment = typeof departments.$inferInsert;
-export type SmartAsset = typeof smartAssets.$inferSelect;
-export type InsertSmartAsset = typeof smartAssets.$inferInsert;
-export type EmployeeSkill = typeof employeeSkills.$inferSelect;
-export type InsertEmployeeSkill = typeof employeeSkills.$inferInsert;
-export type TrainingProgram = typeof trainingPrograms.$inferSelect;
-export type InsertTrainingProgram = typeof trainingPrograms.$inferInsert;
-export type PerformanceReview = typeof performanceReviews.$inferSelect;
-export type InsertPerformanceReview = typeof performanceReviews.$inferInsert;
-export type SmartNotification = typeof smartNotifications.$inferSelect;
-export type InsertSmartNotification = typeof smartNotifications.$inferInsert;
+// Core table types only (removing undefined table references)
+export type Project = {
+  id: string;
+  name: string;
+  companyId: string;
+  status: string;
+};
+export type Department = {
+  id: string;
+  name: string;
+  companyId: string;
+};
 
 // Intelligent Dashboard Analytics Types
 export type CompanyIntelligentStats = Company & {
@@ -818,10 +813,6 @@ export type EmployeeIntelligentProfile = Employee & {
   supervisor: Employee | null;
   assignedLicenses: License[];
   currentProjects: Project[];
-  assignedTasks: Task[];
-  skills: EmployeeSkill[];
-  recentPerformance: PerformanceReview[];
-  trainingHistory: TrainingProgram[];
   attendanceStats: {
     totalDays: number;
     presentDays: number;
@@ -843,7 +834,7 @@ export type ProjectIntelligentView = Project & {
   department: Department;
   manager: Employee;
   assignedEmployees: Employee[];
-  tasks: Task[];
+  tasks: any[];
   requiredLicense: License | null;
   budgetUtilization: number;
   timeline: {
