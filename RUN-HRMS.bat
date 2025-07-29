@@ -1,25 +1,86 @@
+
 @echo off
 cls
-title Zeylab HRMS - Production Ready System
+title Zeylab HRMS - Complete Standalone System
 
 echo ============================================
-echo    Zeylab HRMS Production System
-echo    Version 2.1.0 - Production Ready
+echo    Zeylab HRMS - Complete System
+echo    Version 2.1.0 - Full Features
 echo ============================================
 echo.
-echo Starting server...
-echo Server will run on port 5000
+echo [1] تشغيل النظام العادي
+echo [2] تشغيل مع اختبار شامل
+echo [3] اختبار النظام فقط (يجب أن يكون النظام يعمل)
+echo [4] عرض معلومات النظام
 echo.
-echo Browser will open automatically...
-echo If not, open: http://localhost:5000
+set /p choice="اختر رقم (1-4): "
+
+if "%choice%"=="1" goto normal
+if "%choice%"=="2" goto test
+if "%choice%"=="3" goto testonly
+if "%choice%"=="4" goto info
+goto normal
+
+:normal
 echo.
-
-start "" /B node ZeylabHRMS-Final.cjs
-
-timeout /t 3 /nobreak >nul
-start http://localhost:5000
-
+echo [INFO] بدء تشغيل نظام إدارة الموارد البشرية...
+echo [INFO] الخادم سيعمل على المنفذ 5000
+echo [INFO] المتصفح سيفتح تلقائياً...
 echo.
-echo Server is running. Close this window to stop the server.
-echo Press Ctrl+C to stop the server manually.
+node ZeylabHRMS-Final.cjs
+goto end
+
+:test
+echo.
+echo [INFO] بدء تشغيل النظام مع الاختبار الشامل...
+echo [INFO] سيتم تشغيل النظام أولاً ثم الاختبار...
+echo.
+start "HRMS Server" node ZeylabHRMS-Final.cjs
+timeout /t 5 /nobreak >nul
+echo [INFO] بدء الاختبار الشامل...
+node TEST-STANDALONE.js
+goto end
+
+:testonly
+echo.
+echo [INFO] تشغيل الاختبار الشامل فقط...
+echo [INFO] تأكد من أن النظام يعمل على المنفذ 5000
+echo.
+node TEST-STANDALONE.js
+goto end
+
+:info
+echo.
+echo ============================================
+echo          معلومات النظام
+echo ============================================
+echo.
+echo النسخة: 2.1.0
+echo النوع: نسخة مستقلة كاملة
+echo المنفذ: 5000
+echo الرابط المحلي: http://localhost:5000
+echo.
+echo الميزات المتاحة:
+echo • إدارة 5 شركات
+echo • إدارة 5 موظفين  
+echo • 5 مستندات
+echo • 4 تراخيص
+echo • 5 حسابات تجريبية
+echo • نظام مصادقة كامل
+echo • APIs شاملة
+echo • واجهة عربية
+echo.
+echo الحسابات التجريبية:
+echo • admin / admin123 (مسؤول عام)
+echo • manager / manager123 (مدير شركة)
+echo • employee / emp123 (موظف إداري)
+echo • supervisor / super123 (مشرف)
+echo • worker / work123 (عامل)
+echo.
+pause
+goto start
+
+:end
+echo.
+echo [INFO] تم إنهاء العملية. اضغط أي مفتاح للخروج.
 pause >nul
