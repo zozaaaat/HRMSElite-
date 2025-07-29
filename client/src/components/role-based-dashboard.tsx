@@ -119,7 +119,7 @@ function SuperAdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {companies.slice(0, 5).map((company: any) => (
+              {companiesArray.slice(0, 5).map((company: any) => (
                 <div key={company.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div>
                     <h4 className="font-medium">{company.name || company.commercialFileName}</h4>
@@ -254,8 +254,9 @@ function CompanyManagerDashboard({ companyId }: { companyId: string }) {
           <CardContent>
             <div className="space-y-4">
               {['الموارد البشرية', 'تقنية المعلومات', 'المحاسبة', 'المبيعات'].map(dept => {
-                const deptEmployees = employees.filter((e: any) => e.department === dept).length;
-                const percentage = employees.length > 0 ? (deptEmployees / employees.length) * 100 : 0;
+                const employeesArray = Array.isArray(employees) ? employees : [];
+                const deptEmployees = employeesArray.filter((e: any) => e.department === dept).length;
+                const percentage = employeesArray.length > 0 ? (deptEmployees / employeesArray.length) * 100 : 0;
                 
                 return (
                   <div key={dept} className="space-y-2">
@@ -317,7 +318,7 @@ function SupervisorDashboard({ userId }: { userId: string }) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">الموظفون تحت الإشراف</p>
-                <p className="text-3xl font-bold">{supervisedEmployees.length}</p>
+                <p className="text-3xl font-bold">{Array.isArray(supervisedEmployees) ? supervisedEmployees.length : 0}</p>
               </div>
               <Users className="h-12 w-12 text-blue-600" />
             </div>
@@ -329,7 +330,7 @@ function SupervisorDashboard({ userId }: { userId: string }) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">حضور اليوم</p>
-                <p className="text-3xl font-bold">{todayAttendance.length}</p>
+                <p className="text-3xl font-bold">{Array.isArray(todayAttendance) ? todayAttendance.length : 0}</p>
               </div>
               <Clock className="h-12 w-12 text-green-600" />
             </div>
@@ -381,7 +382,7 @@ function SupervisorDashboard({ userId }: { userId: string }) {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {supervisedEmployees.slice(0, 6).map((employee: any) => (
+            {Array.isArray(supervisedEmployees) ? supervisedEmployees.slice(0, 6).map((employee: any) => (
               <div key={employee.id} className="flex items-center gap-3 p-3 border rounded-lg">
                 <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                   <User className="h-5 w-5" />
@@ -394,7 +395,7 @@ function SupervisorDashboard({ userId }: { userId: string }) {
                   {employee.status === 'active' ? 'نشط' : 'غير نشط'}
                 </Badge>
               </div>
-            ))}
+            )) : <div>لا يوجد موظفون تحت الإشراف</div>}
           </div>
         </CardContent>
       </Card>
@@ -433,12 +434,12 @@ function WorkerDashboard({ userId }: { userId: string }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center p-4 bg-blue-50 rounded-lg">
               <Briefcase className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-              <p className="font-medium">{employee?.position}</p>
+              <p className="font-medium">{(employee as any)?.position || "الوظيفة"}</p>
               <p className="text-sm text-muted-foreground">المنصب</p>
             </div>
             <div className="text-center p-4 bg-green-50 rounded-lg">
               <Building2 className="h-8 w-8 text-green-600 mx-auto mb-2" />
-              <p className="font-medium">{employee?.department}</p>
+              <p className="font-medium">{(employee as any)?.department || "القسم"}</p>
               <p className="text-sm text-muted-foreground">القسم</p>
             </div>
             <div className="text-center p-4 bg-orange-50 rounded-lg">
@@ -485,7 +486,7 @@ function WorkerDashboard({ userId }: { userId: string }) {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {myAttendance.slice(-5).map((attendance: any, index: number) => (
+              {Array.isArray(myAttendance) ? myAttendance.slice(-5).map((attendance: any, index: number) => (
                 <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                   <div>
                     <p className="font-medium">{format(new Date(attendance.date), "PPP", { locale: ar })}</p>
@@ -497,7 +498,7 @@ function WorkerDashboard({ userId }: { userId: string }) {
                     {attendance.checkOut ? 'مكتمل' : 'جاري'}
                   </Badge>
                 </div>
-              ))}
+              )) : <div>لا يوجد سجلات حضور</div>}
             </div>
           </CardContent>
         </Card>
