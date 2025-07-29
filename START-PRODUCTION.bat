@@ -10,7 +10,7 @@ echo.
 echo [INFO] Starting Zeylab HRMS Production Server...
 echo [INFO] Starting Human Resources Management System...
 
-node ZeylabHRMS-Standalone.cjs
+node ZeylabHRMS-Final.cjs
 
 echo.
 echo [INFO] Server stopped. Press any key to exit.

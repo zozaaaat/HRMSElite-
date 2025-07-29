@@ -14,7 +14,7 @@ echo Browser will open automatically...
 echo If not, open: http://localhost:5000
 echo.
 
-start "" /B node ZeylabHRMS-Standalone.cjs
+start "" /B node ZeylabHRMS-Final.cjs
 
 timeout /t 3 /nobreak >nul
 start http://localhost:5000
