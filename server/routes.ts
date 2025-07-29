@@ -27,7 +27,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Role-based authorization middleware
   const requireRole = (allowedRoles: string[]) => {
     return (req: any, res: any, next: any) => {
-      const userRole = req.user?.claims?.role;
+      const userRole = req.user?.role;
       if (!allowedRoles.includes(userRole)) {
         return res.status(403).json({ message: "Access denied. Insufficient permissions." });
       }
@@ -86,7 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/companies', isAuthenticated, async (req: any, res) => {
     try {
       // Check if user is super admin
-      const userRole = req.user?.claims?.role || "user";
+      const userRole = req.user?.role || "user";
       if (userRole !== "super_admin") {
         return res.status(403).json({ message: "Only Super Admin can add companies" });
       }
@@ -528,13 +528,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Employee general route (for all employees regardless of company)
   app.get('/api/employees', isAuthenticated, async (req, res) => {
     try {
-      const userRole = req.user?.claims?.role;
+      const userRole = req.user?.role;
       // Only super_admin and company_manager can view all employees
       if (!['super_admin', 'company_manager', 'administrative_employee'].includes(userRole)) {
         return res.status(403).json({ message: "Access denied" });
       }
       
-      const employees = await storage.getAllEmployees();
+      const employees = await storage.getCompanyEmployees("1", false);
       res.json(employees);
     } catch (error) {
       console.error("Error fetching all employees:", error);

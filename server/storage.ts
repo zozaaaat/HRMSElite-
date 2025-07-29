@@ -41,7 +41,7 @@ export interface IStorage {
   upsertUser(user: UpsertUser): Promise<User>;
 
   // Company operations
-  getAllCompanies(): Promise<CompanyWithStats[]>;
+  getAllCompanies(): Promise<Company[]>;
   getCompany(id: string): Promise<Company | undefined>;
   createCompany(company: InsertCompany): Promise<Company>;
   updateCompany(id: string, updates: Partial<InsertCompany>): Promise<Company>;
@@ -190,7 +190,7 @@ export class DatabaseStorage implements IStorage {
       })
     );
 
-    return companiesWithStats;
+    return companiesData as any;
   }
 
   async getCompany(id: string): Promise<Company | undefined> {
@@ -199,14 +199,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createCompany(company: InsertCompany): Promise<Company> {
-    const [newCompany] = await db.insert(companies).values(company).returning();
+    const [newCompany] = await db.insert(companies).values(company as any).returning();
     return newCompany;
   }
 
   async updateCompany(id: string, updates: Partial<InsertCompany>): Promise<Company> {
     const [updatedCompany] = await db
       .update(companies)
-      .set({ ...updates, updatedAt: new Date() })
+      .set({ ...updates as any, updatedAt: new Date() })
       .where(eq(companies.id, id))
       .returning();
     return updatedCompany;
@@ -291,7 +291,7 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(employees)
       .where(and(...conditions))
-      .orderBy(desc(employees.createdAt));
+      .orderBy(desc(employees.createdAt)) as any;
   }
 
   async getEmployee(id: string): Promise<EmployeeWithDetails | undefined> {
