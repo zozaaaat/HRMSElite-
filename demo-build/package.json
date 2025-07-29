@@ -1,0 +1,36 @@
+{
+  "name": "zeylab-hrms-demo",
+  "version": "1.0.0",
+  "description": "نظام إدارة الموارد البشرية الشامل - نسخة تجريبية",
+  "author": "Zeylab Technologies",
+  "main": "electron/main.js",
+  "type": "commonjs",
+  "homepage": "https://zeylab.com",
+  "build": {
+    "appId": "com.zeylab.hrms-demo",
+    "productName": "Zeylab HRMS Demo",
+    "directories": {
+      "output": "dist-demo"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/main.js", 
+      "electron/preload.js",
+      "server/all-extracted-data.json",
+      "server/real-documents.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "ZeylabHRMS-Demo-${version}.exe"
+    }
+  },
+  "devDependencies": {
+    "electron": "^37.2.4",
+    "electron-builder": "^26.0.12"
+  }
+}
