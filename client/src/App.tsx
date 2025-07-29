@@ -2,10 +2,9 @@ import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeProvider } from "@/components/theme-provider";
+import { TooltipProvider } from "./components/ui/tooltip";
+import { ThemeProvider } from "./components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
-import { PWAInstallPrompt, OfflineStatus } from "@/components/pwa-install-prompt";
 import { useEffect } from "react";
 
 // Import pages
@@ -21,17 +20,8 @@ import Employees from "@/pages/employees";
 import Reports from "@/pages/reports";
 import SettingsPage from "@/pages/settings";
 import NotFound from "@/pages/not-found";
-import AIAnalyticsPage from "@/pages/ai-analytics";
-import EarlyWarningPage from "@/pages/early-warning";
-import ProjectManagement from "@/pages/project-management";
-import MobileApps from "@/pages/mobile-apps";
 import AccountingSystems from "@/pages/accounting-systems";
-import AssetsManagement from "@/pages/assets-management";
 import GovernmentForms from "@/pages/government-forms";
-import PermissionsManagement from "@/pages/permissions-management";
-import LicenseManagementPage from "@/pages/license-management";
-import IntelligentDashboard from "@/pages/intelligent-dashboard";
-import RoleVisualization from "@/pages/role-visualization";
 import AttendancePage from "@/pages/attendance";
 import LeaveRequestsPage from "@/pages/leave-requests";
 import PayrollPage from "@/pages/payroll";
@@ -65,17 +55,8 @@ function Router() {
       <Route path="/employees" component={Employees} />
       <Route path="/reports" component={Reports} />
       <Route path="/settings" component={SettingsPage} />
-      <Route path="/ai-analytics" component={AIAnalyticsPage} />
-      <Route path="/early-warning" component={EarlyWarningPage} />
-      <Route path="/project-management" component={ProjectManagement} />
-      <Route path="/mobile-apps" component={MobileApps} />
       <Route path="/accounting-systems" component={AccountingSystems} />
-      <Route path="/assets-management" component={AssetsManagement} />
       <Route path="/government-forms" component={GovernmentForms} />
-      <Route path="/permissions-management" component={PermissionsManagement} />
-      <Route path="/license-management" component={LicenseManagementPage} />
-      <Route path="/intelligent-dashboard" component={IntelligentDashboard} />
-      <Route path="/role-visualization" component={RoleVisualization} />
       <Route path="/attendance" component={AttendancePage} />
       <Route path="/leave-requests" component={LeaveRequestsPage} />
       <Route path="/payroll" component={PayrollPage} />
@@ -97,10 +78,8 @@ function App() {
       <ThemeProvider defaultTheme="light" storageKey="hrms-theme">
         <TooltipProvider>
           <div className="min-h-screen bg-background text-foreground" dir="rtl">
-            <OfflineStatus />
             <Toaster />
             <Router />
-            <PWAInstallPrompt />
           </div>
         </TooltipProvider>
       </ThemeProvider>
