@@ -2,9 +2,17 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 // Removed advanced routes import as file was deleted
-import { insertCompanySchema, insertEmployeeSchema, insertLicenseSchema, insertEmployeeLeaveSchema } from "@shared/schema";
+import { insertCompanySchema, insertEmployeeSchema, insertLicenseSchema, insertEmployeeLeaveSchema, insertEmployeeDeductionSchema, insertEmployeeViolationSchema } from "@shared/schema";
+import { registerEmployeeRoutes } from "./employee-routes";
+import { registerDocumentRoutes } from "./document-routes";
+import { registerPayrollRoutes } from "./payroll-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+
+  // Register additional routes
+  registerEmployeeRoutes(app);
+  registerDocumentRoutes(app);
+  registerPayrollRoutes(app);
 
   // Enhanced auth middleware with role-based access
   const isAuthenticated = (req: any, res: any, next: any) => {
@@ -307,7 +315,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/attendance/checkin', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.sub;
       const checkInTime = new Date().toLocaleTimeString('ar-EG', { hour12: false });
       res.json({ 
         success: true, 
@@ -322,7 +330,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/attendance/checkout', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.sub;
       const checkOutTime = new Date().toLocaleTimeString('ar-EG', { hour12: false });
       res.json({ 
         success: true, 
@@ -356,7 +364,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Leave requests routes
   app.get('/api/leave-requests', isAuthenticated, async (req, res) => {
     try {
-      const userRole = req.user?.claims?.role;
+      const userRole = (req.user as any)?.role;
       const mockRequests = [
         {
           id: "1",
@@ -526,7 +534,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Employee general route (for all employees regardless of company)
   app.get('/api/employees', isAuthenticated, async (req, res) => {
     try {
-      const userRole = req.user?.role;
+      const userRole = (req.user as any)?.role;
       // Only super_admin and company_manager can view all employees
       if (!['super_admin', 'company_manager', 'administrative_employee'].includes(userRole)) {
         return res.status(403).json({ message: "Access denied" });
@@ -834,7 +842,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       };
 
-      res.json(mockPermissions[employeeId] || {});
+      res.json((mockPermissions as any)[employeeId] || {});
     } catch (error) {
       res.status(500).json({ error: 'Server error' });
     }
@@ -953,7 +961,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         "ما هي توقعات النمو للشهر القادم؟": "نتوقع نمو بنسبة 3.5% في عدد الموظفين الشهر القادم، مع التركيز على توظيف مطورين وموظفي مبيعات. النمو مدفوع بمشاريع جديدة."
       };
 
-      const response = responses[message] || "عذراً، لم أفهم سؤالك. يمكنني مساعدتك في تحليل البيانات، معدل دوران الموظفين، الرواتب، والتوقعات المستقبلية.";
+      const response = (responses as any)[message] || "عذراً، لم أفهم سؤالك. يمكنني مساعدتك في تحليل البيانات، معدل دوران الموظفين، الرواتب، والتوقعات المستقبلية.";
       
       res.json({ 
         response,
@@ -981,7 +989,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       };
 
-      res.json(insights[type] || { message: "تم توليد الرؤى بنجاح" });
+      res.json((insights as any)[type] || { message: "تم توليد الرؤى بنجاح" });
     } catch (error) {
       console.error("Error generating AI insights:", error);
       res.status(500).json({ message: "Failed to generate AI insights" });

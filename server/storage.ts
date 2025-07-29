@@ -414,7 +414,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createLicense(license: InsertLicense): Promise<License> {
-    const [newLicense] = await db.insert(licenses).values(license as any).returning();
+    const [newLicense] = await db.insert(licenses).values(license).returning();
     return newLicense;
   }
 
@@ -484,17 +484,15 @@ export class DatabaseStorage implements IStorage {
           jobTitle: employees.jobTitle,
           actualJobTitle: employees.actualJobTitle,
           department: employees.department,
-          baseSalary: employees.baseSalary,
-          allowances: employees.allowances,
-          deductions: employees.deductions,
-          totalSalary: employees.totalSalary,
+          monthlySalary: employees.monthlySalary,
+          actualSalary: employees.actualSalary,
           hireDate: employees.hireDate,
           contractType: employees.contractType,
           workLocation: employees.workLocation,
-          isActive: employees.isActive,
+          status: employees.status,
           isArchived: employees.isArchived,
-          profileImage: employees.profileImage,
-          phoneNumber: employees.phoneNumber,
+          profileImageUrl: employees.profileImageUrl,
+          phone: employees.phone,
           email: employees.email,
           address: employees.address,
           emergencyContact: employees.emergencyContact,
@@ -552,6 +550,48 @@ export class DatabaseStorage implements IStorage {
       .from(employeeDeductions)
       .where(eq(employeeDeductions.employeeId, employeeId))
       .orderBy(desc(employeeDeductions.createdAt));
+  }
+
+  async createDeduction(deduction: InsertEmployeeDeduction): Promise<EmployeeDeduction> {
+    const [newDeduction] = await db.insert(employeeDeductions).values(deduction).returning();
+    return newDeduction;
+  }
+
+  async getEmployeeViolations(employeeId: string): Promise<EmployeeViolation[]> {
+    return await db
+      .select()
+      .from(employeeViolations)
+      .where(eq(employeeViolations.employeeId, employeeId))
+      .orderBy(desc(employeeViolations.createdAt));
+  }
+
+  async createViolation(violation: InsertEmployeeViolation): Promise<EmployeeViolation> {
+    const [newViolation] = await db.insert(employeeViolations).values(violation).returning();
+    return newViolation;
+  }
+
+  // Document operations
+  async getDocument(id: string): Promise<Document | undefined> {
+    const [document] = await db.select().from(documents).where(eq(documents.id, id));
+    return document;
+  }
+
+  async createDocument(document: InsertDocument): Promise<Document> {
+    const [newDocument] = await db.insert(documents).values(document).returning();
+    return newDocument;
+  }
+
+  async updateDocument(id: string, updates: Partial<InsertDocument>): Promise<Document> {
+    const [updatedDocument] = await db
+      .update(documents)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(documents.id, id))
+      .returning();
+    return updatedDocument;
+  }
+
+  async deleteDocument(id: string): Promise<void> {
+    await db.delete(documents).where(eq(documents.id, id));
   }
 
   async createDeduction(deduction: InsertEmployeeDeduction, processedBy: string): Promise<EmployeeDeduction> {
