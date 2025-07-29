@@ -47,7 +47,7 @@ import { Employee360View } from "@/components/employee-360-view";
 import { FinancialManagement } from "@/components/financial-management";
 import { EmployeeArchiving } from "@/components/employee-archiving";
 import { NotificationCenter } from "@/components/notification-center";
-import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
+// Logo import removed
 
 export default function SuperAdminDashboard() {
   return (
@@ -104,7 +104,7 @@ function SuperAdminContent() {
             {/* Logo and Title */}
             <div className="flex items-center space-x-reverse space-x-4">
               <img 
-                src={zeylabLogo} 
+                src="/logo.svg" 
                 alt="Zeylab Logo" 
                 className="w-10 h-10 object-contain"
               />

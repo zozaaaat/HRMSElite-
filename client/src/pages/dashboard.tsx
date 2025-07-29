@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Moon, Sun, Bell, Settings, Users, FileText, Plus, Search, Bot, BarChart3, Workflow, Brain, Building2, TrendingUp, Activity, Target, PieChart, Zap, DollarSign, Archive, User } from "lucide-react";
-import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
+// Logo import removed
 import { useTheme } from "@/components/theme-provider";
 import { StatsCard } from "@/components/stats-card";
 import { CompanyCard } from "@/components/company-card";
@@ -61,7 +61,7 @@ export default function Dashboard() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-reverse space-x-4">
               <img 
-                src={zeylabLogo} 
+                src="/logo.svg" 
                 alt="Zeylab Logo" 
                 className="w-10 h-10 object-contain"
               />

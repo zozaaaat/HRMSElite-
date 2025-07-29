@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { SharedLayout } from "@/components/shared-layout";
-import { useAuth } from "@/hooks/useAuth";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SharedLayout } from "../components/shared-layout";
+import { useAuth } from "../hooks/useAuth";
+import { Button } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { 
   Users, 
   BarChart3, 
@@ -24,8 +24,8 @@ import {
   ClipboardList,
   Calculator
 } from "lucide-react";
-import { useTheme } from "@/components/theme-provider";
-import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
+import { useTheme } from "../components/theme-provider";
+// // Logo import removed
 import { useLocation } from "wouter";
 
 export default function CompanyManagerDashboard() {
@@ -69,7 +69,7 @@ function CompanyManagerContent() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-reverse space-x-4">
               <img 
-                src={zeylabLogo} 
+                src="/logo.svg" 
                 alt="Zeylab Logo" 
                 className="w-10 h-10 object-contain"
               />

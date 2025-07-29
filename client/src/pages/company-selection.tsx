@@ -19,7 +19,7 @@ import {
   Crown,
   Settings
 } from "lucide-react";
-import zeylabLogo from "@assets/لوجو شركتي_1753651903577.png";
+// Logo import removed
 
 export default function CompanySelection() {
   const [location, setLocation] = useLocation();
@@ -133,7 +133,7 @@ export default function CompanySelection() {
           <div className="flex items-center justify-center mb-6">
             <div className="flex items-center gap-4">
               <img 
-                src={zeylabLogo} 
+                src="/logo.svg" 
                 alt="Zeylab Logo" 
                 className="w-20 h-20 object-contain"
               />
