@@ -1,6 +1,4 @@
 
-#!/usr/bin/env node
-
 /**
  * اختبار شامل للنسخة المستقلة
  * Comprehensive test for standalone version
