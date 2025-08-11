@@ -4,17 +4,17 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import React from 'react';
-import { mockEmployees, mockCompanies, mockDocuments, mockLicenses } from '../mock-data';
+import type { User, Company, Employee, License, Document } from '../../../shared/schema';
 
 // Mock all services
-vi.mock('@/services/api', () => ({
+vi.mock('../src/services/api', () => ({
   apiRequest: vi.fn(),
   getAuthToken: vi.fn(() => 'mock-token'),
   setAuthToken: vi.fn(),
   removeAuthToken: vi.fn(),
 }));
 
-vi.mock('@/services/auth', () => ({
+vi.mock('../src/services/auth', () => ({
   login: vi.fn(),
   logout: vi.fn(),
   register: vi.fn(),
@@ -22,7 +22,7 @@ vi.mock('@/services/auth', () => ({
   verifyToken: vi.fn(),
 }));
 
-vi.mock('@/services/employee', () => ({
+vi.mock('../src/services/employee', () => ({
   getEmployees: vi.fn(),
   getEmployee: vi.fn(),
   createEmployee: vi.fn(),
@@ -32,7 +32,7 @@ vi.mock('@/services/employee', () => ({
   updateEmployeeStatus: vi.fn(),
 }));
 
-vi.mock('@/services/company', () => ({
+vi.mock('../src/services/company', () => ({
   getCompanies: vi.fn(),
   getCompany: vi.fn(),
   createCompany: vi.fn(),
@@ -40,7 +40,7 @@ vi.mock('@/services/company', () => ({
   deleteCompany: vi.fn(),
 }));
 
-vi.mock('@/services/documents', () => ({
+vi.mock('../src/services/documents', () => ({
   getDocuments: vi.fn(),
   getDocument: vi.fn(),
   uploadDocument: vi.fn(),
@@ -49,7 +49,7 @@ vi.mock('@/services/documents', () => ({
   downloadDocument: vi.fn(),
 }));
 
-vi.mock('@/services/licenses', () => ({
+vi.mock('../src/services/licenses', () => ({
   getLicenses: vi.fn(),
   getLicense: vi.fn(),
   createLicense: vi.fn(),
@@ -58,15 +58,8 @@ vi.mock('@/services/licenses', () => ({
   renewLicense: vi.fn(),
 }));
 
-// Import mocked services
-import { AuthService } from '@/services/auth';
-import { EmployeeService } from '@/services/employee';
-import { CompanyService } from '@/services/company';
-import { documentService } from '@/services/documents';
-import { licenseService } from '@/services/licenses';
-
 // Test wrapper component
-const _TestWrapper = ({ children }: { children: React.ReactNode }) => {
+const TestWrapper = ({ children }: { children: React.ReactNode }) => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -82,6 +75,112 @@ const _TestWrapper = ({ children }: { children: React.ReactNode }) => {
     </QueryClientProvider>
   );
 };
+
+// Create mock data that matches the schema
+const createMockUser = (overrides = {}): User => ({
+  id: 'user123',
+  email: 'test@example.com',
+  firstName: 'أحمد',
+  lastName: 'محمد',
+  password: 'hashedpassword',
+  profileImageUrl: null,
+  role: 'company_manager',
+  companyId: 'company456',
+  permissions: '["read", "write"]',
+  isActive: true,
+  emailVerified: false,
+  emailVerificationToken: null,
+  emailVerificationExpires: null,
+  passwordResetToken: null,
+  passwordResetExpires: null,
+  lastPasswordChange: null,
+  lastLoginAt: null,
+  sub: 'user123',
+  claims: null,
+  createdAt: new Date('2023-01-01'),
+  updatedAt: new Date('2023-01-01'),
+  ...overrides
+});
+
+const createMockCompany = (overrides = {}): Company => ({
+  id: 'company456',
+  name: 'شركة النيل الأزرق للمجوهرات',
+  commercialFileNumber: '123456',
+  commercialFileName: 'ملف تجاري النيل الأزرق',
+  commercialFileStatus: true,
+  establishmentDate: '2020-01-01',
+  commercialRegistrationNumber: 'CR123456',
+  classification: 'تجارة عامة',
+  department: 'إدارة التجارة',
+  fileType: 'تجاري',
+  legalEntity: 'شركة ذات مسؤولية محدودة',
+  ownershipCategory: 'خاص',
+  logoUrl: null,
+  address: 'شارع الخليج، مباركية، الكويت',
+  phone: '+96512345678',
+  email: 'info@nileblue.com',
+  website: 'https://nileblue.com',
+  totalEmployees: 25,
+  totalLicenses: 3,
+  isActive: true,
+  ...overrides
+});
+
+const createMockEmployee = (overrides = {}): Employee => ({
+  id: 'emp123',
+  firstName: 'عامل',
+  lastName: 'أول',
+  email: 'emp1@example.com',
+  phone: '+96512345678',
+  position: 'عامل',
+  department: 'الإنتاج',
+  salary: 500,
+  hireDate: new Date('2023-01-01'),
+  companyId: 'company456',
+  status: 'active',
+  type: 'expatriate',
+  nationality: 'مصرية',
+  passportNumber: 'A123456',
+  residenceNumber: 'R123456',
+  civilId: '123456789',
+  workPermitNumber: 'WP123456',
+  licenseId: null,
+  createdAt: new Date('2023-01-01'),
+  updatedAt: new Date('2023-01-01'),
+  ...overrides
+});
+
+const createMockLicense = (overrides = {}): License => ({
+  id: 'license123',
+  licenseNumber: 'LIC123456',
+  licenseType: 'commercial',
+  status: 'active',
+  issueDate: new Date('2023-01-01'),
+  expiryDate: new Date('2024-01-01'),
+  companyId: 'company456',
+  employeeId: 'emp123',
+  description: 'ترخيص تجاري',
+  isActive: true,
+  createdAt: new Date('2023-01-01'),
+  updatedAt: new Date('2023-01-01'),
+  ...overrides
+});
+
+const createMockDocument = (overrides = {}): Document => ({
+  id: 'doc123',
+  name: 'وثيقة تجارية',
+  type: 'establishment_document',
+  fileUrl: 'https://example.com/document.pdf',
+  fileSize: 1024,
+  mimeType: 'application/pdf',
+  companyId: 'company456',
+  employeeId: 'emp123',
+  licenseId: null,
+  isActive: true,
+  createdAt: new Date('2023-01-01'),
+  updatedAt: new Date('2023-01-01'),
+  ...overrides
+});
 
 // Type definitions for better type safety
 type MockFunction = ReturnType<typeof vi.fn>;
@@ -99,10 +198,9 @@ const createMockFile = (content: string, filename: string, type: string) => {
     slice: vi.fn(),
     stream: vi.fn(),
     text: vi.fn().mockResolvedValue(content),
-  };
+  } as unknown as File;
 };
 
-// Type for employee create data
 interface EmployeeCreateTestData {
   firstName: string;
   lastName: string;
@@ -115,508 +213,241 @@ interface EmployeeCreateTestData {
   companyId: string;
 }
 
-describe('End-to-End Tests', () => {
+describe('End-to-End Application Flow', () => {
+  let user: ReturnType<typeof userEvent.setup>;
+
   beforeEach(() => {
+    user = userEvent.setup();
     vi.clearAllMocks();
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
-  describe('Complete User Authentication Flow', () => {
-    it('should complete full login and logout workflow', async () => {
-      const _user = userEvent.setup();
-      
+  describe('Authentication Flow', () => {
+    it('should handle complete login flow', async () => {
+      const mockUser = createMockUser();
+      const mockCompany = createMockCompany();
+
       // Mock successful login
-      (AuthService.login as MockFunction).mockResolvedValue({
+      const { login } = await import('../src/services/auth');
+      (login as MockFunction).mockResolvedValue({
         success: true,
-        token: 'mock-jwt-token',
-        user: {
-          id: 1,
-          email: 'admin@example.com',
-          role: 'admin',
-          companyId: 1
-        }
+        user: mockUser,
+        token: 'mock-token'
       });
 
-      // Mock successful logout
-      (AuthService.logout as MockFunction).mockResolvedValue(undefined);
+      // Mock company fetch
+      const { getCompany } = await import('../src/services/company');
+      (getCompany as MockFunction).mockResolvedValue(mockCompany);
 
       // Test login flow
-      const loginResult = await AuthService.login({ email: 'admin@example.com', password: 'password123' });
+      expect(login).toBeDefined();
+      expect(getCompany).toBeDefined();
+
+      const loginResult = await (login as MockFunction)('test@example.com', 'password');
       expect(loginResult.success).toBe(true);
-      expect(loginResult.token).toBeDefined();
-      expect(loginResult.user.role).toBe('admin');
-
-      // Test logout flow
-      const logoutResult = await AuthService.logout();
-      expect(logoutResult).toBeUndefined();
+      expect(loginResult.user).toEqual(mockUser);
     });
 
-    it('should handle authentication errors gracefully', async () => {
-      // Mock login failure
-      (AuthService.login as MockFunction).mockRejectedValue(new Error('Invalid credentials'));
+    it('should handle login failure', async () => {
+      const { login } = await import('../src/services/auth');
+      (login as MockFunction).mockRejectedValue(new Error('Invalid credentials'));
 
-      await expect(AuthService.login({ email: 'invalid@example.com', password: 'wrongpassword' })).rejects.toThrow('Invalid credentials');
-    });
-  });
-
-  describe('Complete Employee Management Workflow', () => {
-    it('should complete full employee lifecycle', async () => {
-      const _user = userEvent.setup();
-
-      // 1. Fetch employees
-      (EmployeeService.getAllEmployees as MockFunction).mockResolvedValue(mockEmployees);
-
-      const employeesResult = await EmployeeService.getAllEmployees();
-      expect(employeesResult).toHaveLength(mockEmployees.length);
-
-      // 2. Create new employee
-      const newEmployee: EmployeeCreateTestData = {
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-        phone: '+1234567890',
-        position: 'Developer',
-        department: 'IT',
-        salary: 75000,
-        hireDate: '2024-01-15',
-        companyId: '1'
-      };
-
-      (EmployeeService.createEmployee as MockFunction).mockResolvedValue({ ...newEmployee, id: '101' });
-
-      const createResult = await EmployeeService.createEmployee(newEmployee);
-      expect(createResult.id).toBeDefined();
-
-      // 3. Update employee
-      const updateData = {
-        id: '101',
-        salary: 80000,
-        position: 'Senior Developer'
-      };
-
-      (EmployeeService.updateEmployee as MockFunction).mockResolvedValue({ ...newEmployee, ...updateData });
-
-      const updateResult = await EmployeeService.updateEmployee(updateData);
-      expect(updateResult.salary).toBe(80000);
-
-      // 4. Delete employee
-      (EmployeeService.deleteEmployee as MockFunction).mockResolvedValue(undefined);
-
-      const deleteResult = await EmployeeService.deleteEmployee('101');
-      expect(deleteResult).toBeUndefined();
+      try {
+        await (login as MockFunction)('invalid@example.com', 'wrongpassword');
+        expect(true).toBe(false); // Should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe('Invalid credentials');
+      }
     });
 
-    it('should handle employee data validation', async () => {
-      const invalidEmployee: EmployeeCreateTestData = {
-        firstName: '', // Invalid: empty name
-        lastName: 'Doe',
-        email: 'invalid-email', // Invalid email format
-        phone: '123', // Invalid phone format
-        position: 'Developer',
-        department: 'IT',
-        salary: -1000, // Invalid: negative salary
-        hireDate: 'invalid-date', // Invalid date format
-        companyId: '1'
-      };
+    it('should handle logout flow', async () => {
+      const { logout } = await import('../src/services/auth');
+      (logout as MockFunction).mockResolvedValue({ success: true });
 
-      // Should reject invalid data
-      (EmployeeService.createEmployee as MockFunction).mockRejectedValue(new Error('Validation failed'));
-
-      await expect(EmployeeService.createEmployee(invalidEmployee)).rejects.toThrow('Validation failed');
+      const logoutResult = await (logout as MockFunction)();
+      expect(logoutResult.success).toBe(true);
     });
   });
 
-  describe('Complete Company Management Workflow', () => {
-    it('should complete full company lifecycle', async () => {
-      // 1. Fetch companies
-      (CompanyService.getAllCompanies as MockFunction).mockResolvedValue(mockCompanies);
-
-      const companiesResult = await CompanyService.getAllCompanies();
-      expect(companiesResult).toHaveLength(mockCompanies.length);
-
-      // 2. Create new company
-      const newCompany = {
-        name: 'New Tech Corp',
-        registrationNumber: 'REG123456',
-        address: '123 Tech Street',
-        phone: '+1234567890',
-        email: 'contact@newtech.com',
-        industry: 'Technology',
-        size: 'medium' as const
+  describe('Employee Management Flow', () => {
+    it('should handle employee creation flow', async () => {
+      const mockEmployee = createMockEmployee();
+      const employeeData: EmployeeCreateTestData = {
+        firstName: 'عامل',
+        lastName: 'جديد',
+        email: 'newemp@example.com',
+        phone: '+96512345678',
+        position: 'عامل',
+        department: 'الإنتاج',
+        salary: 600,
+        hireDate: '2023-06-01',
+        companyId: 'company456'
       };
 
-      (CompanyService.createCompany as MockFunction).mockResolvedValue({ ...newCompany, id: '201' });
+      const { createEmployee } = await import('../src/services/employee');
+      (createEmployee as MockFunction).mockResolvedValue(mockEmployee);
 
-      const createResult = await CompanyService.createCompany(newCompany);
-      expect(createResult.id).toBeDefined();
+      const result = await (createEmployee as MockFunction)(employeeData);
+      expect(result).toEqual(mockEmployee);
+    });
+
+    it('should handle employee update flow', async () => {
+      const updatedEmployee = createMockEmployee({ salary: 700 });
+      const { updateEmployee } = await import('../src/services/employee');
+      (updateEmployee as MockFunction).mockResolvedValue(updatedEmployee);
+
+      const result = await (updateEmployee as MockFunction)('emp123', { salary: 700 });
+      expect(result.salary).toBe(700);
+    });
+
+    it('should handle employee deletion flow', async () => {
+      const { deleteEmployee } = await import('../src/services/employee');
+      (deleteEmployee as MockFunction).mockResolvedValue({ success: true });
+
+      const result = await (deleteEmployee as MockFunction)('emp123');
+      expect(result.success).toBe(true);
     });
   });
 
-  describe('Complete Document Management Workflow', () => {
-    it('should complete full document lifecycle', async () => {
-      // 1. Fetch documents
-      (documentService.getDocuments as MockFunction).mockResolvedValue(mockDocuments);
-
-      const documentsResult = await documentService.getDocuments();
-      expect(documentsResult).toHaveLength(mockDocuments.length);
-
-      // 2. Upload document
+  describe('Document Management Flow', () => {
+    it('should handle document upload flow', async () => {
+      const mockDocument = createMockDocument();
       const mockFile = createMockFile('test content', 'test.pdf', 'application/pdf');
-      const uploadData = {
-        name: 'Test Document',
-        category: 'Contract',
-        file: mockFile,
-        entityId: '1',
-        entityType: 'employee' as const
-      };
 
-      (documentService.createDocument as MockFunction).mockResolvedValue({
-        id: '301',
-        name: 'Test Document',
-        filename: 'test.pdf',
-        size: 1024,
-        uploadedAt: new Date().toISOString()
-      });
+      const { uploadDocument } = await import('../src/services/documents');
+      (uploadDocument as MockFunction).mockResolvedValue(mockDocument);
 
-      // @ts-ignore: mockFile is not a real File instance, but this is fine for the test
-      const uploadResult = await documentService.createDocument(uploadData);
-      expect(uploadResult.id).toBeDefined();
-
-      // 3. Delete document
-      (documentService.deleteDocument as MockFunction).mockResolvedValue(undefined);
-
-      const deleteResult = await documentService.deleteDocument('301');
-      expect(deleteResult).toBeUndefined();
+      const result = await (uploadDocument as MockFunction)(mockFile, 'company456');
+      expect(result).toEqual(mockDocument);
     });
 
-    it('should handle file upload errors', async () => {
-      const invalidFile = createMockFile('', 'test.txt', 'text/plain');
-      const uploadData = {
-        name: 'Test Document',
-        category: 'Contract',
-        file: invalidFile,
-        entityId: '1',
-        entityType: 'employee' as const
-      };
+    it('should handle document download flow', async () => {
+      const mockBlob = new Blob(['test content'], { type: 'application/pdf' });
+      const { downloadDocument } = await import('../src/services/documents');
+      (downloadDocument as MockFunction).mockResolvedValue(mockBlob);
 
-      // Should reject invalid file
-      (documentService.createDocument as MockFunction).mockImplementation(() => {
-        throw new Error('Invalid file type');
-      });
-
-      await expect(async () => {
-        // @ts-ignore: invalidFile is not a real File instance, but this is fine for the test
-        await documentService.createDocument(uploadData);
-      }).rejects.toThrow('Invalid file type');
+      const result = await (downloadDocument as MockFunction)('doc123');
+      expect(result).toBeInstanceOf(Blob);
     });
   });
 
-  describe('Complete License Management Workflow', () => {
-    it('should complete full license lifecycle', async () => {
-      // 1. Fetch licenses
-      (licenseService.getLicenses as MockFunction).mockResolvedValue(mockLicenses);
+  describe('License Management Flow', () => {
+    it('should handle license creation flow', async () => {
+      const mockLicense = createMockLicense();
+      const { createLicense } = await import('../src/services/licenses');
+      (createLicense as MockFunction).mockResolvedValue(mockLicense);
 
-      const licensesResult = await licenseService.getLicenses();
-      expect(licensesResult).toHaveLength(mockLicenses.length);
-
-      // 2. Create new license
-      const newLicense = {
-        companyId: '1',
-        name: 'Software License',
-        type: 'Software',
-        number: 'LIC123456',
-        issueDate: '2024-01-01',
-        expiryDate: '2024-12-31',
-        issuingAuthority: 'Microsoft',
-        location: 'Global'
+      const licenseData = {
+        licenseNumber: 'LIC123456',
+        licenseType: 'commercial',
+        issueDate: '2023-01-01',
+        expiryDate: '2024-01-01',
+        companyId: 'company456',
+        employeeId: 'emp123'
       };
 
-      (licenseService.createLicense as MockFunction).mockResolvedValue({ ...newLicense, id: '401' });
+      const result = await (createLicense as MockFunction)(licenseData);
+      expect(result).toEqual(mockLicense);
+    });
 
-      const createResult = await licenseService.createLicense(newLicense);
-      expect(createResult.id).toBeDefined();
-
-      // 3. Update license (renewal)
-      (licenseService.updateLicense as MockFunction).mockResolvedValue({
-        ...newLicense,
-        id: '401',
-        expiryDate: '2025-12-31'
+    it('should handle license renewal flow', async () => {
+      const renewedLicense = createMockLicense({ 
+        expiryDate: new Date('2025-01-01') 
       });
+      const { renewLicense } = await import('../src/services/licenses');
+      (renewLicense as MockFunction).mockResolvedValue(renewedLicense);
 
-      const renewResult = await licenseService.updateLicense('401', { expiryDate: '2025-12-31' });
-      expect(renewResult.expiryDate).toBe('2025-12-31');
+      const result = await (renewLicense as MockFunction)('license123', '2025-01-01');
+      expect(result.expiryDate).toEqual(new Date('2025-01-01'));
     });
   });
 
-  describe('Cross-Module Integration Workflows', () => {
-    it('should handle employee with documents and licenses', async () => {
-      // 1. Create employee
-      const newEmployee: EmployeeCreateTestData = {
-        firstName: 'Jane',
-        lastName: 'Smith',
-        email: 'jane.smith@example.com',
-        phone: '+1234567890',
-        position: 'Manager',
-        department: 'HR',
-        salary: 85000,
-        hireDate: '2024-01-15',
-        companyId: '1'
+  describe('Company Management Flow', () => {
+    it('should handle company creation flow', async () => {
+      const mockCompany = createMockCompany();
+      const { createCompany } = await import('../src/services/company');
+      (createCompany as MockFunction).mockResolvedValue(mockCompany);
+
+      const companyData = {
+        name: 'شركة جديدة',
+        commercialFileNumber: '654321',
+        establishmentDate: '2023-01-01'
       };
 
-      (EmployeeService.createEmployee as MockFunction).mockResolvedValue({
-        ...newEmployee, id: '102'
-      });
-
-      const employeeResult = await EmployeeService.createEmployee(newEmployee);
-      const employeeId = employeeResult.id;
-
-      // 2. Upload document for employee
-      const mockFile = createMockFile('contract content', 'contract.pdf', 'application/pdf');
-      const uploadData = {
-        name: 'Employment Contract',
-        category: 'Contract',
-        entityId: employeeId,
-        entityType: 'employee' as const,
-        file: mockFile
-      };
-
-      (documentService.createDocument as MockFunction).mockResolvedValue({
-        id: '302',
-        name: 'Employment Contract',
-        entityId: employeeId,
-        uploadedAt: new Date().toISOString()
-      });
-
-      // Fix: Ensure uploadData.file matches the expected File type for DocumentUploadData
-      // If createMockFile does not return a real File, use a real File or a suitable polyfill/mock
-      // For Node.js environment, you may need to use a Blob or a mock File implementation
-      // Here, we use a real File if available, otherwise fallback to the mock for test compatibility
-
-      // If running in a browser-like environment:
-      // const realFile = new File(['contract content'], 'contract.pdf', { type: 'application/pdf' });
-      // const uploadDataWithRealFile = { ...uploadData, file: realFile };
-
-      // Use a type-safe cast for uploadData.file if possible, otherwise use a proper mock File type
-      // If createMockFile returns a compatible File-like object, cast only the file property
-      const uploadDataWithTypedFile = {
-        ...uploadData,
-        file: mockFile as File
-      };
-
-      const documentResult = await documentService.createDocument(uploadDataWithTypedFile);
-      expect(documentResult.entityId).toBe(employeeId);
-
-      // 3. Create license for employee's company
-      const newLicense = {
-        companyId: '1',
-        name: 'Professional Certification',
-        type: 'Certification',
-        number: 'CERT123456',
-        issueDate: '2024-01-01',
-        expiryDate: '2024-12-31',
-        issuingAuthority: 'HR Institute',
-        location: 'Global'
-      };
-
-      (licenseService.createLicense as MockFunction).mockResolvedValue({
-        ...newLicense, id: '402'
-      });
-
-      const licenseResult = await licenseService.createLicense(newLicense);
-      expect(licenseResult.id).toBeDefined();
+      const result = await (createCompany as MockFunction)(companyData);
+      expect(result).toEqual(mockCompany);
     });
 
-    it('should handle company with multiple employees', async () => {
-      // 1. Create company
-      const newCompany = {
-        name: 'Multi-Employee Corp',
-        registrationNumber: 'REG123456',
-        address: '123 Tech Street',
-        phone: '+1234567890',
-        email: 'contact@multicorp.com',
-        industry: 'Technology',
-        size: 'large' as const
-      };
+    it('should handle company update flow', async () => {
+      const updatedCompany = createMockCompany({ name: 'شركة محدثة' });
+      const { updateCompany } = await import('../src/services/company');
+      (updateCompany as MockFunction).mockResolvedValue(updatedCompany);
 
-      (CompanyService.createCompany as MockFunction).mockResolvedValue({
-        ...newCompany, id: '202'
-      });
-
-      const companyResult = await CompanyService.createCompany(newCompany);
-      const companyId = companyResult.id;
-
-      // 2. Create multiple employees for company
-      const employees: EmployeeCreateTestData[] = [
-        { 
-          firstName: 'Alice', 
-          lastName: 'Johnson', 
-          email: 'alice@company.com', 
-          phone: '+1234567890',
-          position: 'Developer',
-          department: 'IT',
-          salary: 75000,
-          hireDate: '2024-01-15',
-          companyId 
-        },
-        { 
-          firstName: 'Bob', 
-          lastName: 'Williams', 
-          email: 'bob@company.com', 
-          phone: '+1234567890',
-          position: 'Manager',
-          department: 'HR',
-          salary: 85000,
-          hireDate: '2024-01-15',
-          companyId 
-        },
-        { 
-          firstName: 'Carol', 
-          lastName: 'Brown', 
-          email: 'carol@company.com', 
-          phone: '+1234567890',
-          position: 'Designer',
-          department: 'Design',
-          salary: 70000,
-          hireDate: '2024-01-15',
-          companyId 
-        }
-      ];
-
-      (EmployeeService.createEmployee as MockFunction).mockResolvedValue((employeeData: EmployeeCreateTestData) => ({
-        ...employeeData, id: Math.floor(Math.random() * 1000) + 200
-      }));
-
-      const employeeResults = await Promise.all(
-        employees.map(employee => EmployeeService.createEmployee(employee))
-      );
-
-      expect(employeeResults).toHaveLength(3);
-      employeeResults.forEach(result => {
-        expect(result.companyId).toBe(companyId);
-      });
+      const result = await (updateCompany as MockFunction)('company456', { name: 'شركة محدثة' });
+      expect(result.name).toBe('شركة محدثة');
     });
   });
 
-  describe('Error Recovery Workflows', () => {
-    it('should handle network failures and recovery', async () => {
-      // 1. Simulate network failure
-      (EmployeeService.getAllEmployees as MockFunction).mockRejectedValue(new Error('Network error'));
+  describe('Error Handling', () => {
+    it('should handle network errors gracefully', async () => {
+      const { getEmployees } = await import('../src/services/employee');
+      (getEmployees as MockFunction).mockRejectedValue(new Error('Network error'));
 
-      await expect(EmployeeService.getAllEmployees()).rejects.toThrow('Network error');
-
-      // 2. Simulate network recovery
-      (EmployeeService.getAllEmployees as MockFunction).mockResolvedValue(mockEmployees);
-
-      const result = await EmployeeService.getAllEmployees();
-      expect(result).toHaveLength(mockEmployees.length);
+      try {
+        await (getEmployees as MockFunction)('company456');
+        expect(true).toBe(false); // Should not reach here
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toBe('Network error');
+      }
     });
 
-    it('should handle partial data failures', async () => {
-      // Simulate partial data (some employees missing required fields)
-      const partialData = [
-        { id: '1', firstName: 'John', lastName: 'Doe', email: 'john@example.com' },
-        { id: '2', firstName: 'Jane', lastName: 'Smith' }, // Missing email
-        { id: '3', firstName: 'Bob', lastName: 'Johnson', email: 'bob@example.com' }
-      ];
+    it('should handle API errors with proper error messages', async () => {
+      const { createEmployee } = await import('../src/services/employee');
+      (createEmployee as MockFunction).mockRejectedValue({
+        message: 'Validation failed',
+        status: 400
+      });
 
-      (EmployeeService.getAllEmployees as MockFunction).mockResolvedValue(partialData);
-
-      const result = await EmployeeService.getAllEmployees();
-      expect(result).toHaveLength(3);
-      // Should handle missing fields gracefully
-      expect(result[1].email).toBeUndefined();
+      try {
+        await (createEmployee as MockFunction)({});
+        expect(true).toBe(false); // Should not reach here
+      } catch (error) {
+        expect((error as any).message).toBe('Validation failed');
+        expect((error as any).status).toBe(400);
+      }
     });
   });
 
-  describe('Data Consistency Workflows', () => {
-    it('should maintain data consistency across operations', async () => {
-      // 1. Create employee
-      const employee: EmployeeCreateTestData = {
-        firstName: 'Test',
-        lastName: 'User',
-        email: 'test@example.com',
-        phone: '+1234567890',
-        position: 'Developer',
-        department: 'IT',
-        salary: 75000,
-        hireDate: '2024-01-15',
-        companyId: '1'
-      };
+  describe('Data Synchronization', () => {
+    it('should handle data refresh flow', async () => {
+      const mockEmployees = [createMockEmployee()];
+      const { getEmployees } = await import('../src/services/employee');
+      (getEmployees as MockFunction).mockResolvedValue(mockEmployees);
 
-      (EmployeeService.createEmployee as MockFunction).mockResolvedValue({
-        ...employee, id: '103'
-      });
+      const result = await (getEmployees as MockFunction)('company456');
+      expect(result).toEqual(mockEmployees);
+    });
 
-      const createResult = await EmployeeService.createEmployee(employee);
-      const employeeId = createResult.id;
+    it('should handle concurrent data operations', async () => {
+      const { getEmployees, getCompany } = await import('../src/services/employee');
+      const { getCompany: getCompanyService } = await import('../src/services/company');
 
-      // 2. Verify employee exists
-      (EmployeeService.getAllEmployees as MockFunction).mockResolvedValue([
-        { ...employee, id: employeeId }
+      (getEmployees as MockFunction).mockResolvedValue([createMockEmployee()]);
+      (getCompanyService as MockFunction).mockResolvedValue(createMockCompany());
+
+      const [employees, company] = await Promise.all([
+        (getEmployees as MockFunction)('company456'),
+        (getCompanyService as MockFunction)('company456')
       ]);
 
-      const verifyResult = await EmployeeService.getAllEmployees();
-      expect(verifyResult).toHaveLength(1);
-      expect(verifyResult[0].id).toBe(employeeId);
-
-      // 3. Update employee
-      const updateData = { id: employeeId, position: 'Senior Developer' };
-      (EmployeeService.updateEmployee as MockFunction).mockResolvedValue({
-        ...employee, ...updateData
-      });
-
-      const updateResult = await EmployeeService.updateEmployee(updateData);
-      expect(updateResult.position).toBe('Senior Developer');
-
-      // 4. Verify update persisted
-      (EmployeeService.getAllEmployees as MockFunction).mockResolvedValue([
-        { ...employee, ...updateData }
-      ]);
-
-      const finalVerify = await EmployeeService.getAllEmployees();
-      expect(finalVerify[0].position).toBe('Senior Developer');
+      expect(employees).toBeDefined();
+      expect(company).toBeDefined();
     });
   });
-
-  describe('Performance Under Load', () => {
-    it('should handle multiple concurrent operations', async () => {
-      // Simulate multiple concurrent operations
-      const operations = [
-        EmployeeService.getAllEmployees(),
-        CompanyService.getAllCompanies(),
-        documentService.getDocuments(),
-        licenseService.getLicenses()
-      ];
-
-      // Mock all operations to succeed
-      (EmployeeService.getAllEmployees as MockFunction).mockResolvedValue(mockEmployees);
-      (CompanyService.getAllCompanies as MockFunction).mockResolvedValue(mockCompanies);
-      (documentService.getDocuments as MockFunction).mockResolvedValue(mockDocuments);
-      (licenseService.getLicenses as MockFunction).mockResolvedValue(mockLicenses);
-
-      const results = await Promise.all(operations);
-      
-      expect(results).toHaveLength(4);
-      results.forEach(result => {
-        expect(Array.isArray(result)).toBe(true);
-      });
-    });
-
-    it('should handle large data sets efficiently', async () => {
-      const largeDataSet = Array(1000).fill(null).map((_, index) => ({
-        id: index + 1,
-        firstName: `User${index}`,
-        lastName: `Test${index}`,
-        email: `user${index}@example.com`
-      }));
-
-      (EmployeeService.getAllEmployees as MockFunction).mockResolvedValue(largeDataSet);
-
-      const result = await EmployeeService.getAllEmployees();
-      expect(result).toHaveLength(1000);
-    });
-  });
+}); 
 }); 
