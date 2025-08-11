@@ -1,0 +1,133 @@
+name: Deployment Notifications
+
+on:
+  workflow_run:
+    workflows: ["HRMS Elite CI/CD Pipeline"]
+    types:
+      - completed
+      - failed
+
+jobs:
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion != 'skipped' }}
+    
+    steps:
+      - name: Notify Slack
+        if: ${{ secrets.SLACK_WEBHOOK_URL }}
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ github.event.workflow_run.conclusion }}
+          channel: '#deployments'
+          text: |
+            🚀 **HRMS Elite Deployment** ${{ github.event.workflow_run.conclusion == 'success' && '✅' || '❌' }}
+            
+            **Workflow:** ${{ github.event.workflow_run.name }}
+            **Branch:** ${{ github.event.workflow_run.head_branch }}
+            **Commit:** ${{ github.event.workflow_run.head_sha }}
+            **Triggered by:** ${{ github.event.workflow_run.actor.login }}
+            
+            **Duration:** ${{ github.event.workflow_run.duration }}
+            **Started:** ${{ github.event.workflow_run.created_at }}
+            
+            **View Details:** ${{ github.event.workflow_run.html_url }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify Discord
+        if: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          status: ${{ github.event.workflow_run.conclusion }}
+          title: "HRMS Elite Deployment"
+          description: |
+            Workflow: ${{ github.event.workflow_run.name }}
+            Branch: ${{ github.event.workflow_run.head_branch }}
+            Triggered by: ${{ github.event.workflow_run.actor.login }}
+          url: ${{ github.event.workflow_run.html_url }}
+
+      - name: Notify Email
+        if: ${{ secrets.EMAIL_SMTP_HOST }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.EMAIL_SMTP_HOST }}
+          server_port: ${{ secrets.EMAIL_SMTP_PORT }}
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "HRMS Elite Deployment - ${{ github.event.workflow_run.conclusion }}"
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.EMAIL_FROM }}
+          body: |
+            HRMS Elite deployment has ${{ github.event.workflow_run.conclusion == 'success' && 'succeeded' || 'failed' }}.
+            
+            Details:
+            - Workflow: ${{ github.event.workflow_run.name }}
+            - Branch: ${{ github.event.workflow_run.head_branch }}
+            - Triggered by: ${{ github.event.workflow_run.actor.login }}
+            - Duration: ${{ github.event.workflow_run.duration }}
+            - View: ${{ github.event.workflow_run.html_url }}
+
+      - name: Update GitHub Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const workflowRun = context.payload.workflow_run;
+            
+            const status = workflowRun.conclusion === 'success' ? 'success' : 'failure';
+            const description = workflowRun.conclusion === 'success' 
+              ? 'Deployment completed successfully' 
+              : 'Deployment failed';
+            
+            await github.rest.repos.createCommitStatus({
+              owner,
+              repo,
+              sha: workflowRun.head_sha,
+              state: status,
+              target_url: workflowRun.html_url,
+              description,
+              context: 'HRMS Elite CI/CD'
+            });
+
+      - name: Create Deployment Issue on Failure
+        if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const workflowRun = context.payload.workflow_run;
+            
+            const issueTitle = `🚨 Deployment Failed - ${workflowRun.name}`;
+            const issueBody = `
+            ## Deployment Failure Report
+            
+            **Workflow:** ${workflowRun.name}
+            **Branch:** ${workflowRun.head_branch}
+            **Commit:** ${workflowRun.head_sha}
+            **Triggered by:** ${workflowRun.actor.login}
+            **Started:** ${workflowRun.created_at}
+            **Duration:** ${workflowRun.duration}
+            
+            **Workflow URL:** ${workflowRun.html_url}
+            
+            ### Next Steps
+            - [ ] Review workflow logs
+            - [ ] Identify root cause
+            - [ ] Fix issues
+            - [ ] Re-run deployment
+            - [ ] Update this issue with resolution
+            
+            ### Labels
+            - deployment-failure
+            - needs-attention
+            `;
+            
+            await github.rest.issues.create({
+              owner,
+              repo,
+              title: issueTitle,
+              body: issueBody,
+              labels: ['deployment-failure', 'needs-attention']
+            }); 

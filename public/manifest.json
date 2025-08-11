@@ -1,7 +1,7 @@
 {
-  "name": "Zeylab HRMS - نظام إدارة الموارد البشرية",
-  "short_name": "Zeylab HRMS",
-  "description": "نظام إدارة الموارد البشرية الشامل والمتقدم من زيلاب",
+  "name": "HRMS Elite - نظام إدارة الموارد البشرية",
+  "short_name": "HRMS Elite",
+  "description": "نظام إدارة الموارد البشرية الشامل والمتقدم",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait-primary",

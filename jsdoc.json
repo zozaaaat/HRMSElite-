@@ -1,0 +1,97 @@
+{
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc", "closure"]
+  },
+  "source": {
+    "include": [
+      "server"
+    ],
+    "includePattern": "\\.js$",
+    "excludePattern": "(node_modules/|docs/|dist/|build/)",
+    "exclude": [
+      "node_modules",
+      "docs",
+      "dist",
+      "build",
+      "coverage",
+      "client",
+      "shared"
+    ]
+  },
+  "plugins": [
+    "plugins/markdown"
+  ],
+  "templates": {
+    "cleverLinks": true,
+    "monospaceLinks": true,
+    "default": {
+      "outputSourceFiles": true,
+      "includeDate": true
+    },
+    "path": "node_modules/ink-docstrap/template",
+    "theme": "cerulean",
+    "linenums": true,
+    "search": true,
+    "collapseSymbols": false,
+    "inverseNav": false,
+    "outputSourceFiles": true,
+    "outputSourcePath": true,
+    "dateFormat": "MMMM Do YYYY",
+    "syntaxTheme": "default",
+      "sort": true,
+    "systemName": "HRMS Elite",
+    "footer": "",
+    "copyright": "HRMS Elite Documentation",
+    "navLinks": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/your-org/hrms-elite"
+      },
+      {
+        "label": "API Docs",
+        "href": "/api-docs"
+      }
+    ]
+  },
+  "opts": {
+    "destination": "./docs/jsdoc",
+    "recurse": true,
+    "readme": "./docs/README.md",
+    "template": "node_modules/ink-docstrap/template",
+    "theme_opts": {
+      "title": "HRMS Elite Documentation - نظام إدارة الموارد البشرية",
+      "menu": {
+        "API Documentation": {
+          "href": "/api-docs",
+          "target": "_blank",
+          "class": "menu-item",
+          "id": "api-docs"
+        },
+        "GitHub Repository": {
+          "href": "https://github.com/your-org/hrms-elite",
+          "target": "_blank",
+          "class": "menu-item",
+          "id": "repository"
+        },
+        "User Manual": {
+          "href": "./USER-MANUAL.md",
+          "target": "_blank",
+          "class": "menu-item",
+          "id": "user-manual"
+        },
+        "Developer Guide": {
+          "href": "./DEVELOPER-GUIDE.md",
+          "target": "_blank",
+          "class": "menu-item",
+          "id": "developer-guide"
+        }
+      }
+    }
+  },
+  "markdown": {
+    "parser": "gfm",
+    "hardwrap": false,
+    "idInHeadings": true
+  }
+}

@@ -1,137 +1,169 @@
-import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { useAuth } from "../hooks/useAuth";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Badge } from "../components/ui/badge";
-import { Progress } from "../components/ui/progress";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "../components/ui/form";
-import { Textarea } from "../components/ui/textarea";
-import { Avatar, AvatarFallback } from "../components/ui/avatar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Separator } from "../components/ui/separator";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import {useState} from 'react';
+import {useQuery, useMutation} from '@tanstack/react-query';
+import {useLocation} from 'wouter';
+import {apiRequest, queryClient} from '@/lib/queryClient';
+import {LoadingSpinner, ErrorMessage} from '../components/shared';
+import {Card, CardContent, CardHeader, CardTitle} from '../components/ui/card';
+import {Button} from '../components/ui/button';
+import {Input} from '../components/ui/input';
+import {Badge} from '../components/ui/badge';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
+} from '../components/ui/dialog';
+import {
+  Form, FormField, FormItem, FormLabel, FormControl, FormMessage
+} from '../components/ui/form';
+import {Textarea} from '../components/ui/textarea';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from '../components/ui/select';
+import {Separator} from '../components/ui/separator';
+import {useForm} from 'react-hook-form';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {z} from 'zod';
 import {
   Building2,
   Users,
   MapPin,
   Calendar,
-  Phone,
-  Mail,
-  Globe,
   Plus,
   Search,
-  Filter,
   Edit,
-  Trash2,
   Settings,
   Eye,
   BarChart3,
   AlertTriangle,
   CheckCircle,
   Clock,
-  FileText,
-  Star
-} from "lucide-react";
+  FileText
+} from 'lucide-react';
+
+// Strongly-typed company item matching UI usage
+interface CompanyItem {
+  id: string;
+  name: string;
+  description?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  industry?: string;
+  size?: string;
+  status: 'active' | 'suspended' | 'pending' | string;
+  totalEmployees?: number;
+  activeLicenses?: number;
+  createdAt?: string;
+}
 
 const companySchema = z.object({
-  name: z.string().min(2, "اسم الشركة يجب أن يكون أكثر من حرفين"),
-  description: z.string().min(10, "الوصف يجب أن يكون أكثر من 10 أحرف"),
-  address: z.string().min(5, "العنوان مطلوب"),
-  phone: z.string().min(10, "رقم الهاتف غير صحيح"),
-  email: z.string().email("البريد الإلكتروني غير صحيح"),
-  website: z.string().url("رابط الموقع غير صحيح").optional().or(z.literal("")),
-  industry: z.string().min(1, "نوع الصناعة مطلوب"),
-  size: z.string().min(1, "حجم الشركة مطلوب"),
-  status: z.enum(["active", "suspended", "pending"])
+  'name': z.string().min(2, 'اسم الشركة يجب أن يكون أكثر من حرفين'),
+  'description': z.string().min(10, 'الوصف يجب أن يكون أكثر من 10 أحرف'),
+  'address': z.string().min(5, 'العنوان مطلوب'),
+  'phone': z.string().min(10, 'رقم الهاتف غير صحيح'),
+  'email': z.string().email('البريد الإلكتروني غير صحيح'),
+  'website': z.string().url('رابط الموقع غير صحيح').optional().or(z.literal('')),
+  'industry': z.string().min(1, 'نوع الصناعة مطلوب'),
+  'size': z.string().min(1, 'حجم الشركة مطلوب'),
+  'status': z.enum(['active', 'suspended', 'pending'])
 });
 
 type CompanyFormData = z.infer<typeof companySchema>;
 
-export default function Companies() {
-  const { user } = useAuth();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+export default function Companies () {
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'suspended' | 'pending'>('all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingCompany, setEditingCompany] = useState<any>(null);
+  const [editingCompany, setEditingCompany] = useState<CompanyItem | null>(null);
+  const [, setLocation] = useLocation();
 
   const form = useForm<CompanyFormData>({
-    resolver: zodResolver(companySchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      address: "",
-      phone: "",
-      email: "",
-      website: "",
-      industry: "",
-      size: "",
-      status: "pending"
+    'resolver': zodResolver(companySchema),
+    'defaultValues': {
+      'name': '',
+      'description': '',
+      'address': '',
+      'phone': '',
+      'email': '',
+      'website': '',
+      'industry': '',
+      'size': '',
+      'status': 'pending'
     }
   });
 
-  const { data: companies = [] } = useQuery({
-    queryKey: ["/api/companies"],
+  const {'data': companies = [] as CompanyItem[], isLoading, error} = useQuery<CompanyItem[]>({
+    'queryKey': ['/api/companies']
   });
-
-  // Type the companies array properly
-  const typedCompanies = companies as any[];
 
   const addCompanyMutation = useMutation({
-    mutationFn: async (data: CompanyFormData) => {
-      return await apiRequest("/api/companies", "POST", data);
+    'mutationFn': async (data: CompanyFormData) => {
+
+      // Use the apiRequest from queryClient with correct parameter order
+      return await apiRequest('POST', '/api/companies', data);
+
     },
-    onSuccess: () => {
+    'onSuccess': () => {
+
       setIsAddDialogOpen(false);
       form.reset();
-      queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+      queryClient.invalidateQueries({'queryKey': ['/api/companies']});
+
     }
   });
 
-  const filteredCompanies = typedCompanies.filter((company: any) => {
-    const matchesSearch = company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         company.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || company.status === statusFilter;
-    return matchesSearch && matchesStatus;
+  const filteredCompanies = companies.filter((company) => {
+
+    const matchesSearch = company.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          company.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || company.status === statusFilter;
+    return Boolean(matchesSearch) && matchesStatus;
+
   });
 
   const getStatusColor = (status: string) => {
+
     switch (status) {
-      case "active": return "bg-green-100 text-green-800 border-green-200";
-      case "suspended": return "bg-red-100 text-red-800 border-red-200";
-      case "pending": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
+
+    case 'active': return 'bg-green-100 text-green-800 border-green-200';
+    case 'suspended': return 'bg-red-100 text-red-800 border-red-200';
+    case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    default: return 'bg-gray-100 text-gray-800 border-gray-200';
+
     }
+
   };
 
   const getStatusText = (status: string) => {
+
     switch (status) {
-      case "active": return "نشطة";
-      case "suspended": return "معلقة";
-      case "pending": return "قيد المراجعة";
-      default: return "غير محدد";
+
+    case 'active': return 'نشطة';
+    case 'suspended': return 'معلقة';
+    case 'pending': return 'قيد المراجعة';
+    default: return 'غير محدد';
+
     }
+
   };
 
   const onSubmit = (data: CompanyFormData) => {
+
     if (editingCompany) {
       // Update company logic
     } else {
+
       addCompanyMutation.mutate(data);
+
     }
+
   };
 
   const statsData = {
-    total: typedCompanies.length,
-    active: typedCompanies.filter((c: any) => c.status === "active").length,
-    pending: typedCompanies.filter((c: any) => c.status === "pending").length,
-    suspended: typedCompanies.filter((c: any) => c.status === "suspended").length
+    'total': companies.length,
+    'active': companies.filter((c) => c.status === 'active').length,
+    'pending': companies.filter((c) => c.status === 'pending').length,
+    'suspended': companies.filter((c) => c.status === 'suspended').length
   };
 
   return (
@@ -152,7 +184,7 @@ export default function Companies() {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>
-                {editingCompany ? "تعديل الشركة" : "إضافة شركة جديدة"}
+                {editingCompany ? 'تعديل الشركة' : 'إضافة شركة جديدة'}
               </DialogTitle>
             </DialogHeader>
             <Form {...form}>
@@ -161,7 +193,7 @@ export default function Companies() {
                   <FormField
                     control={form.control}
                     name="name"
-                    render={({ field }) => (
+                    render={({field}) => (
                       <FormItem>
                         <FormLabel>اسم الشركة</FormLabel>
                         <FormControl>
@@ -174,7 +206,7 @@ export default function Companies() {
                   <FormField
                     control={form.control}
                     name="industry"
-                    render={({ field }) => (
+                    render={({field}) => (
                       <FormItem>
                         <FormLabel>نوع الصناعة</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -203,7 +235,7 @@ export default function Companies() {
                 <FormField
                   control={form.control}
                   name="description"
-                  render={({ field }) => (
+                  render={({field}) => (
                     <FormItem>
                       <FormLabel>وصف الشركة</FormLabel>
                       <FormControl>
@@ -218,7 +250,7 @@ export default function Companies() {
                   <FormField
                     control={form.control}
                     name="phone"
-                    render={({ field }) => (
+                    render={({field}) => (
                       <FormItem>
                         <FormLabel>رقم الهاتف</FormLabel>
                         <FormControl>
@@ -231,7 +263,7 @@ export default function Companies() {
                   <FormField
                     control={form.control}
                     name="email"
-                    render={({ field }) => (
+                    render={({field}) => (
                       <FormItem>
                         <FormLabel>البريد الإلكتروني</FormLabel>
                         <FormControl>
@@ -246,7 +278,7 @@ export default function Companies() {
                 <FormField
                   control={form.control}
                   name="address"
-                  render={({ field }) => (
+                  render={({field}) => (
                     <FormItem>
                       <FormLabel>العنوان</FormLabel>
                       <FormControl>
@@ -261,7 +293,7 @@ export default function Companies() {
                   <FormField
                     control={form.control}
                     name="website"
-                    render={({ field }) => (
+                    render={({field}) => (
                       <FormItem>
                         <FormLabel>الموقع الإلكتروني (اختياري)</FormLabel>
                         <FormControl>
@@ -274,7 +306,7 @@ export default function Companies() {
                   <FormField
                     control={form.control}
                     name="size"
-                    render={({ field }) => (
+                    render={({field}) => (
                       <FormItem>
                         <FormLabel>حجم الشركة</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -306,7 +338,7 @@ export default function Companies() {
                     إلغاء
                   </Button>
                   <Button type="submit" disabled={addCompanyMutation.isPending}>
-                    {addCompanyMutation.isPending ? "جاري الحفظ..." : "حفظ الشركة"}
+                    {addCompanyMutation.isPending ? 'جاري الحفظ...' : 'حفظ الشركة'}
                   </Button>
                 </div>
               </form>
@@ -379,7 +411,10 @@ export default function Companies() {
                 className="pl-10"
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => setStatusFilter(value as 'all' | 'active' | 'pending' | 'suspended')}
+            >
               <SelectTrigger className="w-full md:w-48">
                 <SelectValue placeholder="فلترة حسب الحالة" />
               </SelectTrigger>
@@ -394,91 +429,124 @@ export default function Companies() {
         </CardContent>
       </Card>
 
+      {/* Loading and Error States */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-12">
+          <LoadingSpinner text="جاري تحميل الشركات..." />
+        </div>
+      )}
+
+      {error && (
+        <div className="py-8">
+          <ErrorMessage
+            error={error}
+            title="خطأ في تحميل الشركات"
+            onRetry={() => window.location.reload()}
+          />
+        </div>
+      )}
+
       {/* Companies Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredCompanies.map((company: any) => (
-          <Card key={company.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-                    <Building2 className="h-6 w-6 text-white" />
+      {!isLoading && !error && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCompanies.map((company) => (
+            <Card key={company.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                      <Building2 className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">{company.name}</CardTitle>
+                      <Badge className={`text-xs ${getStatusColor(company.status)}`}>
+                        {getStatusText(company.status)}
+                      </Badge>
+                    </div>
                   </div>
-                  <div>
-                    <CardTitle className="text-lg">{company.name}</CardTitle>
-                    <Badge className={`text-xs ${getStatusColor(company.status)}`}>
-                      {getStatusText(company.status)}
-                    </Badge>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="sm" onClick={() => {
+
+                      setLocation(`/company-details?id=${company.id}`);
+
+                    }}>
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => {
+
+                      setEditingCompany(company); setIsAddDialogOpen(true);
+
+                    }}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" onClick={() => console.log('عرض شركة:', company.name)}>
-                    <Eye className="h-4 w-4" />
+              </CardHeader>
+
+              <CardContent className="space-y-4">
+                {company.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {company.description}
+                  </p>
+                )}
+
+                {company.address && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <MapPin className="h-4 w-4" />
+                    <span className="line-clamp-1">{company.address}</span>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4 text-blue-500" />
+                    <span>{company.totalEmployees ?? 0} موظف</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <FileText className="h-4 w-4 text-green-500" />
+                    <span>{company.activeLicenses ?? 0} رخصة</span>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="flex gap-2">
+                  <Button variant="default" size="sm" className="flex-1" onClick={() => {
+
+                    setLocation(`/company-details?id=${company.id}`);
+
+                  }}>
+                    <BarChart3 className="h-4 w-4 ml-2" />
+                    عرض التفاصيل
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => {setEditingCompany(company); setIsAddDialogOpen(true);}}>
-                    <Edit className="h-4 w-4" />
+                  <Button variant="outline" size="sm" onClick={() => {
+                    // TODO: Implement company settings
+                  }}>
+                    <Settings className="h-4 w-4" />
                   </Button>
                 </div>
-              </div>
-            </CardHeader>
 
-            <CardContent className="space-y-4">
-              {company.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {company.description}
-                </p>
-              )}
-
-              {company.address && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <MapPin className="h-4 w-4" />
-                  <span className="line-clamp-1">{company.address}</span>
+                <div className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Calendar className="h-3 w-3" />
+                  تاريخ التسجيل: {new Date(company.createdAt ?? Date.now()).toLocaleDateString('ar-SA')}
                 </div>
-              )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4 text-blue-500" />
-                  <span>{company.totalEmployees || 0} موظف</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <FileText className="h-4 w-4 text-green-500" />
-                  <span>{company.activeLicenses || 0} رخصة</span>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="flex gap-2">
-                <Button variant="default" size="sm" className="flex-1" onClick={() => console.log('عرض تفاصيل:', company.name)}>
-                  <BarChart3 className="h-4 w-4 ml-2" />
-                  عرض التفاصيل
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => console.log('إعدادات:', company.name)}>
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </div>
-
-              <div className="text-xs text-muted-foreground flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                تاريخ التسجيل: {new Date(company.createdAt || Date.now()).toLocaleDateString('ar-SA')}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {filteredCompanies.length === 0 && (
+      {!isLoading && !error && filteredCompanies.length === 0 && (
         <Card className="text-center py-12">
           <CardContent>
             <Building2 className="h-16 w-16 mx-auto mb-4 text-muted-foreground/30" />
             <h3 className="text-lg font-medium mb-2">لا توجد شركات</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              {searchQuery || statusFilter !== "all" 
-                ? "لا توجد شركات تطابق معايير البحث" 
-                : "لم يتم تسجيل أي شركات بعد"}
+              {searchQuery ?? statusFilter !== 'all'
+                ? 'لا توجد شركات تطابق معايير البحث'
+                : 'لم يتم تسجيل أي شركات بعد'}
             </p>
-            {!searchQuery && statusFilter === "all" && (
+            {!searchQuery && statusFilter === 'all' && (
               <Button onClick={() => setIsAddDialogOpen(true)}>
                 <Plus className="h-4 w-4 ml-2" />
                 إضافة شركة جديدة
@@ -489,4 +557,5 @@ export default function Companies() {
       )}
     </div>
   );
+
 }

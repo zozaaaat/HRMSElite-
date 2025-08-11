@@ -1,117 +1,127 @@
-import { useState } from "react";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Textarea } from "../components/ui/textarea";
-import { Switch } from "../components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
-import { useToast } from "../hooks/use-toast";
-import { 
-  User, 
-  Lock, 
-  Bell, 
-  Settings, 
+import {useState} from 'react';
+import {Button} from '../components/ui/button';
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '../components/ui/card';
+import {Input} from '../components/ui/input';
+import {Label} from '../components/ui/label';
+import {Textarea} from '../components/ui/textarea';
+import {Switch} from '../components/ui/switch';
+import {Tabs, TabsContent, TabsList, TabsTrigger} from '../components/ui/tabs';
+import {Avatar, AvatarFallback, AvatarImage} from '../components/ui/avatar';
+import {useToast} from '../hooks/use-toast';
+import {
+  User,
+  Lock,
+  Bell,
+  Settings,
   Building,
   Camera,
   Save,
-  Shield,
-  Globe,
-  Moon,
-  Sun
-} from "lucide-react";
-import { SharedLayout } from "../components/shared-layout";
+  Shield
+} from 'lucide-react';
+import {SharedLayout} from '../components/shared-layout';
 
-export default function SettingsPage() {
+export default function SettingsPage () {
+
   return (
-    <SharedLayout 
-      userRole="company_manager" 
-      userName="مدير الشركة" 
-      companyName="شركة النيل الأزرق للمجوهرات" 
+    <SharedLayout
+      userRole="company_manager"
+      userName="مدير الشركة"
+      companyName="شركة النيل الأزرق للمجوهرات"
     >
       <SettingsContent />
     </SharedLayout>
   );
+
 }
 
-function SettingsContent() {
-  const { toast } = useToast();
+function SettingsContent () {
+
+  const {toast} = useToast();
   const [profileData, setProfileData] = useState({
-    name: "أحمد محمد علي",
-    email: "ahmed@company.com",
-    phone: "+966 55 123 4567",
-    position: "مدير الموارد البشرية",
-    bio: "خبرة 10 سنوات في إدارة الموارد البشرية والتطوير التنظيمي"
+    'name': 'أحمد محمد علي',
+    'email': 'ahmed@company.com',
+    'phone': '+966 55 123 4567',
+    'position': 'مدير الموارد البشرية',
+    'bio': 'خبرة 10 سنوات في إدارة الموارد البشرية والتطوير التنظيمي'
   });
 
   const [securitySettings, setSecuritySettings] = useState({
-    twoFactorAuth: true,
-    emailNotifications: true,
-    sessionTimeout: "30",
-    passwordStrength: "strong"
+    'twoFactorAuth': true,
+    'emailNotifications': true,
+    'sessionTimeout': '30',
+    'passwordStrength': 'strong'
   });
 
   const [notificationSettings, setNotificationSettings] = useState({
-    emailAlerts: true,
-    smsAlerts: false,
-    pushNotifications: true,
-    weeklyReports: true,
-    systemUpdates: true,
-    marketingEmails: false
+    'emailAlerts': true,
+    'smsAlerts': false,
+    'pushNotifications': true,
+    'weeklyReports': true,
+    'systemUpdates': true,
+    'marketingEmails': false
   });
 
   const [appPreferences, setAppPreferences] = useState({
-    language: "ar",
-    theme: "light",
-    dateFormat: "dd/mm/yyyy",
-    timeFormat: "24h",
-    currency: "KWD",
-    timezone: "Asia/Kuwait"
+    'language': 'ar',
+    'theme': 'light',
+    'dateFormat': 'dd/mm/yyyy',
+    'timeFormat': '24h',
+    'currency': 'KWD',
+    'timezone': 'Asia/Kuwait'
   });
 
   const [companySettings, setCompanySettings] = useState({
-    name: "شركة التقنية المتقدمة",
-    address: "الرياض، المملكة العربية السعودية",
-    phone: "+966 11 123 4567",
-    email: "info@company.com",
-    website: "https://company.com",
-    taxNumber: "123456789"
+    'name': 'شركة التقنية المتقدمة',
+    'address': 'الرياض، المملكة العربية السعودية',
+    'phone': '+966 11 123 4567',
+    'email': 'info@company.com',
+    'website': 'https://company.com',
+    'taxNumber': '123456789'
   });
 
   const handleSaveProfile = () => {
+
     toast({
-      title: "تم حفظ الملف الشخصي",
-      description: "تم تحديث بياناتك الشخصية بنجاح",
+      'title': 'تم حفظ الملف الشخصي',
+      'description': 'تم تحديث بياناتك الشخصية بنجاح'
     });
+
   };
 
   const handleSaveSecurity = () => {
+
     toast({
-      title: "تم حفظ إعدادات الأمان",
-      description: "تم تحديث إعدادات الأمان والخصوصية بنجاح",
+      'title': 'تم حفظ إعدادات الأمان',
+      'description': 'تم تحديث إعدادات الأمان والخصوصية بنجاح'
     });
+
   };
 
   const handleSaveNotifications = () => {
+
     toast({
-      title: "تم حفظ إعدادات الإشعارات",
-      description: "تم تحديث تفضيلات الإشعارات بنجاح",
+      'title': 'تم حفظ إعدادات الإشعارات',
+      'description': 'تم تحديث تفضيلات الإشعارات بنجاح'
     });
+
   };
 
   const handleSavePreferences = () => {
+
     toast({
-      title: "تم حفظ التفضيلات",
-      description: "تم تحديث تفضيلات التطبيق بنجاح",
+      'title': 'تم حفظ التفضيلات',
+      'description': 'تم تحديث تفضيلات التطبيق بنجاح'
     });
+
   };
 
   const handleSaveCompany = () => {
+
     toast({
-      title: "تم حفظ بيانات الشركة",
-      description: "تم تحديث معلومات الشركة بنجاح",
+      'title': 'تم حفظ بيانات الشركة',
+      'description': 'تم تحديث معلومات الشركة بنجاح'
     });
+
   };
 
   return (
@@ -180,35 +190,35 @@ function SettingsContent() {
                   <Input
                     id="name"
                     value={profileData.name}
-                    onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                    onChange={(e) => setProfileData({...profileData, 'name': e.target.value})}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="email">البريد الإلكتروني</Label>
                   <Input
                     id="email"
                     type="email"
                     value={profileData.email}
-                    onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                    onChange={(e) => setProfileData({...profileData, 'email': e.target.value})}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="phone">رقم الهاتف</Label>
                   <Input
                     id="phone"
                     value={profileData.phone}
-                    onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                    onChange={(e) => setProfileData({...profileData, 'phone': e.target.value})}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="position">المنصب</Label>
                   <Input
                     id="position"
                     value={profileData.position}
-                    onChange={(e) => setProfileData({ ...profileData, position: e.target.value })}
+                    onChange={(e) => setProfileData({...profileData, 'position': e.target.value})}
                   />
                 </div>
               </div>
@@ -218,7 +228,7 @@ function SettingsContent() {
                 <Textarea
                   id="bio"
                   value={profileData.bio}
-                  onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+                  onChange={(e) => setProfileData({...profileData, 'bio': e.target.value})}
                   rows={3}
                 />
               </div>
@@ -269,8 +279,8 @@ function SettingsContent() {
                   </div>
                   <Switch
                     checked={securitySettings.twoFactorAuth}
-                    onCheckedChange={(checked) => 
-                      setSecuritySettings({ ...securitySettings, twoFactorAuth: checked })
+                    onCheckedChange={(checked) =>
+                      setSecuritySettings({...securitySettings, 'twoFactorAuth': checked})
                     }
                   />
                 </div>
@@ -284,8 +294,8 @@ function SettingsContent() {
                   </div>
                   <Switch
                     checked={securitySettings.emailNotifications}
-                    onCheckedChange={(checked) => 
-                      setSecuritySettings({ ...securitySettings, emailNotifications: checked })
+                    onCheckedChange={(checked) =>
+                      setSecuritySettings({...securitySettings, 'emailNotifications': checked})
                     }
                   />
                 </div>
@@ -318,8 +328,8 @@ function SettingsContent() {
                   </div>
                   <Switch
                     checked={notificationSettings.emailAlerts}
-                    onCheckedChange={(checked) => 
-                      setNotificationSettings({ ...notificationSettings, emailAlerts: checked })
+                    onCheckedChange={(checked) =>
+                      setNotificationSettings({...notificationSettings, 'emailAlerts': checked})
                     }
                   />
                 </div>
@@ -333,8 +343,8 @@ function SettingsContent() {
                   </div>
                   <Switch
                     checked={notificationSettings.smsAlerts}
-                    onCheckedChange={(checked) => 
-                      setNotificationSettings({ ...notificationSettings, smsAlerts: checked })
+                    onCheckedChange={(checked) =>
+                      setNotificationSettings({...notificationSettings, 'smsAlerts': checked})
                     }
                   />
                 </div>
@@ -348,8 +358,10 @@ function SettingsContent() {
                   </div>
                   <Switch
                     checked={notificationSettings.pushNotifications}
-                    onCheckedChange={(checked) => 
-                      setNotificationSettings({ ...notificationSettings, pushNotifications: checked })
+                    onCheckedChange={(checked) =>
+                      setNotificationSettings({
+  ...notificationSettings, 'pushNotifications': checked
+})
                     }
                   />
                 </div>
@@ -363,8 +375,8 @@ function SettingsContent() {
                   </div>
                   <Switch
                     checked={notificationSettings.weeklyReports}
-                    onCheckedChange={(checked) => 
-                      setNotificationSettings({ ...notificationSettings, weeklyReports: checked })
+                    onCheckedChange={(checked) =>
+                      setNotificationSettings({...notificationSettings, 'weeklyReports': checked})
                     }
                   />
                 </div>
@@ -378,8 +390,8 @@ function SettingsContent() {
                   </div>
                   <Switch
                     checked={notificationSettings.systemUpdates}
-                    onCheckedChange={(checked) => 
-                      setNotificationSettings({ ...notificationSettings, systemUpdates: checked })
+                    onCheckedChange={(checked) =>
+                      setNotificationSettings({...notificationSettings, 'systemUpdates': checked})
                     }
                   />
                 </div>
@@ -408,7 +420,11 @@ function SettingsContent() {
                   <select
                     id="language"
                     value={appPreferences.language}
-                    onChange={(e) => setAppPreferences({ ...appPreferences, language: e.target.value })}
+                    onChange={
+  (e) => setAppPreferences({
+  ...appPreferences, 'language': e.target.value
+})
+}
                     className="w-full p-2 border rounded-md"
                   >
                     <option value="ar">العربية</option>
@@ -421,7 +437,11 @@ function SettingsContent() {
                   <select
                     id="theme"
                     value={appPreferences.theme}
-                    onChange={(e) => setAppPreferences({ ...appPreferences, theme: e.target.value })}
+                    onChange={
+  (e) => setAppPreferences({
+  ...appPreferences, 'theme': e.target.value
+})
+}
                     className="w-full p-2 border rounded-md"
                   >
                     <option value="light">فاتح</option>
@@ -435,7 +455,11 @@ function SettingsContent() {
                   <select
                     id="dateFormat"
                     value={appPreferences.dateFormat}
-                    onChange={(e) => setAppPreferences({ ...appPreferences, dateFormat: e.target.value })}
+                    onChange={
+  (e) => setAppPreferences({
+  ...appPreferences, 'dateFormat': e.target.value
+})
+}
                     className="w-full p-2 border rounded-md"
                   >
                     <option value="dd/mm/yyyy">DD/MM/YYYY</option>
@@ -449,7 +473,11 @@ function SettingsContent() {
                   <select
                     id="timeFormat"
                     value={appPreferences.timeFormat}
-                    onChange={(e) => setAppPreferences({ ...appPreferences, timeFormat: e.target.value })}
+                    onChange={
+  (e) => setAppPreferences({
+  ...appPreferences, 'timeFormat': e.target.value
+})
+}
                     className="w-full p-2 border rounded-md"
                   >
                     <option value="24h">24 ساعة</option>
@@ -462,7 +490,11 @@ function SettingsContent() {
                   <select
                     id="currency"
                     value={appPreferences.currency}
-                    onChange={(e) => setAppPreferences({ ...appPreferences, currency: e.target.value })}
+                    onChange={
+  (e) => setAppPreferences({
+  ...appPreferences, 'currency': e.target.value
+})
+}
                     className="w-full p-2 border rounded-md"
                   >
                     <option value="KWD">دينار كويتي (KWD)</option>
@@ -477,7 +509,11 @@ function SettingsContent() {
                   <select
                     id="timezone"
                     value={appPreferences.timezone}
-                    onChange={(e) => setAppPreferences({ ...appPreferences, timezone: e.target.value })}
+                    onChange={
+  (e) => setAppPreferences({
+  ...appPreferences, 'timezone': e.target.value
+})
+}
                     className="w-full p-2 border rounded-md"
                   >
                     <option value="Asia/Kuwait">الكويت</option>
@@ -510,35 +546,51 @@ function SettingsContent() {
                   <Input
                     id="company-name"
                     value={companySettings.name}
-                    onChange={(e) => setCompanySettings({ ...companySettings, name: e.target.value })}
+                    onChange={
+  (e) => setCompanySettings({
+  ...companySettings, 'name': e.target.value
+})
+}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="company-phone">هاتف الشركة</Label>
                   <Input
                     id="company-phone"
                     value={companySettings.phone}
-                    onChange={(e) => setCompanySettings({ ...companySettings, phone: e.target.value })}
+                    onChange={
+  (e) => setCompanySettings({
+  ...companySettings, 'phone': e.target.value
+})
+}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="company-email">البريد الإلكتروني</Label>
                   <Input
                     id="company-email"
                     type="email"
                     value={companySettings.email}
-                    onChange={(e) => setCompanySettings({ ...companySettings, email: e.target.value })}
+                    onChange={
+  (e) => setCompanySettings({
+  ...companySettings, 'email': e.target.value
+})
+}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="company-website">الموقع الإلكتروني</Label>
                   <Input
                     id="company-website"
                     value={companySettings.website}
-                    onChange={(e) => setCompanySettings({ ...companySettings, website: e.target.value })}
+                    onChange={
+  (e) => setCompanySettings({
+  ...companySettings, 'website': e.target.value
+})
+}
                   />
                 </div>
 
@@ -547,7 +599,11 @@ function SettingsContent() {
                   <Textarea
                     id="company-address"
                     value={companySettings.address}
-                    onChange={(e) => setCompanySettings({ ...companySettings, address: e.target.value })}
+                    onChange={
+  (e) => setCompanySettings({
+  ...companySettings, 'address': e.target.value
+})
+}
                     rows={2}
                   />
                 </div>
@@ -557,7 +613,11 @@ function SettingsContent() {
                   <Input
                     id="tax-number"
                     value={companySettings.taxNumber}
-                    onChange={(e) => setCompanySettings({ ...companySettings, taxNumber: e.target.value })}
+                    onChange={
+  (e) => setCompanySettings({
+  ...companySettings, 'taxNumber': e.target.value
+})
+}
                   />
                 </div>
               </div>
@@ -572,4 +632,5 @@ function SettingsContent() {
       </Tabs>
     </div>
   );
+
 }

@@ -1,0 +1,160 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # HRMS Elite Application Logs
+  - job_name: hrms-elite-app
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: hrms-elite
+          app: hrms-elite
+          component: application
+          __path__: /var/log/hrms-elite/*.log
+
+  # Access Logs
+  - job_name: hrms-elite-access
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: hrms-elite
+          app: hrms-elite
+          component: nginx
+          log_type: access
+          __path__: /var/log/hrms-elite/access.log
+
+  # Error Logs
+  - job_name: hrms-elite-error
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: hrms-elite
+          app: hrms-elite
+          component: nginx
+          log_type: error
+          __path__: /var/log/hrms-elite/error.log
+
+  # Security Logs
+  - job_name: hrms-elite-security
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: hrms-elite
+          app: hrms-elite
+          component: security
+          log_type: security
+          __path__: /var/log/hrms-elite/security.log
+
+  # Database Logs
+  - job_name: hrms-elite-database
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: hrms-elite
+          app: hrms-elite
+          component: database
+          log_type: database
+          __path__: /var/log/hrms-elite/database.log
+
+  # Monitoring Logs
+  - job_name: hrms-elite-monitoring
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: hrms-elite
+          app: hrms-elite
+          component: monitoring
+          log_type: monitoring
+          __path__: /var/log/hrms-elite/monitoring.log
+
+  # Backup Logs
+  - job_name: hrms-elite-backup
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: hrms-elite
+          app: hrms-elite
+          component: backup
+          log_type: backup
+          __path__: /var/log/hrms-elite/backup.log
+
+  # Audit Logs
+  - job_name: hrms-elite-audit
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: hrms-elite
+          app: hrms-elite
+          component: audit
+          log_type: audit
+          __path__: /var/log/hrms-elite/audit.log
+
+  # System Logs
+  - job_name: system-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: system
+          app: system
+          component: system
+          __path__: /var/log/syslog
+
+  # Docker Logs
+  - job_name: docker-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          app: docker
+          component: containers
+          __path__: /var/lib/docker/containers/*/*.log
+
+pipeline_stages:
+  - json:
+      expressions:
+        timestamp: timestamp
+        level: level
+        message: message
+        service: service
+        trace_id: trace_id
+        user_id: user_id
+        ip: ip
+        method: method
+        path: path
+        status_code: status_code
+        response_time: response_time
+        user_agent: user_agent
+
+  - timestamp:
+      source: timestamp
+      format: RFC3339Nano
+
+  - labels:
+      timestamp:
+      level:
+      service:
+      trace_id:
+      user_id:
+      ip:
+      method:
+      path:
+      status_code:
+      response_time:
+      user_agent: 

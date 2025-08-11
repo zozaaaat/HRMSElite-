@@ -1,0 +1,148 @@
+version: '3.8'
+
+services:
+  # HRMS Elite Application - Development
+  hrms-app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        NODE_ENV: development
+    container_name: hrms-elite-app-dev
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=/app/data/hrms-dev.db
+      - SESSION_SECRET=dev-session-secret-change-in-production
+      - JWT_SECRET=dev-jwt-secret-change-in-production
+      - CSRF_SECRET=dev-csrf-secret-change-in-production
+      - RATE_LIMIT_WINDOW_MS=900000
+      - RATE_LIMIT_MAX_REQUESTS=1000
+      - LOG_LEVEL=debug
+      - REDIS_URL=redis://hrms-elite-redis:6379
+      - REDIS_PASSWORD=dev-redis-password
+    volumes:
+      - hrms_dev_data:/app/data
+      - hrms_dev_uploads:/app/uploads
+      - hrms_dev_logs:/app/logs
+      - ../client:/app/client:ro
+      - ../server:/app/server:ro
+      - ../shared:/app/shared:ro
+    networks:
+      - hrms-dev-network
+    depends_on:
+      - hrms-db
+      - redis
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # SQLite Database - Development
+  hrms-db:
+    image: alpine:latest
+    container_name: hrms-elite-db-dev
+    restart: unless-stopped
+    volumes:
+      - hrms_dev_data:/data
+    networks:
+      - hrms-dev-network
+    command: >
+      sh -c "
+        apk add --no-cache sqlite &&
+        if [ ! -f /data/hrms-dev.db ]; then
+          sqlite3 /data/hrms-dev.db 'CREATE TABLE IF NOT EXISTS migrations (id INTEGER PRIMARY KEY, name TEXT, applied_at DATETIME DEFAULT CURRENT_TIMESTAMP);'
+        fi &&
+        tail -f /dev/null
+      "
+
+  # Redis for development
+  redis:
+    image: redis:7-alpine
+    container_name: hrms-elite-redis-dev
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass dev-redis-password
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - hrms-dev-network
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx for development (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: hrms-elite-nginx-dev
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - hrms_dev_logs:/var/log/nginx
+    networks:
+      - hrms-dev-network
+    depends_on:
+      - hrms-app
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Development tools
+  adminer:
+    image: adminer:latest
+    container_name: hrms-elite-adminer-dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - hrms-dev-network
+
+  # Redis Commander for Redis management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: hrms-elite-redis-commander-dev
+    restart: unless-stopped
+    environment:
+      - REDIS_HOSTS=local:hrms-elite-redis:6379:0:dev-redis-password
+    ports:
+      - "8081:8081"
+    networks:
+      - hrms-dev-network
+    depends_on:
+      - redis
+
+volumes:
+  hrms_dev_data:
+    driver: local
+  hrms_dev_uploads:
+    driver: local
+  hrms_dev_logs:
+    driver: local
+  redis_dev_data:
+    driver: local
+
+networks:
+  hrms-dev-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16 

@@ -1,23 +1,70 @@
 {
-  "include": ["client/src/**/*", "shared/**/*", "server/**/*"],
-  "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
   "compilerOptions": {
-    "incremental": true,
-    "tsBuildInfoFile": "./node_modules/typescript/tsbuildinfo",
-    "noEmit": true,
+    "target": "ES2020",
     "module": "ESNext",
-    "strict": true,
-    "lib": ["esnext", "dom", "dom.iterable"],
-    "jsx": "preserve",
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-jsx",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "useUnknownInCatchVariables": true,
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
     "skipLibCheck": true,
-    "allowImportingTsExtensions": true,
-    "moduleResolution": "bundler",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "baseUrl": ".",
-    "types": ["node", "vite/client"],
     "paths": {
       "@/*": ["./client/src/*"],
-      "@shared/*": ["./shared/*"]
-    }
-  }
+      "@shared/*": ["./shared/*"],
+      "@server/*": ["./server/*"],
+      "@client/*": ["./client/src/*"],
+      "@mobile/*": ["./hrms-mobile/*"],
+      "@types/*": ["./shared/types/*"],
+      "@utils/*": ["./server/utils/*"],
+      "@middleware/*": ["./server/middleware/*"],
+      "@routes/*": ["./server/routes/*"],
+      "@models/*": ["./server/models/*"],
+      "@components/*": ["./client/src/components/*"],
+      "@hooks/*": ["./client/src/hooks/*"],
+      "@services/*": ["./client/src/services/*"],
+      "@stores/*": ["./client/src/stores/*"],
+      "@pages/*": ["./client/src/pages/*"],
+      "@ui/*": ["./client/src/components/ui/*"]
+    },
+    "types": [
+      "node",
+      "vite/client",
+      "vitest/globals",
+      "react",
+      "react-dom"
+    ]
+  },
+  "include": [
+    "client/src",
+    "server",
+    "shared",
+    "shared/types",
+    "scripts"
+  ],
+  "exclude": [
+    "electron/**",
+    "node_modules",
+    "build",
+    "dist",
+    "client/tests",
+    "tests",
+    "client/coverage",
+    "client/dist",
+    "electron/dist",
+    "electron/dist-electron",
+    "docs/jsdoc",
+    "public",
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ]
 }

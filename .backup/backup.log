@@ -1,0 +1,23 @@
+2025-08-05 16:04:51 [INFO] === HRMS Elite Backup Started ===
+2025-08-05 16:04:51 [INFO] Validating database integrity...
+2025-08-05 16:04:51 [WARNING] sqlite3 not found, skipping integrity check
+2025-08-05 16:04:51 [INFO] Disk space check passed: 351522476KB available
+2025-08-05 16:04:51 [INFO] Starting backup process...
+2025-08-05 16:04:51 [INFO] Database: C:\Users\hp\Desktop\HRMSElite\dev.db
+2025-08-05 16:04:52 [INFO] Backup file: C:\Users\hp\Desktop\HRMSElite\.backup\hrms_backup_20250805_160451.db.gz
+2025-08-05 16:04:52 [ERROR] Failed to create backup: You cannot call a method on a null-valued expression.
+2025-08-05 16:05:18 [INFO] === HRMS Elite Backup Started ===
+2025-08-05 16:05:18 [INFO] Validating database integrity...
+2025-08-05 16:05:18 [WARNING] sqlite3 not found, skipping integrity check
+2025-08-05 16:05:19 [INFO] Disk space check passed: 351521000KB available
+2025-08-05 16:05:19 [INFO] Starting backup process...
+2025-08-05 16:05:19 [INFO] Database: C:\Users\hp\Desktop\HRMSElite\dev.db
+2025-08-05 16:05:19 [INFO] Backup file: C:\Users\hp\Desktop\HRMSElite\.backup\hrms_backup_20250805_160518.db.gz
+2025-08-05 16:05:19 [SUCCESS] Backup created successfully: C:\Users\hp\Desktop\HRMSElite\.backup\hrms_backup_20250805_160518.db.gz (1.67KB)
+2025-08-05 16:05:19 [INFO] Verifying backup integrity...
+2025-08-05 16:05:19 [SUCCESS] Backup integrity verified
+2025-08-05 16:05:19 [INFO] Checking for old backups to rotate...
+2025-08-05 16:05:19 [INFO] No old backups to remove (current: 1, max: 24)
+2025-08-05 16:05:19 [INFO] Creating backup summary...
+2025-08-05 16:05:19 [INFO] Backup summary created: C:\Users\hp\Desktop\HRMSElite\.backup\backup_summary.txt
+2025-08-05 16:05:19 [INFO] === HRMS Elite Backup Completed Successfully ===

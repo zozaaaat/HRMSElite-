@@ -1,92 +1,347 @@
-import { Switch, Route, useLocation } from "wouter";
-import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "./components/ui/tooltip";
-import { ThemeProvider } from "./components/theme-provider";
-import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
+import {Switch, Route, useParams} from 'wouter';
+import {QueryClientProvider} from '@tanstack/react-query';
+import {useAppStore} from '@/stores/useAppStore';
+import {ProtectedRoute} from '@/components/shared';
+import {ReactQueryDevTools} from '@/components/shared/ReactQueryDevTools';
+import {routes, UserRole} from '@/lib/routes';
+import {queryClient} from '@/lib/queryClient';
+import {useRoleBasedPreloading} from '@/hooks/useLazyLoading';
 
-// Import pages
-import CompanySelection from "@/pages/company-selection";
-import Login from "@/pages/login";
-import SuperAdminDashboard from "@/pages/super-admin-dashboard";
-import CompanyManagerDashboard from "@/pages/company-manager-dashboard";
-import EmployeeDashboard from "@/pages/employee-dashboard";
-import SupervisorDashboard from "@/pages/supervisor-dashboard";
-import WorkerDashboard from "@/pages/worker-dashboard";
-import Companies from "@/pages/companies";
-import Employees from "@/pages/employees";
-import Reports from "@/pages/reports";
-import SettingsPage from "@/pages/settings";
-import NotFound from "@/pages/not-found";
-import AccountingSystems from "@/pages/accounting-systems";
-import GovernmentForms from "@/pages/government-forms";
-import AttendancePage from "@/pages/attendance";
-import LeaveRequestsPage from "@/pages/leave-requests";
-import PayrollPage from "@/pages/payroll";
-import DocumentsPage from "@/pages/documents";
-import TrainingPage from "@/pages/training";
-import RecruitmentPage from "@/pages/recruitment";
-import PerformancePage from "@/pages/performance";
-import AdvancedSearchPage from "@/pages/advanced-search";
-// Focus on comprehensive HRMS with enhanced support for gold and fabrics companies
+// Import lazy-loaded components
+import {
+  CompanySelection,
+  Login,
+  NotFound,
+  Dashboard,
+  Companies,
+  Reports,
+  AIChatbotDemo,
+  AIAnalytics,
+  Settings,
+  Employees,
+  Attendance,
+  LeaveRequests,
+  Payroll,
+  Documents,
+  Training,
+  Recruitment,
+  Performance,
+  AdvancedSearch,
+  AccountingSystems,
+  GovernmentForms,
+  Licenses,
+  Leaves,
+  Signatures,
+  SignatureTest,
+  NotificationTest,
+  PermissionTest,
+  RoleBasedDashboard,
+  SuperAdminDashboard,
+  EmployeeManagement,
+  LayoutExample
+} from '@/pages/lazy-pages';
 
-function Router() {
+// Wrapper component for Dashboard to handle route parameters with proper protection
+const DashboardWrapper = () => {
+  const { role } = useParams<{ role?: string }>();
+
+  // Validate role and redirect to appropriate dashboard
+  if (role && ['super_admin',
+   'company_manager',
+   'employee',
+   'supervisor',
+   'worker'].includes(role)) {
+
+    return (
+      <ProtectedRoute pageId="dashboard" requiredRole={role as UserRole}>
+        <Dashboard role={role as UserRole} />
+      </ProtectedRoute>
+    );
+
+  }
+
+  // If no valid role, redirect to default dashboard
   return (
-    <Switch>
-      {/* Public routes - always accessible */}
-      <Route path="/" component={CompanySelection} />
-      <Route path="/login" component={Login} />
-      
-      {/* All dashboard routes - no auth check for now */}
-      <Route path="/super-admin" component={SuperAdminDashboard} />
-      <Route path="/super-admin-dashboard" component={SuperAdminDashboard} />
-      <Route path="/company-manager" component={CompanyManagerDashboard} />
-      <Route path="/company-manager-dashboard" component={CompanyManagerDashboard} />
-      <Route path="/employee" component={EmployeeDashboard} />
-      <Route path="/employee-dashboard" component={EmployeeDashboard} />
-      <Route path="/supervisor" component={SupervisorDashboard} />
-      <Route path="/supervisor-dashboard" component={SupervisorDashboard} />
-      <Route path="/worker" component={WorkerDashboard} />
-      <Route path="/worker-dashboard" component={WorkerDashboard} />
-      
-      {/* Shared routes */}
-      <Route path="/companies" component={Companies} />
-      <Route path="/employees" component={Employees} />
-      <Route path="/reports" component={Reports} />
-      <Route path="/settings" component={SettingsPage} />
-      <Route path="/accounting-systems" component={AccountingSystems} />
-      <Route path="/government-forms" component={GovernmentForms} />
-      <Route path="/attendance" component={AttendancePage} />
-      <Route path="/leave-requests" component={LeaveRequestsPage} />
-      <Route path="/payroll" component={PayrollPage} />
-      <Route path="/documents" component={DocumentsPage} />
-      <Route path="/training" component={TrainingPage} />
-      <Route path="/recruitment" component={RecruitmentPage} />
-      <Route path="/performance" component={PerformancePage} />
-      <Route path="/advanced-search" component={AdvancedSearchPage} />
-      {/* Removed specialized pages - keeping system unified */}
-      
-      {/* 404 page */}
-      <Route component={NotFound} />
-    </Switch>
+    <ProtectedRoute pageId="dashboard">
+      <Dashboard />
+    </ProtectedRoute>
   );
-}
 
-function App() {
+};
+
+const App = () => {
+
+  const {user} = useAppStore();
+  const isAuthenticated = !!user;
+
+  // Use role-based preloading for better performance
+  useRoleBasedPreloading(user?.role ?? undefined);
+
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="hrms-theme">
-        <TooltipProvider>
-          <div className="min-h-screen bg-background text-foreground" dir="rtl">
-            <Toaster />
-            <Router />
-          </div>
-        </TooltipProvider>
-      </ThemeProvider>
+      <Switch>
+        {/* Public Routes */}
+        <Route path={routes.public.home}>
+          <CompanySelection />
+        </Route>
+        <Route path={routes.public.login}>
+          <Login />
+        </Route>
+
+        {/* Protected Routes - Only render if authenticated */}
+        {isAuthenticated && (
+          <>
+            {/* Dashboard Routes - Unified with proper role-based protection */}
+            <Route path={routes.dashboard.super_admin}>
+              <ProtectedRoute pageId="dashboard" requiredRole="super_admin">
+                <Dashboard role="super_admin" />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.dashboard.company_manager}>
+              <ProtectedRoute pageId="dashboard" requiredRole="company_manager">
+                <Dashboard role="company_manager" />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.dashboard.employee}>
+              <ProtectedRoute pageId="dashboard" requiredRole="employee">
+                <Dashboard role="employee" />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.dashboard.supervisor}>
+              <ProtectedRoute pageId="dashboard" requiredRole="supervisor">
+                <Dashboard role="supervisor" />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.dashboard.worker}>
+              <ProtectedRoute pageId="dashboard" requiredRole="worker">
+                <Dashboard role="worker" />
+              </ProtectedRoute>
+            </Route>
+
+            {/* Legacy dashboard routes with proper protection */}
+            <Route path="/dashboard/:role">
+              <DashboardWrapper />
+            </Route>
+            <Route path="/dashboard">
+              <ProtectedRoute pageId="dashboard">
+                <Dashboard />
+              </ProtectedRoute>
+            </Route>
+
+            {/* Functional Routes with proper protection */}
+            <Route path={routes.functional.companies}>
+              <ProtectedRoute pageId="companies" requiredRole="super_admin">
+                <Companies />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.reports}>
+              <ProtectedRoute pageId="reports" requiredRole="company_manager">
+                <Reports />
+              </ProtectedRoute>
+            </Route>
+
+            {/* AI Routes with proper protection */}
+            <Route path={routes.ai.chatbot}>
+              <ProtectedRoute pageId="ai_dashboard">
+                <AIChatbotDemo />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.ai.analytics}>
+              <ProtectedRoute pageId="ai_analytics">
+                <AIAnalytics />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.ai.dashboard}>
+              <ProtectedRoute pageId="ai_dashboard">
+                <AIChatbotDemo />
+              </ProtectedRoute>
+            </Route>
+
+            {/* Additional functional routes with proper protection */}
+            <Route path={routes.functional.employees}>
+              <ProtectedRoute pageId="employees">
+                <Employees />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.settings}>
+              <ProtectedRoute pageId="settings">
+                <Settings />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.attendance}>
+              <ProtectedRoute pageId="attendance">
+                <Attendance />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.leave_requests}>
+              <ProtectedRoute pageId="leave-requests">
+                <LeaveRequests />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.payroll}>
+              <ProtectedRoute pageId="payroll">
+                <Payroll />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.documents}>
+              <ProtectedRoute pageId="documents">
+                <Documents />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.training}>
+              <ProtectedRoute pageId="training">
+                <Training />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.recruitment}>
+              <ProtectedRoute pageId="recruitment">
+                <Recruitment />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.performance}>
+              <ProtectedRoute pageId="performance">
+                <Performance />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.advanced_search}>
+              <ProtectedRoute pageId="advanced-search">
+                <AdvancedSearch />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.accounting_systems}>
+              <ProtectedRoute pageId="accounting-systems">
+                <AccountingSystems />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.government_forms}>
+              <ProtectedRoute pageId="government-forms">
+                <GovernmentForms />
+              </ProtectedRoute>
+            </Route>
+
+            {/* Additional functional routes */}
+            <Route path={routes.functional.licenses}>
+              <ProtectedRoute pageId="licenses">
+                <Licenses />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.leaves}>
+              <ProtectedRoute pageId="leaves">
+                <Leaves />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.signatures}>
+              <ProtectedRoute pageId="signatures">
+                <Signatures />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.signature_test}>
+              <ProtectedRoute pageId="signature-test">
+                <SignatureTest />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.notification_test}>
+              <ProtectedRoute pageId="notification-test">
+                <NotificationTest />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.permission_test}>
+              <ProtectedRoute pageId="permission-test">
+                <PermissionTest />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.role_based_dashboard}>
+              <ProtectedRoute pageId="role-based-dashboard">
+                <RoleBasedDashboard />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.super_admin_dashboard}>
+              <ProtectedRoute pageId="super-admin-dashboard" requiredRole="super_admin">
+                <SuperAdminDashboard />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.employee_management}>
+              <ProtectedRoute pageId="employee-management">
+                <EmployeeManagement />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.functional.layout_example}>
+              <ProtectedRoute pageId="layout-example">
+                <LayoutExample />
+              </ProtectedRoute>
+            </Route>
+
+            {/* Advanced routes with proper protection */}
+            <Route path={routes.advanced.ai_analytics}>
+              <ProtectedRoute pageId="ai_analytics">
+                <AIAnalytics />
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.advanced.project_management}>
+              <ProtectedRoute pageId="project-management">
+                <div>Project Management Page</div>
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.advanced.assets_management}>
+              <ProtectedRoute pageId="assets-management">
+                <div>Assets Management Page</div>
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.advanced.permissions_management}>
+              <ProtectedRoute pageId="permissions-management">
+                <div>Permissions Management Page</div>
+              </ProtectedRoute>
+            </Route>
+
+            <Route path={routes.advanced.mobile_apps}>
+              <ProtectedRoute pageId="mobile-apps">
+                <div>Mobile Apps Page</div>
+              </ProtectedRoute>
+            </Route>
+          </>
+        )}
+
+        {/* Catch all route */}
+        <Route>
+          <NotFound />
+        </Route>
+      </Switch>
+
+      {/* React Query DevTools for development */}
+      <ReactQueryDevTools initialIsOpen={false} />
     </QueryClientProvider>
   );
-}
+
+};
 
 export default App;

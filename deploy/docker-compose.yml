@@ -1,0 +1,128 @@
+version: '3.8'
+
+services:
+  # HRMS Elite Application
+  hrms-app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: hrms-elite-app
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=/app/data/hrms.db
+      - SESSION_SECRET=${SESSION_SECRET:-your-super-secret-session-key-change-this}
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-this}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - CSRF_SECRET=${CSRF_SECRET:-your-csrf-secret-key-change-this}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-900000}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - hrms_data:/app/data
+      - hrms_uploads:/app/uploads
+      - hrms_logs:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      - hrms-db
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # SQLite Database (using volume for persistence)
+  hrms-db:
+    image: alpine:latest
+    container_name: hrms-elite-db
+    restart: unless-stopped
+    volumes:
+      - hrms_data:/data
+    networks:
+      - hrms-network
+    command: >
+      sh -c "
+        apk add --no-cache sqlite &&
+        if [ ! -f /data/hrms.db ]; then
+          sqlite3 /data/hrms.db 'CREATE TABLE IF NOT EXISTS migrations (id INTEGER PRIMARY KEY, name TEXT, applied_at DATETIME DEFAULT CURRENT_TIMESTAMP);'
+        fi &&
+        tail -f /dev/null
+      "
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: hrms-elite-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - hrms_logs:/var/log/nginx
+    networks:
+      - hrms-network
+    depends_on:
+      - hrms-app
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis for session storage and caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: hrms-elite-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-hrms-redis-password}
+    volumes:
+      - redis_data:/data
+    networks:
+      - hrms-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Backup service
+  backup:
+    image: alpine:latest
+    container_name: hrms-elite-backup
+    restart: "no"
+    volumes:
+      - hrms_data:/data:ro
+      - ./backups:/backups
+    networks:
+      - hrms-network
+    command: >
+      sh -c "
+        apk add --no-cache sqlite3 tar gzip &&
+        mkdir -p /backups &&
+        BACKUP_FILE=/backups/hrms-backup-$$(date +%Y%m%d-%H%M%S).tar.gz &&
+        tar -czf $$BACKUP_FILE -C /data . &&
+        echo 'Backup created: $$BACKUP_FILE'
+      "
+
+volumes:
+  hrms_data:
+    driver: local
+  hrms_uploads:
+    driver: local
+  hrms_logs:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  hrms-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 

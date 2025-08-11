@@ -1,0 +1,34 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "node",
+      "vite/client",
+      "vitest/globals",
+      "react",
+      "react-dom",
+      "@testing-library/jest-dom"
+    ]
+  },
+  "include": [
+    "client/src",
+    "server",
+    "shared",
+    "shared/types",
+    "scripts",
+    "client/tests/**/*",
+    "tests/**/*"
+  ],
+  "exclude": [
+    "electron/**",
+    "node_modules",
+    "build",
+    "dist",
+    "client/coverage",
+    "client/dist",
+    "electron/dist",
+    "electron/dist-electron",
+    "docs/jsdoc",
+    "public"
+  ]
+}

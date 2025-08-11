@@ -1,0 +1,223 @@
+version: '3.8'
+
+services:
+  # HRMS Elite Application - Staging
+  hrms-app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        NODE_ENV: staging
+    container_name: hrms-elite-app-staging
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=staging
+      - PORT=3000
+      - DATABASE_URL=/app/data/hrms-staging.db
+      - SESSION_SECRET=${SESSION_SECRET:-staging-session-secret}
+      - JWT_SECRET=${JWT_SECRET:-staging-jwt-secret}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - CSRF_SECRET=${CSRF_SECRET:-staging-csrf-secret}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-900000}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-200}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - REDIS_URL=redis://hrms-elite-redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-staging-redis-password}
+    volumes:
+      - hrms_staging_data:/app/data
+      - hrms_staging_uploads:/app/uploads
+      - hrms_staging_logs:/app/logs
+    networks:
+      - hrms-staging-network
+    depends_on:
+      - hrms-db
+      - redis
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  # SQLite Database - Staging
+  hrms-db:
+    image: alpine:latest
+    container_name: hrms-elite-db-staging
+    restart: unless-stopped
+    volumes:
+      - hrms_staging_data:/data
+    networks:
+      - hrms-staging-network
+    command: >
+      sh -c "
+        apk add --no-cache sqlite &&
+        if [ ! -f /data/hrms-staging.db ]; then
+          sqlite3 /data/hrms-staging.db 'CREATE TABLE IF NOT EXISTS migrations (id INTEGER PRIMARY KEY, name TEXT, applied_at DATETIME DEFAULT CURRENT_TIMESTAMP);'
+        fi &&
+        tail -f /dev/null
+      "
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+  # Nginx Reverse Proxy - Staging
+  nginx:
+    image: nginx:alpine
+    container_name: hrms-elite-nginx-staging
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.staging.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - hrms_staging_logs:/var/log/nginx
+    networks:
+      - hrms-staging-network
+    depends_on:
+      - hrms-app
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.25'
+
+  # Redis for staging
+  redis:
+    image: redis:7-alpine
+    container_name: hrms-elite-redis-staging
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass staging-redis-password --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_staging_data:/data
+    networks:
+      - hrms-staging-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+  # Backup service - Staging
+  backup:
+    image: alpine:latest
+    container_name: hrms-elite-backup-staging
+    restart: "no"
+    volumes:
+      - hrms_staging_data:/data:ro
+      - ./backups-staging:/backups
+    networks:
+      - hrms-staging-network
+    environment:
+      - BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-7}
+    command: >
+      sh -c "
+        apk add --no-cache sqlite3 tar gzip find &&
+        mkdir -p /backups &&
+        BACKUP_FILE=/backups/hrms-staging-backup-$$(date +%Y%m%d-%H%M%S).tar.gz &&
+        tar -czf $$BACKUP_FILE -C /data . &&
+        echo 'Staging backup created: $$BACKUP_FILE' &&
+        find /backups -name 'hrms-staging-backup-*.tar.gz' -mtime +$$BACKUP_RETENTION_DAYS -delete &&
+        echo 'Old staging backups cleaned up'
+      "
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.25'
+
+  # Monitoring - Prometheus (staging)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: hrms-elite-prometheus-staging
+    restart: unless-stopped
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.staging.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_staging_data:/prometheus
+    networks:
+      - hrms-staging-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=48h'
+      - '--web.enable-lifecycle'
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+  # Monitoring - Grafana (staging)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: hrms-elite-grafana-staging
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    volumes:
+      - grafana_staging_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - hrms-staging-network
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-staging-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+volumes:
+  hrms_staging_data:
+    driver: local
+  hrms_staging_uploads:
+    driver: local
+  hrms_staging_logs:
+    driver: local
+  redis_staging_data:
+    driver: local
+  prometheus_staging_data:
+    driver: local
+  grafana_staging_data:
+    driver: local
+
+networks:
+  hrms-staging-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16 

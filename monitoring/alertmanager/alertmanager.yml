@@ -1,0 +1,78 @@
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'hrms-alerts@yourcompany.com'
+  smtp_auth_username: 'hrms-alerts@yourcompany.com'
+  smtp_auth_password: 'your-app-password'
+
+route:
+  group_by: ['alertname', 'severity']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'hrms-team'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'hrms-critical'
+      continue: true
+    - match:
+        severity: warning
+      receiver: 'hrms-warning'
+
+receivers:
+  - name: 'hrms-team'
+    email_configs:
+      - to: 'hrms-team@yourcompany.com'
+        send_resolved: true
+        headers:
+          subject: 'HRMS Elite Alert: {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>HRMS Elite Alert</h2>
+          <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Severity:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>Summary:</strong> {{ .CommonAnnotations.summary }}</p>
+          <p><strong>Description:</strong> {{ .CommonAnnotations.description }}</p>
+          <p><strong>Time:</strong> {{ .StartsAt }}</p>
+          <hr>
+          <p><small>This is an automated alert from HRMS Elite monitoring system.</small></p>
+
+  - name: 'hrms-critical'
+    email_configs:
+      - to: 'admin@yourcompany.com, hrms-admin@yourcompany.com'
+        send_resolved: true
+        headers:
+          subject: '🚨 CRITICAL: HRMS Elite Alert - {{ .GroupLabels.alertname }}'
+        html: |
+          <h2 style="color: red;">🚨 CRITICAL ALERT</h2>
+          <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Severity:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>Summary:</strong> {{ .CommonAnnotations.summary }}</p>
+          <p><strong>Description:</strong> {{ .CommonAnnotations.description }}</p>
+          <p><strong>Time:</strong> {{ .StartsAt }}</p>
+          <hr>
+          <p><strong>IMMEDIATE ACTION REQUIRED</strong></p>
+          <p><small>This is a critical alert from HRMS Elite monitoring system.</small></p>
+
+  - name: 'hrms-warning'
+    email_configs:
+      - to: 'hrms-team@yourcompany.com'
+        send_resolved: true
+        headers:
+          subject: '⚠️ WARNING: HRMS Elite Alert - {{ .GroupLabels.alertname }}'
+        html: |
+          <h2 style="color: orange;">⚠️ WARNING</h2>
+          <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Severity:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>Summary:</strong> {{ .CommonAnnotations.summary }}</p>
+          <p><strong>Description:</strong> {{ .CommonAnnotations.description }}</p>
+          <p><strong>Time:</strong> {{ .StartsAt }}</p>
+          <hr>
+          <p><small>This is a warning alert from HRMS Elite monitoring system.</small></p>
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance'] 

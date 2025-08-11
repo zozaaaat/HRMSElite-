@@ -1,0 +1,69 @@
+{
+  "expo": {
+    "name": "HRMS Elite",
+    "slug": "hrms-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "hrmsmobile",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hrmselite.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.hrmselite.mobile"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png",
+      "name": "HRMS Elite",
+      "shortName": "HRMS",
+      "description": "Human Resource Management System Elite",
+      "lang": "en",
+      "dir": "ltr",
+      "display": "standalone",
+      "startUrl": "/",
+      "scope": "/",
+      "themeColor": "#007AFF",
+      "backgroundColor": "#ffffff",
+      "categories": ["business", "productivity"],
+      "screenshots": [
+        {
+          "src": "./assets/images/screenshot-1.png",
+          "sizes": "1280x720",
+          "type": "image/png",
+          "form_factor": "wide"
+        },
+        {
+          "src": "./assets/images/screenshot-2.png",
+          "sizes": "750x1334",
+          "type": "image/png",
+          "form_factor": "narrow"
+        }
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

@@ -1,0 +1,470 @@
+name: HRMS Elite CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      force_deploy:
+        description: 'Force deployment even if tests fail'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '8'
+
+jobs:
+  # 🔍 Code Quality & Security
+  code-quality:
+    name: Code Quality & Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+        continue-on-error: false
+
+      - name: Type checking
+        run: npm run type-check
+        continue-on-error: false
+
+      - name: Run security audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Check for secrets in code
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: .
+          base: HEAD~1
+          fail: true
+
+      - name: Check for hardcoded secrets
+        run: |
+          echo "Checking for hardcoded secrets..."
+          if grep -r "password\|secret\|key\|token" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" . | grep -v "node_modules" | grep -v "test" | grep -v "mock"; then
+            echo "⚠️  Potential hardcoded secrets found"
+            exit 1
+          fi
+
+      - name: Run SonarQube analysis
+        uses: sonarqube-quality-gate-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          scannerHome: ${{ github.workspace }}/.sonar/scanner
+          args: >
+            -Dsonar.projectKey=hrms-elite
+            -Dsonar.sources=.
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+
+  # 🧪 Testing Suite
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+        os: [ubuntu-latest, windows-latest]
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run database migrations
+        run: npm run db:push
+        env:
+          NODE_ENV: test
+          DATABASE_URL: ':memory:'
+
+      - name: Run server tests
+        run: npm run test:server:run
+        env:
+          NODE_ENV: test
+          DATABASE_URL: ':memory:'
+
+      - name: Run client tests
+        run: npm run test:client:run
+        env:
+          NODE_ENV: test
+
+      - name: Run API tests
+        run: npm run test:api:run
+        env:
+          NODE_ENV: test
+          DATABASE_URL: ':memory:'
+
+      - name: Run performance tests
+        run: npm run test:performance
+        env:
+          NODE_ENV: test
+
+      - name: Run accessibility tests
+        run: npm run test:accessibility
+        env:
+          NODE_ENV: test
+
+      - name: Upload test coverage
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  # 📊 Coverage Report
+  coverage:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate coverage reports
+        run: |
+          npm run test:coverage
+          npm run test:report
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            coverage/
+            client/coverage/
+            tests/coverage/
+
+      - name: Comment PR with coverage
+        if: github.event_name == 'pull_request'
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          lcov-file: ./coverage/lcov.info
+
+  # 🏗️ Build & Package
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: [code-quality, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Build Electron app
+        run: npm run build:electron
+        env:
+          NODE_ENV: production
+
+      - name: Build mobile app
+        run: |
+          cd hrms-mobile
+          npm ci
+          npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            dist/
+            electron/dist/
+            hrms-mobile/dist/
+
+  # 🐳 Docker Build & Test
+  docker:
+    name: Docker Build & Test
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./deploy/Dockerfile
+          push: false
+          tags: hrms-elite:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test Docker image
+        run: |
+          docker run --rm -d --name hrms-test -p 3000:3000 hrms-elite:latest
+          sleep 10
+          curl -f http://localhost:3000/health || exit 1
+          docker stop hrms-test
+
+      - name: Security scan Docker image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'hrms-elite:latest'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # 🚀 Deploy to Staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build, docker]
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    environment: staging
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./artifacts
+
+      - name: Deploy to staging server
+        run: |
+          echo "Deploying to staging environment..."
+          # Add your staging deployment commands here
+          # Example: SSH to server and pull latest changes
+          # ssh user@staging-server "cd /path/to/app && git pull && docker-compose up -d"
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests on staging..."
+          # Add smoke test commands
+          # curl -f https://staging.hrms-elite.com/health
+
+      - name: Run performance tests on staging
+        run: |
+          echo "Running performance tests on staging..."
+          # npm run test:performance:staging
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Staging deployment successful!"
+          # Add notification logic (Slack, Discord, etc.)
+
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ Staging deployment failed!"
+          # Add notification logic
+
+  # 🚀 Deploy to Production
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build, docker]
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./artifacts
+
+      - name: Create production backup
+        run: |
+          echo "Creating production backup..."
+          # Add backup commands
+
+      - name: Deploy to production server
+        run: |
+          echo "Deploying to production environment..."
+          # Add your production deployment commands here
+          # Example: SSH to server and pull latest changes
+          # ssh user@prod-server "cd /path/to/app && git pull && docker-compose up -d"
+
+      - name: Run production health checks
+        run: |
+          echo "Running health checks on production..."
+          # Add health check commands
+          # curl -f https://hrms-elite.com/health
+
+      - name: Run production performance tests
+        run: |
+          echo "Running performance tests on production..."
+          # npm run test:performance:production
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Production deployment successful!"
+          # Add notification logic
+
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ Production deployment failed!"
+          # Add notification logic
+
+  # 📱 Mobile App Build & Deploy
+  mobile-build:
+    name: Mobile App Build & Deploy
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd hrms-mobile && npm ci
+
+      - name: Build mobile app
+        run: |
+          cd hrms-mobile
+          # Add mobile build commands based on your framework
+          # For React Native: npx expo build
+          # For Capacitor: npx cap build
+
+      - name: Upload mobile artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-build
+          path: hrms-mobile/dist/
+
+      - name: Deploy to app stores
+        run: |
+          echo "Deploying mobile app to stores..."
+          # Add app store deployment commands
+
+  # 🔄 Post-Deployment Tasks
+  post-deployment:
+    name: Post-Deployment Tasks
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always()
+    steps:
+      - name: Update deployment status
+        run: |
+          echo "Updating deployment status..."
+          # Add status update logic
+
+      - name: Run post-deployment tests
+        run: |
+          echo "Running post-deployment tests..."
+          # Add post-deployment test commands
+
+      - name: Generate deployment report
+        run: |
+          echo "Generating deployment report..."
+          # Add report generation logic
+
+      - name: Clean up old artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            
+            const cutoff = new Date();
+            cutoff.setDate(cutoff.getDate() - 30); // Keep artifacts for 30 days
+            
+            for (const artifact of artifacts.data.artifacts) {
+              if (new Date(artifact.created_at) < cutoff) {
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id,
+                });
+              }
+            }
+
+      - name: Send deployment notification
+        if: always()
+        run: |
+          echo "Sending deployment notification..."
+          # Add notification logic 

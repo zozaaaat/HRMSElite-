@@ -1,64 +1,92 @@
-import { ReactNode } from "react";
-import { Button } from "./ui/button";
-import { Bell, LogOut, Menu, User } from "lucide-react";
+import React from 'react';
+import {Sidebar} from './sidebar';
+import {Header} from './header';
+import type {User} from '../lib/authUtils';
 
 interface SharedLayoutProps {
-  children: ReactNode;
-  userRole: string;
-  userName: string;
-  companyName: string;
+  children: React.ReactNode;
+  user?: User;
+  userRole?: string;
+  userName?: string;
+  companyName?: string;
+  onLogout?: () => void;
+  onSettingsClick?: () => void;
+  onSearchClick?: () => void;
+  onThemeToggle?: () => void;
+  isDarkMode?: boolean;
 }
 
-export function SharedLayout({ children, userRole, userName, companyName }: SharedLayoutProps) {
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm">
-              <Menu className="h-5 w-5" />
-            </Button>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                Zeylab HRMS
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                {companyName}
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm">
-              <Bell className="h-5 w-5" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <User className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900 dark:text-white">
-                  {userName}
-                </p>
-                <p className="text-xs text-gray-600 dark:text-gray-300">
-                  {userRole === 'company_manager' ? 'مدير الشركة' :
-                   userRole === 'super_admin' ? 'المسؤول العام' :
-                   userRole === 'administrative_employee' ? 'موظف إداري' :
-                   userRole === 'supervisor' ? 'مشرف' :
-                   userRole === 'worker' ? 'عامل' : userRole}
-                </p>
-              </div>
-            </div>
-            <Button variant="ghost" size="sm">
-              <LogOut className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </header>
+export function SharedLayout ({
+  children,
+  user,
+  companyName,
+  onLogout,
+  onSettingsClick,
+  onSearchClick,
+  onThemeToggle,
+  isDarkMode = false
+}: SharedLayoutProps) {
 
-      {/* Main Content */}
-      <main>
-        {children}
-      </main>
+  // تمرير المستخدم كما هو أو undefined لتجنب إنشاء كائن غير متوافق مع نوع User
+  const userData: User | undefined = user;
+
+  // إنشاء كائن company افتراضي
+  const defaultCompany = {
+    'id': 'default',
+    'name': companyName ?? 'شركة افتراضية',
+    'commercialFileNumber': null,
+    'commercialFileName': null,
+    'commercialFileStatus': true,
+    'establishmentDate': null,
+    'commercialRegistrationNumber': null,
+    'classification': null,
+    'department': null,
+    'fileType': null,
+    'legalEntity': null,
+    'ownershipCategory': null,
+    'logoUrl': null,
+    'address': null,
+    'phone': null,
+    'email': null,
+    'website': null,
+    'totalEmployees': 0,
+    'totalLicenses': 0,
+    'isActive': true,
+    'industryType': null,
+    'businessActivity': null,
+    'location': null,
+    'taxNumber': null,
+    'chambers': null,
+    'partnerships': '[]',
+    'importExportLicense': null,
+    'specialPermits': '[]',
+    'createdAt': new Date(),
+    'updatedAt': new Date()
+  };
+
+  return (
+    <div className="flex h-screen bg-background">
+      <Sidebar
+        user={userData}
+        company={defaultCompany}
+        activeView="dashboard"
+        onViewChange={() => {}}
+      />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header
+          {...(userData && { user: userData })}
+          company={defaultCompany}
+          {...(onLogout && { onLogout })}
+          {...(onSettingsClick && { onSettingsClick })}
+          {...(onSearchClick && { onSearchClick })}
+          {...(onThemeToggle && { onThemeToggle })}
+          isDarkMode={isDarkMode}
+        />
+        <main className="flex-1 overflow-auto p-6">
+          {children}
+        </main>
+      </div>
     </div>
   );
+
 }

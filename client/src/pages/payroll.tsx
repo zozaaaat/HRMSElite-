@@ -1,19 +1,20 @@
-import { useState } from "react";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
-import { useToast } from "../hooks/use-toast";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { format } from "date-fns";
-import { ar } from "date-fns/locale";
-import { 
+import {useState} from 'react';
+import {Button} from '../components/ui/button';
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '../components/ui/card';
+import {Badge} from '../components/ui/badge';
+import {Input} from '../components/ui/input';
+import {Label} from '../components/ui/label';
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+} from '../components/ui/table';
+import {Tabs, TabsContent, TabsList, TabsTrigger} from '../components/ui/tabs';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from '../components/ui/select';
+import {useToast} from '../hooks/use-toast';
+import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
+import {apiRequest} from '@/lib/queryClient';
+import {
   DollarSign,
   Calculator,
   Download,
@@ -22,10 +23,11 @@ import {
   Users,
   Calendar,
   Eye,
-  Plus,
   Receipt,
   PieChart
-} from "lucide-react";
+} from 'lucide-react';
+import {SharedLayout} from '../components/shared-layout';
+import {LoadingSpinner, ErrorMessage} from '../components/shared';
 
 interface PayrollRecord {
   id: string;
@@ -52,148 +54,166 @@ interface PayrollSummary {
   totalTaxes: number;
 }
 
-export default function PayrollPage() {
+export default function PayrollPage () {
+
   return (
-    <SharedLayout 
-      userRole="employee" 
-      userName="أحمد محمد علي" 
+    <SharedLayout
+      userRole="employee"
+      userName="أحمد محمد علي"
       companyName="شركة النيل الأزرق للمجوهرات"
     >
       <PayrollContent />
     </SharedLayout>
   );
+
 }
 
-function PayrollContent() {
-  const { toast } = useToast();
+function PayrollContent () {
+
+  const {toast} = useToast();
   const queryClient = useQueryClient();
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [isProcessingPayroll, setIsProcessingPayroll] = useState(false);
 
   // جلب ملخص الرواتب
-  const { data: payrollSummary } = useQuery<PayrollSummary>({
-    queryKey: ["/api/payroll/summary", selectedMonth, selectedYear],
+  const {
+  'data': payrollSummary, 'isLoading': summaryLoading, 'error': summaryError
+} = useQuery<PayrollSummary>({
+  
+    'queryKey': ['/api/payroll/summary']
   });
 
   // جلب سجلات الرواتب
-  const { data: payrollRecords, isLoading } = useQuery<PayrollRecord[]>({
-    queryKey: ["/api/payroll/records", selectedMonth, selectedYear],
+  const {'data': _payrollRecords, isLoading, error} = useQuery<PayrollRecord[]>({
+    'queryKey': ['/api/payroll/records']
   });
 
   // معالجة الرواتب الشهرية
   const processPayrollMutation = useMutation({
-    mutationFn: (data: { month: number; year: number }) => 
-      apiRequest("/api/payroll/process", "POST", data),
-    onSuccess: () => {
+    'mutationFn': (data: { month: number; year: number }) =>
+      apiRequest('/api/payroll/process', 'POST', data),
+    'onSuccess': () => {
+
       toast({
-        title: "تم معالجة الرواتب",
-        description: "تم حساب وإعداد كشوف الرواتب لجميع الموظفين",
+        'title': 'تم معالجة الرواتب',
+        'description': 'تم حساب وإعداد كشوف الرواتب لجميع الموظفين'
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/payroll"] });
+      queryClient.invalidateQueries({'queryKey': ['/api/payroll']});
       setIsProcessingPayroll(false);
-    },
+
+    }
   });
 
   const getStatusBadge = (status: string) => {
+
     const statusMap = {
-      processed: { label: "معالج", variant: "secondary" as const, color: "text-blue-600" },
-      pending: { label: "قيد المعالجة", variant: "outline" as const, color: "text-orange-600" },
-      paid: { label: "مدفوع", variant: "default" as const, color: "text-green-600" }
+      'processed': {'label': 'معالج', 'variant': 'secondary' as const, 'color': 'text-blue-600'},
+      'pending': {
+  'label': 'قيد المعالجة', 'variant': 'outline' as const, 'color': 'text-orange-600'
+},
+      'paid': {'label': 'مدفوع', 'variant': 'default' as const, 'color': 'text-green-600'}
     };
     const statusInfo = statusMap[status as keyof typeof statusMap] || statusMap.pending;
     return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>;
+
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('ar-KW', { 
-      style: 'currency', 
-      currency: 'KWD',
-      minimumFractionDigits: 2 
+
+    return new Intl.NumberFormat('ar-KW', {
+      'style': 'currency',
+      'currency': 'KWD',
+      'minimumFractionDigits': 2
     }).format(amount);
+
   };
 
   const handleProcessPayroll = () => {
+
     setIsProcessingPayroll(true);
     processPayrollMutation.mutate({
-      month: selectedMonth,
-      year: selectedYear
+      'month': selectedMonth,
+      'year': selectedYear
     });
+
   };
 
   const handleExportPayroll = (format: string) => {
+
     toast({
-      title: `تصدير ${format.toUpperCase()}`,
-      description: "تم تصدير كشوف الرواتب بنجاح",
+      'title': `تصدير ${format.toUpperCase()}`,
+      'description': 'تم تصدير كشوف الرواتب بنجاح'
     });
+
   };
 
   // بيانات تجريبية للرواتب
   const mockPayrollRecords: PayrollRecord[] = [
     {
-      id: "1",
-      employeeName: "أحمد محمد علي",
-      employeeId: "EMP001",
-      baseSalary: 1200,
-      allowances: 300,
-      overtime: 150,
-      deductions: 50,
-      taxes: 120,
-      socialInsurance: 85,
-      netSalary: 1395,
-      status: "paid",
-      paymentDate: "2025-01-25"
+      'id': '1',
+      'employeeName': 'أحمد محمد علي',
+      'employeeId': 'EMP001',
+      'baseSalary': 1200,
+      'allowances': 300,
+      'overtime': 150,
+      'deductions': 50,
+      'taxes': 120,
+      'socialInsurance': 85,
+      'netSalary': 1395,
+      'status': 'paid',
+      'paymentDate': '2025-01-25'
     },
     {
-      id: "2",
-      employeeName: "فاطمة أحمد سالم",
-      employeeId: "EMP002",
-      baseSalary: 950,
-      allowances: 200,
-      overtime: 75,
-      deductions: 25,
-      taxes: 90,
-      socialInsurance: 68,
-      netSalary: 1042,
-      status: "paid",
-      paymentDate: "2025-01-25"
+      'id': '2',
+      'employeeName': 'فاطمة أحمد سالم',
+      'employeeId': 'EMP002',
+      'baseSalary': 950,
+      'allowances': 200,
+      'overtime': 75,
+      'deductions': 25,
+      'taxes': 90,
+      'socialInsurance': 68,
+      'netSalary': 1042,
+      'status': 'paid',
+      'paymentDate': '2025-01-25'
     },
     {
-      id: "3",
-      employeeName: "محمد عبدالله الحربي",
-      employeeId: "EMP003",
-      baseSalary: 1500,
-      allowances: 400,
-      overtime: 200,
-      deductions: 75,
-      taxes: 155,
-      socialInsurance: 105,
-      netSalary: 1765,
-      status: "processed"
+      'id': '3',
+      'employeeName': 'محمد عبدالله الحربي',
+      'employeeId': 'EMP003',
+      'baseSalary': 1500,
+      'allowances': 400,
+      'overtime': 200,
+      'deductions': 75,
+      'taxes': 155,
+      'socialInsurance': 105,
+      'netSalary': 1765,
+      'status': 'processed'
     },
     {
-      id: "4",
-      employeeName: "سارة عبدالرحمن القحطاني",
-      employeeId: "EMP004",
-      baseSalary: 800,
-      allowances: 150,
-      overtime: 50,
-      deductions: 20,
-      taxes: 70,
-      socialInsurance: 58,
-      netSalary: 852,
-      status: "pending"
+      'id': '4',
+      'employeeName': 'سارة عبدالرحمن القحطاني',
+      'employeeId': 'EMP004',
+      'baseSalary': 800,
+      'allowances': 150,
+      'overtime': 50,
+      'deductions': 20,
+      'taxes': 70,
+      'socialInsurance': 58,
+      'netSalary': 852,
+      'status': 'pending'
     }
   ];
 
   const mockSummary: PayrollSummary = {
-    totalEmployees: 167,
-    totalGrossSalary: 180500,
-    totalDeductions: 25600,
-    totalNetSalary: 154900,
-    averageSalary: 1081,
-    overtimeHours: 2340,
-    totalTaxes: 18200
+    'totalEmployees': 167,
+    'totalGrossSalary': 180500,
+    'totalDeductions': 25600,
+    'totalNetSalary': 154900,
+    'averageSalary': 1081,
+    'overtimeHours': 2340,
+    'totalTaxes': 18200
   };
 
   return (
@@ -205,10 +225,10 @@ function PayrollContent() {
             إدارة وحساب رواتب الموظفين الشهرية
           </p>
         </div>
-        
+
         <div className="flex gap-3">
-          <Select 
-            value={selectedMonth.toString()} 
+          <Select
+            value={selectedMonth.toString()}
             onValueChange={(value) => setSelectedMonth(parseInt(value))}
           >
             <SelectTrigger className="w-32">
@@ -230,8 +250,8 @@ function PayrollContent() {
             </SelectContent>
           </Select>
 
-          <Select 
-            value={selectedYear.toString()} 
+          <Select
+            value={selectedYear.toString()}
             onValueChange={(value) => setSelectedYear(parseInt(value))}
           >
             <SelectTrigger className="w-24">
@@ -244,76 +264,98 @@ function PayrollContent() {
             </SelectContent>
           </Select>
 
-          <Button 
+          <Button
             onClick={handleProcessPayroll}
             disabled={isProcessingPayroll}
             className="gap-2"
           >
             <Calculator className="h-4 w-4" />
-            {isProcessingPayroll ? "جاري المعالجة..." : "معالجة الرواتب"}
+            {isProcessingPayroll ? 'جاري المعالجة...' : 'معالجة الرواتب'}
           </Button>
         </div>
       </div>
 
       {/* بطاقات الملخص */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              إجمالي الموظفين
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{mockSummary.totalEmployees}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-green-600" />
-              إجمالي الرواتب
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold text-green-600">
-              {formatCurrency(mockSummary.totalGrossSalary)}
-            </div>
-            <p className="text-xs text-muted-foreground">قبل الخصومات</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Receipt className="h-4 w-4 text-red-600" />
-              إجمالي الخصومات
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold text-red-600">
-              {formatCurrency(mockSummary.totalDeductions)}
-            </div>
-            <p className="text-xs text-muted-foreground">ضرائب وتأمينات</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-blue-600" />
-              صافي الرواتب
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold text-blue-600">
-              {formatCurrency(mockSummary.totalNetSalary)}
-            </div>
-            <p className="text-xs text-muted-foreground">بعد الخصومات</p>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Loading and Error States */}
+      {(summaryLoading ?? isLoading) && (
+        <div className="flex items-center justify-center py-12">
+          <LoadingSpinner text="جاري تحميل بيانات الرواتب..." />
+        </div>
+      )}
+
+      {(summaryError ?? error) && (
+        <div className="py-8">
+          <ErrorMessage
+            error={summaryError ?? error}
+            title="خطأ في تحميل بيانات الرواتب"
+            onRetry={() => window.location.reload()}
+          />
+        </div>
+      )}
+
+      {/* بطاقات الإحصائيات */}
+      {!summaryLoading && !isLoading && !summaryError && !error && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                إجمالي الموظفين
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{
+  payrollSummary?.totalEmployees ?? mockSummary.totalEmployees
+}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-green-600" />
+                إجمالي الرواتب
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold text-green-600">
+                {formatCurrency(payrollSummary?.totalGrossSalary ?? mockSummary.totalGrossSalary)}
+              </div>
+              <p className="text-xs text-muted-foreground">قبل الخصومات</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Receipt className="h-4 w-4 text-red-600" />
+                إجمالي الخصومات
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold text-red-600">
+                {formatCurrency(payrollSummary?.totalDeductions ?? mockSummary.totalDeductions)}
+              </div>
+              <p className="text-xs text-muted-foreground">ضرائب وتأمينات</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-blue-600" />
+                صافي الرواتب
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold text-blue-600">
+                {formatCurrency(payrollSummary?.totalNetSalary ?? mockSummary.totalNetSalary)}
+              </div>
+              <p className="text-xs text-muted-foreground">بعد الخصومات</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <Tabs defaultValue="payroll" className="space-y-4">
         <TabsList>
@@ -334,11 +376,15 @@ function PayrollContent() {
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => handleExportPayroll("excel")} className="gap-2">
+                  <Button variant="outline" onClick={
+  () => handleExportPayroll('excel')
+} className="gap-2">
                     <FileText className="h-4 w-4" />
                     Excel
                   </Button>
-                  <Button variant="outline" onClick={() => handleExportPayroll("pdf")} className="gap-2">
+                  <Button variant="outline" onClick={
+  () => handleExportPayroll('pdf')
+} className="gap-2">
                     <Download className="h-4 w-4" />
                     PDF
                   </Button>
@@ -561,4 +607,5 @@ function PayrollContent() {
       </Tabs>
     </div>
   );
+
 }

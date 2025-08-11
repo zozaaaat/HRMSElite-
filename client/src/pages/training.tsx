@@ -1,16 +1,17 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Badge } from "../components/ui/badge";
-import { Progress } from "../components/ui/progress";
-import { Input } from "../components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { 
-  BookOpen, 
-  Users, 
-  Award, 
+import {useState} from 'react';
+import {Button} from '../components/ui/button';
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '../components/ui/card';
+import {Tabs, TabsContent, TabsList, TabsTrigger} from '../components/ui/tabs';
+import {Badge} from '../components/ui/badge';
+import {Progress} from '../components/ui/progress';
+import {Input} from '../components/ui/input';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from '../components/ui/select';
+import {
+  BookOpen,
+  Users,
+  Award,
   Calendar,
   Clock,
   Play,
@@ -22,193 +23,184 @@ import {
   Target,
   TrendingUp,
   Bookmark
-} from "lucide-react";
-import { SharedLayout } from "../components/shared-layout";
-import { apiRequest } from "@/lib/queryClient";
+} from 'lucide-react';
+import {SharedLayout} from '../components/shared-layout';
 
-export default function Training() {
+export default function Training () {
+
   return (
-    <SharedLayout 
-      userRole="company_manager" 
-      userName="مدير الشركة" 
+    <SharedLayout
+      userRole="company_manager"
+      userName="مدير الشركة"
       companyName="شركة النيل الأزرق للمجوهرات"
     >
       <TrainingContent />
     </SharedLayout>
   );
+
 }
 
-function TrainingContent() {
-  const [activeTab, setActiveTab] = useState("courses");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const queryClient = useQueryClient();
+function TrainingContent () {
 
-  const { data: trainingData, isLoading } = useQuery({
-    queryKey: ['/api/training/courses'],
-  });
-
-  const enrollMutation = useMutation({
-    mutationFn: async ({ courseId, employeeId }: { courseId: string; employeeId: string }) => {
-      return await apiRequest('/api/training/enroll', {
-        method: 'POST',
-        body: JSON.stringify({ courseId, employeeId }),
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/training'] });
-    }
-  });
+  const [activeTab, setActiveTab] = useState('courses');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  // React Query calls removed as data/mutations are not used on this page
 
   const mockCourses = [
     {
-      id: "1",
-      title: "أساسيات إدارة الموارد البشرية",
-      description: "دورة شاملة تغطي مبادئ وممارسات إدارة الموارد البشرية الحديثة",
-      category: "hr",
-      level: "مبتدئ",
-      duration: "8 ساعات",
-      instructor: "د. أحمد السيد",
-      enrolledCount: 24,
-      maxCapacity: 30,
-      startDate: "2025-02-01",
-      status: "upcoming",
-      progress: 0,
-      rating: 4.8,
-      certificate: true
+      'id': '1',
+      'title': 'أساسيات إدارة الموارد البشرية',
+      'description': 'دورة شاملة تغطي مبادئ وممارسات إدارة الموارد البشرية الحديثة',
+      'category': 'hr',
+      'level': 'مبتدئ',
+      'duration': '8 ساعات',
+      'instructor': 'د. أحمد السيد',
+      'enrolledCount': 24,
+      'maxCapacity': 30,
+      'startDate': '2025-02-01',
+      'status': 'upcoming',
+      'progress': 0,
+      'rating': 4.8,
+      'certificate': true
     },
     {
-      id: "2", 
-      title: "إدارة الأداء والتقييم",
-      description: "تعلم كيفية تطوير أنظمة تقييم الأداء الفعالة وإدارة دورات المراجعة",
-      category: "performance",
-      level: "متوسط",
-      duration: "12 ساعة",
-      instructor: "أ. فاطمة محمود",
-      enrolledCount: 18,
-      maxCapacity: 25,
-      startDate: "2025-01-25",
-      status: "ongoing",
-      progress: 65,
-      rating: 4.9,
-      certificate: true
+      'id': '2',
+      'title': 'إدارة الأداء والتقييم',
+      'description': 'تعلم كيفية تطوير أنظمة تقييم الأداء الفعالة وإدارة دورات المراجعة',
+      'category': 'performance',
+      'level': 'متوسط',
+      'duration': '12 ساعة',
+      'instructor': 'أ. فاطمة محمود',
+      'enrolledCount': 18,
+      'maxCapacity': 25,
+      'startDate': '2025-01-25',
+      'status': 'ongoing',
+      'progress': 65,
+      'rating': 4.9,
+      'certificate': true
     },
     {
-      id: "3",
-      title: "قوانين العمل والامتثال",
-      description: "دراسة شاملة لقوانين العمل المحلية ومتطلبات الامتثال القانوني",
-      category: "legal",
-      level: "متقدم",
-      duration: "16 ساعة",
-      instructor: "أ. محمد عبدالله",
-      enrolledCount: 12,
-      maxCapacity: 20,
-      startDate: "2025-01-20",
-      status: "ongoing",
-      progress: 40,
-      rating: 4.7,
-      certificate: true
+      'id': '3',
+      'title': 'قوانين العمل والامتثال',
+      'description': 'دراسة شاملة لقوانين العمل المحلية ومتطلبات الامتثال القانوني',
+      'category': 'legal',
+      'level': 'متقدم',
+      'duration': '16 ساعة',
+      'instructor': 'أ. محمد عبدالله',
+      'enrolledCount': 12,
+      'maxCapacity': 20,
+      'startDate': '2025-01-20',
+      'status': 'ongoing',
+      'progress': 40,
+      'rating': 4.7,
+      'certificate': true
     },
     {
-      id: "4",
-      title: "التدريب على برامج الحاسوب",
-      description: "تدريب متقدم على أنظمة إدارة الموارد البشرية وبرامج المكتب",
-      category: "technical",
-      level: "مبتدئ",
-      duration: "6 ساعات",
-      instructor: "م. خالد أحمد",
-      enrolledCount: 30,
-      maxCapacity: 30,
-      startDate: "2025-01-15",
-      status: "completed",
-      progress: 100,
-      rating: 4.6,
-      certificate: true
+      'id': '4',
+      'title': 'التدريب على برامج الحاسوب',
+      'description': 'تدريب متقدم على أنظمة إدارة الموارد البشرية وبرامج المكتب',
+      'category': 'technical',
+      'level': 'مبتدئ',
+      'duration': '6 ساعات',
+      'instructor': 'م. خالد أحمد',
+      'enrolledCount': 30,
+      'maxCapacity': 30,
+      'startDate': '2025-01-15',
+      'status': 'completed',
+      'progress': 100,
+      'rating': 4.6,
+      'certificate': true
     }
   ];
 
   const mockEmployeeProgress = [
     {
-      id: "1",
-      employeeName: "أحمد محمد علي",
-      department: "المبيعات",
-      coursesEnrolled: 3,
-      coursesCompleted: 2,
-      totalHours: 26,
-      certificatesEarned: 2,
-      currentCourse: "إدارة الأداء والتقييم",
-      progress: 65,
-      lastActivity: "2025-01-28"
+      'id': '1',
+      'employeeName': 'أحمد محمد علي',
+      'department': 'المبيعات',
+      'coursesEnrolled': 3,
+      'coursesCompleted': 2,
+      'totalHours': 26,
+      'certificatesEarned': 2,
+      'currentCourse': 'إدارة الأداء والتقييم',
+      'progress': 65,
+      'lastActivity': '2025-01-28'
     },
     {
-      id: "2",
-      employeeName: "فاطمة سالم أحمد",
-      department: "المحاسبة",
-      coursesEnrolled: 2,
-      coursesCompleted: 1,
-      totalHours: 14,
-      certificatesEarned: 1,
-      currentCourse: "قوانين العمل والامتثال",
-      progress: 40,
-      lastActivity: "2025-01-27"
+      'id': '2',
+      'employeeName': 'فاطمة سالم أحمد',
+      'department': 'المحاسبة',
+      'coursesEnrolled': 2,
+      'coursesCompleted': 1,
+      'totalHours': 14,
+      'certificatesEarned': 1,
+      'currentCourse': 'قوانين العمل والامتثال',
+      'progress': 40,
+      'lastActivity': '2025-01-27'
     },
     {
-      id: "3",
-      employeeName: "خالد عبدالرحمن",
-      department: "التكنولوجيا",
-      coursesEnrolled: 4,
-      coursesCompleted: 3,
-      totalHours: 38,
-      certificatesEarned: 3,
-      currentCourse: "أساسيات إدارة الموارد البشرية",
-      progress: 0,
-      lastActivity: "2025-01-26"
+      'id': '3',
+      'employeeName': 'خالد عبدالرحمن',
+      'department': 'التكنولوجيا',
+      'coursesEnrolled': 4,
+      'coursesCompleted': 3,
+      'totalHours': 38,
+      'certificatesEarned': 3,
+      'currentCourse': 'أساسيات إدارة الموارد البشرية',
+      'progress': 0,
+      'lastActivity': '2025-01-26'
     }
   ];
 
   const getStatusColor = (status: string) => {
+
     switch (status) {
-      case 'upcoming': return 'bg-blue-100 text-blue-800';
-      case 'ongoing': return 'bg-green-100 text-green-800';
-      case 'completed': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+
+    case 'upcoming': return 'bg-blue-100 text-blue-800';
+    case 'ongoing': return 'bg-green-100 text-green-800';
+    case 'completed': return 'bg-gray-100 text-gray-800';
+    default: return 'bg-gray-100 text-gray-800';
+
     }
+
   };
 
   const getStatusText = (status: string) => {
+
     switch (status) {
-      case 'upcoming': return 'قادمة';
-      case 'ongoing': return 'جارية';
-      case 'completed': return 'مكتملة';
-      default: return status;
+
+    case 'upcoming': return 'قادمة';
+    case 'ongoing': return 'جارية';
+    case 'completed': return 'مكتملة';
+    default: return status;
+
     }
+
   };
 
   const getLevelColor = (level: string) => {
+
     switch (level) {
-      case 'مبتدئ': return 'bg-green-100 text-green-800';
-      case 'متوسط': return 'bg-yellow-100 text-yellow-800';
-      case 'متقدم': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+
+    case 'مبتدئ': return 'bg-green-100 text-green-800';
+    case 'متوسط': return 'bg-yellow-100 text-yellow-800';
+    case 'متقدم': return 'bg-red-100 text-red-800';
+    default: return 'bg-gray-100 text-gray-800';
+
     }
+
   };
 
-  const getCategoryText = (category: string) => {
-    switch (category) {
-      case 'hr': return 'موارد بشرية';
-      case 'performance': return 'إدارة الأداء';
-      case 'legal': return 'قانونية';
-      case 'technical': return 'تقنية';
-      default: return category;
-    }
-  };
 
   const filteredCourses = mockCourses.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         course.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory;
-    
+
+    const matchesSearch = course?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         course?.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || course?.category === selectedCategory;
+
     return matchesSearch && matchesCategory;
+
   });
 
   return (
@@ -338,19 +330,21 @@ function TrainingContent() {
           <TabsContent value="courses" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {filteredCourses.map((course) => (
-                <Card key={course.id} className="hover:shadow-lg transition-shadow">
+                <Card key={course?.id ?? 'unknown'} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <CardTitle className="text-lg mb-2">{course.title}</CardTitle>
+                        <CardTitle className="text-lg mb-2">{
+  course?.title ?? 'غير محدد'
+}</CardTitle>
                         <CardDescription>{course.description}</CardDescription>
                       </div>
                       <div className="flex gap-2">
-                        <Badge className={getStatusColor(course.status)}>
-                          {getStatusText(course.status)}
+                        <Badge className={getStatusColor(course?.status ?? '')}>
+                          {getStatusText(course?.status ?? '')}
                         </Badge>
-                        <Badge className={getLevelColor(course.level)}>
-                          {course.level}
+                        <Badge className={getLevelColor(course?.level ?? '')}>
+                          {course?.level ?? 'غير محدد'}
                         </Badge>
                       </div>
                     </div>
@@ -465,10 +459,12 @@ function TrainingContent() {
                             </div>
                             <Progress value={employee.progress} className="h-2" />
                           </div>
-                          
+
                           <div className="flex items-center gap-2 text-sm">
                             <CheckCircle className="h-4 w-4 text-green-500" />
-                            <span>معدل الإتمام: {Math.round((employee.coursesCompleted / employee.coursesEnrolled) * 100)}%</span>
+                            <span>معدل الإتمام: {
+  Math.round((employee.coursesCompleted / employee.coursesEnrolled) * 100)
+}%</span>
                           </div>
                         </div>
                       </div>
@@ -483,38 +479,38 @@ function TrainingContent() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
                 {
-                  id: "1",
-                  courseName: "أساسيات إدارة الموارد البشرية",
-                  employeeName: "أحمد محمد علي",
-                  completionDate: "2025-01-20",
-                  score: "95%",
-                  instructor: "د. أحمد السيد",
-                  status: "issued"
+                  'id': '1',
+                  'courseName': 'أساسيات إدارة الموارد البشرية',
+                  'employeeName': 'أحمد محمد علي',
+                  'completionDate': '2025-01-20',
+                  'score': '95%',
+                  'instructor': 'د. أحمد السيد',
+                  'status': 'issued'
                 },
                 {
-                  id: "2",
-                  courseName: "التدريب على برامج الحاسوب", 
-                  employeeName: "خالد عبدالرحمن",
-                  completionDate: "2025-01-18",
-                  score: "88%",
-                  instructor: "م. خالد أحمد",
-                  status: "issued"
+                  'id': '2',
+                  'courseName': 'التدريب على برامج الحاسوب',
+                  'employeeName': 'خالد عبدالرحمن',
+                  'completionDate': '2025-01-18',
+                  'score': '88%',
+                  'instructor': 'م. خالد أحمد',
+                  'status': 'issued'
                 },
                 {
-                  id: "3",
-                  courseName: "إدارة الأداء والتقييم",
-                  employeeName: "فاطمة سالم أحمد",
-                  completionDate: "2025-01-15",
-                  score: "92%",
-                  instructor: "أ. فاطمة محمود",
-                  status: "pending"
+                  'id': '3',
+                  'courseName': 'إدارة الأداء والتقييم',
+                  'employeeName': 'فاطمة سالم أحمد',
+                  'completionDate': '2025-01-15',
+                  'score': '92%',
+                  'instructor': 'أ. فاطمة محمود',
+                  'status': 'pending'
                 }
               ].map((cert) => (
                 <Card key={cert.id} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-6">
                     <div className="text-center space-y-4">
                       <Award className="h-16 w-16 text-yellow-500 mx-auto" />
-                      
+
                       <div>
                         <h3 className="font-bold text-lg mb-2">{cert.courseName}</h3>
                         <p className="text-gray-600 dark:text-gray-300">{cert.employeeName}</p>
@@ -559,10 +555,10 @@ function TrainingContent() {
                 <CardContent>
                   <div className="space-y-4">
                     {[
-                      { month: "يناير 2025", completed: 23, total: 30, percentage: 77 },
-                      { month: "ديسمبر 2024", completed: 28, total: 32, percentage: 88 },
-                      { month: "نوفمبر 2024", completed: 19, total: 25, percentage: 76 },
-                      { month: "أكتوبر 2024", completed: 31, total: 35, percentage: 89 }
+                      {'month': 'يناير 2025', 'completed': 23, 'total': 30, 'percentage': 77},
+                      {'month': 'ديسمبر 2024', 'completed': 28, 'total': 32, 'percentage': 88},
+                      {'month': 'نوفمبر 2024', 'completed': 19, 'total': 25, 'percentage': 76},
+                      {'month': 'أكتوبر 2024', 'completed': 31, 'total': 35, 'percentage': 89}
                     ].map((report, index) => (
                       <div key={index} className="space-y-2">
                         <div className="flex justify-between text-sm">
@@ -583,12 +579,14 @@ function TrainingContent() {
                 <CardContent>
                   <div className="space-y-4">
                     {[
-                      { department: "المبيعات", employees: 15, completed: 89 },
-                      { department: "المحاسبة", employees: 8, completed: 95 },
-                      { department: "التكنولوجيا", employees: 6, completed: 83 },
-                      { department: "الموارد البشرية", employees: 5, completed: 92 }
+                      {'department': 'المبيعات', 'employees': 15, 'completed': 89},
+                      {'department': 'المحاسبة', 'employees': 8, 'completed': 95},
+                      {'department': 'التكنولوجيا', 'employees': 6, 'completed': 83},
+                      {'department': 'الموارد البشرية', 'employees': 5, 'completed': 92}
                     ].map((dept, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <div key={
+  index
+} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                         <div>
                           <div className="font-medium">{dept.department}</div>
                           <div className="text-sm text-gray-600">{dept.employees} موظف</div>
@@ -610,4 +608,5 @@ function TrainingContent() {
       </div>
     </div>
   );
+
 }

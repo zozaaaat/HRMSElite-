@@ -1,144 +1,176 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Badge } from "../components/ui/badge";
-import { Progress } from "../components/ui/progress";
-import { 
-  Target, 
-  TrendingUp, 
-  Users, 
+import {useState} from 'react';
+import {useQuery} from '@tanstack/react-query';
+import {Button} from '../components/ui/button';
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '../components/ui/card';
+import {Tabs, TabsContent, TabsList, TabsTrigger} from '../components/ui/tabs';
+import {Badge} from '../components/ui/badge';
+import {Progress} from '../components/ui/progress';
+import {
+  Target,
+  TrendingUp,
+  Users,
   Star,
   Calendar,
   Award,
   BarChart3,
-  PieChart,
   Activity,
   CheckCircle,
-  AlertCircle,
   Plus,
   Search,
   Eye
-} from "lucide-react";
-import { SharedLayout } from "../components/shared-layout";
+} from 'lucide-react';
+import {SharedLayout} from '../components/shared-layout';
+import {LoadingSpinner, ErrorMessage} from '../components/shared';
 
-export default function Performance() {
+export default function Performance () {
+
   return (
-    <SharedLayout 
-      userRole="company_manager" 
-      userName="مدير الشركة" 
+    <SharedLayout
+      userRole="company_manager"
+      userName="مدير الشركة"
       companyName="شركة النيل الأزرق للمجوهرات"
     >
       <PerformanceContent />
     </SharedLayout>
   );
+
 }
 
-function PerformanceContent() {
-  const [activeTab, setActiveTab] = useState("overview");
+function PerformanceContent () {
 
-  const { data: performanceData, isLoading } = useQuery({
-    queryKey: ['/api/performance/overview'],
+  const [activeTab, setActiveTab] = useState('overview');
+
+  const {'data': _performanceData, isLoading, error} = useQuery({
+    'queryKey': ['/api/performance']
   });
 
   const mockEmployeesPerformance = [
     {
-      id: "1",
-      name: "أحمد محمد علي",
-      department: "المبيعات",
-      position: "مسؤول مبيعات أول",
-      overallScore: 4.8,
-      goals: { completed: 9, total: 10 },
-      lastReview: "2025-01-15",
-      categories: {
-        productivity: 4.9,
-        quality: 4.7,
-        teamwork: 4.8,
-        leadership: 4.6
+      'id': '1',
+      'name': 'أحمد محمد علي',
+      'department': 'المبيعات',
+      'position': 'مسؤول مبيعات أول',
+      'overallScore': 4.8,
+      'goals': {'completed': 9, 'total': 10},
+      'lastReview': '2025-01-15',
+      'categories': {
+        'productivity': 4.9,
+        'quality': 4.7,
+        'teamwork': 4.8,
+        'leadership': 4.6
       },
-      trend: "up"
+      'trend': 'up'
     },
     {
-      id: "2",
-      name: "فاطمة سالم أحمد",
-      department: "المحاسبة",
-      position: "محاسب أول",
-      overallScore: 4.5,
-      goals: { completed: 8, total: 10 },
-      lastReview: "2025-01-10",
-      categories: {
-        productivity: 4.6,
-        quality: 4.8,
-        teamwork: 4.3,
-        leadership: 4.2
+      'id': '2',
+      'name': 'فاطمة سالم أحمد',
+      'department': 'المحاسبة',
+      'position': 'محاسب أول',
+      'overallScore': 4.5,
+      'goals': {'completed': 8, 'total': 10},
+      'lastReview': '2025-01-10',
+      'categories': {
+        'productivity': 4.6,
+        'quality': 4.8,
+        'teamwork': 4.3,
+        'leadership': 4.2
       },
-      trend: "up"
+      'trend': 'up'
     },
     {
-      id: "3",
-      name: "خالد عبدالرحمن",
-      department: "التكنولوجيا",
-      position: "مطور أول",
-      overallScore: 4.2,
-      goals: { completed: 7, total: 10 },
-      lastReview: "2025-01-05",
-      categories: {
-        productivity: 4.1,
-        quality: 4.5,
-        teamwork: 4.0,
-        leadership: 3.8
+      'id': '3',
+      'name': 'خالد عبدالرحمن',
+      'department': 'التكنولوجيا',
+      'position': 'مطور أول',
+      'overallScore': 4.2,
+      'goals': {'completed': 7, 'total': 10},
+      'lastReview': '2025-01-05',
+      'categories': {
+        'productivity': 4.1,
+        'quality': 4.5,
+        'teamwork': 4.0,
+        'leadership': 3.8
       },
-      trend: "stable"
+      'trend': 'stable'
     }
   ];
 
   const mockTeamPerformance = [
     {
-      team: "فريق المبيعات",
-      manager: "أحمد محمد علي",
-      members: 8,
-      avgScore: 4.3,
-      goalsCompleted: 85,
-      trend: "up",
-      topPerformers: 3
+      'team': 'فريق المبيعات',
+      'manager': 'أحمد محمد علي',
+      'members': 8,
+      'avgScore': 4.3,
+      'goalsCompleted': 85,
+      'trend': 'up',
+      'topPerformers': 3
     },
     {
-      team: "فريق المحاسبة",
-      manager: "فاطمة سالم",
-      members: 6,
-      avgScore: 4.1,
-      goalsCompleted: 78,
-      trend: "stable",
-      topPerformers: 2
+      'team': 'فريق المحاسبة',
+      'manager': 'فاطمة سالم',
+      'members': 6,
+      'avgScore': 4.1,
+      'goalsCompleted': 78,
+      'trend': 'stable',
+      'topPerformers': 2
     },
     {
-      team: "فريق التكنولوجيا",
-      manager: "خالد عبدالرحمن",
-      members: 5,
-      avgScore: 4.0,
-      goalsCompleted: 72,
-      trend: "down",
-      topPerformers: 1
+      'team': 'فريق التكنولوجيا',
+      'manager': 'خالد عبدالرحمن',
+      'members': 5,
+      'avgScore': 4.0,
+      'goalsCompleted': 72,
+      'trend': 'down',
+      'topPerformers': 1
     }
   ];
 
   const getScoreColor = (score: number) => {
-    if (score >= 4.5) return "text-green-600";
-    if (score >= 4.0) return "text-yellow-600";
-    return "text-red-600";
+
+    if (score >= 4.5) {
+
+      return 'text-green-600';
+
+    }
+    if (score >= 4.0) {
+
+      return 'text-yellow-600';
+
+    }
+    return 'text-red-600';
+
   };
 
   const getScoreBadgeColor = (score: number) => {
-    if (score >= 4.5) return "bg-green-100 text-green-800";
-    if (score >= 4.0) return "bg-yellow-100 text-yellow-800";
-    return "bg-red-100 text-red-800";
+
+    if (score >= 4.5) {
+
+      return 'bg-green-100 text-green-800';
+
+    }
+    if (score >= 4.0) {
+
+      return 'bg-yellow-100 text-yellow-800';
+
+    }
+    return 'bg-red-100 text-red-800';
+
   };
 
   const getTrendIcon = (trend: string) => {
-    if (trend === "up") return <TrendingUp className="h-4 w-4 text-green-500" />;
-    if (trend === "down") return <TrendingUp className="h-4 w-4 text-red-500 rotate-180" />;
+
+    if (trend === 'up') {
+
+      return <TrendingUp className="h-4 w-4 text-green-500" />;
+
+    }
+    if (trend === 'down') {
+
+      return <TrendingUp className="h-4 w-4 text-red-500 rotate-180" />;
+
+    }
     return <Activity className="h-4 w-4 text-yellow-500" />;
+
   };
 
   return (
@@ -186,56 +218,75 @@ function PerformanceContent() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
+            {/* Loading and Error States */}
+            {isLoading && (
+              <div className="flex items-center justify-center py-12">
+                <LoadingSpinner text="جاري تحميل بيانات الأداء..." />
+              </div>
+            )}
+
+            {error && (
+              <div className="py-8">
+                <ErrorMessage
+                  error={error}
+                  title="خطأ في تحميل بيانات الأداء"
+                  onRetry={() => window.location.reload()}
+                />
+              </div>
+            )}
+
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <Star className="h-8 w-8 text-yellow-500" />
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">متوسط التقييم</p>
-                      <p className="text-2xl font-bold">4.3</p>
+            {!isLoading && !error && (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3">
+                      <Star className="h-8 w-8 text-yellow-500" />
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">متوسط التقييم</p>
+                        <p className="text-2xl font-bold">4.3</p>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <Target className="h-8 w-8 text-blue-500" />
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">الأهداف المكتملة</p>
-                      <p className="text-2xl font-bold">78%</p>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3">
+                      <Target className="h-8 w-8 text-blue-500" />
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">الأهداف المكتملة</p>
+                        <p className="text-2xl font-bold">78%</p>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <Award className="h-8 w-8 text-purple-500" />
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">أفضل الأداءات</p>
-                      <p className="text-2xl font-bold">24</p>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3">
+                      <Award className="h-8 w-8 text-purple-500" />
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">أفضل الأداءات</p>
+                        <p className="text-2xl font-bold">24</p>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3">
-                    <TrendingUp className="h-8 w-8 text-green-500" />
-                    <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">تحسن الأداء</p>
-                      <p className="text-2xl font-bold">+12%</p>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-3">
+                      <TrendingUp className="h-8 w-8 text-green-500" />
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">تحسن الأداء</p>
+                        <p className="text-2xl font-bold">+12%</p>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
             {/* Performance Distribution */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -247,7 +298,7 @@ function PerformanceContent() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-4 h-4 bg-green-500 rounded"></div>
+                        <div className="w-4 h-4 bg-green-500 rounded" />
                         <span>ممتاز (4.5-5.0)</span>
                       </div>
                       <span className="font-bold">45%</span>
@@ -256,7 +307,7 @@ function PerformanceContent() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                        <div className="w-4 h-4 bg-blue-500 rounded" />
                         <span>جيد جداً (4.0-4.4)</span>
                       </div>
                       <span className="font-bold">35%</span>
@@ -265,7 +316,7 @@ function PerformanceContent() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-4 h-4 bg-yellow-500 rounded"></div>
+                        <div className="w-4 h-4 bg-yellow-500 rounded" />
                         <span>جيد (3.5-3.9)</span>
                       </div>
                       <span className="font-bold">15%</span>
@@ -274,7 +325,7 @@ function PerformanceContent() {
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-4 h-4 bg-red-500 rounded"></div>
+                        <div className="w-4 h-4 bg-red-500 rounded" />
                         <span>يحتاج تحسين (&lt; 3.5)</span>
                       </div>
                       <span className="font-bold">5%</span>
@@ -291,12 +342,14 @@ function PerformanceContent() {
                 <CardContent>
                   <div className="space-y-4">
                     {[
-                      { department: "المبيعات", score: 4.3, employees: 15 },
-                      { department: "المحاسبة", score: 4.1, employees: 8 },
-                      { department: "التكنولوجيا", score: 4.0, employees: 6 },
-                      { department: "الموارد البشرية", score: 4.2, employees: 5 }
+                      {'department': 'المبيعات', 'score': 4.3, 'employees': 15},
+                      {'department': 'المحاسبة', 'score': 4.1, 'employees': 8},
+                      {'department': 'التكنولوجيا', 'score': 4.0, 'employees': 6},
+                      {'department': 'الموارد البشرية', 'score': 4.2, 'employees': 5}
                     ].map((dept, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <div key={
+  index
+} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                         <div>
                           <div className="font-medium">{dept.department}</div>
                           <div className="text-sm text-gray-600">{dept.employees} موظف</div>
@@ -346,10 +399,10 @@ function PerformanceContent() {
                             <div key={category} className="space-y-1">
                               <div className="flex justify-between text-sm">
                                 <span className="capitalize">{
-                                  category === 'productivity' ? 'الإنتاجية' :
-                                  category === 'quality' ? 'الجودة' :
-                                  category === 'teamwork' ? 'العمل الجماعي' :
-                                  category === 'leadership' ? 'القيادة' : category
+                                  category === 'productivity' ? 'الإنتاجية'
+                                    : category === 'quality' ? 'الجودة'
+                                      : category === 'teamwork' ? 'العمل الجماعي'
+                                        : category === 'leadership' ? 'القيادة' : category
                                 }</span>
                                 <span className="font-medium">{score}</span>
                               </div>
@@ -368,12 +421,14 @@ function PerformanceContent() {
                               {employee.goals.completed}/{employee.goals.total}
                             </span>
                           </div>
-                          <Progress 
-                            value={(employee.goals.completed / employee.goals.total) * 100} 
-                            className="h-2" 
+                          <Progress
+                            value={(employee.goals.completed / employee.goals.total) * 100}
+                            className="h-2"
                           />
                           <div className="text-sm text-gray-600">
-                            معدل الإنجاز: {Math.round((employee.goals.completed / employee.goals.total) * 100)}%
+                            معدل الإنجاز: {
+  Math.round((employee.goals.completed / employee.goals.total) * 100)
+}%
                           </div>
                         </div>
 
@@ -453,31 +508,31 @@ function PerformanceContent() {
             <div className="grid grid-cols-1 gap-6">
               {[
                 {
-                  employee: "أحمد محمد علي",
-                  reviewer: "مدير المبيعات",
-                  date: "2025-01-15",
-                  period: "الربع الأول 2025",
-                  status: "completed",
-                  score: 4.8,
-                  nextReview: "2025-04-15"
+                  'employee': 'أحمد محمد علي',
+                  'reviewer': 'مدير المبيعات',
+                  'date': '2025-01-15',
+                  'period': 'الربع الأول 2025',
+                  'status': 'completed',
+                  'score': 4.8,
+                  'nextReview': '2025-04-15'
                 },
                 {
-                  employee: "فاطمة سالم أحمد",
-                  reviewer: "مدير المحاسبة",
-                  date: "2025-01-10",
-                  period: "سنوي 2024",
-                  status: "pending",
-                  score: null,
-                  nextReview: "2025-01-25"
+                  'employee': 'فاطمة سالم أحمد',
+                  'reviewer': 'مدير المحاسبة',
+                  'date': '2025-01-10',
+                  'period': 'سنوي 2024',
+                  'status': 'pending',
+                  'score': null,
+                  'nextReview': '2025-01-25'
                 },
                 {
-                  employee: "خالد عبدالرحمن",
-                  reviewer: "مدير التكنولوجيا",
-                  date: "2025-01-05",
-                  period: "الربع الرابع 2024",
-                  status: "completed",
-                  score: 4.2,
-                  nextReview: "2025-04-05"
+                  'employee': 'خالد عبدالرحمن',
+                  'reviewer': 'مدير التكنولوجيا',
+                  'date': '2025-01-05',
+                  'period': 'الربع الرابع 2024',
+                  'status': 'completed',
+                  'score': 4.2,
+                  'nextReview': '2025-04-05'
                 }
               ].map((review, index) => (
                 <Card key={index}>
@@ -487,8 +542,8 @@ function PerformanceContent() {
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="text-lg font-bold">{review.employee}</h3>
                           <Badge className={
-                            review.status === 'completed' 
-                              ? 'bg-green-100 text-green-800' 
+                            review.status === 'completed'
+                              ? 'bg-green-100 text-green-800'
                               : 'bg-yellow-100 text-yellow-800'
                           }>
                             {review.status === 'completed' ? 'مكتملة' : 'قيد المراجعة'}
@@ -535,4 +590,5 @@ function PerformanceContent() {
       </div>
     </div>
   );
+
 }

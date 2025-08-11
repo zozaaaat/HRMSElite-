@@ -1,139 +1,105 @@
-export interface UserWithCompanies {
+export interface Employee {
   id: string;
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-  profileImageUrl?: string;
-  companies: Array<{
-    id: string;
-    companyId: string;
-    role: string;
-    permissions: string[];
-    company: {
-      id: string;
-      name: string;
-      logoUrl?: string;
-    };
-  }>;
-}
-
-export interface DashboardStats {
-  totalCompanies: number;
-  totalEmployees: number;
-  totalLicenses: number;
-  urgentAlerts: number;
-}
-
-export interface CompanyStats {
-  totalEmployees: number;
-  activeEmployees: number;
-  pendingLeaves: number;
-  urgentAlerts: number;
-}
-
-export interface RecentActivity {
-  id: string;
-  type: 'employee_added' | 'leave_approved' | 'document_uploaded' | 'license_expired';
-  description: string;
-  time: string;
-  userId?: string;
-  entityId?: string;
-}
-
-export interface Alert {
-  id: string;
-  type: 'error' | 'warning' | 'info';
-  title: string;
-  description: string;
-  actionUrl?: string;
-  createdAt: string;
-}
-
-export interface EmployeeFormData {
-  civilId: string;
-  fullName: string;
-  nationality: string;
-  type: 'citizen' | 'expatriate';
-  jobTitle: string;
+  name: string;
+  fullName?: string;
+  position?: string;
+  jobTitle?: string;
   actualJobTitle?: string;
+  department?: string;
+  workLocation?: string;
   hireDate?: string;
   workPermitStart?: string;
   workPermitEnd?: string;
-  monthlySalary?: number;
-  actualSalary?: number;
-  phone?: string;
+  contractType?: string;
+  probationPeriod?: string;
+  passportNumber?: string;
+  passportExpiry?: string;
+  residenceNumber?: string;
+  residenceExpiry?: string;
+  medicalInsurance?: string;
+  bankAccount?: string;
+  monthlySalary?: string;
+  salary?: number;
+  actualSalary?: string;
+  companyId?: string;
+  status?: string;
   email?: string;
-  address?: string;
-  emergencyContact?: string;
-  notes?: string;
-  licenseId?: string;
+  phone?: string;
 }
 
-export interface LeaveFormData {
-  type: 'annual' | 'sick' | 'maternity' | 'emergency' | 'unpaid';
+export interface Company {
+  id: string;
+  name: string;
+  commercialFileName?: string;
+  industryType?: string;
+  location?: string;
+  employees?: number;
+  licenses?: number;
+  status?: string;
+  industry?: string;
+  establishedDate?: string;
+}
+
+export interface SyncStatus {
+  status: 'completed' | 'running' | 'stopped';
+  recordsProcessed?: number;
+  errors?: number;
+  warnings?: number;
+  lastRun?: string;
+  nextRun?: string;
+  duration?: string;
+}
+
+export interface Integration {
+  id: string;
+  name: string;
+  status: 'connected' | 'disconnected' | 'pending';
+  type: string;
+  lastSync?: string;
+}
+
+export interface Mapping {
+  id: string;
+  sourceField: string;
+  targetField: string;
+  type: string;
+}
+
+export interface Leave {
+  id: string;
+  employeeId?: string;
+  type: string;
+  status: string;
   startDate: string;
   endDate: string;
   days: number;
   reason?: string;
+  approvedBy?: string;
+  approvedAt?: string;
+  rejectionReason?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface LicenseFormData {
-  licenseNumber: string;
-  name: string;
-  holderCivilId?: string;
-  issuingAuthority?: string;
-  type: 'main' | 'branch';
-  issueDate?: string;
-  expiryDate?: string;
-  address?: string;
-  description?: string;
+export interface Deduction {
+  id: string;
+  type: 'late' | 'absence' | 'loan' | 'insurance' | 'other';
+  amount: number;
+  date: string;
+  description: string;
+  status: 'active' | 'completed' | 'cancelled';
 }
 
-export interface CompanyFormData {
-  name: string;
-  commercialFileNumber?: string;
-  commercialFileName?: string;
-  commercialFileStatus?: boolean;
-  establishmentDate?: string;
-  commercialRegistrationNumber?: string;
-  classification?: string;
-  department?: string;
-  fileType?: string;
-  legalEntity?: string;
-  ownershipCategory?: string;
-  address?: string;
-  phone?: string;
-  email?: string;
-  website?: string;
-}
-
-export interface FilterOptions {
-  status?: string[];
-  nationality?: string[];
-  type?: string[];
-  jobTitle?: string[];
-  licenseId?: string;
-  dateRange?: {
-    start: string;
-    end: string;
-  };
-}
-
-export interface PaginationInfo {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
-export interface ApiResponse<T> {
-  data: T;
-  pagination?: PaginationInfo;
-  message?: string;
-}
-
-export interface ErrorResponse {
-  message: string;
-  code?: string;
-  details?: any;
+export interface User {
+  id: string;
+  role: string | null;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  profileImageUrl: string | null;
+  isActive: boolean | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  companyId: string | null;
+  permissions: unknown;
 }

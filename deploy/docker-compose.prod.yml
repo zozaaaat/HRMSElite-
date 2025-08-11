@@ -1,0 +1,236 @@
+version: '3.8'
+
+services:
+  # HRMS Elite Application - Production
+  hrms-app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        NODE_ENV: production
+    container_name: hrms-elite-app-prod
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=/app/data/hrms.db
+      - SESSION_SECRET=${SESSION_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - CSRF_SECRET=${CSRF_SECRET}
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-900000}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - REDIS_URL=redis://hrms-elite-redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    volumes:
+      - hrms_data:/app/data
+      - hrms_uploads:/app/uploads
+      - hrms_logs:/app/logs
+    networks:
+      - hrms-network
+    depends_on:
+      - hrms-db
+      - redis
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+          cpus: '1.0'
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # SQLite Database - Production
+  hrms-db:
+    image: alpine:latest
+    container_name: hrms-elite-db-prod
+    restart: unless-stopped
+    volumes:
+      - hrms_data:/data
+    networks:
+      - hrms-network
+    command: >
+      sh -c "
+        apk add --no-cache sqlite &&
+        if [ ! -f /data/hrms.db ]; then
+          sqlite3 /data/hrms.db 'CREATE TABLE IF NOT EXISTS migrations (id INTEGER PRIMARY KEY, name TEXT, applied_at DATETIME DEFAULT CURRENT_TIMESTAMP);'
+        fi &&
+        tail -f /dev/null
+      "
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # Nginx Reverse Proxy - Production
+  nginx:
+    image: nginx:alpine
+    container_name: hrms-elite-nginx-prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - hrms_logs:/var/log/nginx
+    networks:
+      - hrms-network
+    depends_on:
+      - hrms-app
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Redis for session storage and caching - Production
+  redis:
+    image: redis:7-alpine
+    container_name: hrms-elite-redis-prod
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - hrms-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # Backup service - Production
+  backup:
+    image: alpine:latest
+    container_name: hrms-elite-backup-prod
+    restart: "no"
+    volumes:
+      - hrms_data:/data:ro
+      - ./backups:/backups
+    networks:
+      - hrms-network
+    environment:
+      - BACKUP_RETENTION_DAYS=${BACKUP_RETENTION_DAYS:-30}
+    command: >
+      sh -c "
+        apk add --no-cache sqlite3 tar gzip find &&
+        mkdir -p /backups &&
+        BACKUP_FILE=/backups/hrms-backup-$$(date +%Y%m%d-%H%M%S).tar.gz &&
+        tar -czf $$BACKUP_FILE -C /data . &&
+        echo 'Backup created: $$BACKUP_FILE' &&
+        find /backups -name 'hrms-backup-*.tar.gz' -mtime +$$BACKUP_RETENTION_DAYS -delete &&
+        echo 'Old backups cleaned up'
+      "
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+
+  # Monitoring - Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: hrms-elite-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - hrms-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+  # Monitoring - Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: hrms-elite-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - hrms-network
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+volumes:
+  hrms_data:
+    driver: local
+  hrms_uploads:
+    driver: local
+  hrms_logs:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  hrms-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 

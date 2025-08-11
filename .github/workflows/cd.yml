@@ -1,0 +1,399 @@
+name: HRMS Elite CD Pipeline
+
+on:
+  workflow_run:
+    workflows: ["HRMS Elite CI Pipeline"]
+    types: [completed]
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      force:
+        description: 'Force deployment (skip CI checks)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # 🔍 Pre-deployment Checks
+  pre-deployment:
+    name: Pre-deployment Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check CI status
+        if: github.event.workflow_run.conclusion != 'success' && github.event.inputs.force != 'true'
+        run: |
+          echo "❌ CI pipeline did not complete successfully"
+          echo "Workflow conclusion: ${{ github.event.workflow_run.conclusion }}"
+          exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run final security check
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Check environment variables
+        run: |
+          echo "Checking required environment variables..."
+          if [ "${{ github.event.inputs.environment }}" == "production" ]; then
+            echo "Production deployment requires additional checks..."
+            # Add production-specific checks here
+          fi
+
+  # 🚀 Deploy to Staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: pre-deployment
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    environment: staging
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Deploy to staging server
+        run: |
+          echo "🚀 Deploying to staging environment..."
+          
+          # Create deployment directory
+          mkdir -p staging-deploy
+          
+          # Copy build artifacts
+          cp -r dist/* staging-deploy/
+          cp -r server/* staging-deploy/
+          cp package*.json staging-deploy/
+          
+          # Create deployment script
+          cat > staging-deploy/deploy.sh << 'EOF'
+          #!/bin/bash
+          echo "Starting staging deployment..."
+          
+          # Stop existing application
+          pm2 stop hrms-elite-staging || true
+          
+          # Backup current version
+          if [ -d "/var/www/hrms-elite-staging" ]; then
+            cp -r /var/www/hrms-elite-staging /var/www/hrms-elite-staging.backup.$(date +%Y%m%d_%H%M%S)
+          fi
+          
+          # Deploy new version
+          rm -rf /var/www/hrms-elite-staging
+          mkdir -p /var/www/hrms-elite-staging
+          cp -r * /var/www/hrms-elite-staging/
+          
+          # Install dependencies
+          cd /var/www/hrms-elite-staging
+          npm ci --only=production
+          
+          # Start application
+          pm2 start dist/index.js --name hrms-elite-staging --env production
+          
+          echo "Staging deployment completed!"
+          EOF
+          
+          chmod +x staging-deploy/deploy.sh
+
+      - name: Upload staging deployment package
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-deployment
+          path: staging-deploy/
+
+      - name: Run smoke tests
+        run: |
+          echo "🧪 Running smoke tests on staging..."
+          # Add smoke test commands
+          # curl -f https://staging.hrms-elite.com/health
+          # curl -f https://staging.hrms-elite.com/api/health
+
+      - name: Notify staging deployment success
+        if: success()
+        run: |
+          echo "✅ Staging deployment successful!"
+          # Add notification logic (Slack, Discord, etc.)
+
+      - name: Notify staging deployment failure
+        if: failure()
+        run: |
+          echo "❌ Staging deployment failed!"
+          # Add notification logic
+
+  # 🚀 Deploy to Production
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: pre-deployment
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    environment: production
+    timeout-minutes: 45
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Create production backup
+        run: |
+          echo "💾 Creating production backup..."
+          # Add backup commands
+          # ssh user@prod-server "cd /var/www/hrms-elite && ./backup.sh"
+
+      - name: Deploy to production server
+        run: |
+          echo "🚀 Deploying to production environment..."
+          
+          # Create deployment directory
+          mkdir -p production-deploy
+          
+          # Copy build artifacts
+          cp -r dist/* production-deploy/
+          cp -r server/* production-deploy/
+          cp package*.json production-deploy/
+          
+          # Create deployment script
+          cat > production-deploy/deploy.sh << 'EOF'
+          #!/bin/bash
+          echo "Starting production deployment..."
+          
+          # Stop existing application
+          pm2 stop hrms-elite-production || true
+          
+          # Backup current version
+          if [ -d "/var/www/hrms-elite-production" ]; then
+            cp -r /var/www/hrms-elite-production /var/www/hrms-elite-production.backup.$(date +%Y%m%d_%H%M%S)
+          fi
+          
+          # Deploy new version
+          rm -rf /var/www/hrms-elite-production
+          mkdir -p /var/www/hrms-elite-production
+          cp -r * /var/www/hrms-elite-production/
+          
+          # Install dependencies
+          cd /var/www/hrms-elite-production
+          npm ci --only=production
+          
+          # Run database migrations
+          npm run db:push
+          
+          # Start application
+          pm2 start dist/index.js --name hrms-elite-production --env production
+          
+          echo "Production deployment completed!"
+          EOF
+          
+          chmod +x production-deploy/deploy.sh
+
+      - name: Upload production deployment package
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-deployment
+          path: production-deploy/
+
+      - name: Run production health checks
+        run: |
+          echo "🏥 Running health checks on production..."
+          # Add health check commands
+          # curl -f https://hrms-elite.com/health
+          # curl -f https://hrms-elite.com/api/health
+
+      - name: Run performance tests
+        run: |
+          echo "⚡ Running performance tests..."
+          # Add performance test commands
+          # npm run test:performance:report
+
+      - name: Notify production deployment success
+        if: success()
+        run: |
+          echo "✅ Production deployment successful!"
+          # Add notification logic
+
+      - name: Notify production deployment failure
+        if: failure()
+        run: |
+          echo "❌ Production deployment failed!"
+          # Add notification logic
+
+  # 📱 Mobile App Deployment
+  mobile-deploy:
+    name: Mobile App Deployment
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd hrms-mobile && npm ci
+
+      - name: Build mobile app
+        run: |
+          cd hrms-mobile
+          # Add mobile build commands based on your framework
+          # For React Native: npx expo build
+          # For Capacitor: npx cap build
+
+      - name: Deploy mobile app
+        run: |
+          echo "📱 Deploying mobile app..."
+          # Add mobile deployment commands
+          # For Expo: npx expo publish
+          # For App Store: npx expo upload:ios
+          # For Play Store: npx expo upload:android
+
+      - name: Upload mobile artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-deployment
+          path: hrms-mobile/dist/
+
+  # 🔄 Post-Deployment Tasks
+  post-deployment:
+    name: Post-Deployment Tasks
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production, mobile-deploy]
+    if: always()
+    timeout-minutes: 10
+    
+    steps:
+      - name: Update deployment status
+        run: |
+          echo "📊 Updating deployment status..."
+          # Add status update logic
+
+      - name: Generate deployment report
+        run: |
+          echo "📋 Deployment Report" >> deployment-report.md
+          echo "===================" >> deployment-report.md
+          echo "" >> deployment-report.md
+          echo "**Date:** $(date)" >> deployment-report.md
+          echo "**Commit:** ${{ github.sha }}" >> deployment-report.md
+          echo "**Branch:** ${{ github.ref_name }}" >> deployment-report.md
+          echo "**Environment:** ${{ github.event.inputs.environment || 'auto' }}" >> deployment-report.md
+          echo "" >> deployment-report.md
+          echo "**Results:**" >> deployment-report.md
+          echo "- Staging: ${{ needs.deploy-staging.result }}" >> deployment-report.md
+          echo "- Production: ${{ needs.deploy-production.result }}" >> deployment-report.md
+          echo "- Mobile: ${{ needs.mobile-deploy.result }}" >> deployment-report.md
+
+      - name: Upload deployment report
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-report
+          path: deployment-report.md
+
+      - name: Clean up old deployments
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            
+            const cutoff = new Date();
+            cutoff.setDate(cutoff.getDate() - 7); // Keep deployment artifacts for 7 days
+            
+            for (const artifact of artifacts.data.artifacts) {
+              if (artifact.name.includes('deployment') && new Date(artifact.created_at) < cutoff) {
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id,
+                });
+              }
+            }
+
+      - name: Comment deployment results
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = {
+              'deploy-staging': '${{ needs.deploy-staging.result }}',
+              'deploy-production': '${{ needs.deploy-production.result }}',
+              'mobile-deploy': '${{ needs.mobile-deploy.result }}'
+            };
+            
+            const allSuccessful = Object.values(status).every(s => s === 'success' || s === 'skipped');
+            const emoji = allSuccessful ? '✅' : '❌';
+            
+            const body = `## ${emoji} Deployment Results
+            
+            | Environment | Status |
+            |-------------|--------|
+            | Staging | ${status['deploy-staging'] === 'success' ? '✅' : status['deploy-staging'] === 'skipped' ? '⏭️' : '❌'} |
+            | Production | ${status['deploy-production'] === 'success' ? '✅' : status['deploy-production'] === 'skipped' ? '⏭️' : '❌'} |
+            | Mobile | ${status['mobile-deploy'] === 'success' ? '✅' : status['mobile-deploy'] === 'skipped' ? '⏭️' : '❌'} |
+            
+            ${allSuccessful ? 'All deployments completed successfully! 🎉' : 'Some deployments failed. Please check the logs.'}`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            }); 

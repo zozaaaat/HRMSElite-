@@ -1,0 +1,64 @@
+config:
+  target: 'http://localhost:3000'
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 10
+      name: "Normal load"
+    - duration: 60
+      arrivalRate: 20
+      name: "Peak load"
+    - duration: 60
+      arrivalRate: 5
+      name: "Cool down"
+  defaults:
+    headers:
+      Content-Type: 'application/json'
+      User-Agent: 'Artillery Load Test'
+
+scenarios:
+  - name: "Main application flow"
+    weight: 70
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+      - think: 2
+      - get:
+          url: "/login"
+          expect:
+            - statusCode: 200
+      - think: 1
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "test@example.com"
+            password: "testpassword"
+          expect:
+            - statusCode: [200, 401]
+      - think: 3
+      - get:
+          url: "/dashboard"
+          expect:
+            - statusCode: [200, 302]
+
+  - name: "API endpoints"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/health"
+          expect:
+            - statusCode: 200
+      - think: 1
+      - get:
+          url: "/api/employees"
+          expect:
+            - statusCode: [200, 401]
+      - think: 2
+      - get:
+          url: "/api/attendance"
+          expect:
+            - statusCode: [200, 401] 

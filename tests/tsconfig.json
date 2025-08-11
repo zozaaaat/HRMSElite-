@@ -1,0 +1,48 @@
+{
+  "compilerOptions": {
+    "baseUrl": "..",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "@/*": ["./client/src/*"],
+      "@shared/*": ["./shared/*"],
+      "@server/*": ["./server/*"],
+      "@client/*": ["./client/src/*"],
+      "@mobile/*": ["./hrms-mobile/*"],
+      "@types/*": ["./shared/types/*"],
+      "@utils/*": ["./server/utils/*"],
+      "@middleware/*": ["./server/middleware/*"],
+      "@routes/*": ["./server/routes/*"],
+      "@models/*": ["./server/models/*"],
+      "@components/*": ["./client/src/components/*"],
+      "@hooks/*": ["./client/src/hooks/*"],
+      "@services/*": ["./client/src/services/*"],
+      "@stores/*": ["./client/src/stores/*"],
+      "@pages/*": ["./client/src/pages/*"],
+      "@ui/*": ["./client/src/components/ui/*"]
+    },
+    "types": [
+      "node",
+      "vitest/globals"
+    ]
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx",
+    "../server/**/*.ts"
+  ],
+  "exclude": [
+    "../node_modules",
+    "../build",
+    "../dist",
+    "../client/coverage",
+    "../client/dist",
+    "../electron/**",
+    "../electron/dist",
+    "../electron/dist-electron",
+    "../docs/jsdoc",
+    "../public"
+  ]
+}
+
+

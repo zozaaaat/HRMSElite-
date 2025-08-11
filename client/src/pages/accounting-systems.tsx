@@ -1,14 +1,13 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Badge } from "../components/ui/badge";
-import { Progress } from "../components/ui/progress";
-import { 
-  Calculator, 
-  Link as LinkIcon, 
-  RefreshCw, 
+import {useState} from 'react';
+import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
+import {Button} from '../components/ui/button';
+import {Card, CardContent, CardHeader, CardTitle} from '../components/ui/card';
+import {Tabs, TabsContent, TabsList, TabsTrigger} from '../components/ui/tabs';
+import {Badge} from '../components/ui/badge';
+import {
+  Calculator,
+  Link as LinkIcon,
+  RefreshCw,
   Settings,
   CheckCircle,
   AlertCircle,
@@ -18,82 +17,113 @@ import {
   FileText,
   TrendingUp,
   AlertTriangle
-} from "lucide-react";
-import { SharedLayout } from "../components/shared-layout";
-import { apiRequest } from "@/lib/queryClient";
+} from 'lucide-react';
+import {SharedLayout} from '../components/shared-layout';
+import {apiRequest} from '@/lib/queryClient';
+import {LoadingSpinner} from '../components/shared/LoadingSpinner';
+import {ErrorMessage} from '../components/shared/ErrorMessage';
+import {AccountingIntegration, FieldMapping} from '../types/component-props';
 
-export default function AccountingSystems() {
+export default function AccountingSystems () {
+
   return (
-    <SharedLayout 
-      userRole="company_manager" 
-      userName="مدير الشركة" 
+    <SharedLayout
       companyName="شركة النيل الأزرق للمجوهرات"
     >
       <AccountingSystemsContent />
     </SharedLayout>
   );
+
 }
 
-function AccountingSystemsContent() {
-  const [activeTab, setActiveTab] = useState("overview");
+function AccountingSystemsContent () {
+
+  const [activeTab, setActiveTab] = useState('overview');
   const queryClient = useQueryClient();
 
   // Fetch accounting integrations
-  const { data: integrations = [], isLoading: integrationsLoading } = useQuery({
-    queryKey: ['/api/accounting/integrations'],
+  const {
+  'data': integrations = [], 'isLoading': integrationsLoading, 'error': integrationsError
+} = useQuery<AccountingIntegration[]>({
+  
+    'queryKey': ['/api/accounting/integrations']
   });
 
   // Fetch sync status
-  const { data: syncStatus, isLoading: syncLoading } = useQuery({
-    queryKey: ['/api/accounting/sync-status'],
+  const {'data': syncStatus, 'isLoading': syncLoading} = useQuery<{
+    status: string;
+    recordsProcessed: number;
+    errors: number;
+    warnings: number;
+    lastRun: string;
+    nextRun: string;
+    duration: string;
+  }>({
+    'queryKey': ['/api/accounting/sync-status']
   });
 
   // Fetch field mapping
-  const { data: mapping = [], isLoading: mappingLoading } = useQuery({
-    queryKey: ['/api/accounting/mapping'],
+  const {'data': mapping = [], 'isLoading': mappingLoading, 'error': mappingError} = useQuery({
+    'queryKey': ['/api/accounting/mapping']
   });
 
   // Sync mutation
   const syncMutation = useMutation({
-    mutationFn: () => apiRequest('/api/accounting/sync', 'POST'),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/accounting/sync-status'] });
-    },
+    'mutationFn': () => apiRequest('/api/accounting/sync', 'POST'),
+    'onSuccess': () => {
+
+      queryClient.invalidateQueries({'queryKey': ['/api/accounting/sync-status']});
+
+    }
   });
 
   const getStatusColor = (status: string) => {
+
     switch (status) {
-      case 'connected': return 'bg-green-500';
-      case 'disconnected': return 'bg-red-500';
-      case 'pending': return 'bg-yellow-500';
-      case 'error': return 'bg-red-500';
-      default: return 'bg-gray-500';
+
+    case 'connected': return 'bg-green-500';
+    case 'disconnected': return 'bg-red-500';
+    case 'pending': return 'bg-yellow-500';
+    case 'error': return 'bg-red-500';
+    default: return 'bg-gray-500';
+
     }
+
   };
 
   const getStatusText = (status: string) => {
+
     switch (status) {
-      case 'connected': return 'متصل';
-      case 'disconnected': return 'غير متصل';
-      case 'pending': return 'قيد الإعداد';
-      case 'error': return 'خطأ';
-      default: return 'غير محدد';
+
+    case 'connected': return 'متصل';
+    case 'disconnected': return 'غير متصل';
+    case 'pending': return 'قيد الإعداد';
+    case 'error': return 'خطأ';
+    default: return 'غير محدد';
+
     }
+
   };
 
   const getHealthIcon = (health: string) => {
+
     switch (health) {
-      case 'excellent': return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'good': return <CheckCircle className="h-5 w-5 text-blue-500" />;
-      case 'warning': return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-      case 'error': return <AlertCircle className="h-5 w-5 text-red-500" />;
-      case 'not_connected': return <AlertCircle className="h-5 w-5 text-gray-500" />;
-      default: return <AlertCircle className="h-5 w-5 text-gray-500" />;
+
+    case 'excellent': return <CheckCircle className="h-5 w-5 text-green-500" />;
+    case 'good': return <CheckCircle className="h-5 w-5 text-blue-500" />;
+    case 'warning': return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
+    case 'error': return <AlertCircle className="h-5 w-5 text-red-500" />;
+    case 'not_connected': return <AlertCircle className="h-5 w-5 text-gray-500" />;
+    default: return <AlertCircle className="h-5 w-5 text-gray-500" />;
+
     }
+
   };
 
   const handleSync = () => {
+
     syncMutation.mutate();
+
   };
 
   return (
@@ -106,7 +136,7 @@ function AccountingSystemsContent() {
               ربط وإدارة الأنظمة المحاسبية الخارجية مع نظام الموارد البشرية
             </p>
           </div>
-          <Button 
+          <Button
             onClick={handleSync}
             disabled={syncMutation.isPending}
             className="bg-orange-600 hover:bg-orange-700"
@@ -140,7 +170,7 @@ function AccountingSystemsContent() {
               <CardContent>
                 {syncLoading ? (
                   <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto" />
                     <p className="mt-2 text-gray-600">جاري تحميل حالة المزامنة...</p>
                   </div>
                 ) : (
@@ -156,24 +186,28 @@ function AccountingSystemsContent() {
                         )}
                       </div>
                       <p className="font-semibold">
-                        {syncStatus?.status === 'completed' ? 'مكتملة' :
-                         syncStatus?.status === 'running' ? 'قيد التشغيل' : 'متوقفة'}
+                        {syncStatus?.status === 'completed' ? 'مكتملة'
+                          : syncStatus?.status === 'running' ? 'قيد التشغيل' : 'متوقفة'}
                       </p>
                       <p className="text-sm text-gray-600">حالة المزامنة</p>
                     </div>
 
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-blue-600">{syncStatus?.recordsProcessed || 0}</p>
+                      <p className="text-2xl font-bold text-blue-600">{
+  syncStatus?.recordsProcessed ?? 0
+}</p>
                       <p className="text-sm text-gray-600">السجلات المعالجة</p>
                     </div>
 
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-red-600">{syncStatus?.errors || 0}</p>
+                      <p className="text-2xl font-bold text-red-600">{syncStatus?.errors ?? 0}</p>
                       <p className="text-sm text-gray-600">الأخطاء</p>
                     </div>
 
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-yellow-600">{syncStatus?.warnings || 0}</p>
+                      <p className="text-2xl font-bold text-yellow-600">{
+  syncStatus?.warnings ?? 0
+}</p>
                       <p className="text-sm text-gray-600">التحذيرات</p>
                     </div>
                   </div>
@@ -204,7 +238,9 @@ function AccountingSystemsContent() {
                 <CardContent className="p-6 text-center">
                   <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-3" />
                   <p className="text-2xl font-bold text-green-600">
-                    {integrations.filter((i: any) => i.status === 'connected').length}
+                    {
+  integrations.filter((i: AccountingIntegration) => i.status === 'connected').length
+}
                   </p>
                   <p className="text-sm text-gray-600">الأنظمة المتصلة</p>
                 </CardContent>
@@ -214,7 +250,9 @@ function AccountingSystemsContent() {
                 <CardContent className="p-6 text-center">
                   <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-3" />
                   <p className="text-2xl font-bold text-red-600">
-                    {integrations.filter((i: any) => i.status === 'disconnected').length}
+                    {
+  integrations.filter((i: AccountingIntegration) => i.status === 'disconnected').length
+}
                   </p>
                   <p className="text-sm text-gray-600">الأنظمة المنقطعة</p>
                 </CardContent>
@@ -224,7 +262,9 @@ function AccountingSystemsContent() {
                 <CardContent className="p-6 text-center">
                   <Clock className="h-12 w-12 text-yellow-500 mx-auto mb-3" />
                   <p className="text-2xl font-bold text-yellow-600">
-                    {integrations.filter((i: any) => i.status === 'pending').length}
+                    {
+  integrations.filter((i: AccountingIntegration) => i.status === 'pending').length
+}
                   </p>
                   <p className="text-sm text-gray-600">قيد الإعداد</p>
                 </CardContent>
@@ -238,7 +278,9 @@ function AccountingSystemsContent() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <Button variant="outline" className="h-20 flex flex-col gap-2" onClick={handleSync}>
+                  <Button variant="outline" className="h-20 flex flex-col gap-2" onClick={
+  handleSync
+}>
                     <RefreshCw className="h-6 w-6" />
                     <span>مزامنة فورية</span>
                   </Button>
@@ -268,14 +310,17 @@ function AccountingSystemsContent() {
               </Button>
             </div>
 
-            {integrationsLoading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
-                <p className="mt-4 text-gray-600">جاري تحميل الأنظمة...</p>
-              </div>
-            ) : (
+            {integrationsLoading && <LoadingSpinner text="جاري تحميل الأنظمة المحاسبية..." />}
+            {
+  integrationsError && <ErrorMessage error={
+  integrationsError
+} title="خطأ في تحميل الأنظمة المحاسبية" onRetry={
+  () => window.location.reload()
+} />
+}
+            {!integrationsLoading && !integrationsError && (
               <div className="space-y-6">
-                {integrations.map((integration: any) => (
+                {integrations.map((integration: AccountingIntegration) => (
                   <Card key={integration.id} className="border-2">
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between mb-6">
@@ -285,11 +330,13 @@ function AccountingSystemsContent() {
                           </div>
                           <div>
                             <h3 className="text-xl font-semibold">{integration.name}</h3>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">{integration.type}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{
+  integration.type
+}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          {getHealthIcon(integration.connectionHealth)}
+                          {getHealthIcon(integration.connectionHealth ?? 'not_connected')}
                           <Badge className={getStatusColor(integration.status)}>
                             {getStatusText(integration.status)}
                           </Badge>
@@ -304,9 +351,9 @@ function AccountingSystemsContent() {
                         <div>
                           <p className="text-sm text-gray-600 mb-1">آخر مزامنة</p>
                           <p className="font-semibold">
-                            {integration.lastSync ? 
-                              new Date(integration.lastSync).toLocaleString('ar-SA') : 
-                              'لم يتم'}
+                            {integration.lastSync
+                              ? new Date(integration.lastSync).toLocaleString('ar-SA')
+                              : 'لم يتم'}
                           </p>
                         </div>
                         <div>
@@ -318,14 +365,14 @@ function AccountingSystemsContent() {
                       <div className="space-y-2 mb-6">
                         <p className="text-sm font-medium text-gray-700 dark:text-gray-300">أنواع البيانات المدعومة:</p>
                         <div className="flex flex-wrap gap-2">
-                          {integration.dataTypes.map((type: string, index: number) => (
+                          {(integration.dataTypes ?? []).map((type: string, index: number) => (
                             <Badge key={index} variant="outline" className="text-xs">
-                              {type === 'employees' ? 'الموظفون' :
-                               type === 'payroll' ? 'كشوف المرتبات' :
-                               type === 'expenses' ? 'المصروفات' :
-                               type === 'taxes' ? 'الضرائب' :
-                               type === 'full_integration' ? 'تكامل شامل' :
-                               type === 'basic_payroll' ? 'كشوف أساسية' : type}
+                              {type === 'employees' ? 'الموظفون'
+                                : type === 'payroll' ? 'كشوف المرتبات'
+                                  : type === 'expenses' ? 'المصروفات'
+                                    : type === 'taxes' ? 'الضرائب'
+                                      : type === 'full_integration' ? 'تكامل شامل'
+                                        : type === 'basic_payroll' ? 'كشوف أساسية' : type}
                             </Badge>
                           ))}
                         </div>
@@ -375,24 +422,29 @@ function AccountingSystemsContent() {
                 <CardTitle>ربط حقول البيانات</CardTitle>
               </CardHeader>
               <CardContent>
-                {mappingLoading ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto"></div>
-                    <p className="mt-2 text-gray-600">جاري تحميل ربط الحقول...</p>
-                  </div>
-                ) : (
+                {mappingLoading && <LoadingSpinner text="جاري تحميل ربط الحقول..." />}
+                {
+  mappingError && <ErrorMessage error={
+  mappingError
+} title="خطأ في تحميل ربط الحقول" onRetry={
+  () => window.location.reload()
+} />
+}
+                {!mappingLoading && !mappingError && (
                   <div className="space-y-4">
-                    {mapping.map((field: any, index: number) => (
-                      <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                    {(mapping as FieldMapping[]).map((field: FieldMapping, index: number) => (
+                      <div key={
+  index
+} className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="flex items-center gap-4">
                           <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded">
                             <Database className="h-5 w-5 text-blue-600" />
                           </div>
                           <div>
                             <p className="font-semibold">
-                              {field.hrmsField === 'basicSalary' ? 'الراتب الأساسي' :
-                               field.hrmsField === 'allowances' ? 'البدلات' :
-                               field.hrmsField === 'deductions' ? 'الخصومات' : field.hrmsField}
+                              {field.hrmsField === 'basicSalary' ? 'الراتب الأساسي'
+                                : field.hrmsField === 'allowances' ? 'البدلات'
+                                  : field.hrmsField === 'deductions' ? 'الخصومات' : field.hrmsField}
                             </p>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
                               {field.system} → {field.accountingField}
@@ -473,4 +525,5 @@ function AccountingSystemsContent() {
       </div>
     </div>
   );
+
 }

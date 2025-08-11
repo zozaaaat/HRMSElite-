@@ -1,0 +1,103 @@
+{
+  "timestamp": "2025-08-10T14:04:32.398Z",
+  "totalSuites": 5,
+  "totalTests": 5,
+  "passedTests": 0,
+  "failedTests": 5,
+  "skippedTests": 0,
+  "totalDuration": 0,
+  "suites": [
+    {
+      "name": "Unit Tests",
+      "tests": [],
+      "totalTests": 1,
+      "passedTests": 0,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "totalDuration": 0
+    },
+    {
+      "name": "Integration Tests",
+      "tests": [],
+      "totalTests": 1,
+      "passedTests": 0,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "totalDuration": 0
+    },
+    {
+      "name": "End-to-End Tests",
+      "tests": [],
+      "totalTests": 1,
+      "passedTests": 0,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "totalDuration": 0
+    },
+    {
+      "name": "Performance Tests",
+      "tests": [],
+      "totalTests": 1,
+      "passedTests": 0,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "totalDuration": 0
+    },
+    {
+      "name": "Accessibility Tests",
+      "tests": [],
+      "totalTests": 1,
+      "passedTests": 0,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "totalDuration": 0
+    }
+  ],
+  "summary": {
+    "unitTests": {
+      "name": "Unit Tests",
+      "tests": [],
+      "totalTests": 1,
+      "passedTests": 0,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "totalDuration": 0
+    },
+    "integrationTests": {
+      "name": "Integration Tests",
+      "tests": [],
+      "totalTests": 1,
+      "passedTests": 0,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "totalDuration": 0
+    },
+    "e2eTests": {
+      "name": "End-to-End Tests",
+      "tests": [],
+      "totalTests": 1,
+      "passedTests": 0,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "totalDuration": 0
+    },
+    "performanceTests": {
+      "name": "Performance Tests",
+      "tests": [],
+      "totalTests": 1,
+      "passedTests": 0,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "totalDuration": 0
+    },
+    "accessibilityTests": {
+      "name": "Accessibility Tests",
+      "tests": [],
+      "totalTests": 1,
+      "passedTests": 0,
+      "failedTests": 1,
+      "skippedTests": 0,
+      "totalDuration": 0
+    }
+  }
+}

@@ -1,0 +1,119 @@
+name: Automated Backup
+
+on:
+  schedule:
+    # Run backup daily at 3 AM UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      backup_type:
+        description: 'Type of backup to perform'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+        - full
+        - database
+        - files
+
+jobs:
+  backup:
+    name: Create Backup
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create database backup
+        if: ${{ github.event.inputs.backup_type == 'database' || github.event.inputs.backup_type == 'full' || github.event.inputs.backup_type == null }}
+        run: |
+          echo "Creating database backup..."
+          mkdir -p backups/database
+          
+          # Create SQLite backup
+          if [ -f "dev.db" ]; then
+            sqlite3 dev.db ".backup backups/database/hrms-backup-$(date +%Y%m%d-%H%M%S).db"
+          fi
+          
+          # Create schema backup
+          npm run db:push -- --schema-only > backups/database/schema-$(date +%Y%m%d-%H%M%S).sql
+
+      - name: Create files backup
+        if: ${{ github.event.inputs.backup_type == 'files' || github.event.inputs.backup_type == 'full' || github.event.inputs.backup_type == null }}
+        run: |
+          echo "Creating files backup..."
+          mkdir -p backups/files
+          
+          # Backup uploads directory
+          if [ -d "uploads" ]; then
+            tar -czf backups/files/uploads-$(date +%Y%m%d-%H%M%S).tar.gz uploads/
+          fi
+          
+          # Backup assets directory
+          if [ -d "assets" ]; then
+            tar -czf backups/files/assets-$(date +%Y%m%d-%H%M%S).tar.gz assets/
+          fi
+
+      - name: Create configuration backup
+        run: |
+          echo "Creating configuration backup..."
+          mkdir -p backups/config
+          
+          # Backup configuration files
+          tar -czf backups/config/config-$(date +%Y%m%d-%H%M%S).tar.gz \
+            package.json \
+            package-lock.json \
+            tsconfig.json \
+            vite.config.ts \
+            drizzle.config.ts \
+            .env.example \
+            deploy/
+
+      - name: Upload backup artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-$(date +%Y%m%d-%H%M%S)
+          path: backups/
+          retention-days: 30
+
+      - name: Upload to cloud storage (optional)
+        if: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        run: |
+          echo "Uploading backup to cloud storage..."
+          # Install AWS CLI
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+          
+          # Upload to S3
+          aws s3 sync backups/ s3://${{ secrets.AWS_S3_BUCKET }}/backups/$(date +%Y%m%d)/
+
+      - name: Clean up old backups
+        run: |
+          echo "Cleaning up old backups..."
+          # Keep only last 7 days of local backups
+          find backups/ -name "*.tar.gz" -mtime +7 -delete
+          find backups/ -name "*.db" -mtime +7 -delete
+          find backups/ -name "*.sql" -mtime +7 -delete
+
+      - name: Notify backup completion
+        if: success()
+        run: |
+          echo "✅ Backup completed successfully!"
+          # Add notification logic here
+
+      - name: Notify backup failure
+        if: failure()
+        run: |
+          echo "❌ Backup failed!"
+          # Add notification logic here 

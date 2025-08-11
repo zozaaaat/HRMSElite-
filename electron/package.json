@@ -1,0 +1,96 @@
+{
+  "name": "hrms-elite-electron",
+  "version": "1.0.0",
+  "description": "HRMS Elite Desktop Application",
+
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "start": "npm run build && electron .",
+    "dev": "npm run build && electron .",
+    "dev:watch": "concurrently \"npm run build:watch\" \"wait-on dist/main.js && electron .\"",
+    "dist": "npm run build && electron-builder",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:linux": "npm run build && electron-builder --linux",
+    "pack": "npm run build && electron-builder --dir",
+    "clean": "rimraf dist dist-electron",
+    "rebuild": "npm run clean && npm run build"
+  },
+  "build": {
+    "appId": "com.hrmselite.app",
+    "productName": "HRMS Elite",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*",
+      "!node_modules/.cache/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../public",
+        "to": "public"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "icon": "../public/icon-512x512.png"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "../public/icon-512x512.png",
+      "category": "public.app-category.business"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "../public/icon-512x512.png",
+      "category": "Office"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "HRMS Elite"
+    },
+    "dmg": {
+      "title": "HRMS Elite",
+      "icon": "../public/icon-512x512.png"
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.11",
+    "concurrently": "^8.2.2",
+    "electron": "^37.2.4",
+    "electron-builder": "^26.0.12",
+    "rimraf": "^5.0.10",
+    "typescript": "^5.6.3",
+    "wait-on": "^7.2.0"
+  }
+}

@@ -1,21 +1,9 @@
-import { Button } from "./ui/button";
-import {
-  Home,
-  Users,
-  FileText,
-  Calendar,
-  DollarSign,
-  BarChart3,
-  Settings,
-  Shield,
-  Bot,
-  Workflow,
-  GraduationCap,
-  Smartphone,
-  Eye,
-  Sparkles,
-} from "lucide-react";
-import type { Company, User } from "@shared/schema";
+import {Button} from './ui/button';
+import {usePermissions} from '../hooks/usePermissions';
+import {useNavigation} from '../hooks/useNavigation';
+import {getMenuItems, getAdvancedFeatures} from '../lib/navigation-config';
+import type {Company} from '../../../shared/schema';
+import type {User} from '../lib/authUtils';
 
 interface SidebarProps {
   company: Company;
@@ -31,11 +19,11 @@ interface SidebarProps {
   onEmployee360Open?: () => void;
 }
 
-export function Sidebar({ 
-  company, 
-  user, 
-  activeView, 
-  onViewChange,
+export function Sidebar ({
+  company,
+  user: _user,
+  activeView,
+  onViewChange: _onViewChange,
   onAIAssistantOpen,
   onBIDashboardOpen,
   onWorkflowBuilderOpen,
@@ -44,109 +32,69 @@ export function Sidebar({
   onMobileAppOpen,
   onEmployee360Open
 }: SidebarProps) {
+
+  const {currentRole, roleLabel} = usePermissions();
+  const {navigateToItem} = useNavigation();
+
   const getCompanyInitials = (name: string) => {
+
     const words = name.split(' ');
     return words.slice(0, 2).map(word => word.charAt(0)).join(' ');
+
   };
 
-  const menuItems = [
-    {
-      id: "dashboard",
-      label: "لوحة التحكم",
-      icon: Home,
-      section: "main",
-    },
-    {
-      id: "employees",
-      label: "إدارة العمال",
-      icon: Users,
-      section: "main",
-    },
-    {
-      id: "licenses",
-      label: "التراخيص",
-      icon: FileText,
-      section: "main",
-    },
-    {
-      id: "leaves",
-      label: "الإجازات",
-      icon: Calendar,
-      section: "main",
-    },
-    {
-      id: "payroll",
-      label: "المرتبات",
-      icon: DollarSign,
-      section: "main",
-    },
-    {
-      id: "reports",
-      label: "التقارير",
-      icon: BarChart3,
-      section: "main",
-    },
-    {
-      id: "company-settings",
-      label: "إعدادات الشركة",
-      icon: Settings,
-      section: "settings",
-    },
-    {
-      id: "permissions",
-      label: "الصلاحيات",
-      icon: Shield,
-      section: "settings",
-    },
-  ];
+  // تحديد معرف الشركة
+  const companyId = company?.id ?? '1';
 
-  const advancedFeatures = [
-    {
-      id: "ai-assistant",
-      label: "المساعد الذكي",
-      icon: Bot,
-      onClick: onAIAssistantOpen,
-    },
-    {
-      id: "bi-dashboard",
-      label: "لوحة التحليلات",
-      icon: BarChart3,
-      onClick: onBIDashboardOpen,
-    },
-    {
-      id: "workflow-builder",
-      label: "منشئ سير العمل",
-      icon: Workflow,
-      onClick: onWorkflowBuilderOpen,
-    },
-    {
-      id: "learning-management",
-      label: "إدارة التعلم",
-      icon: GraduationCap,
-      onClick: onLearningManagementOpen,
-    },
-    {
-      id: "financial-management",
-      label: "الإدارة المالية",
-      icon: DollarSign,
-      onClick: onFinancialManagementOpen,
-    },
-    {
-      id: "mobile-app",
-      label: "التطبيق المحمول",
-      icon: Smartphone,
-      onClick: onMobileAppOpen,
-    },
-    {
-      id: "employee-360",
-      label: "عرض الموظف 360°",
-      icon: Eye,
-      onClick: onEmployee360Open,
-    },
-  ];
+  // الحصول على عناصر القائمة حسب الدور
+  const menuItems = getMenuItems(currentRole);
 
-  const mainMenuItems = menuItems.filter(item => item.section === "main");
-  const settingsMenuItems = menuItems.filter(item => item.section === "settings");
+  // الحصول على الميزات المتقدمة حسب الدور
+  const advancedFeatures = getAdvancedFeatures(currentRole);
+
+  // معالج التنقل المبسط
+  const handleNavigation = (view: string) => {
+
+    navigateToItem(view, companyId, company?.name ?? '');
+
+  };
+
+  // معالج الميزات المتقدمة
+  const handleAdvancedFeature = (featureId: string) => {
+
+    switch (featureId) {
+
+    case 'ai-assistant':
+      onAIAssistantOpen?.();
+      break;
+    case 'bi-dashboard':
+      onBIDashboardOpen?.();
+      break;
+    case 'workflow-builder':
+      onWorkflowBuilderOpen?.();
+      break;
+    case 'learning-management':
+      onLearningManagementOpen?.();
+      break;
+    case 'financial-management':
+      onFinancialManagementOpen?.();
+      break;
+    case 'mobile-app':
+      onMobileAppOpen?.();
+      break;
+    case 'employee-360':
+      onEmployee360Open?.();
+      break;
+    default:
+      break;
+
+    }
+
+  };
+
+  // تصنيف عناصر القائمة
+  const mainMenuItems = menuItems.filter(item => item.section === 'main');
+  const settingsMenuItems = menuItems.filter(item => item.section === 'settings');
 
   return (
     <div className="w-64 bg-card shadow-lg border-l border-border">
@@ -154,14 +102,16 @@ export function Sidebar({
         <div className="flex items-center">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-sm">
-              {getCompanyInitials(company.name)}
+              {getCompanyInitials(company?.name ?? '')}
             </span>
           </div>
           <div className="mr-3">
             <h3 className="font-bold text-foreground text-sm truncate">
-              {company.name}
+              {company?.name ?? 'غير محدد'}
             </h3>
-            <p className="text-xs text-muted-foreground">مدير الشركة</p>
+            <p className="text-xs text-muted-foreground">
+              {roleLabel}
+            </p>
           </div>
         </div>
       </div>
@@ -173,113 +123,93 @@ export function Sidebar({
           </p>
           <ul className="space-y-1">
             {mainMenuItems.map((item) => {
+
               const Icon = item.icon;
               const isActive = activeView === item.id;
-              
+
               return (
                 <li key={item.id}>
                   <Button
-                    variant={isActive ? "secondary" : "ghost"}
+                    variant={isActive ? 'secondary' : 'ghost'}
                     className={`w-full justify-start ${
-                      isActive 
-                        ? "bg-primary/10 text-primary hover:bg-primary/20" 
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      isActive
+                        ? 'bg-primary/10 text-primary hover:bg-primary/20'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                     }`}
-                    onClick={() => onViewChange(item.id)}
+                    onClick={() => handleNavigation(item.id)}
                   >
                     <Icon className="ml-3 h-4 w-4" />
                     {item.label}
                   </Button>
                 </li>
               );
+
             })}
           </ul>
         </div>
 
-        <div className="px-3 mt-8">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            الإعدادات
-          </p>
-          <ul className="space-y-1">
-            {settingsMenuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeView === item.id;
-              
-              return (
-                <li key={item.id}>
-                  <Button
-                    variant={isActive ? "secondary" : "ghost"}
-                    className={`w-full justify-start ${
-                      isActive 
-                        ? "bg-primary/10 text-primary hover:bg-primary/20" 
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }`}
-                    onClick={() => onViewChange(item.id)}
-                  >
-                    <Icon className="ml-3 h-4 w-4" />
-                    {item.label}
-                  </Button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        {settingsMenuItems.length > 0 && (
+          <div className="px-3 mt-8">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+              الإعدادات
+            </p>
+            <ul className="space-y-1">
+              {settingsMenuItems.map((item) => {
 
-        {/* Advanced Features Section */}
-        <div className="px-3 mt-8">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            الميزات المتقدمة
-          </p>
-          <ul className="space-y-1">
-            {advancedFeatures.map((feature) => {
-              const Icon = feature.icon;
-              
-              return (
-                <li key={feature.id}>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-muted-foreground hover:text-foreground hover:bg-muted"
-                    onClick={feature.onClick}
-                  >
-                    <Icon className="ml-3 h-4 w-4" />
-                    {feature.label}
-                  </Button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+                const Icon = item.icon;
+                const isActive = activeView === item.id;
 
-        {/* Settings Section */}
-        <div className="px-3 mt-8">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            الإعدادات
-          </p>
-          <ul className="space-y-1">
-            {settingsMenuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeView === item.id;
-              
-              return (
-                <li key={item.id}>
-                  <Button
-                    variant={isActive ? "secondary" : "ghost"}
-                    className={`w-full justify-start ${
-                      isActive 
-                        ? "bg-primary/10 text-primary hover:bg-primary/20" 
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }`}
-                    onClick={() => onViewChange(item.id)}
-                  >
-                    <Icon className="ml-3 h-4 w-4" />
-                    {item.label}
-                  </Button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+                return (
+                  <li key={item.id}>
+                    <Button
+                      variant={isActive ? 'secondary' : 'ghost'}
+                      className={`w-full justify-start ${
+                        isActive
+                          ? 'bg-primary/10 text-primary hover:bg-primary/20'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      }`}
+                      onClick={() => handleNavigation(item.id)}
+                    >
+                      <Icon className="ml-3 h-4 w-4" />
+                      {item.label}
+                    </Button>
+                  </li>
+                );
+
+              })}
+            </ul>
+          </div>
+        )}
+
+        {advancedFeatures.length > 0 && (
+          <div className="px-3 mt-8">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+              الميزات المتقدمة
+            </p>
+            <ul className="space-y-1">
+              {advancedFeatures.map((feature) => {
+
+                const Icon = feature.icon;
+
+                return (
+                  <li key={feature.id}>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-muted-foreground hover:text-foreground hover:bg-muted"
+                      onClick={() => handleAdvancedFeature(feature.id)}
+                    >
+                      <Icon className="ml-3 h-4 w-4" />
+                      {feature.label}
+                    </Button>
+                  </li>
+                );
+
+              })}
+            </ul>
+          </div>
+        )}
       </nav>
     </div>
   );
+
 }

@@ -1,490 +1,494 @@
-import { sql, relations } from "drizzle-orm";
+import {sql, relations} from 'drizzle-orm';
 import {
   index,
-  jsonb,
-  pgTable,
-  timestamp,
-  varchar,
+  sqliteTable,
   text,
   integer,
-  boolean,
-  decimal,
-  date,
-  pgEnum,
-} from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
+  real
+} from 'drizzle-orm/sqlite-core';
+import {createInsertSchema} from 'drizzle-zod';
+import {z} from 'zod';
 
 // Session storage table for Replit Auth
-export const sessions = pgTable(
-  "sessions",
+export const sessions = sqliteTable(
+  'sessions',
   {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
-    expire: timestamp("expire").notNull(),
+    'sid': text('sid').primaryKey(),
+    'sess': text('sess').notNull(),
+    'expire': integer('expire').notNull()
   },
-  (table) => [index("IDX_session_expire").on(table.expire)],
+  (table) => [
+    index('IDX_session_expire').on(table.expire),
+    index('IDX_session_sid_expire').on(table.sid, table.expire)
+  ]
 );
 
-// User storage table for Replit Auth
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email").unique(),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  profileImageUrl: varchar("profile_image_url"),
-  role: varchar("role").default('worker'),
-  companyId: varchar("company_id").references(() => companies.id),
-  permissions: jsonb("permissions").default([]),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+// User storage table for HRMS Elite
+export const users = sqliteTable('users', {
+  'id': text('id').primaryKey().default(sql`(hex(randomblob(16)))`),
+  'email': text('email').unique().notNull(),
+  'firstName': text('first_name').notNull(),
+  'lastName': text('last_name').notNull(),
+  'password': text('password').notNull(), // Hashed password
+  'profileImageUrl': text('profile_image_url'),
+  'role': text('role').default('worker').notNull(),
+  'companyId': text('company_id'),
+  'permissions': text('permissions').default('[]').notNull(),
+  'isActive': integer('is_active', {'mode': 'boolean'}).default(true).notNull(),
+  'emailVerified': integer('email_verified', {'mode': 'boolean'}).default(false).notNull(),
+  'emailVerificationToken': text('email_verification_token'),
+  'emailVerificationExpires': integer('email_verification_expires'),
+  'passwordResetToken': text('password_reset_token'),
+  'passwordResetExpires': integer('password_reset_expires'),
+  'lastPasswordChange': integer('last_password_change'),
+  'lastLoginAt': integer('last_login_at'),
+  'sub': text('sub'),
+  'claims': text('claims'),
+  'createdAt': integer('created_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull(),
+  'updatedAt': integer('updated_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull()
+}, (table) => [
+  index('IDX_users_email').on(table.email),
+  index('IDX_users_company_id').on(table.companyId),
+  index('IDX_users_role').on(table.role),
+  index('IDX_users_is_active').on(table.isActive),
+  index('IDX_users_created_at').on(table.createdAt)
+]);
 
-// Enums
-export const userRoleEnum = pgEnum("user_role", ["super_admin", "company_manager", "administrative_employee", "supervisor", "worker"]);
-export const employeeStatusEnum = pgEnum("employee_status", ["active", "inactive", "on_leave", "terminated", "archived"]);
-export const employeeTypeEnum = pgEnum("employee_type", ["citizen", "expatriate"]);
-export const licenseStatusEnum = pgEnum("license_status", ["active", "expired", "pending"]);
-export const licenseTypeEnum = pgEnum("license_type", ["main", "branch", "commercial", "industrial", "professional", "import_export", "tailoring", "fabric", "jewelry", "restaurant", "service"]);
-export const leaveStatusEnum = pgEnum("leave_status", ["pending", "approved", "rejected"]);
-export const leaveTypeEnum = pgEnum("leave_type", ["annual", "sick", "maternity", "emergency", "unpaid"]);
-export const documentTypeEnum = pgEnum("document_type", ["passport", "residence", "license", "contract", "certificate", "civil_id", "work_permit", "health_certificate", "establishment_document", "tax_certificate", "chamber_membership", "import_export_license", "fire_permit", "municipality_permit", "other"]);
-export const assetStatusEnum = pgEnum("asset_status", ["available", "in_use", "maintenance", "retired", "lost", "damaged"]);
-export const assetTypeEnum = pgEnum("asset_type", ["equipment", "vehicle", "furniture", "electronics", "software", "other"]);
-export const maintenanceStatusEnum = pgEnum("maintenance_status", ["scheduled", "in_progress", "completed", "cancelled"]);
-export const maintenanceTypeEnum = pgEnum("maintenance_type", ["preventive", "corrective", "emergency", "upgrade"]);
-export const projectStatusEnum = pgEnum("project_status", ["planning", "active", "on_hold", "completed", "cancelled"]);
-export const taskStatusEnum = pgEnum("task_status", ["todo", "in_progress", "review", "completed", "cancelled"]);
-export const notificationTypeEnum = pgEnum("notification_type", ["system", "license_expiry", "employee_update", "project_update", "task_assignment", "leave_request", "document_expiry"]);
-export const salaryComponentTypeEnum = pgEnum("salary_component_type", ["basic", "allowance", "bonus", "overtime", "deduction", "tax"]);
+// Enums - Using text fields instead of pgEnum for SQLite compatibility
+export const userRoleEnum = ['super_admin',
+   'company_manager',
+   'employee',
+   'supervisor',
+   'worker'] as const;
+export const employeeStatusEnum = ['active',
+   'inactive',
+   'on_leave',
+   'terminated',
+   'archived'] as const;
+export const employeeTypeEnum = ['citizen', 'expatriate'] as const;
+export const licenseStatusEnum = ['active', 'expired', 'pending'] as const;
+export const licenseTypeEnum = ['main',
+   'branch',
+   'commercial',
+   'industrial',
+   'professional',
+   'import_export',
+   'tailoring',
+   'fabric',
+   'jewelry',
+   'restaurant',
+   'service'] as const;
+export const leaveStatusEnum = ['pending', 'approved', 'rejected'] as const;
+export const leaveTypeEnum = ['annual', 'sick', 'maternity', 'emergency', 'unpaid'] as const;
+export const deductionTypeEnum = ['late', 'absence', 'loan', 'insurance', 'other'] as const;
+export const deductionStatusEnum = ['active', 'completed', 'cancelled'] as const;
+export const documentTypeEnum = ['passport',
+   'residence',
+   'license',
+   'contract',
+   'certificate',
+   'civil_id',
+   'work_permit',
+   'health_certificate',
+   'establishment_document',
+   'tax_certificate',
+   'chamber_membership',
+   'import_export_license',
+   'fire_permit',
+   'municipality_permit',
+   'other'] as const;
 
 // Companies table - Enhanced for real business data
-export const companies = pgTable("companies", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: text("name").notNull(),
-  commercialFileNumber: varchar("commercial_file_number"),
-  commercialFileName: text("commercial_file_name"),
-  commercialFileStatus: boolean("commercial_file_status").default(true),
-  establishmentDate: date("establishment_date"),
-  commercialRegistrationNumber: varchar("commercial_registration_number"),
-  classification: text("classification"),
-  department: text("department"),
-  fileType: text("file_type"),
-  legalEntity: text("legal_entity"),
-  ownershipCategory: text("ownership_category"),
-  logoUrl: varchar("logo_url"),
-  address: text("address"),
-  phone: varchar("phone"),
-  email: varchar("email"),
-  website: varchar("website"),
-  totalEmployees: integer("total_employees").default(0),
-  totalLicenses: integer("total_licenses").default(0),
-  isActive: boolean("is_active").default(true),
+export const companies = sqliteTable('companies', {
+  'id': text('id').primaryKey().default(sql`(hex(randomblob(16)))`),
+  'name': text('name').notNull(),
+  'commercialFileNumber': text('commercial_file_number'),
+  'commercialFileName': text('commercial_file_name'),
+  'commercialFileStatus': integer('commercial_file_status', {
+  'mode': 'boolean'
+}).default(true).notNull(),
+  'establishmentDate': text('establishment_date'),
+  'commercialRegistrationNumber': text('commercial_registration_number'),
+  'classification': text('classification'),
+  'department': text('department'),
+  'fileType': text('file_type'),
+  'legalEntity': text('legal_entity'),
+  'ownershipCategory': text('ownership_category'),
+  'logoUrl': text('logo_url'),
+  'address': text('address'),
+  'phone': text('phone'),
+  'email': text('email'),
+  'website': text('website'),
+  'totalEmployees': integer('total_employees').default(0).notNull(),
+  'totalLicenses': integer('total_licenses').default(0).notNull(),
+  'isActive': integer('is_active', {'mode': 'boolean'}).default(true).notNull(),
   // حقول إضافية مستخرجة من الملفات الحقيقية
-  industryType: text("industry_type"), // أقمشة، مجوهرات، خياطة، تجارة عامة
-  businessActivity: text("business_activity"), // نشاط الشركة التفصيلي
-  location: text("location"), // الموقع: مباركية، الجهراء، الصفاة، فحيحيل، رامين
-  taxNumber: varchar("tax_number"), // الرقم الضريبي
-  chambers: text("chambers"), // غرف التجارة المسجلة بها
-  partnerships: jsonb("partnerships").$type<{
-    partnerName: string;
-    partnershipType: string; // شريك، مدير، مالك
-    percentage?: number;
-  }[]>().default([]),
-  importExportLicense: varchar("import_export_license"), // رخصة الاستيراد والتصدير
-  specialPermits: jsonb("special_permits").$type<{
-    permitType: string;
-    permitNumber: string;
-    expiryDate: string;
-  }[]>().default([]),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+  'industryType': text('industry_type'), // أقمشة، مجوهرات، خياطة، تجارة عامة
+  'businessActivity': text('business_activity'), // نشاط الشركة التفصيلي
+  'location': text('location'), // الموقع: مباركية، الجهراء، الصفاة، فحيحيل، رامين
+  'taxNumber': text('tax_number'), // الرقم الضريبي
+  'chambers': text('chambers'), // غرف التجارة المسجلة بها
+  'partnerships': text('partnerships').default('[]').notNull(), // JSON string
+  'importExportLicense': text('import_export_license'), // رخصة الاستيراد والتصدير
+  'specialPermits': text('special_permits').default('[]').notNull(), // JSON string
+  'createdAt': integer('created_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull(),
+  'updatedAt': integer('updated_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull()
+}, (table) => [
+  index('IDX_companies_name').on(table.name),
+  index('IDX_companies_commercial_file_number').on(table.commercialFileNumber),
+  index('IDX_companies_is_active').on(table.isActive),
+  index('IDX_companies_industry_type').on(table.industryType),
+  index('IDX_companies_location').on(table.location),
+  index('IDX_companies_created_at').on(table.createdAt)
+]);
 
-// Company Users (linking users to companies with roles)
-export const companyUsers = pgTable("company_users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  companyId: varchar("company_id").notNull().references(() => companies.id),
-  role: userRoleEnum("role").notNull(),
-  permissions: jsonb("permissions").$type<string[]>().default([]),
-  supervisedWorkers: jsonb("supervised_workers").$type<string[]>().default([]), // للمشرفين: قائمة العمال تحت الإشراف
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+// Company Users table
+export const companyUsers = sqliteTable('company_users', {
+  'id': text('id').primaryKey().default(sql`(hex(randomblob(16)))`),
+  'companyId': text('company_id').notNull().references(() => companies.id, {'onDelete': 'cascade'}),
+  'userId': text('user_id').notNull().references(() => users.id, {'onDelete': 'cascade'}),
+  'role': text('role').notNull().default('worker'),
+  'permissions': text('permissions').default('[]').notNull(), // JSON string
+  'createdAt': integer('created_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull(),
+  'updatedAt': integer('updated_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull()
+}, (table) => [
+  index('IDX_company_users_company_id').on(table.companyId),
+  index('IDX_company_users_user_id').on(table.userId),
+  index('IDX_company_users_role').on(table.role),
+  index('IDX_company_users_company_user').on(table.companyId, table.userId)
+]);
 
-// Licenses table - Enhanced for various license types
-export const licenses: any = pgTable("licenses", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  companyId: varchar("company_id").notNull().references(() => companies.id),
-  licenseNumber: varchar("license_number").notNull(),
-  name: text("name").notNull(),
-  holderCivilId: varchar("holder_civil_id"),
-  issuingAuthority: text("issuing_authority"),
-  type: licenseTypeEnum("type").notNull(),
-  status: licenseStatusEnum("status").notNull().default("active"),
-  issueDate: date("issue_date"),
-  expiryDate: date("expiry_date"),
-  associatedEmployees: integer("associated_employees").default(0),
-  address: text("address"),
-  description: text("description"),
-  // حقول إضافية للتراخيص المتنوعة
-  licenseCategory: text("license_category"), // تجاري، صناعي، مهني، خدمي
-  businessType: text("business_type"), // خياطة، أقمشة، مجوهرات، تجارة عامة
-  shopNumber: varchar("shop_number"), // رقم المحل/الدكان
-  floor: varchar("floor"), // الطابق
-  marketName: text("market_name"), // اسم السوق (المباركية، الجهراء، الخ)
-  renewalRequired: boolean("renewal_required").default(true),
-  annualFee: decimal("annual_fee"), // الرسوم السنوية
-  municipality: text("municipality"), // البلدية
-  firePermit: varchar("fire_permit"), // تصريح الدفاع المدني
-  healthPermit: varchar("health_permit"), // تصريح الصحة (للمطاعم والمختبرات)
-  environmentPermit: varchar("environment_permit"), // تصريح البيئة
-  parentLicenseId: varchar("parent_license_id"), // للتراخيص الفرعية
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+// Employees table
+export const employees = sqliteTable('employees', {
+  'id': text('id').primaryKey().default(sql`(hex(randomblob(16)))`),
+  'companyId': text('company_id').notNull().references(() => companies.id, {'onDelete': 'cascade'}),
+  'licenseId': text('license_id').references(() => licenses.id, {'onDelete': 'set null'}),
+  'firstName': text('first_name').notNull(),
+  'lastName': text('last_name').notNull(),
+  'arabicName': text('arabic_name'),
+  'englishName': text('english_name'),
+  'passportNumber': text('passport_number'),
+  'civilId': text('civil_id'),
+  'nationality': text('nationality'),
+  'dateOfBirth': text('date_of_birth'),
+  'gender': text('gender'),
+  'maritalStatus': text('marital_status'),
+  'employeeType': text('employee_type').default('citizen').notNull(),
+  'status': text('status').default('active').notNull(),
+  'position': text('position'),
+  'department': text('department'),
+  'hireDate': text('hire_date'),
+  'salary': real('salary'),
+  'phone': text('phone'),
+  'email': text('email'),
+  'address': text('address'),
+  'emergencyContact': text('emergency_contact'),
+  'emergencyPhone': text('emergency_phone'),
+  'photoUrl': text('photo_url'),
+  'documents': text('documents').default('[]').notNull(), // JSON string
+  'skills': text('skills').default('[]').notNull(), // JSON string
+  'notes': text('notes'),
+  'fullName': text('full_name'),
+  'jobTitle': text('job_title'),
+  'residenceNumber': text('residence_number'),
+  'residenceExpiry': text('residence_expiry'),
+  'medicalInsurance': text('medical_insurance'),
+  'bankAccount': text('bank_account'),
+  'workPermitStart': text('work_permit_start'),
+  'workPermitEnd': text('work_permit_end'),
+  'isArchived': integer('is_archived', {'mode': 'boolean'}).default(false).notNull(),
+  'archiveReason': text('archive_reason'),
+  'createdAt': integer('created_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull(),
+  'updatedAt': integer('updated_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull()
+}, (table) => [
+  index('IDX_employees_company_id').on(table.companyId),
+  index('IDX_employees_license_id').on(table.licenseId),
+  index('IDX_employees_status').on(table.status),
+  index('IDX_employees_employee_type').on(table.employeeType),
+  index('IDX_employees_department').on(table.department),
+  index('IDX_employees_position').on(table.position),
+  index('IDX_employees_civil_id').on(table.civilId),
+  index('IDX_employees_passport_number').on(table.passportNumber),
+  index('IDX_employees_is_archived').on(table.isArchived),
+  index('IDX_employees_hire_date').on(table.hireDate),
+  index('IDX_employees_created_at').on(table.createdAt),
+  index('IDX_employees_company_status').on(table.companyId, table.status)
+]);
 
-// Employees table - Enhanced for comprehensive employee data
-export const employees = pgTable("employees", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  companyId: varchar("company_id").notNull().references(() => companies.id),
-  licenseId: varchar("license_id").references(() => licenses.id),
-  civilId: varchar("civil_id").notNull(),
-  fullName: text("full_name").notNull(),
-  nationality: text("nationality").notNull(),
-  type: employeeTypeEnum("type").notNull(),
-  jobTitle: text("job_title").notNull(),
-  actualJobTitle: text("actual_job_title"), // الوظيفة الفعلية
-  hireDate: date("hire_date"),
-  workPermitStart: date("work_permit_start"),
-  workPermitEnd: date("work_permit_end"),
-  monthlySalary: decimal("monthly_salary", { precision: 10, scale: 2 }),
-  actualSalary: decimal("actual_salary", { precision: 10, scale: 2 }), // الراتب الفعلي
-  status: employeeStatusEnum("status").notNull().default("active"),
-  phone: varchar("phone"),
-  email: varchar("email"),
-  address: text("address"),
-  emergencyContact: text("emergency_contact"),
-  notes: text("notes"),
-  profileImageUrl: varchar("profile_image_url"),
-  isArchived: boolean("is_archived").default(false),
-  archivedAt: timestamp("archived_at"),
-  archivedReason: text("archived_reason"),
-  // حقول إضافية من الملفات الحقيقية
-  passportNumber: varchar("passport_number"), // رقم الجواز
-  passportExpiry: date("passport_expiry"), // انتهاء الجواز
-  residenceNumber: varchar("residence_number"), // رقم الإقامة
-  residenceExpiry: date("residence_expiry"), // انتهاء الإقامة
-  medicalInsurance: varchar("medical_insurance"), // التأمين الطبي
-  bankAccount: varchar("bank_account"), // الحساب البنكي
-  emergencyContactPhone: varchar("emergency_contact_phone"), // هاتف الطوارئ
-  maritalStatus: text("marital_status"), // الحالة الاجتماعية
-  numberOfDependents: integer("number_of_dependents").default(0), // عدد المعالين
-  educationLevel: text("education_level"), // المستوى التعليمي
-  previousExperience: text("previous_experience"), // الخبرة السابقة
-  languages: jsonb("languages").$type<string[]>().default([]), // اللغات
-  skills: jsonb("skills").$type<string[]>().default([]), // المهارات
-  contractType: text("contract_type"), // نوع العقد: محدود، غير محدود، مشروع
-  probationPeriod: integer("probation_period"), // فترة التجريب بالأشهر
-  workLocation: text("work_location"), // مكان العمل
-  department: text("department"), // القسم
-  directSupervisor: varchar("direct_supervisor"), // المشرف المباشر
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+// Licenses table
+export const licenses = sqliteTable('licenses', {
+  'id': text('id').primaryKey().default(sql`(hex(randomblob(16)))`),
+  'companyId': text('company_id').notNull().references(() => companies.id, {'onDelete': 'cascade'}),
+  'name': text('name').notNull(),
+  'type': text('type').notNull(),
+  'number': text('number').notNull(),
+  'status': text('status').default('active').notNull(),
+  'issueDate': text('issue_date'),
+  'expiryDate': text('expiry_date'),
+  'issuingAuthority': text('issuing_authority'),
+  'location': text('location'),
+  'description': text('description'),
+  'documents': text('documents').default('[]').notNull(), // JSON string
+  'isActive': integer('is_active', {'mode': 'boolean'}).default(true).notNull(),
+  'createdAt': integer('created_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull(),
+  'updatedAt': integer('updated_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull()
+}, (table) => [
+  index('IDX_licenses_company_id').on(table.companyId),
+  index('IDX_licenses_type').on(table.type),
+  index('IDX_licenses_status').on(table.status),
+  index('IDX_licenses_number').on(table.number),
+  index('IDX_licenses_expiry_date').on(table.expiryDate),
+  index('IDX_licenses_is_active').on(table.isActive),
+  index('IDX_licenses_company_status').on(table.companyId, table.status),
+  index('IDX_licenses_expiry_active').on(table.expiryDate, table.isActive)
+]);
 
 // Employee Leaves table
-export const employeeLeaves = pgTable("employee_leaves", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  employeeId: varchar("employee_id").notNull().references(() => employees.id),
-  type: leaveTypeEnum("type").notNull(),
-  startDate: date("start_date").notNull(),
-  endDate: date("end_date").notNull(),
-  days: integer("days").notNull(),
-  reason: text("reason"),
-  status: leaveStatusEnum("status").notNull().default("pending"),
-  approvedBy: varchar("approved_by").references(() => users.id),
-  approvedAt: timestamp("approved_at"),
-  rejectionReason: text("rejection_reason"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+export const employeeLeaves = sqliteTable('employee_leaves', {
+  'id': text('id').primaryKey().default(sql`(hex(randomblob(16)))`),
+  'employeeId': text('employee_id').notNull().references(() => employees.id, {
+  'onDelete': 'cascade'
+}),
+  'type': text('type', {'enum': leaveTypeEnum}).notNull(),
+  'status': text('status', {'enum': leaveStatusEnum}).default('pending').notNull(),
+  'startDate': text('start_date').notNull(),
+  'endDate': text('end_date').notNull(),
+  'days': integer('days').notNull(),
+  'reason': text('reason'),
+  'approvedBy': text('approved_by').references(() => users.id, {'onDelete': 'set null'}),
+  'approvedAt': integer('approved_at', {'mode': 'timestamp'}),
+  'rejectionReason': text('rejection_reason'),
+  'createdAt': integer('created_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull(),
+  'updatedAt': integer('updated_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull()
+}, (table) => [
+  index('IDX_employee_leaves_employee_id').on(table.employeeId),
+  index('IDX_employee_leaves_type').on(table.type),
+  index('IDX_employee_leaves_status').on(table.status),
+  index('IDX_employee_leaves_start_date').on(table.startDate),
+  index('IDX_employee_leaves_end_date').on(table.endDate),
+  index('IDX_employee_leaves_approved_by').on(table.approvedBy),
+  index('IDX_employee_leaves_created_at').on(table.createdAt),
+  index('IDX_employee_leaves_employee_status').on(table.employeeId, table.status),
+  index('IDX_employee_leaves_date_range').on(table.startDate, table.endDate)
+]);
 
 // Employee Deductions table
-export const employeeDeductions = pgTable("employee_deductions", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  employeeId: varchar("employee_id").notNull().references(() => employees.id),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  reason: text("reason").notNull(),
-  date: date("date").notNull(),
-  processedBy: varchar("processed_by").notNull().references(() => users.id),
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+export const employeeDeductions = sqliteTable('employee_deductions', {
+  'id': text('id').primaryKey().default(sql`(hex(randomblob(16)))`),
+  'employeeId': text('employee_id').notNull().references(() => employees.id, {
+  'onDelete': 'cascade'
+}),
+  'type': text('type', {'enum': deductionTypeEnum}).notNull(),
+  'amount': real('amount').notNull(),
+  'reason': text('reason').notNull(),
+  'date': text('date').notNull(),
+  'status': text('status', {'enum': deductionStatusEnum}).default('active').notNull(),
+  'processedBy': text('processed_by').notNull().references(() => users.id, {'onDelete': 'cascade'}),
+  'createdAt': integer('created_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull()
+}, (table) => [
+  index('IDX_employee_deductions_employee_id').on(table.employeeId),
+  index('IDX_employee_deductions_type').on(table.type),
+  index('IDX_employee_deductions_status').on(table.status),
+  index('IDX_employee_deductions_date').on(table.date),
+  index('IDX_employee_deductions_processed_by').on(table.processedBy),
+  index('IDX_employee_deductions_created_at').on(table.createdAt),
+  index('IDX_employee_deductions_employee_type').on(table.employeeId, table.type),
+  index('IDX_employee_deductions_amount').on(table.amount)
+]);
 
 // Employee Violations table
-export const employeeViolations = pgTable("employee_violations", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  employeeId: varchar("employee_id").notNull().references(() => employees.id),
-  violationType: text("violation_type").notNull(),
-  date: date("date").notNull(),
-  actionTaken: text("action_taken"),
-  notes: text("notes"),
-  reportedBy: varchar("reported_by").notNull().references(() => users.id),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+export const employeeViolations = sqliteTable('employee_violations', {
+  'id': text('id').primaryKey().default(sql`(hex(randomblob(16)))`),
+  'employeeId': text('employee_id').notNull().references(() => employees.id, {
+  'onDelete': 'cascade'
+}),
+  'type': text('type').notNull(),
+  'description': text('description').notNull(),
+  'date': text('date').notNull(),
+  'reportedBy': text('reported_by').notNull().references(() => users.id, {'onDelete': 'cascade'}),
+  'severity': text('severity').default('medium').notNull(),
+  'createdAt': integer('created_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull()
+}, (table) => [
+  index('IDX_employee_violations_employee_id').on(table.employeeId),
+  index('IDX_employee_violations_type').on(table.type),
+  index('IDX_employee_violations_severity').on(table.severity),
+  index('IDX_employee_violations_date').on(table.date),
+  index('IDX_employee_violations_reported_by').on(table.reportedBy),
+  index('IDX_employee_violations_created_at').on(table.createdAt),
+  index('IDX_employee_violations_employee_type').on(table.employeeId, table.type)
+]);
 
 // Documents table
-export const documents = pgTable("documents", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  name: text("name").notNull(),
-  type: documentTypeEnum("type").notNull(),
-  fileUrl: varchar("file_url").notNull(),
-  fileSize: integer("file_size"),
-  mimeType: varchar("mime_type"),
-  expiryDate: date("expiry_date"),
-  // Polymorphic relations
-  employeeId: varchar("employee_id").references(() => employees.id),
-  companyId: varchar("company_id").references(() => companies.id),
-  licenseId: varchar("license_id").references(() => licenses.id),
-  uploadedBy: varchar("uploaded_by").notNull().references(() => users.id),
-  description: text("description"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+export const documents = sqliteTable('documents', {
+  'id': text('id').primaryKey().default(sql`(hex(randomblob(16)))`),
+  'entityId': text('entity_id').notNull(),
+  'entityType': text('entity_type').notNull(), // 'employee', 'company', 'license'
+  'name': text('name').notNull(),
+  'type': text('type').notNull(),
+  'fileName': text('file_name').notNull(),
+  'fileUrl': text('file_url').notNull(),
+  'fileSize': integer('file_size'),
+  'mimeType': text('mime_type'),
+  'description': text('description'),
+  'tags': text('tags').default('[]').notNull(), // JSON string
+  'uploadedBy': text('uploaded_by').notNull().references(() => users.id, {'onDelete': 'cascade'}),
+  'isActive': integer('is_active', {'mode': 'boolean'}).default(true).notNull(),
+  'createdAt': integer('created_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull(),
+  'updatedAt': integer('updated_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull()
+}, (table) => [
+  index('IDX_documents_entity_id').on(table.entityId),
+  index('IDX_documents_entity_type').on(table.entityType),
+  index('IDX_documents_type').on(table.type),
+  index('IDX_documents_uploaded_by').on(table.uploadedBy),
+  index('IDX_documents_is_active').on(table.isActive),
+  index('IDX_documents_created_at').on(table.createdAt),
+  index('IDX_documents_entity_entity_type').on(table.entityId, table.entityType),
+  index('IDX_documents_file_size').on(table.fileSize)
+]);
 
 // Notifications table
-export const notifications = pgTable("notifications", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
-  companyId: varchar("company_id").references(() => companies.id),
-  title: text("title").notNull(),
-  message: text("message").notNull(),
-  type: text("type").notNull(), // 'warning', 'info', 'success', 'error'
-  isRead: boolean("is_read").default(false),
-  actionUrl: varchar("action_url"),
-  relatedEntityId: varchar("related_entity_id"),
-  relatedEntityType: varchar("related_entity_type"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+export const notifications = sqliteTable('notifications', {
+  'id': text('id').primaryKey().default(sql`(hex(randomblob(16)))`),
+  'userId': text('user_id').notNull().references(() => users.id, {'onDelete': 'cascade'}),
+  'companyId': text('company_id').references(() => companies.id, {'onDelete': 'cascade'}),
+  'type': text('type').notNull(),
+  'title': text('title').notNull(),
+  'message': text('message').notNull(),
+  'data': text('data').default('{}').notNull(), // JSON string
+  'isRead': integer('is_read', {'mode': 'boolean'}).default(false).notNull(),
+  'createdAt': integer('created_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull()
+}, (table) => [
+  index('IDX_notifications_user_id').on(table.userId),
+  index('IDX_notifications_company_id').on(table.companyId),
+  index('IDX_notifications_type').on(table.type),
+  index('IDX_notifications_is_read').on(table.isRead),
+  index('IDX_notifications_created_at').on(table.createdAt),
+  index('IDX_notifications_user_read').on(table.userId, table.isRead),
+  index('IDX_notifications_company_type').on(table.companyId, table.type)
+]);
 
-// Administrative Employee Permissions - customizable by Company Manager
-export const adminPermissions = pgTable("admin_permissions", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  companyUserId: varchar("company_user_id").notNull().references(() => companyUsers.id),
-  permissionGroup: text("permission_group").notNull(), // مثل: hr, accounting, purchasing, inventory
-  permissions: jsonb("permissions").$type<{
-    canView: boolean;
-    canCreate: boolean;
-    canEdit: boolean;
-    canDelete: boolean;
-    canApprove: boolean;
-    canExport: boolean;
-    specificPermissions?: string[];
-  }>().notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Supervisor Reports - تقارير المشرفين عن العمال
-export const supervisorReports = pgTable("supervisor_reports", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  supervisorId: varchar("supervisor_id").notNull().references(() => companyUsers.id),
-  workerId: varchar("worker_id").notNull().references(() => employees.id),
-  reportType: text("report_type").notNull(), // daily, weekly, monthly, incident
-  subject: text("subject").notNull(),
-  description: text("description").notNull(),
-  priority: text("priority").notNull().default("normal"), // low, normal, high, urgent
-  status: text("status").notNull().default("submitted"), // submitted, reviewed, resolved
-  reportedToId: varchar("reported_to_id").references(() => companyUsers.id), // المدير أو الموظف الإداري المرسل له
-  reviewedBy: varchar("reviewed_by").references(() => companyUsers.id),
-  reviewedAt: timestamp("reviewed_at"),
-  actionTaken: text("action_taken"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Relations
-export const companiesRelations = relations(companies, ({ many }) => ({
-  employees: many(employees),
-  licenses: many(licenses),
-  companyUsers: many(companyUsers),
-  documents: many(documents),
-  notifications: many(notifications),
+// Relations with proper cascade behavior
+export const usersRelations = relations(users, ({many}) => ({
+  'companyUsers': many(companyUsers),
+  'employeeLeaves': many(employeeLeaves, {'relationName': 'approvedBy'}),
+  'employeeDeductions': many(employeeDeductions, {'relationName': 'processedBy'}),
+  'employeeViolations': many(employeeViolations, {'relationName': 'reportedBy'}),
+  'documents': many(documents, {'relationName': 'uploadedBy'}),
+  'notifications': many(notifications)
 }));
 
-export const usersRelations = relations(users, ({ many }) => ({
-  companyUsers: many(companyUsers),
-  approvedLeaves: many(employeeLeaves),
-  processedDeductions: many(employeeDeductions),
-  reportedViolations: many(employeeViolations),
-  uploadedDocuments: many(documents),
-  notifications: many(notifications),
+export const companiesRelations = relations(companies, ({many}) => ({
+  'employees': many(employees),
+  'licenses': many(licenses),
+  'companyUsers': many(companyUsers),
+  'notifications': many(notifications)
 }));
 
-export const companyUsersRelations = relations(companyUsers, ({ one }) => ({
-  user: one(users, {
-    fields: [companyUsers.userId],
-    references: [users.id],
+export const employeesRelations = relations(employees, ({one, many}) => ({
+  'company': one(companies, {
+    'fields': [employees.companyId],
+    'references': [companies.id]
   }),
-  company: one(companies, {
-    fields: [companyUsers.companyId],
-    references: [companies.id],
+  'license': one(licenses, {
+    'fields': [employees.licenseId],
+    'references': [licenses.id]
   }),
+  'leaves': many(employeeLeaves),
+  'deductions': many(employeeDeductions),
+  'violations': many(employeeViolations),
+  'documents': many(documents, {'relationName': 'employeeDocuments'})
 }));
 
-export const employeesRelations = relations(employees, ({ one, many }) => ({
-  company: one(companies, {
-    fields: [employees.companyId],
-    references: [companies.id],
+export const licensesRelations = relations(licenses, ({one, many}) => ({
+  'company': one(companies, {
+    'fields': [licenses.companyId],
+    'references': [companies.id]
   }),
-  license: one(licenses, {
-    fields: [employees.licenseId],
-    references: [licenses.id],
-  }),
-  leaves: many(employeeLeaves),
-  deductions: many(employeeDeductions),
-  violations: many(employeeViolations),
-  documents: many(documents),
+  'employees': many(employees),
+  'documents': many(documents, {'relationName': 'licenseDocuments'})
 }));
 
-export const licensesRelations = relations(licenses, ({ one, many }) => ({
-  company: one(companies, {
-    fields: [licenses.companyId],
-    references: [companies.id],
-  }),
-  employees: many(employees),
-  documents: many(documents),
-}));
+// Zod schemas
+export const insertUserSchema = createInsertSchema(users);
+export const insertCompanySchema = createInsertSchema(companies);
+export const insertEmployeeSchema = createInsertSchema(employees);
+export const insertLicenseSchema = createInsertSchema(licenses);
+export const insertEmployeeLeaveSchema = createInsertSchema(employeeLeaves);
+export const insertEmployeeDeductionSchema = createInsertSchema(employeeDeductions);
+export const insertEmployeeViolationSchema = createInsertSchema(employeeViolations);
+export const insertDocumentSchema = createInsertSchema(documents);
+export const insertNotificationSchema = createInsertSchema(notifications);
 
-export const employeeLeavesRelations = relations(employeeLeaves, ({ one }) => ({
-  employee: one(employees, {
-    fields: [employeeLeaves.employeeId],
-    references: [employees.id],
-  }),
-  approver: one(users, {
-    fields: [employeeLeaves.approvedBy],
-    references: [users.id],
-  }),
-}));
-
-export const employeeDeductionsRelations = relations(employeeDeductions, ({ one }) => ({
-  employee: one(employees, {
-    fields: [employeeDeductions.employeeId],
-    references: [employees.id],
-  }),
-  processor: one(users, {
-    fields: [employeeDeductions.processedBy],
-    references: [users.id],
-  }),
-}));
-
-export const employeeViolationsRelations = relations(employeeViolations, ({ one }) => ({
-  employee: one(employees, {
-    fields: [employeeViolations.employeeId],
-    references: [employees.id],
-  }),
-  reporter: one(users, {
-    fields: [employeeViolations.reportedBy],
-    references: [users.id],
-  }),
-}));
-
-export const documentsRelations = relations(documents, ({ one }) => ({
-  employee: one(employees, {
-    fields: [documents.employeeId],
-    references: [employees.id],
-  }),
-  company: one(companies, {
-    fields: [documents.companyId],
-    references: [companies.id],
-  }),
-  license: one(licenses, {
-    fields: [documents.licenseId],
-    references: [licenses.id],
-  }),
-  uploader: one(users, {
-    fields: [documents.uploadedBy],
-    references: [users.id],
-  }),
-}));
-
-export const notificationsRelations = relations(notifications, ({ one }) => ({
-  user: one(users, {
-    fields: [notifications.userId],
-    references: [users.id],
-  }),
-  company: one(companies, {
-    fields: [notifications.companyId],
-    references: [companies.id],
-  }),
-}));
-
-// Insert Schemas
-export const insertCompanySchema = createInsertSchema(companies).omit({
-  id: true,
-  totalEmployees: true,
-  totalLicenses: true,
-  createdAt: true,
-  updatedAt: true,
+export const upsertUserSchema = z.object({
+  'id': z.string(),
+  'email': z.string().email().optional(),
+  'firstName': z.string().optional(),
+  'lastName': z.string().optional(),
+  'password': z.string().optional(),
+  'profileImageUrl': z.string().optional(),
+  'role': z.string().optional(),
+  'companyId': z.string().optional(),
+  'permissions': z.array(z.string()).optional(),
+  'isActive': z.boolean().optional(),
+  'emailVerified': z.boolean().optional(),
+  'emailVerificationToken': z.string().optional(),
+  'emailVerificationExpires': z.number().optional(),
+  'passwordResetToken': z.string().optional(),
+  'passwordResetExpires': z.number().optional(),
+  'lastPasswordChange': z.number().optional(),
+  'lastLoginAt': z.number().optional()
 });
 
-export const insertEmployeeSchema = createInsertSchema(employees).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+// Registration schema
+export const registerUserSchema = z.object({
+  'email': z.string().email(),
+  'password': z.string().min(8, 'Password must be at least 8 characters'),
+  'firstName': z.string().min(2, 'First name must be at least 2 characters'),
+  'lastName': z.string().min(2, 'Last name must be at least 2 characters'),
+  'companyId': z.string().optional(),
+  'role': z.string().optional()
 });
 
-export const insertLicenseSchema = createInsertSchema(licenses).omit({
-  id: true,
-  associatedEmployees: true,
-  createdAt: true,
-  updatedAt: true,
+// Login schema
+export const loginSchema = z.object({
+  'email': z.string().email(),
+  'password': z.string(),
+  'companyId': z.string().optional()
 });
 
-export const insertEmployeeLeaveSchema = createInsertSchema(employeeLeaves).omit({
-  id: true,
-  status: true,
-  approvedBy: true,
-  approvedAt: true,
-  createdAt: true,
-  updatedAt: true,
+// Change password schema
+export const changePasswordSchema = z.object({
+  'currentPassword': z.string(),
+  'newPassword': z.string().min(8, 'Password must be at least 8 characters')
 });
 
-export const insertEmployeeDeductionSchema = createInsertSchema(employeeDeductions).omit({
-  id: true,
-  processedBy: true,
-  createdAt: true,
+// Forgot password schema
+export const forgotPasswordSchema = z.object({
+  'email': z.string().email()
 });
 
-export const insertEmployeeViolationSchema = createInsertSchema(employeeViolations).omit({
-  id: true,
-  reportedBy: true,
-  createdAt: true,
+// Reset password schema
+export const resetPasswordSchema = z.object({
+  'token': z.string(),
+  'newPassword': z.string().min(8, 'Password must be at least 8 characters')
 });
 
-export const insertDocumentSchema = createInsertSchema(documents).omit({
-  id: true,
-  uploadedBy: true,
-  createdAt: true,
-  updatedAt: true,
+// Verify email schema
+export const verifyEmailSchema = z.object({
+  'token': z.string()
 });
 
-export const insertNotificationSchema = createInsertSchema(notifications).omit({
-  id: true,
-  createdAt: true,
-});
-
-export const upsertUserSchema = createInsertSchema(users).omit({
-  createdAt: true,
-});
-
-// Types
+// Type exports
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
-export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type RegisterUser = z.infer<typeof registerUserSchema>;
+export type LoginUser = z.infer<typeof loginSchema>;
+export type ChangePassword = z.infer<typeof changePasswordSchema>;
+export type ForgotPassword = z.infer<typeof forgotPasswordSchema>;
+export type ResetPassword = z.infer<typeof resetPasswordSchema>;
+export type VerifyEmail = z.infer<typeof verifyEmailSchema>;
+export type DbUser = typeof users.$inferSelect;
+export type User = DbUser; // Alias for backward compatibility
 export type Company = typeof companies.$inferSelect;
 export type InsertCompany = z.infer<typeof insertCompanySchema>;
 export type Employee = typeof employees.$inferSelect;
@@ -503,7 +507,7 @@ export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type CompanyUser = typeof companyUsers.$inferSelect;
 
-// Extended types for API responses
+// Extended types
 export type CompanyWithStats = Company & {
   totalEmployees: number;
   totalLicenses: number;
@@ -523,333 +527,4 @@ export type LicenseWithDetails = License & {
   company: Company;
   employees: Employee[];
   documents: Document[];
-};
-
-// Advanced HRMS Tables
-export const aiInsights = pgTable("ai_insights", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  companyId: varchar("company_id").references(() => companies.id),
-  type: varchar("type").notNull(),
-  title: varchar("title").notNull(),
-  description: text("description"),
-  priority: varchar("priority").default("medium"),
-  status: varchar("status").default("active"),
-  data: jsonb("data"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const workflows = pgTable("workflows", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  companyId: varchar("company_id").references(() => companies.id),
-  name: varchar("name").notNull(),
-  description: text("description"),
-  type: varchar("type").notNull(),
-  trigger: varchar("trigger").notNull(),
-  conditions: jsonb("conditions"),
-  actions: jsonb("actions"),
-  isActive: boolean("is_active").default(true),
-  createdBy: varchar("created_by").references(() => users.id),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export const courses = pgTable("courses", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  companyId: varchar("company_id").references(() => companies.id),
-  title: varchar("title").notNull(),
-  description: text("description"),
-  category: varchar("category").notNull(),
-  level: varchar("level").default("beginner"),
-  duration: integer("duration").notNull(),
-  modules: integer("modules").default(1),
-  instructor: varchar("instructor"),
-  status: varchar("status").default("draft"),
-  rating: decimal("rating").default("0"),
-  enrollmentCount: integer("enrollment_count").default(0),
-  content: jsonb("content"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Advanced intelligent tables with smart relationships
-
-// Projects Management
-export const projects = pgTable("projects", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  companyId: varchar("company_id").references(() => companies.id),
-  name: varchar("name").notNull(),
-  description: text("description"),
-  status: projectStatusEnum("status").default("planning"),
-  priority: varchar("priority").default("medium"),
-  managerId: varchar("manager_id").references(() => employees.id),
-  departmentId: varchar("department_id").references(() => departments.id),
-  licenseId: varchar("license_id").references(() => licenses.id), // Связанная лицензия
-  budget: decimal("budget"),
-  actualCost: decimal("actual_cost").default("0"),
-  progress: integer("progress").default(0),
-  startDate: date("start_date"),
-  endDate: date("end_date"),
-  actualEndDate: date("actual_end_date"),
-  clientName: varchar("client_name"),
-  clientEmail: varchar("client_email"),
-  tags: text("tags").array(),
-  metadata: jsonb("metadata"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Smart Departments
-export const departments = pgTable("departments", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  companyId: varchar("company_id").references(() => companies.id),
-  name: varchar("name").notNull(),
-  code: varchar("code").unique(),
-  description: text("description"),
-  headOfDepartment: varchar("head_of_department"),
-  parentDepartmentId: varchar("parent_department_id"),
-  budget: decimal("budget"),
-  location: varchar("location"),
-  costCenter: varchar("cost_center"),
-  requiredLicenses: text("required_licenses").array(),
-  kpis: jsonb("kpis"),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Tasks with intelligent assignment
-export const tasks = pgTable("tasks", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  projectId: varchar("project_id").references(() => projects.id),
-  title: varchar("title").notNull(),
-  description: text("description"),
-  status: taskStatusEnum("status").default("todo"),
-  priority: varchar("priority").default("medium"),
-  assignedTo: varchar("assigned_to").references(() => employees.id),
-  assignedBy: varchar("assigned_by").references(() => employees.id),
-  reviewedBy: varchar("reviewed_by").references(() => employees.id),
-  dependsOn: text("depends_on").array(), // Task dependencies
-  tags: text("tags").array(),
-  estimatedHours: integer("estimated_hours"),
-  actualHours: integer("actual_hours").default(0),
-  dueDate: timestamp("due_date"),
-  completedAt: timestamp("completed_at"),
-  licenseRequired: varchar("license_required").references(() => licenses.id), // Required license
-  skillsRequired: text("skills_required").array(),
-  difficulty: varchar("difficulty").default("medium"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Smart Asset Management
-export const smartAssets = pgTable("smart_assets", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  companyId: varchar("company_id").references(() => companies.id),
-  name: varchar("name").notNull(),
-  code: varchar("code").unique(),
-  type: assetTypeEnum("type").notNull(),
-  category: varchar("category"),
-  model: varchar("model"),
-  serialNumber: varchar("serial_number"),
-  manufacturer: varchar("manufacturer"),
-  purchaseDate: date("purchase_date"),
-  purchasePrice: decimal("purchase_price"),
-  currentValue: decimal("current_value"),
-  depreciationRate: decimal("depreciation_rate"),
-  status: assetStatusEnum("status").default("available"),
-  location: varchar("location"),
-  assignedTo: varchar("assigned_to"),
-  departmentId: varchar("department_id"),
-  licenseRequired: varchar("license_required"),
-  insurancePolicyNumber: varchar("insurance_policy_number"),
-  warrantyExpiryDate: date("warranty_expiry_date"),
-  lastMaintenanceDate: date("last_maintenance_date"),
-  nextMaintenanceDate: date("next_maintenance_date"),
-  maintenanceHistory: jsonb("maintenance_history"),
-  specifications: jsonb("specifications"),
-  usageHours: integer("usage_hours").default(0),
-  maintenanceCost: decimal("maintenance_cost").default("0"),
-  isActive: boolean("is_active").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Intelligent Payroll System
-export const payrollRecords = pgTable("payroll_records", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  companyId: varchar("company_id").references(() => companies.id),
-  employeeId: varchar("employee_id").references(() => employees.id),
-  period: varchar("period").notNull(),
-  basicSalary: decimal("basic_salary").notNull(),
-  allowances: jsonb("allowances"),
-  deductions: jsonb("deductions"),
-  bonuses: decimal("bonuses").default("0"),
-  grossSalary: decimal("gross_salary").notNull(),
-  netSalary: decimal("net_salary").notNull(),
-  status: varchar("status").default("pending"),
-  processedAt: timestamp("processed_at"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const attendanceRecords = pgTable("attendance_records", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  employeeId: varchar("employee_id").references(() => employees.id),
-  companyId: varchar("company_id").references(() => companies.id),
-  date: varchar("date").notNull(),
-  checkIn: timestamp("check_in"),
-  checkOut: timestamp("check_out"),
-  method: varchar("method").notNull(),
-  location: jsonb("location"),
-  status: varchar("status").default("present"),
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-// Additional Types
-export type AIInsight = typeof aiInsights.$inferSelect;
-export type InsertAIInsight = typeof aiInsights.$inferInsert;
-export type Workflow = typeof workflows.$inferSelect;
-export type InsertWorkflow = typeof workflows.$inferInsert;
-export type Course = typeof courses.$inferSelect;
-export type InsertCourse = typeof courses.$inferInsert;
-export type PayrollRecord = typeof payrollRecords.$inferSelect;
-export type InsertPayrollRecord = typeof payrollRecords.$inferInsert;
-export type AttendanceRecord = typeof attendanceRecords.$inferSelect;
-export type InsertAttendanceRecord = typeof attendanceRecords.$inferInsert;
-
-// Intelligent Relations and Advanced Schema Extensions now added properly...
-
-// Simplified Relations for Intelligent System
-export const departmentsRelations = relations(departments, ({ one }) => ({
-  company: one(companies, {
-    fields: [departments.companyId],
-    references: [companies.id],
-  }),
-}));
-
-// Extended company relations with new intelligent connections
-export const companiesExtendedRelations = relations(companies, ({ many }) => ({
-  users: many(companyUsers),
-  employees: many(employees),
-  licenses: many(licenses),
-  departments: many(departments),
-  payrollRecords: many(payrollRecords),
-  attendanceRecords: many(attendanceRecords),
-}));
-
-// Enhanced employee relations with intelligent connections
-export const employeesExtendedRelations = relations(employees, ({ one, many }) => ({
-  company: one(companies, {
-    fields: [employees.companyId],
-    references: [companies.id],
-  }),
-  license: one(licenses, {
-    fields: [employees.licenseId],
-    references: [licenses.id],
-  }),
-  leaves: many(employeeLeaves),
-  deductions: many(employeeDeductions),
-  violations: many(employeeViolations),
-  documents: many(documents),
-}));
-
-// Enhanced license relations
-export const licensesExtendedRelations = relations(licenses, ({ one, many }) => ({
-  company: one(companies, {
-    fields: [licenses.companyId],
-    references: [companies.id],
-  }),
-  employees: many(employees),
-  documents: many(documents),
-}));
-
-// Core table types only (removing undefined table references)
-export type Project = {
-  id: string;
-  name: string;
-  companyId: string;
-  status: string;
-};
-export type Department = {
-  id: string;
-  name: string;
-  companyId: string;
-};
-
-// Intelligent Dashboard Analytics Types
-export type CompanyIntelligentStats = Company & {
-  totalEmployees: number;
-  totalLicenses: number;
-  activeProjects: number;
-  completedTasks: number;
-  departmentCount: number;
-  assetValue: number;
-  trainingPrograms: number;
-  avgPerformanceRating: number;
-  upcomingLicenseExpiries: number;
-  pendingTasksCount: number;
-  overdueTasks: number;
-  departmentProductivity: Array<{
-    departmentName: string;
-    taskCompletion: number;
-    employeeCount: number;
-    budget: number;
-  }>;
-  licenseUtilization: Array<{
-    licenseName: string;
-    assignedEmployees: number;
-    utilizationRate: number;
-  }>;
-  skillsMatrix: Array<{
-    skillName: string;
-    employeeCount: number;
-    averageProficiency: number;
-  }>;
-};
-
-export type EmployeeIntelligentProfile = Employee & {
-  department: Department;
-  supervisor: Employee | null;
-  assignedLicenses: License[];
-  currentProjects: Project[];
-  attendanceStats: {
-    totalDays: number;
-    presentDays: number;
-    lateDays: number;
-    attendanceRate: number;
-  };
-  productivityScore: number;
-  upcomingLicenseRenewals: License[];
-  skillGaps: string[];
-  careerPath: {
-    currentLevel: string;
-    nextLevel: string;
-    requiredSkills: string[];
-    estimatedTimeToPromotion: number;
-  };
-};
-
-export type ProjectIntelligentView = Project & {
-  department: Department;
-  manager: Employee;
-  assignedEmployees: Employee[];
-  tasks: any[];
-  requiredLicense: License | null;
-  budgetUtilization: number;
-  timeline: {
-    plannedDuration: number;
-    actualDuration: number;
-    remainingDays: number;
-  };
-  teamPerformance: {
-    averageTaskCompletion: number;
-    skillMatchRate: number;
-    licenseCompliance: number;
-  };
-  riskFactors: Array<{
-    type: string;
-    severity: 'low' | 'medium' | 'high';
-    description: string;
-  }>;
 };

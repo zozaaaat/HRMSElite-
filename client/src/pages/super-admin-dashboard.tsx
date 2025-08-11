@@ -1,72 +1,77 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "../hooks/useAuth";
-import { useLocation } from "wouter";
-import { SharedLayout } from "../components/shared-layout";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { 
-  Building2, 
-  Users, 
-  BarChart3, 
-  Settings, 
-  Plus, 
+import {useState} from 'react';
+import {useQuery} from '@tanstack/react-query';
+import {useAuth} from '../hooks/useAuth';
+import {CompanyWithStats} from '../../../shared/schema';
+import {useLocation} from 'wouter';
+import {SharedLayout} from '../components/shared-layout';
+import {Button} from '../components/ui/button';
+import {Input} from '../components/ui/input';
+import {Card, CardContent} from '../components/ui/card';
+import {Tabs, TabsContent, TabsList, TabsTrigger} from '../components/ui/tabs';
+import {
+  Building2,
+  Users,
+  BarChart3,
+  Settings,
+  Plus,
   Search,
-  FileText,
-  Shield,
-  TrendingUp,
-  Activity
-} from "lucide-react";
-import { useTheme } from "../components/theme-provider";
-import { StatsCard } from "../components/stats-card";
-import { CompanyCard } from "../components/company-card";
+  FileText
+} from 'lucide-react';
+import {StatsCard} from '@/components/stats-card';
+import {CompanyCard} from '../components/company-card';
 
-export default function SuperAdminDashboard() {
+export default function SuperAdminDashboard () {
+
+  const {user} = useAuth();
   return (
-    <SharedLayout 
-      userRole="super_admin" 
-      userName="المسؤول العام" 
-      companyName="نظام إدارة الموارد البشرية"
-    >
+    <SharedLayout {...(user && { user })}>
       <SuperAdminContent />
     </SharedLayout>
   );
+
 }
 
-function SuperAdminContent() {
-  const { user } = useAuth();
-  const { theme, setTheme } = useTheme();
+function SuperAdminContent () {
+
   const [, setLocation] = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("overview");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('overview');
 
-  const { data: stats } = useQuery({
-    queryKey: ["/api/dashboard/stats"],
+  const {'data': stats, 'isLoading': _statsLoading, 'error': _statsError} = useQuery<{
+    totalCompanies: number;
+    totalEmployees: number;
+    totalRevenue: number;
+    activeUsers: number;
+  }>({
+    'queryKey': ['/api/super-admin/stats']
   });
 
-  const { data: companies = [] } = useQuery({
-    queryKey: ["/api/companies"],
+  const {
+  'data': companies = [], 'isLoading': _companiesLoading, 'error': _companiesError
+} = useQuery<CompanyWithStats[]>({
+  
+    'queryKey': ['/api/super-admin/companies']
   });
 
-  const filteredCompanies = (companies as any[]).filter((company: any) =>
-    company.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCompanies = companies.filter((company: CompanyWithStats) =>
+    company?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false
   );
 
   const handleLogout = () => {
-    window.location.href = '/api/logout';
+
+    setLocation('/');
+
   };
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
-      <header className="bg-card shadow-sm border-b border-border">
+      <header className="bg-card shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-reverse space-x-4">
-              <img 
-                src="/logo.svg" 
-                alt="Zeylab Logo" 
+              <img
+                src="/logo.svg"
+                alt="Zeylab Logo"
                 className="w-10 h-10 object-contain"
               />
               <div>
@@ -74,7 +79,7 @@ function SuperAdminContent() {
                 <p className="text-sm text-muted-foreground">لوحة تحكم المسؤول العام</p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-reverse space-x-2">
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 تسجيل الخروج
@@ -90,7 +95,7 @@ function SuperAdminContent() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setActiveTab("companies")}
+              onClick={() => setActiveTab('companies')}
               className="gap-2 hover:bg-blue-50 hover:border-blue-300"
             >
               <Building2 className="h-4 w-4" />
@@ -145,13 +150,13 @@ function SuperAdminContent() {
               />
               <StatsCard
                 title="إجمالي الموظفين"
-                value={stats?.totalEmployees || 0}
+                value={stats?.totalEmployees ?? 0}
                 icon="users"
                 color="green"
               />
               <StatsCard
                 title="المستخدمين النشطين"
-                value={stats?.activeUsers || 0}
+                value={stats?.activeUsers ?? 0}
                 icon="users"
                 color="orange"
               />
@@ -177,15 +182,15 @@ function SuperAdminContent() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Button onClick={() => setLocation('/companies/new')} className="gap-2">
+                <Button onClick={() => setLocation('/companies')} className="gap-2">
                   <Plus className="h-4 w-4" />
                   شركة جديدة
                 </Button>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCompanies.map((company: any) => (
+              {filteredCompanies.map((company: CompanyWithStats) => (
                 <CompanyCard
                   key={company.id}
                   company={company}
@@ -221,11 +226,13 @@ function SuperAdminContent() {
                 color="purple"
               />
             </div>
-            
+
             <h2 className="text-2xl font-bold">إدارة النظام</h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation('/settings')}>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={
+  () => setLocation('/settings')
+}>
                 <CardContent className="p-6 text-center">
                   <Settings className="h-12 w-12 text-gray-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">إعدادات النظام</h3>
@@ -233,7 +240,9 @@ function SuperAdminContent() {
                 </CardContent>
               </Card>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation('/employees')}>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={
+  () => setLocation('/employees')
+}>
                 <CardContent className="p-6 text-center">
                   <Users className="h-12 w-12 text-blue-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">إدارة المستخدمين</h3>
@@ -241,7 +250,9 @@ function SuperAdminContent() {
                 </CardContent>
               </Card>
 
-              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setLocation('/reports')}>
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={
+  () => setLocation('/reports')
+}>
                 <CardContent className="p-6 text-center">
                   <FileText className="h-12 w-12 text-green-500 mx-auto mb-4" />
                   <h3 className="font-semibold mb-2">سجلات النظام</h3>
@@ -254,4 +265,5 @@ function SuperAdminContent() {
       </main>
     </div>
   );
+
 }

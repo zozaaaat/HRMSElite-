@@ -1,138 +1,140 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Badge } from "../components/ui/badge";
-import { Input } from "../components/ui/input";
-import { 
-  Briefcase, 
-  Users, 
-  MapPin, 
+import {useState} from 'react';
+import {useQuery} from '@tanstack/react-query';
+import {Button} from '../components/ui/button';
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '../components/ui/card';
+import {Tabs, TabsContent, TabsList, TabsTrigger} from '../components/ui/tabs';
+import {Badge} from '../components/ui/badge';
+import {
+  Briefcase,
+  Users,
+  MapPin,
   Clock,
   Eye,
   CheckCircle,
   X,
   Plus,
   Search,
-  Filter,
   Calendar,
   Star,
   TrendingUp,
   UserCheck
-} from "lucide-react";
-import { SharedLayout } from "../components/shared-layout";
-import { useToast } from "../hooks/use-toast";
+} from 'lucide-react';
+import {SharedLayout} from '../components/shared-layout';
+import {LoadingSpinner, ErrorMessage} from '../components/shared';
 
-export default function Recruitment() {
+export default function Recruitment () {
+
   return (
-    <SharedLayout 
-      userRole="company_manager" 
-      userName="مدير الشركة" 
+    <SharedLayout
+      userRole="company_manager"
+      userName="مدير الشركة"
       companyName="شركة النيل الأزرق للمجوهرات"
     >
       <RecruitmentContent />
     </SharedLayout>
   );
+
 }
 
-function RecruitmentContent() {
-  const [activeTab, setActiveTab] = useState("jobs");
-  const { toast } = useToast();
+function RecruitmentContent () {
 
-  const { data: jobs = [], isLoading: jobsLoading } = useQuery({
-    queryKey: ['/api/recruitment/jobs'],
+  const [activeTab, setActiveTab] = useState('jobs');
+
+  const {isLoading: jobsLoading, error: jobsError} = useQuery({
+    'queryKey': ['/api/recruitment/jobs']
   });
 
-  const { data: applicants = [], isLoading: applicantsLoading } = useQuery({
-    queryKey: ['/api/recruitment/applicants'],
+  const {isLoading: applicantsLoading, error: applicantsError} = useQuery({
+  
+    'queryKey': ['/api/recruitment/applicants']
   });
 
   const mockJobs = [
     {
-      id: "1",
-      title: "محاسب أول",
-      department: "المحاسبة",
-      location: "الكويت",
-      type: "دوام كامل",
-      applicants: 25,
-      status: "active",
-      postedDate: "2025-01-20",
-      deadline: "2025-02-20",
-      experience: "3-5 سنوات",
-      salary: "800-1200 د.ك",
-      description: "مطلوب محاسب أول للعمل في قسم المحاسبة"
+      'id': '1',
+      'title': 'محاسب أول',
+      'department': 'المحاسبة',
+      'location': 'الكويت',
+      'type': 'دوام كامل',
+      'applicants': 25,
+      'status': 'active',
+      'postedDate': '2025-01-20',
+      'deadline': '2025-02-20',
+      'experience': '3-5 سنوات',
+      'salary': '800-1200 د.ك',
+      'description': 'مطلوب محاسب أول للعمل في قسم المحاسبة'
     },
     {
-      id: "2",
-      title: "مطور تطبيقات",
-      department: "التكنولوجيا",
-      location: "الكويت",
-      type: "دوام كامل",
-      applicants: 18,
-      status: "active",
-      postedDate: "2025-01-18",
-      deadline: "2025-02-15",
-      experience: "2-4 سنوات",
-      salary: "1000-1500 د.ك",
-      description: "مطلوب مطور تطبيقات للعمل على تطوير الأنظمة"
+      'id': '2',
+      'title': 'مطور تطبيقات',
+      'department': 'التكنولوجيا',
+      'location': 'الكويت',
+      'type': 'دوام كامل',
+      'applicants': 18,
+      'status': 'active',
+      'postedDate': '2025-01-18',
+      'deadline': '2025-02-15',
+      'experience': '2-4 سنوات',
+      'salary': '1000-1500 د.ك',
+      'description': 'مطلوب مطور تطبيقات للعمل على تطوير الأنظمة'
     },
     {
-      id: "3",
-      title: "مسؤول موارد بشرية",
-      department: "الموارد البشرية",
-      location: "الكويت",
-      type: "دوام جزئي",
-      applicants: 32,
-      status: "closed",
-      postedDate: "2025-01-10",
-      deadline: "2025-01-25",
-      experience: "5+ سنوات",
-      salary: "1200-1800 د.ك",
-      description: "مطلوب مسؤول موارد بشرية ذو خبرة عالية"
+      'id': '3',
+      'title': 'مسؤول موارد بشرية',
+      'department': 'الموارد البشرية',
+      'location': 'الكويت',
+      'type': 'دوام جزئي',
+      'applicants': 32,
+      'status': 'closed',
+      'postedDate': '2025-01-10',
+      'deadline': '2025-01-25',
+      'experience': '5+ سنوات',
+      'salary': '1200-1800 د.ك',
+      'description': 'مطلوب مسؤول موارد بشرية ذو خبرة عالية'
     }
   ];
 
   const mockApplicants = [
     {
-      id: "1",
-      name: "أحمد محمد علي",
-      email: "ahmed@email.com",
-      phone: "+965 9999 8888",
-      position: "محاسب أول",
-      experience: "4 سنوات",
-      status: "pending",
-      appliedDate: "2025-01-22",
-      rating: 4.2,
-      cv: "cv_ahmed.pdf"
+      'id': '1',
+      'name': 'أحمد محمد علي',
+      'email': 'ahmed@email.com',
+      'phone': '+965 9999 8888',
+      'position': 'محاسب أول',
+      'experience': '4 سنوات',
+      'status': 'pending',
+      'appliedDate': '2025-01-22',
+      'rating': 4.2,
+      'cv': 'cv_ahmed.pdf'
     },
     {
-      id: "2",
-      name: "فاطمة سالم أحمد",
-      email: "fatima@email.com",
-      phone: "+965 7777 6666",
-      position: "مطور تطبيقات",
-      experience: "3 سنوات",
-      status: "interview",
-      appliedDate: "2025-01-20",
-      rating: 4.8,
-      cv: "cv_fatima.pdf"
+      'id': '2',
+      'name': 'فاطمة سالم أحمد',
+      'email': 'fatima@email.com',
+      'phone': '+965 7777 6666',
+      'position': 'مطور تطبيقات',
+      'experience': '3 سنوات',
+      'status': 'interview',
+      'appliedDate': '2025-01-20',
+      'rating': 4.8,
+      'cv': 'cv_fatima.pdf'
     },
     {
-      id: "3",
-      name: "محمد عبدالله خالد",
-      email: "mohammed@email.com",
-      phone: "+965 5555 4444",
-      position: "مسؤول موارد بشرية",
-      experience: "6 سنوات",
-      status: "accepted",
-      appliedDate: "2025-01-15",
-      rating: 4.9,
-      cv: "cv_mohammed.pdf"
+      'id': '3',
+      'name': 'محمد عبدالله خالد',
+      'email': 'mohammed@email.com',
+      'phone': '+965 5555 4444',
+      'position': 'مسؤول موارد بشرية',
+      'experience': '6 سنوات',
+      'status': 'accepted',
+      'appliedDate': '2025-01-15',
+      'rating': 4.9,
+      'cv': 'cv_mohammed.pdf'
     }
   ];
 
   const getStatusColor = (status: string) => {
+
     const colors: Record<string, string> = {
       'active': 'bg-green-100 text-green-800',
       'closed': 'bg-red-100 text-red-800',
@@ -142,10 +144,12 @@ function RecruitmentContent() {
       'accepted': 'bg-green-100 text-green-800',
       'rejected': 'bg-red-100 text-red-800'
     };
-    return colors[status] || colors.pending;
+    return colors[status] ?? colors.pending;
+
   };
 
   const getStatusName = (status: string) => {
+
     const names: Record<string, string> = {
       'active': 'نشط',
       'closed': 'مغلق',
@@ -155,7 +159,8 @@ function RecruitmentContent() {
       'accepted': 'مقبول',
       'rejected': 'مرفوض'
     };
-    return names[status] || 'غير محدد';
+    return names[status] ?? 'غير محدد';
+
   };
 
   return (
@@ -256,7 +261,15 @@ function RecruitmentContent() {
 
             {/* Jobs Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockJobs.map((job) => (
+              {jobsLoading && <LoadingSpinner text="جاري تحميل الوظائف..." />}
+              {
+  jobsError && <ErrorMessage error={
+  jobsError
+} title="خطأ في تحميل الوظائف" onRetry={
+  () => window.location.reload()
+} />
+}
+              {!jobsLoading && !jobsError && mockJobs.map((job) => (
                 <Card key={job.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-start justify-between mb-3">
@@ -272,7 +285,7 @@ function RecruitmentContent() {
                         {getStatusName(job.status)}
                       </Badge>
                     </div>
-                    
+
                     <div className="space-y-2 text-sm text-gray-600">
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4" />
@@ -288,7 +301,7 @@ function RecruitmentContent() {
                       </div>
                     </div>
                   </CardHeader>
-                  
+
                   <CardContent>
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4 text-sm">
@@ -332,7 +345,15 @@ function RecruitmentContent() {
 
           <TabsContent value="applicants" className="space-y-6">
             <div className="grid grid-cols-1 gap-6">
-              {mockApplicants.map((applicant) => (
+              {applicantsLoading && <LoadingSpinner text="جاري تحميل المتقدمين..." />}
+              {
+  applicantsError && <ErrorMessage error={
+  applicantsError
+} title="خطأ في تحميل المتقدمين" onRetry={
+  () => window.location.reload()
+} />
+}
+              {!applicantsLoading && !applicantsError && mockApplicants.map((applicant) => (
                 <Card key={applicant.id} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
@@ -398,28 +419,28 @@ function RecruitmentContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
                 {
-                  candidate: "أحمد محمد علي",
-                  position: "محاسب أول",
-                  date: "2025-01-30",
-                  time: "10:00 ص",
-                  interviewer: "مدير المحاسبة",
-                  status: "scheduled"
+                  'candidate': 'أحمد محمد علي',
+                  'position': 'محاسب أول',
+                  'date': '2025-01-30',
+                  'time': '10:00 ص',
+                  'interviewer': 'مدير المحاسبة',
+                  'status': 'scheduled'
                 },
                 {
-                  candidate: "فاطمة سالم أحمد",
-                  position: "مطور تطبيقات",
-                  date: "2025-01-31",
-                  time: "2:00 م",
-                  interviewer: "مدير التكنولوجيا",
-                  status: "scheduled"
+                  'candidate': 'فاطمة سالم أحمد',
+                  'position': 'مطور تطبيقات',
+                  'date': '2025-01-31',
+                  'time': '2:00 م',
+                  'interviewer': 'مدير التكنولوجيا',
+                  'status': 'scheduled'
                 },
                 {
-                  candidate: "خالد عبدالرحمن",
-                  position: "مسؤول مبيعات",
-                  date: "2025-02-01",
-                  time: "11:00 ص",
-                  interviewer: "مدير المبيعات",
-                  status: "completed"
+                  'candidate': 'خالد عبدالرحمن',
+                  'position': 'مسؤول مبيعات',
+                  'date': '2025-02-01',
+                  'time': '11:00 ص',
+                  'interviewer': 'مدير المبيعات',
+                  'status': 'completed'
                 }
               ].map((interview, index) => (
                 <Card key={index}>
@@ -494,10 +515,10 @@ function RecruitmentContent() {
                 <CardContent>
                   <div className="space-y-3">
                     {[
-                      { position: "مطور تطبيقات", applications: 45 },
-                      { position: "محاسب", applications: 38 },
-                      { position: "مسؤول مبيعات", applications: 32 },
-                      { position: "مصمم جرافيك", applications: 28 }
+                      {'position': 'مطور تطبيقات', 'applications': 45},
+                      {'position': 'محاسب', 'applications': 38},
+                      {'position': 'مسؤول مبيعات', 'applications': 32},
+                      {'position': 'مصمم جرافيك', 'applications': 28}
                     ].map((job, index) => (
                       <div key={index} className="flex justify-between items-center">
                         <span className="text-sm">{job.position}</span>
@@ -513,4 +534,5 @@ function RecruitmentContent() {
       </div>
     </div>
   );
+
 }

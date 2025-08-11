@@ -1,5 +1,10 @@
-import { createRoot } from "react-dom/client";
-import App from "./App";
-import "./index.css";
+import {createRoot} from 'react-dom/client';
+import App from './App';
+import './index.css';
 
-createRoot(document.getElementById("root")!).render(<App />);
+const maybeDocument = (globalThis as { document?: { getElementById?: (id: string) => unknown } }).document;
+const rootElement = typeof maybeDocument?.getElementById === 'function' ? maybeDocument.getElementById('root') : null;
+if (rootElement) {
+  const unsafeCreateRoot = createRoot as unknown as (container: unknown) => { render: (children: unknown) => unknown };
+  unsafeCreateRoot(rootElement).render(<App />);
+}

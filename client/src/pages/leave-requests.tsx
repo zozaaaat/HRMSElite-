@@ -1,23 +1,27 @@
-import { useState } from "react";
-import { Button } from "../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Textarea } from "../components/ui/textarea";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { Calendar } from "../components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
-import { useToast } from "../hooks/use-toast";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { format } from "date-fns";
-import { ar } from "date-fns/locale";
-import type { DateRange } from "react-day-picker";
-import { 
+import {useState} from 'react';
+import {Button} from '../components/ui/button';
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '../components/ui/card';
+import {Badge} from '../components/ui/badge';
+import {Input} from '../components/ui/input';
+import {Label} from '../components/ui/label';
+import {Textarea} from '../components/ui/textarea';
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+} from '../components/ui/table';
+import {Tabs, TabsContent, TabsList, TabsTrigger} from '../components/ui/tabs';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+} from '../components/ui/select';
+// removed unused Calendar and Popover imports
+import {
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger
+} from '../components/ui/dialog';
+import {useToast} from '../hooks/use-toast';
+import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
+import {apiRequest} from '@/lib/queryClient';
+import {format} from 'date-fns';
+// removed unused locale and DateRange types
+import {
   Calendar as CalendarIcon,
   Plus,
   Clock,
@@ -25,11 +29,10 @@ import {
   XCircle,
   AlertCircle,
   User,
-  FileText,
-  Filter,
   Eye
-} from "lucide-react";
-import { SharedLayout } from "../components/shared-layout";
+} from 'lucide-react';
+import {SharedLayout} from '../components/shared-layout';
+import {LoadingSpinner, ErrorMessage} from '../components/shared';
 
 interface LeaveRequest {
   id: string;
@@ -52,107 +55,119 @@ interface LeaveBalance {
   emergency: number;
 }
 
-export default function LeaveRequestsPage() {
+export default function LeaveRequestsPage () {
+
   return (
-    <SharedLayout 
-      userRole="employee" 
-      userName="أحمد محمد علي" 
+    <SharedLayout
+      userRole="employee"
+      userName="أحمد محمد علي"
       companyName="شركة النيل الأزرق للمجوهرات"
     >
       <LeaveRequestsContent />
     </SharedLayout>
   );
+
 }
 
-function LeaveRequestsContent() {
-  const { toast } = useToast();
+function LeaveRequestsContent () {
+
+  const {toast} = useToast();
   const queryClient = useQueryClient();
   const [isNewRequestOpen, setIsNewRequestOpen] = useState(false);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  // removed unused dateRange state
   const [newRequest, setNewRequest] = useState({
-    leaveType: '',
-    startDate: '',
-    endDate: '',
-    reason: ''
+    'leaveType': '',
+    'startDate': '',
+    'endDate': '',
+    'reason': ''
   });
 
   // جلب طلبات الإجازات
-  const { data: leaveRequests, isLoading } = useQuery<LeaveRequest[]>({
-    queryKey: ["/api/leave-requests"],
+  const {'data': leaveRequests, isLoading, error} = useQuery<LeaveRequest[]>({
+    'queryKey': ['/api/leave-requests']
   });
 
   // جلب رصيد الإجازات للموظف الحالي
-  const { data: leaveBalance } = useQuery<LeaveBalance>({
-    queryKey: ["/api/leave-balance/current-user"],
+  const { 'isLoading': balanceLoading, 'error': balanceError } = useQuery<LeaveBalance>({
+    'queryKey': ['/api/leave-balance']
   });
 
   // إرسال طلب إجازة جديد
   const submitRequestMutation = useMutation({
-    mutationFn: (requestData: any) => 
-      apiRequest("/api/leave-requests", "POST", requestData),
-    onSuccess: () => {
+    'mutationFn': (requestData: Record<string, unknown>) =>
+      apiRequest('/api/leave-requests', 'POST', requestData),
+    'onSuccess': () => {
+
       toast({
-        title: "تم إرسال الطلب",
-        description: "تم إرسال طلب الإجازة بنجاح وهو قيد المراجعة",
+        'title': 'تم إرسال الطلب',
+        'description': 'تم إرسال طلب الإجازة بنجاح وهو قيد المراجعة'
       });
       setIsNewRequestOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["/api/leave-requests"] });
-    },
+      queryClient.invalidateQueries({'queryKey': ['/api/leave-requests']});
+
+    }
   });
 
   const getStatusBadge = (status: string) => {
+
     const statusMap = {
-      pending: { 
-        label: "قيد المراجعة", 
-        variant: "secondary" as const, 
-        icon: Clock,
-        color: "text-orange-600"
+      'pending': {
+        'label': 'قيد المراجعة',
+        'variant': 'secondary' as const,
+        'icon': Clock,
+        'color': 'text-orange-600'
       },
-      approved: { 
-        label: "موافق", 
-        variant: "default" as const, 
-        icon: CheckCircle,
-        color: "text-green-600"
+      'approved': {
+        'label': 'موافق',
+        'variant': 'default' as const,
+        'icon': CheckCircle,
+        'color': 'text-green-600'
       },
-      rejected: { 
-        label: "مرفوض", 
-        variant: "destructive" as const, 
-        icon: XCircle,
-        color: "text-red-600"
+      'rejected': {
+        'label': 'مرفوض',
+        'variant': 'destructive' as const,
+        'icon': XCircle,
+        'color': 'text-red-600'
       }
     };
     const statusInfo = statusMap[status as keyof typeof statusMap] || statusMap.pending;
     const StatusIcon = statusInfo.icon;
-    
+
     return (
       <Badge variant={statusInfo.variant} className="gap-1">
         <StatusIcon className="h-3 w-3" />
         {statusInfo.label}
       </Badge>
     );
+
   };
 
   const getLeaveTypeLabel = (type: string) => {
+
     const typeMap: Record<string, string> = {
-      annual: "إجازة سنوية",
-      sick: "إجازة مرضية",
-      emergency: "إجازة طارئة",
-      maternity: "إجازة أمومة",
-      paternity: "إجازة أبوة",
-      study: "إجازة دراسية",
-      unpaid: "إجازة بدون راتب"
+      'annual': 'إجازة سنوية',
+      'sick': 'إجازة مرضية',
+      'emergency': 'إجازة طارئة',
+      'maternity': 'إجازة أمومة',
+      'paternity': 'إجازة أبوة',
+      'study': 'إجازة دراسية',
+      'unpaid': 'إجازة بدون راتب'
     };
-    return typeMap[type] || type;
+    return typeMap[type] ?? type;
+
   };
 
   const handleSubmitRequest = () => {
+
     if (!newRequest.leaveType || !newRequest.startDate || !newRequest.endDate || !newRequest.reason) {
+
       toast({
-        title: "خطأ في البيانات",
-        description: "يرجى تعبئة جميع الحقول المطلوبة",
-        variant: "destructive"
+        'title': 'خطأ في البيانات',
+        'description': 'يرجى تعبئة جميع الحقول المطلوبة',
+        'variant': 'destructive'
       });
       return;
+
     }
 
     const startDate = new Date(newRequest.startDate);
@@ -162,36 +177,37 @@ function LeaveRequestsContent() {
 
     submitRequestMutation.mutate({
       ...newRequest,
-      days: daysDiff,
-      employeeId: "current-user"
+      'days': daysDiff,
+      'employeeId': 'current-user'
     });
+
   };
 
   // بيانات تجريبية إضافية للطلبات
   const mockRequests: LeaveRequest[] = [
-    ...leaveRequests || [],
+    ...leaveRequests ?? [],
     {
-      id: "3",
-      employeeName: "محمد عبدالله الحربي",
-      leaveType: "annual",
-      startDate: "2025-02-10",
-      endDate: "2025-02-14",
-      days: 5,
-      reason: "قضاء عطلة مع العائلة",
-      status: "pending",
-      appliedDate: "2025-01-28"
+      'id': '3',
+      'employeeName': 'محمد عبدالله الحربي',
+      'leaveType': 'annual',
+      'startDate': '2025-02-10',
+      'endDate': '2025-02-14',
+      'days': 5,
+      'reason': 'قضاء عطلة مع العائلة',
+      'status': 'pending',
+      'appliedDate': '2025-01-28'
     },
     {
-      id: "4",
-      employeeName: "سارة عبدالرحمن القحطاني",
-      leaveType: "sick",
-      startDate: "2025-01-29",
-      endDate: "2025-01-30",
-      days: 2,
-      reason: "مراجعة طبية",
-      status: "approved",
-      appliedDate: "2025-01-28",
-      approvedBy: "أحمد محمد علي"
+      'id': '4',
+      'employeeName': 'سارة عبدالرحمن القحطاني',
+      'leaveType': 'sick',
+      'startDate': '2025-01-29',
+      'endDate': '2025-01-30',
+      'days': 2,
+      'reason': 'مراجعة طبية',
+      'status': 'approved',
+      'appliedDate': '2025-01-28',
+      'approvedBy': 'أحمد محمد علي'
     }
   ];
 
@@ -204,7 +220,7 @@ function LeaveRequestsContent() {
             إدارة طلبات الإجازات ومتابعة الرصيد المتاح
           </p>
         </div>
-        
+
         <Dialog open={isNewRequestOpen} onOpenChange={setIsNewRequestOpen}>
           <DialogTrigger asChild>
             <Button className="gap-2">
@@ -222,9 +238,9 @@ function LeaveRequestsContent() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="leave-type">نوع الإجازة</Label>
-                <Select 
-                  value={newRequest.leaveType} 
-                  onValueChange={(value) => setNewRequest({ ...newRequest, leaveType: value })}
+                <Select
+                  value={newRequest.leaveType}
+                  onValueChange={(value) => setNewRequest({...newRequest, 'leaveType': value})}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="اختر نوع الإجازة" />
@@ -248,17 +264,17 @@ function LeaveRequestsContent() {
                     id="start-date"
                     type="date"
                     value={newRequest.startDate}
-                    onChange={(e) => setNewRequest({ ...newRequest, startDate: e.target.value })}
+                    onChange={(e) => setNewRequest({...newRequest, 'startDate': e.target.value})}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="end-date">تاريخ النهاية</Label>
                   <Input
                     id="end-date"
                     type="date"
                     value={newRequest.endDate}
-                    onChange={(e) => setNewRequest({ ...newRequest, endDate: e.target.value })}
+                    onChange={(e) => setNewRequest({...newRequest, 'endDate': e.target.value})}
                   />
                 </div>
               </div>
@@ -270,16 +286,16 @@ function LeaveRequestsContent() {
                   placeholder="اذكر سبب طلب الإجازة..."
                   rows={3}
                   value={newRequest.reason}
-                  onChange={(e) => setNewRequest({ ...newRequest, reason: e.target.value })}
+                  onChange={(e) => setNewRequest({...newRequest, 'reason': e.target.value})}
                 />
               </div>
 
-              <Button 
+              <Button
                 onClick={handleSubmitRequest}
                 disabled={submitRequestMutation.isPending}
                 className="w-full"
               >
-                {submitRequestMutation.isPending ? "جاري الإرسال..." : "إرسال الطلب"}
+                {submitRequestMutation.isPending ? 'جاري الإرسال...' : 'إرسال الطلب'}
               </Button>
             </div>
           </DialogContent>
@@ -289,173 +305,199 @@ function LeaveRequestsContent() {
       {/* بطاقات رصيد الإجازات - فقط للإداريين */}
       {/* هذه البطاقات مخفية للعمال العاديين */}
 
-      <Tabs defaultValue="my-requests" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="my-requests">طلباتي</TabsTrigger>
-          <TabsTrigger value="all-requests">جميع الطلبات</TabsTrigger>
-          <TabsTrigger value="pending">قيد المراجعة</TabsTrigger>
-          <TabsTrigger value="calendar">التقويم</TabsTrigger>
-        </TabsList>
+      {/* Loading and Error States */}
+      {(isLoading ?? balanceLoading) && (
+        <div className="flex items-center justify-center py-12">
+          <LoadingSpinner text="جاري تحميل بيانات الإجازات..." />
+        </div>
+      )}
 
-        <TabsContent value="my-requests">
-          <Card>
-            <CardHeader>
-              <CardTitle>طلبات الإجازة الخاصة بي</CardTitle>
-              <CardDescription>
+      {(error ?? balanceError) && (
+        <div className="py-8">
+          <ErrorMessage
+            error={error ?? balanceError}
+            title="خطأ في تحميل بيانات الإجازات"
+            onRetry={() => window.location.reload()}
+          />
+        </div>
+      )}
+
+      {!isLoading && !balanceLoading && !error && !balanceError && (
+        <Tabs defaultValue="my-requests" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="my-requests">طلباتي</TabsTrigger>
+            <TabsTrigger value="all-requests">جميع الطلبات</TabsTrigger>
+            <TabsTrigger value="pending">قيد المراجعة</TabsTrigger>
+            <TabsTrigger value="calendar">التقويم</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="my-requests">
+            <Card>
+              <CardHeader>
+                <CardTitle>طلبات الإجازة الخاصة بي</CardTitle>
+                <CardDescription>
                 جميع طلباتك السابقة والحالية للإجازات
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-right">نوع الإجازة</TableHead>
-                    <TableHead className="text-right">التاريخ</TableHead>
-                    <TableHead className="text-right">المدة</TableHead>
-                    <TableHead className="text-right">السبب</TableHead>
-                    <TableHead className="text-right">الحالة</TableHead>
-                    <TableHead className="text-right">تاريخ التقديم</TableHead>
-                    <TableHead className="text-right">الإجراءات</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mockRequests.slice(0, 3).map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {getLeaveTypeLabel(request.leaveType)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div>{format(new Date(request.startDate), "dd/MM/yyyy")}</div>
-                          <div className="text-muted-foreground">إلى {format(new Date(request.endDate), "dd/MM/yyyy")}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="font-medium">{request.days} أيام</span>
-                      </TableCell>
-                      <TableCell className="max-w-xs">
-                        <p className="text-sm truncate">{request.reason}</p>
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(request.status)}
-                      </TableCell>
-                      <TableCell>
-                        {format(new Date(request.appliedDate), "dd/MM/yyyy")}
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="icon">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-right">نوع الإجازة</TableHead>
+                      <TableHead className="text-right">التاريخ</TableHead>
+                      <TableHead className="text-right">المدة</TableHead>
+                      <TableHead className="text-right">السبب</TableHead>
+                      <TableHead className="text-right">الحالة</TableHead>
+                      <TableHead className="text-right">تاريخ التقديم</TableHead>
+                      <TableHead className="text-right">الإجراءات</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="all-requests">
-          <Card>
-            <CardHeader>
-              <CardTitle>جميع طلبات الإجازات</CardTitle>
-              <CardDescription>
-                طلبات الإجازة من جميع الموظفين في الشركة
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-right">الموظف</TableHead>
-                    <TableHead className="text-right">نوع الإجازة</TableHead>
-                    <TableHead className="text-right">التاريخ</TableHead>
-                    <TableHead className="text-right">المدة</TableHead>
-                    <TableHead className="text-right">الحالة</TableHead>
-                    <TableHead className="text-right">الإجراءات</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mockRequests.map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{request.employeeName}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {getLeaveTypeLabel(request.leaveType)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          {format(new Date(request.startDate), "dd/MM")} - {format(new Date(request.endDate), "dd/MM")}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="font-medium">{request.days} أيام</span>
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(request.status)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
+                  </TableHeader>
+                  <TableBody>
+                    {mockRequests.slice(0, 3).map((request) => (
+                      <TableRow key={request.id}>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {getLeaveTypeLabel(request.leaveType)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div>{format(new Date(request.startDate), 'dd/MM/yyyy')}</div>
+                            <div className="text-muted-foreground">إلى {
+  format(new Date(request.endDate), 'dd/MM/yyyy')
+}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="font-medium">{request.days} أيام</span>
+                        </TableCell>
+                        <TableCell className="max-w-xs">
+                          <p className="text-sm truncate">{request.reason}</p>
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(request.status)}
+                        </TableCell>
+                        <TableCell>
+                          {format(new Date(request.appliedDate), 'dd/MM/yyyy')}
+                        </TableCell>
+                        <TableCell>
                           <Button variant="ghost" size="icon">
                             <Eye className="h-4 w-4" />
                           </Button>
-                          {request.status === 'pending' && (
-                            <>
-                              <Button variant="ghost" size="icon" className="text-green-600">
-                                <CheckCircle className="h-4 w-4" />
-                              </Button>
-                              <Button variant="ghost" size="icon" className="text-red-600">
-                                <XCircle className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="all-requests">
+            <Card>
+              <CardHeader>
+                <CardTitle>جميع طلبات الإجازات</CardTitle>
+                <CardDescription>
+                طلبات الإجازة من جميع الموظفين في الشركة
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-right">الموظف</TableHead>
+                      <TableHead className="text-right">نوع الإجازة</TableHead>
+                      <TableHead className="text-right">التاريخ</TableHead>
+                      <TableHead className="text-right">المدة</TableHead>
+                      <TableHead className="text-right">الحالة</TableHead>
+                      <TableHead className="text-right">الإجراءات</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                  </TableHeader>
+                  <TableBody>
+                    {mockRequests.map((request) => (
+                      <TableRow key={request.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-medium">{request.employeeName}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {getLeaveTypeLabel(request.leaveType)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            {
+  format(new Date(request.startDate), 'dd/MM')
+} - {
+  format(new Date(request.endDate), 'dd/MM')
+}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="font-medium">{request.days} أيام</span>
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(request.status)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="icon">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            {request.status === 'pending' && (
+                              <>
+                                <Button variant="ghost" size="icon" className="text-green-600">
+                                  <CheckCircle className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="text-red-600">
+                                  <XCircle className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="pending">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <AlertCircle className="h-12 w-12 mx-auto text-orange-500 mb-4" />
-                <h3 className="text-lg font-medium mb-2">الطلبات قيد المراجعة</h3>
-                <p className="text-muted-foreground mb-4">
-                  {mockRequests.filter(r => r.status === 'pending').length} طلب ينتظر الموافقة
-                </p>
-                <Button>مراجعة الطلبات</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <TabsContent value="pending">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <AlertCircle className="h-12 w-12 mx-auto text-orange-500 mb-4" />
+                  <h3 className="text-lg font-medium mb-2">الطلبات قيد المراجعة</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {mockRequests.filter(r => r.status === 'pending').length} طلب ينتظر الموافقة
+                  </p>
+                  <Button>مراجعة الطلبات</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="calendar">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <CalendarIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">تقويم الإجازات</h3>
-                <p className="text-muted-foreground">
+          <TabsContent value="calendar">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <CalendarIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium mb-2">تقويم الإجازات</h3>
+                  <p className="text-muted-foreground">
                   عرض جميع الإجازات على التقويم الشهري
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
+
 }

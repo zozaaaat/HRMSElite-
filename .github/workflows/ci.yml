@@ -1,0 +1,371 @@
+name: HRMS Elite CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '8'
+
+jobs:
+  # 🔍 Code Quality & Security
+  code-quality:
+    name: Code Quality & Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+        continue-on-error: false
+
+      - name: Type checking
+        run: npm run type-check
+        continue-on-error: false
+
+      - name: Run security audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Check for secrets in code
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: .
+          base: HEAD~1
+          fail: true
+
+      - name: Check for hardcoded secrets
+        run: |
+          echo "Checking for hardcoded secrets..."
+          if grep -r "password\|secret\|key\|token" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" . | grep -v "node_modules" | grep -v "test" | grep -v "mock"; then
+            echo "⚠️  Potential hardcoded secrets found"
+            exit 1
+          fi
+
+  # 🧪 Testing Suite
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+        os: [ubuntu-latest, windows-latest]
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run database migrations
+        run: npm run db:push
+        env:
+          NODE_ENV: test
+          DATABASE_URL: ':memory:'
+
+      - name: Run server tests
+        run: npm run test:server:run
+        env:
+          NODE_ENV: test
+          DATABASE_URL: ':memory:'
+
+      - name: Run client tests
+        run: npm run test:client:run
+        env:
+          NODE_ENV: test
+
+      - name: Run API tests
+        run: npm run test:api:run
+        env:
+          NODE_ENV: test
+          DATABASE_URL: ':memory:'
+
+      - name: Run performance tests
+        run: npm run test:performance
+        env:
+          NODE_ENV: test
+
+      - name: Run accessibility tests
+        run: npm run test:accessibility
+        env:
+          NODE_ENV: test
+        continue-on-error: true
+
+      - name: Upload test coverage
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  # 📊 Coverage Report
+  coverage:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: test
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate coverage reports
+        run: |
+          npm run test:coverage
+          npm run test:report
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            coverage/
+            client/coverage/
+            tests/coverage/
+
+      - name: Comment PR with coverage
+        if: github.event_name == 'pull_request'
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          lcov-file: ./coverage/lcov.info
+
+  # 🏗️ Build & Package
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: [code-quality, test]
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Build Electron app
+        run: npm run build:electron
+        env:
+          NODE_ENV: production
+        continue-on-error: true
+
+      - name: Build mobile app
+        run: |
+          cd hrms-mobile
+          npm ci
+          # Add mobile build commands based on your framework
+          # For React Native: npx expo build
+          # For Capacitor: npx cap build
+        continue-on-error: true
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            dist/
+            electron/dist/
+            hrms-mobile/dist/
+
+      - name: Generate build report
+        run: |
+          echo "📊 Build Report" >> build-report.md
+          echo "===============" >> build-report.md
+          echo "" >> build-report.md
+          echo "**Build Date:** $(date)" >> build-report.md
+          echo "**Commit:** ${{ github.sha }}" >> build-report.md
+          echo "**Branch:** ${{ github.ref_name }}" >> build-report.md
+          echo "" >> build-report.md
+          echo "**Build Status:** ✅ Success" >> build-report.md
+          echo "" >> build-report.md
+          echo "**Artifacts:**" >> build-report.md
+          echo "- Web Application: dist/" >> build-report.md
+          echo "- Electron App: electron/dist/" >> build-report.md
+          echo "- Mobile App: hrms-mobile/dist/" >> build-report.md
+
+      - name: Upload build report
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-report
+          path: build-report.md
+
+  # 🐳 Docker Build & Test
+  docker:
+    name: Docker Build & Test
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./deploy/Dockerfile
+          push: false
+          tags: hrms-elite:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test Docker image
+        run: |
+          docker run --rm -d --name hrms-test -p 3000:3000 hrms-elite:latest
+          sleep 10
+          curl -f http://localhost:3000/health || exit 1
+          docker stop hrms-test
+
+      - name: Upload Docker image
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: |
+            .dockerignore
+            deploy/Dockerfile
+
+  # 🔄 Post-CI Tasks
+  post-ci:
+    name: Post-CI Tasks
+    runs-on: ubuntu-latest
+    needs: [build, docker]
+    if: always()
+    timeout-minutes: 5
+    
+    steps:
+      - name: Update CI status
+        run: |
+          echo "Updating CI status..."
+          if [ "${{ needs.build.result }}" == "success" ] && [ "${{ needs.docker.result }}" == "success" ]; then
+            echo "✅ All CI checks passed"
+          else
+            echo "❌ Some CI checks failed"
+            exit 1
+          fi
+
+      - name: Generate CI report
+        run: |
+          echo "📋 CI Report" >> ci-report.md
+          echo "============" >> ci-report.md
+          echo "" >> ci-report.md
+          echo "**Date:** $(date)" >> ci-report.md
+          echo "**Commit:** ${{ github.sha }}" >> ci-report.md
+          echo "**Branch:** ${{ github.ref_name }}" >> ci-report.md
+          echo "" >> ci-report.md
+          echo "**Results:**" >> ci-report.md
+          echo "- Code Quality: ${{ needs.code-quality.result }}" >> ci-report.md
+          echo "- Tests: ${{ needs.test.result }}" >> ci-report.md
+          echo "- Coverage: ${{ needs.coverage.result }}" >> ci-report.md
+          echo "- Build: ${{ needs.build.result }}" >> ci-report.md
+          echo "- Docker: ${{ needs.docker.result }}" >> ci-report.md
+
+      - name: Upload CI report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-report
+          path: ci-report.md
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('CI Results')
+            );
+            
+            const status = {
+              'code-quality': '${{ needs.code-quality.result }}',
+              'test': '${{ needs.test.result }}',
+              'coverage': '${{ needs.coverage.result }}',
+              'build': '${{ needs.build.result }}',
+              'docker': '${{ needs.docker.result }}'
+            };
+            
+            const allPassed = Object.values(status).every(s => s === 'success');
+            const emoji = allPassed ? '✅' : '❌';
+            
+            const body = `## ${emoji} CI Results
+            
+            | Job | Status |
+            |-----|--------|
+            | Code Quality | ${status['code-quality'] === 'success' ? '✅' : '❌'} |
+            | Tests | ${status['test'] === 'success' ? '✅' : '❌'} |
+            | Coverage | ${status['coverage'] === 'success' ? '✅' : '❌'} |
+            | Build | ${status['build'] === 'success' ? '✅' : '❌'} |
+            | Docker | ${status['docker'] === 'success' ? '✅' : '❌'} |
+            
+            ${allPassed ? 'All checks passed! 🎉' : 'Some checks failed. Please review the logs.'}`;
+            
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            } 

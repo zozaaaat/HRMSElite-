@@ -1,124 +1,96 @@
-import { useState } from "react";
-import { useLocation } from "wouter";
+import React, {useState, useCallback} from 'react';
+import {Button} from './ui/button';
+import {Input} from './ui/input';
+import {Label} from './ui/label';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Checkbox } from "./ui/checkbox";
-import { X } from "lucide-react";
-import type { CompanyWithStats } from "@shared/schema";
+  DialogDescription,
+  DialogFooter
+} from './ui/dialog';
+import {useAuth} from '@/hooks/useAuth';
+import type {Company} from '@shared/schema';
 
 interface LoginModalProps {
-  company: CompanyWithStats;
+  company: Company;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function LoginModal({ company, isOpen, onClose }: LoginModalProps) {
-  const [, setLocation] = useLocation();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+export const LoginModal: React.FC<LoginModalProps> = ({company, isOpen, onClose}) => {
+  const {login, loading, error} = useAuth();
 
-  const getCompanyInitials = (name: string) => {
-    const words = name.split(' ');
-    return words.slice(0, 2).map(word => word.charAt(0)).join(' ');
-  };
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [localError, setLocalError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // For now, simulate login success and redirect to company dashboard
-    // In a real app, this would validate credentials first
-    onClose();
-    setLocation(`/company/${company.id}`);
-  };
-
-  const handleForgotPassword = () => {
-    // TODO: Implement forgot password functionality
-    console.log("Forgot password clicked");
-  };
+  const handleLogin = useCallback(async () => {
+    setLocalError(null);
+    if (!username || !password) {
+      setLocalError('يرجى إدخال اسم المستخدم وكلمة المرور');
+      return;
+    }
+    const result = await login({username, password, 'companyId': company.id});
+    if (result.success) {
+      onClose();
+    } else {
+      setLocalError(result.error ?? 'فشل تسجيل الدخول');
+    }
+  }, [username, password, login, company.id, onClose]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent>
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle>تسجيل الدخول</DialogTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <DialogTitle>تسجيل الدخول</DialogTitle>
+          <DialogDescription>
+            الرجاء تسجيل الدخول للدخول إلى شركة: {company.name}
+          </DialogDescription>
         </DialogHeader>
-        
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mx-auto mb-3">
-            <span className="text-white font-bold text-xl">
-              {getCompanyInitials(company.name)}
-            </span>
-          </div>
-          <h4 className="text-lg font-medium text-foreground">{company.name}</h4>
-        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="email" className="block text-sm font-medium mb-2">
-              البريد الإلكتروني
-            </Label>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="username">اسم المستخدم</Label>
             <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="example@company.com"
+              disabled={loading}
             />
           </div>
-          
-          <div>
-            <Label htmlFor="password" className="block text-sm font-medium mb-2">
-              كلمة المرور
-            </Label>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">كلمة المرور</Label>
             <Input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full"
+              disabled={loading}
             />
           </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-reverse space-x-2">
-              <Checkbox
-                id="remember"
-                checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-              />
-              <Label htmlFor="remember" className="text-sm">
-                تذكرني
-              </Label>
-            </div>
-            <Button
-              type="button"
-              variant="link"
-              className="text-sm text-primary p-0"
-              onClick={handleForgotPassword}
-            >
-              نسيت كلمة المرور؟
-            </Button>
-          </div>
-          
-          <Button type="submit" className="w-full">
-            تسجيل الدخول
+
+          {(localError || error) && (
+            <p className="text-sm text-destructive">
+              {localError || error}
+            </p>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button variant="secondary" onClick={onClose} disabled={loading}>
+            إلغاء
           </Button>
-        </form>
+          <Button onClick={handleLogin} disabled={loading}>
+            {loading ? 'جارٍ الدخول...' : 'تسجيل الدخول'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+
