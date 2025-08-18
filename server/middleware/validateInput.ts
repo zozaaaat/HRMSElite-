@@ -67,8 +67,23 @@ export function validateQuery (schema: ZodSchema) {
   return (req: Request, res: Response, next: NextFunction) => {
 
     try {
+      // Coerce common query parameter types before validation
+      const transformedQuery = Object.fromEntries(
+        Object.entries(req.query).map(([key, value]) => {
+          if (typeof value === 'string') {
+            if (value === 'true' || value === 'false') {
+              return [key, value === 'true'];
+            }
+            const num = Number(value);
+            if (!Number.isNaN(num) && value.trim() !== '') {
+              return [key, num];
+            }
+          }
+          return [key, value];
+        })
+      );
 
-      const result = schema.safeParse(req.query);
+      const result = schema.safeParse(transformedQuery);
 
       if (!result.success) {
 
@@ -91,7 +106,6 @@ export function validateQuery (schema: ZodSchema) {
         });
 
       }
-
       req.query = result.data;
       next();
 
