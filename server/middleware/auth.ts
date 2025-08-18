@@ -90,7 +90,7 @@ export const generateRefreshToken = (payload: Record<string, unknown>): string =
  * @param token - JWT token to verify
  * @returns Decoded token payload or null if invalid
  */
-export const verifyJWTToken = (token: string): jwt.JwtPayload | null => {
+export const verifyJwt = (token: string): jwt.JwtPayload | null => {
 
   try {
 
@@ -169,7 +169,7 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
     if (authHeader?.startsWith('Bearer ')) {
 
       const token = authHeader.substring(7);
-      const decoded = verifyJWTToken(token);
+      const decoded = verifyJwt(token);
 
       if (decoded) {
 

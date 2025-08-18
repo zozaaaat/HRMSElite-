@@ -16,25 +16,61 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./client/src/*"],
-      "@shared/*": ["./shared/*"],
-      "@server/*": ["./server/*"],
-      "@client/*": ["./client/src/*"],
-      "@mobile/*": ["./hrms-mobile/*"],
-      "@types/*": ["./shared/types/*"],
-      "@utils/*": ["./server/utils/*"],
-      "@middleware/*": ["./server/middleware/*"],
-      "@routes/*": ["./server/routes/*"],
-      "@models/*": ["./server/models/*"],
-      "@components/*": ["./client/src/components/*"],
-      "@hooks/*": ["./client/src/hooks/*"],
-      "@services/*": ["./client/src/services/*"],
-      "@stores/*": ["./client/src/stores/*"],
-      "@pages/*": ["./client/src/pages/*"],
-      "@ui/*": ["./client/src/components/ui/*"]
+      "@/*": [
+        "./client/src/*"
+      ],
+      "@shared/*": [
+        "./shared/*"
+      ],
+      "@server/*": [
+        "./server/*"
+      ],
+      "@client/*": [
+        "./client/src/*"
+      ],
+      "@mobile/*": [
+        "./hrms-mobile/*"
+      ],
+      "@types/*": [
+        "./shared/types/*"
+      ],
+      "@utils/*": [
+        "./server/utils/*"
+      ],
+      "@middleware/*": [
+        "./server/middleware/*"
+      ],
+      "@routes/*": [
+        "./server/routes/*"
+      ],
+      "@models/*": [
+        "./server/models/*"
+      ],
+      "@components/*": [
+        "./client/src/components/*"
+      ],
+      "@hooks/*": [
+        "./client/src/hooks/*"
+      ],
+      "@services/*": [
+        "./client/src/services/*"
+      ],
+      "@stores/*": [
+        "./client/src/stores/*"
+      ],
+      "@pages/*": [
+        "./client/src/pages/*"
+      ],
+      "@ui/*": [
+        "./client/src/components/ui/*"
+      ]
     },
     "types": [
       "node",
@@ -42,6 +78,11 @@
       "vitest/globals",
       "react",
       "react-dom"
+    ],
+    "noImplicitAny": true,
+    "typeRoots": [
+      "./server/types",
+      "./node_modules/@types"
     ]
   },
   "include": [
