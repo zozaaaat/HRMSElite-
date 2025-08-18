@@ -284,14 +284,14 @@ jobs:
     
     steps:
       - name: Update CI status
+        if: ${{ success() }}
+        run: echo "✅ All CI checks passed"
+
+      - name: Handle CI failure
+        if: ${{ failure() || cancelled() }}
         run: |
-          echo "Updating CI status..."
-          if [ "${{ needs.build.result }}" == "success" ] && [ "${{ needs.docker.result }}" == "success" ]; then
-            echo "✅ All CI checks passed"
-          else
-            echo "❌ Some CI checks failed"
-            exit 1
-          fi
+          echo "❌ Some CI checks failed"
+          exit 1
 
       - name: Generate CI report
         run: |
