@@ -34,7 +34,7 @@
 ```bash
 # استنساخ المشروع
 git clone <repository-url>
-cd HRMSElite
+cd HRMSElite-
 
 # تثبيت التبعيات
 npm install
@@ -98,7 +98,7 @@ npm run dist:linux  # Linux
 ## 📁 هيكل المشروع
 
 ```
-HRMSElite/
+HRMSElite-/
 ├── client/                 # تطبيق React
 │   ├── src/
 │   ├── public/

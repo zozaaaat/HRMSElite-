@@ -15,7 +15,7 @@ This guide provides comprehensive instructions for setting up, developing, and d
 1. **Clone the repository** (if not already done):
    ```bash
    git clone <repository-url>
-   cd HRMSElite
+   cd HRMSElite-
    ```
 
 2. **Install main project dependencies**:
@@ -371,7 +371,7 @@ DEBUG=electron:* npm run dev:electron
 ## 📁 File Structure
 
 ```
-HRMSElite/
+HRMSElite-/
 ├── electron/                    # Electron application
 │   ├── main.ts                 # Main process entry point
 │   ├── preload.ts              # Preload script for secure API exposure
