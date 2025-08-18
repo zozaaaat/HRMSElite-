@@ -6,7 +6,19 @@
  */
 
 import request from 'supertest';
-import { app } from '../server/index';
+import type {Application} from 'express';
+import {getCsrf} from './utils/csrf';
+
+let app: Application;
+
+beforeAll(async () => {
+  process.env.NODE_ENV = 'development';
+  ({app} = await import('../server/index'));
+});
+
+afterAll(() => {
+  process.env.NODE_ENV = 'test';
+});
 
 describe('Server Security Tests', () => {
   describe('Helmet Security Headers', () => {
@@ -92,43 +104,49 @@ describe('Server Security Tests', () => {
   describe('Input Validation', () => {
     it('should sanitize XSS attempts', async () => {
       const xssPayload = '<script>alert("xss")</script>';
-      
+
+      const {token, cookie} = await getCsrf(app);
       const response = await request(app)
         .post('/api/test-endpoint')
-        .set('X-CSRF-Token', 'valid-token')
-        .send({ 
+        .set('X-CSRF-Token', token)
+        .set('Cookie', cookie)
+        .send({
           data: xssPayload,
           query: 'javascript:alert("xss")',
           body: 'onload=alert("xss")'
         });
-      
+
       // The request should be processed (sanitized) or blocked
-      expect([200, 400, 403]).toContain(response.status);
+      expect([200, 400]).toContain(response.status);
     });
 
     it('should sanitize SQL injection attempts', async () => {
       const sqlPayload = "'; DROP TABLE users; --";
-      
+
+      const {token, cookie} = await getCsrf(app);
       const response = await request(app)
         .post('/api/test-endpoint')
-        .set('X-CSRF-Token', 'valid-token')
-        .send({ 
+        .set('X-CSRF-Token', token)
+        .set('Cookie', cookie)
+        .send({
           query: sqlPayload,
           data: "UNION SELECT * FROM users"
         });
-      
+
       // Should be blocked or sanitized
-      expect([200, 400, 403]).toContain(response.status);
+      expect([200, 400]).toContain(response.status);
     });
 
     it('should limit input size', async () => {
       const largePayload = 'x'.repeat(15000); // Exceeds 10,000 limit
-      
+
+      const {token, cookie} = await getCsrf(app);
       const response = await request(app)
         .post('/api/test-endpoint')
-        .set('X-CSRF-Token', 'valid-token')
+        .set('X-CSRF-Token', token)
+        .set('Cookie', cookie)
         .send({ data: largePayload });
-      
+
       // Should be blocked due to size limit
       expect([400, 413]).toContain(response.status);
     });
@@ -148,30 +166,35 @@ describe('Server Security Tests', () => {
   describe('File Upload Security', () => {
     it('should reject oversized files', async () => {
       const largeBuffer = Buffer.alloc(11 * 1024 * 1024); // 11MB
-      
+      const {token, cookie} = await getCsrf(app);
       const response = await request(app)
         .post('/api/upload')
-        .set('X-CSRF-Token', 'valid-token')
+        .set('X-CSRF-Token', token)
+        .set('Cookie', cookie)
         .attach('file', largeBuffer, 'test.pdf');
-      
+
       expect(response.status).toBe(413);
     });
 
     it('should reject suspicious file types', async () => {
+      const {token, cookie} = await getCsrf(app);
       const response = await request(app)
         .post('/api/upload')
-        .set('X-CSRF-Token', 'valid-token')
+        .set('X-CSRF-Token', token)
+        .set('Cookie', cookie)
         .attach('file', Buffer.from('test'), 'test.php');
-      
+
       expect(response.status).toBe(400);
     });
 
     it('should reject suspicious filenames', async () => {
+      const {token, cookie} = await getCsrf(app);
       const response = await request(app)
         .post('/api/upload')
-        .set('X-CSRF-Token', 'valid-token')
+        .set('X-CSRF-Token', token)
+        .set('Cookie', cookie)
         .attach('file', Buffer.from('test'), '../../../etc/passwd');
-      
+
       expect(response.status).toBe(400);
     });
   });

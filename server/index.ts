@@ -99,6 +99,7 @@ app.use(cookieParser());
 /**
  * Apply CSRF protection with enhanced configuration
  * @description Protects against Cross-Site Request Forgery attacks
+ * Only enabled when NODE_ENV is not set to 'test'
  * @param {Object} options - CSRF configuration options
  * @param {Object} options.cookie - Cookie settings for CSRF token
  * @param {boolean} options.cookie.httpOnly - Prevents JavaScript access
@@ -106,20 +107,30 @@ app.use(cookieParser());
  * @param {string} options.cookie.sameSite - Prevents CSRF attacks
  * @param {number} options.cookie.maxAge - Token expiration time (24 hours)
  */
-app.use(csrf({
-  'cookie': {
-    'httpOnly': true,
-    'secure': process.env.NODE_ENV === 'production',
-    'sameSite': 'strict',
-    'maxAge': 24 * 60 * 60 * 1000 // 24 hours
-  }
-}));
+if (process.env.NODE_ENV !== 'test') {
+  app.use(csrf({
+    'cookie': {
+      'httpOnly': true,
+      'secure': process.env.NODE_ENV === 'production',
+      'sameSite': 'strict',
+      'maxAge': 24 * 60 * 60 * 1000 // 24 hours
+    }
+  }));
 
-/**
- * Apply CSRF token middleware for frontend integration
- * @description Makes CSRF tokens available to frontend applications
- */
-app.use(csrfTokenMiddleware);
+  /**
+   * Apply CSRF token middleware for frontend integration
+   * @description Makes CSRF tokens available to frontend applications
+   */
+  app.use(csrfTokenMiddleware);
+
+  /**
+   * CSRF token endpoint for frontend
+   * @description Provides CSRF tokens to frontend applications
+   * @route GET /api/csrf-token
+   * @returns {Object} CSRF token object
+   */
+  app.get('/api/csrf-token', getCsrfToken);
+}
 
 /**
  * Apply enhanced rate limiting for all API routes
@@ -210,14 +221,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     'supportedSubmitMethods': ['get', 'post', 'put', 'delete', 'patch']
   }
 }));
-
-/**
- * CSRF token endpoint for frontend
- * @description Provides CSRF tokens to frontend applications
- * @route GET /api/csrf-token
- * @returns {Object} CSRF token object
- */
-app.get('/api/csrf-token', getCsrfToken);
 
 /**
  * Session middleware for authentication
