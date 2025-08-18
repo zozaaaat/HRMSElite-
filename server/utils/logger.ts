@@ -93,21 +93,17 @@ class ServerLogger {
     switch (level) {
 
     case LogLevels.DEBUG:
-      // eslint-disable-next-line no-console
       console.debug(formattedMessage);
       break;
     case LogLevels.INFO:
-      // eslint-disable-next-line no-console
       console.info(formattedMessage);
       break;
     case LogLevels.WARN:
-      // eslint-disable-next-line no-console
       console.warn(formattedMessage);
       break;
     case LogLevels.ERROR:
     case LogLevels.FATAL:
       // Use console.error for error and fatal levels
-      // eslint-disable-next-line no-console
       console.error(formattedMessage);
       break;
 

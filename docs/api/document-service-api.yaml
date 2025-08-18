@@ -1,0 +1,1546 @@
+openapi: 3.0.3
+info:
+  title: HRMS Elite - Document Service API
+  description: |
+    Document Management Service API for HRMS Elite
+    
+    This service handles:
+    - Document upload and storage
+    - Document metadata management
+    - Document versioning and history
+    - Document permissions and access control
+    - Document search and retrieval
+    - Document templates and categories
+    - Multi-tenant data isolation
+    
+    ## Authentication
+    All endpoints require authentication via JWT Bearer token in the Authorization header:
+    ```
+    Authorization: Bearer <jwt_token>
+    ```
+    
+    ## File Upload
+    For file uploads, use multipart/form-data with the following fields:
+    - `file`: The actual file to upload
+    - `category`: Document category (optional)
+    - `tags`: Comma-separated tags (optional)
+    - `description`: Document description (optional)
+    - `is_public`: Whether document is publicly accessible (optional, default: false)
+    
+    ## Multi-tenancy
+    This service supports multi-tenant architecture where each company's documents are isolated.
+    Company context is determined from the JWT token or explicit company_id parameter.
+    
+    ## Error Responses
+    All endpoints return consistent error responses:
+    - `400 Bad Request`: Invalid input data
+    - `401 Unauthorized`: Missing or invalid authentication
+    - `403 Forbidden`: Insufficient permissions
+    - `404 Not Found`: Resource not found
+    - `409 Conflict`: Resource already exists
+    - `413 Payload Too Large`: File too large
+    - `415 Unsupported Media Type`: Unsupported file type
+    - `422 Unprocessable Entity`: Validation errors
+    - `500 Internal Server Error`: Server error
+    
+  version: 1.0.0
+  contact:
+    name: HRMS Elite Team
+    email: support@hrmse.example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.hrmse.example.com/document
+    description: Production server
+  - url: https://staging-api.hrmse.example.com/document
+    description: Staging server
+  - url: http://localhost:3004
+    description: Local development server
+
+tags:
+  - name: Documents
+    description: Document management operations
+  - name: Upload
+    description: Document upload operations
+  - name: Categories
+    description: Document category management
+  - name: Templates
+    description: Document template management
+  - name: Search
+    description: Document search operations
+  - name: Health
+    description: Health check endpoints
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+    
+  schemas:
+    Document:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique document identifier
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        company_id:
+          type: string
+          format: uuid
+          description: Company ID this document belongs to
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        title:
+          type: string
+          description: Document title
+          example: "Employee Handbook 2024"
+        filename:
+          type: string
+          description: Original filename
+          example: "employee-handbook-2024.pdf"
+        file_path:
+          type: string
+          description: File path in storage
+          example: "/uploads/2024/01/employee-handbook-2024.pdf"
+        file_size:
+          type: integer
+          description: File size in bytes
+          example: 2048576
+        mime_type:
+          type: string
+          description: MIME type of the file
+          example: "application/pdf"
+        category:
+          type: string
+          description: Document category
+          example: "HR Policies"
+        tags:
+          type: array
+          items:
+            type: string
+          description: Document tags
+          example: ["handbook", "policies", "hr"]
+        description:
+          type: string
+          description: Document description
+          example: "Comprehensive employee handbook for 2024"
+        version:
+          type: integer
+          description: Document version number
+          example: 1
+        is_public:
+          type: boolean
+          description: Whether document is publicly accessible
+          example: false
+        is_archived:
+          type: boolean
+          description: Whether document is archived
+          example: false
+        uploaded_by:
+          type: string
+          format: uuid
+          description: User ID who uploaded the document
+          example: "123e4567-e89b-12d3-a456-426614174002"
+        permissions:
+          type: object
+          properties:
+            read:
+              type: array
+              items:
+                type: string
+                enum: [all, employees, managers, hr, admin]
+              description: Read permissions
+              example: ["employees", "managers"]
+            write:
+              type: array
+              items:
+                type: string
+                enum: [all, employees, managers, hr, admin]
+              description: Write permissions
+              example: ["hr", "admin"]
+            delete:
+              type: array
+              items:
+                type: string
+                enum: [all, employees, managers, hr, admin]
+              description: Delete permissions
+              example: ["admin"]
+          description: Document permissions
+        download_count:
+          type: integer
+          description: Number of times document was downloaded
+          example: 45
+        view_count:
+          type: integer
+          description: Number of times document was viewed
+          example: 120
+        created_at:
+          type: string
+          format: date-time
+          description: Document creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - id
+        - company_id
+        - title
+        - filename
+        - file_path
+        - file_size
+        - mime_type
+        - version
+        - is_public
+        - is_archived
+        - uploaded_by
+        - created_at
+        - updated_at
+    
+    DocumentVersion:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique version identifier
+          example: "123e4567-e89b-12d3-a456-426614174003"
+        document_id:
+          type: string
+          format: uuid
+          description: Document ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        version:
+          type: integer
+          description: Version number
+          example: 2
+        filename:
+          type: string
+          description: Filename for this version
+          example: "employee-handbook-2024-v2.pdf"
+        file_path:
+          type: string
+          description: File path for this version
+          example: "/uploads/2024/01/employee-handbook-2024-v2.pdf"
+        file_size:
+          type: integer
+          description: File size in bytes
+          example: 2150400
+        mime_type:
+          type: string
+          description: MIME type
+          example: "application/pdf"
+        change_log:
+          type: string
+          description: Description of changes in this version
+          example: "Updated vacation policy and added remote work guidelines"
+        uploaded_by:
+          type: string
+          format: uuid
+          description: User ID who uploaded this version
+          example: "123e4567-e89b-12d3-a456-426614174002"
+        created_at:
+          type: string
+          format: date-time
+          description: Version creation timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - id
+        - document_id
+        - version
+        - filename
+        - file_path
+        - file_size
+        - mime_type
+        - uploaded_by
+        - created_at
+    
+    DocumentCategory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique category identifier
+          example: "123e4567-e89b-12d3-a456-426614174004"
+        company_id:
+          type: string
+          format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        name:
+          type: string
+          description: Category name
+          example: "HR Policies"
+        description:
+          type: string
+          description: Category description
+          example: "Human resources policies and procedures"
+        parent_category_id:
+          type: string
+          format: uuid
+          description: Parent category ID for hierarchical structure
+          example: "123e4567-e89b-12d3-a456-426614174005"
+        color:
+          type: string
+          description: Category color for UI display
+          example: "#3B82F6"
+        icon:
+          type: string
+          description: Category icon name
+          example: "document-text"
+        document_count:
+          type: integer
+          description: Number of documents in this category
+          example: 25
+        is_active:
+          type: boolean
+          description: Whether the category is active
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          description: Category creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - id
+        - company_id
+        - name
+        - is_active
+        - created_at
+        - updated_at
+    
+    DocumentTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique template identifier
+          example: "123e4567-e89b-12d3-a456-426614174006"
+        company_id:
+          type: string
+          format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        name:
+          type: string
+          description: Template name
+          example: "Employee Contract Template"
+        description:
+          type: string
+          description: Template description
+          example: "Standard employee contract template"
+        category:
+          type: string
+          description: Template category
+          example: "Contracts"
+        file_path:
+          type: string
+          description: Template file path
+          example: "/templates/employee-contract-template.docx"
+        mime_type:
+          type: string
+          description: MIME type
+          example: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        variables:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "employee_name"
+              type:
+                type: string
+                enum: [string, number, date, boolean]
+                example: "string"
+              description:
+                type: string
+                example: "Employee full name"
+              required:
+                type: boolean
+                example: true
+              default_value:
+                type: string
+                example: ""
+          description: Template variables
+        usage_count:
+          type: integer
+          description: Number of times template was used
+          example: 15
+        is_active:
+          type: boolean
+          description: Whether the template is active
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          description: Template creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - id
+        - company_id
+        - name
+        - file_path
+        - mime_type
+        - is_active
+        - created_at
+        - updated_at
+    
+    DocumentStatistics:
+      type: object
+      properties:
+        company_id:
+          type: string
+          format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        total_documents:
+          type: integer
+          description: Total number of documents
+          example: 500
+        total_size:
+          type: integer
+          description: Total storage size in bytes
+          example: 1073741824
+        documents_this_month:
+          type: integer
+          description: Documents uploaded this month
+          example: 25
+        most_downloaded:
+          type: array
+          items:
+            type: object
+            properties:
+              document_id:
+                type: string
+                format: uuid
+                example: "123e4567-e89b-12d3-a456-426614174000"
+              title:
+                type: string
+                example: "Employee Handbook 2024"
+              download_count:
+                type: integer
+                example: 45
+          description: Most downloaded documents
+        category_distribution:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Document count by category
+          example:
+            "HR Policies": 150
+            "Contracts": 75
+            "Training Materials": 100
+            "Reports": 175
+        storage_usage:
+          type: object
+          properties:
+            used:
+              type: integer
+              example: 1073741824
+            limit:
+              type: integer
+              example: 2147483648
+            percentage:
+              type: number
+              example: 50.0
+          description: Storage usage statistics
+        last_updated:
+          type: string
+          format: date-time
+          description: Statistics last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - company_id
+        - total_documents
+        - total_size
+        - last_updated
+    
+    CreateDocumentRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Document title
+          example: "Employee Handbook 2024"
+        category:
+          type: string
+          maxLength: 100
+          description: Document category
+          example: "HR Policies"
+        tags:
+          type: array
+          items:
+            type: string
+          description: Document tags
+          example: ["handbook", "policies", "hr"]
+        description:
+          type: string
+          maxLength: 1000
+          description: Document description
+          example: "Comprehensive employee handbook for 2024"
+        is_public:
+          type: boolean
+          default: false
+          description: Whether document is publicly accessible
+          example: false
+        permissions:
+          type: object
+          properties:
+            read:
+              type: array
+              items:
+                type: string
+                enum: [all, employees, managers, hr, admin]
+              description: Read permissions
+              example: ["employees", "managers"]
+            write:
+              type: array
+              items:
+                type: string
+                enum: [all, employees, managers, hr, admin]
+              description: Write permissions
+              example: ["hr", "admin"]
+            delete:
+              type: array
+              items:
+                type: string
+                enum: [all, employees, managers, hr, admin]
+              description: Delete permissions
+              example: ["admin"]
+          description: Document permissions
+      required:
+        - title
+    
+    UpdateDocumentRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Document title
+          example: "Employee Handbook 2024"
+        category:
+          type: string
+          maxLength: 100
+          description: Document category
+          example: "HR Policies"
+        tags:
+          type: array
+          items:
+            type: string
+          description: Document tags
+          example: ["handbook", "policies", "hr"]
+        description:
+          type: string
+          maxLength: 1000
+          description: Document description
+          example: "Comprehensive employee handbook for 2024"
+        is_public:
+          type: boolean
+          description: Whether document is publicly accessible
+          example: false
+        is_archived:
+          type: boolean
+          description: Whether document is archived
+          example: false
+        permissions:
+          type: object
+          properties:
+            read:
+              type: array
+              items:
+                type: string
+                enum: [all, employees, managers, hr, admin]
+              description: Read permissions
+              example: ["employees", "managers"]
+            write:
+              type: array
+              items:
+                type: string
+                enum: [all, employees, managers, hr, admin]
+              description: Write permissions
+              example: ["hr", "admin"]
+            delete:
+              type: array
+              items:
+                type: string
+                enum: [all, employees, managers, hr, admin]
+              description: Delete permissions
+              example: ["admin"]
+          description: Document permissions
+    
+    CreateCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Category name
+          example: "HR Policies"
+        description:
+          type: string
+          maxLength: 500
+          description: Category description
+          example: "Human resources policies and procedures"
+        parent_category_id:
+          type: string
+          format: uuid
+          description: Parent category ID for hierarchical structure
+          example: "123e4567-e89b-12d3-a456-426614174005"
+        color:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+          description: Category color for UI display
+          example: "#3B82F6"
+        icon:
+          type: string
+          maxLength: 50
+          description: Category icon name
+          example: "document-text"
+      required:
+        - name
+    
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Always false for errors
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Error code
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              description: Human-readable error message
+              example: "Invalid document data"
+            details:
+              type: object
+              description: Additional error details
+              example:
+                field: "title"
+                value: ""
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - success
+        - error
+        - timestamp
+    
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Service status
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp
+          example: "2024-01-01T00:00:00Z"
+        version:
+          type: string
+          description: Service version
+          example: "1.0.0"
+        uptime:
+          type: number
+          description: Service uptime in seconds
+          example: 3600
+        storage:
+          type: object
+          properties:
+            status:
+              type: string
+              description: Storage connection status
+              example: "connected"
+            available_space:
+              type: integer
+              description: Available storage space in bytes
+              example: 1073741824
+        database:
+          type: object
+          properties:
+            status:
+              type: string
+              description: Database connection status
+              example: "connected"
+            response_time:
+              type: number
+              description: Database response time in milliseconds
+              example: 15.5
+      required:
+        - status
+        - timestamp
+        - version
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Check the health status of the document service
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /documents:
+    get:
+      tags:
+        - Documents
+      summary: Get documents
+      description: Retrieve documents for the current company
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search term for document title or description
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by category
+        - name: tags
+          in: query
+          schema:
+            type: string
+          description: Filter by tags (comma-separated)
+        - name: uploaded_by
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by uploader user ID
+        - name: is_public
+          in: query
+          schema:
+            type: boolean
+          description: Filter by public status
+        - name: is_archived
+          in: query
+          schema:
+            type: boolean
+          description: Filter by archived status
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [created_at, updated_at, title, file_size, download_count, view_count]
+            default: "created_at"
+          description: Sort field
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: "desc"
+          description: Sort order
+      responses:
+        '200':
+          description: Documents retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  documents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Document'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 20
+                      total:
+                        type: integer
+                        example: 500
+                      pages:
+                        type: integer
+                        example: 25
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    post:
+      tags:
+        - Upload
+      summary: Upload document
+      description: Upload a new document
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload
+                title:
+                  type: string
+                  minLength: 1
+                  maxLength: 255
+                  description: Document title
+                  example: "Employee Handbook 2024"
+                category:
+                  type: string
+                  maxLength: 100
+                  description: Document category
+                  example: "HR Policies"
+                tags:
+                  type: string
+                  description: Comma-separated tags
+                  example: "handbook,policies,hr"
+                description:
+                  type: string
+                  maxLength: 1000
+                  description: Document description
+                  example: "Comprehensive employee handbook for 2024"
+                is_public:
+                  type: boolean
+                  default: false
+                  description: Whether document is publicly accessible
+                  example: false
+              required:
+                - file
+                - title
+      responses:
+        '201':
+          description: Document uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  document:
+                    $ref: '#/components/schemas/Document'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: Unsupported file type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /documents/{documentId}:
+    get:
+      tags:
+        - Documents
+      summary: Get document by ID
+      description: Retrieve a specific document by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Document ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Document retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  document:
+                    $ref: '#/components/schemas/Document'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Document not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    put:
+      tags:
+        - Documents
+      summary: Update document
+      description: Update document metadata
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Document ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDocumentRequest'
+      responses:
+        '200':
+          description: Document updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  document:
+                    $ref: '#/components/schemas/Document'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Document not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    delete:
+      tags:
+        - Documents
+      summary: Delete document
+      description: Delete a document (soft delete)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Document ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Document deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Document deleted successfully"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Document not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /documents/{documentId}/download:
+    get:
+      tags:
+        - Documents
+      summary: Download document
+      description: Download a document file
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Document ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Document file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+          headers:
+            Content-Disposition:
+              description: File attachment header
+              schema:
+                type: string
+                example: "attachment; filename=\"employee-handbook-2024.pdf\""
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Document not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /documents/{documentId}/versions:
+    get:
+      tags:
+        - Documents
+      summary: Get document versions
+      description: Retrieve all versions of a document
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Document ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Document versions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  versions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DocumentVersion'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Document not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    post:
+      tags:
+        - Upload
+      summary: Upload new version
+      description: Upload a new version of an existing document
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Document ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The new version file
+                change_log:
+                  type: string
+                  maxLength: 500
+                  description: Description of changes in this version
+                  example: "Updated vacation policy and added remote work guidelines"
+              required:
+                - file
+                - change_log
+      responses:
+        '201':
+          description: New version uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  version:
+                    $ref: '#/components/schemas/DocumentVersion'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Document not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: Unsupported file type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /categories:
+    get:
+      tags:
+        - Categories
+      summary: Get document categories
+      description: Retrieve document categories for the current company
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Categories retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DocumentCategory'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    post:
+      tags:
+        - Categories
+      summary: Create category
+      description: Create a new document category
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategoryRequest'
+      responses:
+        '201':
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  category:
+                    $ref: '#/components/schemas/DocumentCategory'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Category already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /search:
+    get:
+      tags:
+        - Search
+      summary: Search documents
+      description: Search documents by various criteria
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search query
+          example: "employee handbook"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by category
+        - name: tags
+          in: query
+          schema:
+            type: string
+          description: Filter by tags (comma-separated)
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by creation date from
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Filter by creation date to
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [relevance, created_at, updated_at, title, file_size, download_count, view_count]
+            default: "relevance"
+          description: Sort field
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: "desc"
+          description: Sort order
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  query:
+                    type: string
+                    example: "employee handbook"
+                  documents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Document'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 20
+                      total:
+                        type: integer
+                        example: 15
+                      pages:
+                        type: integer
+                        example: 1
+                  facets:
+                    type: object
+                    properties:
+                      categories:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                        description: Document count by category
+                        example:
+                          "HR Policies": 8
+                          "Training Materials": 4
+                          "Contracts": 3
+                      tags:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                        description: Document count by tag
+                        example:
+                          "handbook": 5
+                          "policies": 8
+                          "training": 4
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /statistics:
+    get:
+      tags:
+        - Documents
+      summary: Get document statistics
+      description: Retrieve document statistics for the current company
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  statistics:
+                    $ref: '#/components/schemas/DocumentStatistics'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

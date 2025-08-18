@@ -1,6 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
-import { logger } from '@utils/logger';
+import { logger } from '../src/lib/logger';
 
+declare global {
+  interface Window {
+    electronAPI?: ElectronAPI;
+  }
+}
 
 interface ElectronAPI {
   getAppVersion: () => Promise<string>;
@@ -52,12 +57,6 @@ interface MessageBoxOptions {
   buttons?: string[];
   defaultId?: number;
   cancelId?: number;
-}
-
-declare global {
-  interface Window {
-    electronAPI?: ElectronAPI;
-  }
 }
 
 interface ElectronInfo {
@@ -162,7 +161,7 @@ export const useElectron = () => {
     content: string,
     defaultName: string,
     mimeType: string = 'application/json'
-  ) => {
+  ): Promise<string | undefined> => {
     if (!window.electronAPI) {
       // Fallback to web download
       const blob = new Blob([content], { type: mimeType });
@@ -174,7 +173,7 @@ export const useElectron = () => {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      return;
+      return undefined;
     }
 
     const result = await showSaveDialog({
@@ -190,9 +189,10 @@ export const useElectron = () => {
       // For now, we'll just return the file path
       return result.filePath;
     }
+    return undefined;
   }, [showSaveDialog]);
 
-  const importFromFile = useCallback(async (allowedExtensions: string[]) => {
+  const importFromFile = useCallback(async (allowedExtensions: string[]): Promise<File | { path: string } | null> => {
     if (!window.electronAPI) {
       // Fallback to web file input
       return new Promise<File | null>((resolve) => {
@@ -238,10 +238,10 @@ export const useElectron = () => {
  * Hook for handling menu actions in Electron
  */
 export const useMenuActions = () => {
-  const { isElectron, onMenuAction, removeMenuActionListener } = useElectron();
+  const { isElectron } = useElectron();
 
   useEffect(() => {
-    if (!isElectron) return;
+    if (!isElectron || !window.electronAPI) return;
 
     const handleMenuAction = (action: string) => {
       switch (action) {
@@ -262,12 +262,12 @@ export const useMenuActions = () => {
       }
     };
 
-    onMenuAction(handleMenuAction);
+    window.electronAPI.onMenuAction(handleMenuAction);
 
     return () => {
-      removeMenuActionListener();
+      window.electronAPI?.removeMenuActionListener();
     };
-  }, [isElectron, onMenuAction, removeMenuActionListener]);
+  }, [isElectron]);
 };
 
 /**
@@ -276,10 +276,11 @@ export const useMenuActions = () => {
 export const useFileOperations = () => {
   const { isElectron, showSaveDialog, showOpenDialog, showMessageBox } = useElectron();
 
-  const exportToFile = useCallback(async (data: any, filename: string, fileType: string) => {
+  const exportToFile = useCallback(async (data: Record<string, unknown> | unknown[], filename: string, fileType: string) => {
     if (!isElectron) {
       // Fallback for web browser
-      const blob = new Blob([data], { type: fileType });
+      const jsonString = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonString], { type: fileType });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -319,11 +320,13 @@ export const useFileOperations = () => {
       input.accept = fileTypes.join(',');
       input.click();
       
-      return new Promise((resolve) => {
+      return new Promise<{ file: File; path: string } | null>((resolve) => {
         input.onchange = (e) => {
           const file = (e.target as HTMLInputElement).files?.[0];
           if (file) {
             resolve({ file, path: file.name });
+          } else {
+            resolve(null);
           }
         };
       });
@@ -338,7 +341,7 @@ export const useFileOperations = () => {
       ]
     });
 
-    if (!result.canceled && result.filePaths.length > 0) {
+    if (!result.canceled && result.filePaths && result.filePaths.length > 0) {
       return { file: null, path: result.filePaths[0] };
     }
     

@@ -1,5 +1,5 @@
 import type {Express, Request, Response, NextFunction} from 'express';
-import {log} from '../utils/logger';
+import logger from '../utils/logger';
 
 // Define interface for payroll processing request body
 interface PayrollProcessRequest {
@@ -17,12 +17,18 @@ export function registerPayrollRoutes (app: Express) {
     const userId = (req.headers['x-user-id'] as string) || '1';
 
     req.user = {
-      'id': userId,
-      'sub': userId,
-      'role': userRole,
-      'email': 'user@company.com',
-      'firstName': 'محمد',
-      'lastName': 'أحمد'
+      id: userId,
+      sub: userId,
+      role: userRole,
+      email: 'user@company.com',
+      firstName: 'محمد',
+      lastName: 'أحمد',
+      companyId: '1',
+      permissions: ['payroll_read', 'payroll_write'],
+      isActive: true,
+      claims: {},
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
     next();
 

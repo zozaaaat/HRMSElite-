@@ -19,7 +19,7 @@ import {
   SignatureResponse
 } from '../services/signature';
 import {SignatureData} from '../types/documents';
-import { logger } from '@/lib/logger';
+import { logger } from '../lib/logger';
 import {
   FileText,
   Calendar,

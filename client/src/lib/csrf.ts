@@ -1,4 +1,4 @@
-import logger from '@/lib/logger';
+import logger from './logger';
 
 /**
  * CSRF Token Management for Frontend

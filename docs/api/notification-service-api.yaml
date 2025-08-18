@@ -1,0 +1,873 @@
+openapi: 3.0.3
+info:
+  title: HRMS Elite - Notification Service API
+  description: |
+    Notification Management Service API for HRMS Elite
+    
+    This service handles:
+    - Email notifications
+    - SMS notifications
+    - Push notifications
+    - In-app notifications
+    - Notification templates
+    - Notification preferences
+    - Multi-tenant data isolation
+    
+    ## Authentication
+    All endpoints require authentication via JWT Bearer token in the Authorization header:
+    ```
+    Authorization: Bearer <jwt_token>
+    ```
+    
+    ## Error Responses
+    All endpoints return consistent error responses:
+    - `400 Bad Request`: Invalid input data
+    - `401 Unauthorized`: Missing or invalid authentication
+    - `403 Forbidden`: Insufficient permissions
+    - `404 Not Found`: Resource not found
+    - `422 Unprocessable Entity`: Validation errors
+    - `500 Internal Server Error`: Server error
+    
+  version: 1.0.0
+  contact:
+    name: HRMS Elite Team
+    email: support@hrmse.example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.hrmse.example.com/notification
+    description: Production server
+  - url: https://staging-api.hrmse.example.com/notification
+    description: Staging server
+  - url: http://localhost:3005
+    description: Local development server
+
+tags:
+  - name: Notifications
+    description: Notification management operations
+  - name: Templates
+    description: Notification template management
+  - name: Preferences
+    description: User notification preferences
+  - name: Health
+    description: Health check endpoints
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+    
+  schemas:
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique notification identifier
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        company_id:
+          type: string
+          format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        user_id:
+          type: string
+          format: uuid
+          description: User ID to notify
+          example: "123e4567-e89b-12d3-a456-426614174002"
+        type:
+          type: string
+          enum: [email, sms, push, in_app]
+          description: Notification type
+          example: "email"
+        title:
+          type: string
+          description: Notification title
+          example: "New Document Uploaded"
+        message:
+          type: string
+          description: Notification message
+          example: "A new document has been uploaded to your company"
+        template_id:
+          type: string
+          format: uuid
+          description: Template ID used
+          example: "123e4567-e89b-12d3-a456-426614174003"
+        status:
+          type: string
+          enum: [pending, sent, delivered, failed, read]
+          description: Notification status
+          example: "sent"
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+          description: Notification priority
+          example: "normal"
+        scheduled_at:
+          type: string
+          format: date-time
+          description: Scheduled send time
+          example: "2024-01-01T00:00:00Z"
+        sent_at:
+          type: string
+          format: date-time
+          description: Actual send time
+          example: "2024-01-01T00:00:00Z"
+        read_at:
+          type: string
+          format: date-time
+          description: Read time
+          example: "2024-01-01T00:00:00Z"
+        metadata:
+          type: object
+          description: Additional notification data
+          example:
+            document_id: "123e4567-e89b-12d3-a456-426614174004"
+            action_url: "/documents/123e4567-e89b-12d3-a456-426614174004"
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - id
+        - company_id
+        - user_id
+        - type
+        - title
+        - message
+        - status
+        - priority
+        - created_at
+        - updated_at
+    
+    NotificationTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique template identifier
+          example: "123e4567-e89b-12d3-a456-426614174003"
+        company_id:
+          type: string
+          format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        name:
+          type: string
+          description: Template name
+          example: "Document Upload Notification"
+        type:
+          type: string
+          enum: [email, sms, push, in_app]
+          description: Template type
+          example: "email"
+        subject:
+          type: string
+          description: Email subject or SMS title
+          example: "New Document Available"
+        content:
+          type: string
+          description: Template content with variables
+          example: "Hello {{user_name}}, a new document '{{document_title}}' has been uploaded."
+        variables:
+          type: array
+          items:
+            type: string
+          description: Available template variables
+          example: ["user_name", "document_title", "company_name"]
+        is_active:
+          type: boolean
+          description: Whether template is active
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - id
+        - company_id
+        - name
+        - type
+        - content
+        - is_active
+        - created_at
+        - updated_at
+    
+    NotificationPreference:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: User ID
+          example: "123e4567-e89b-12d3-a456-426614174002"
+        email_enabled:
+          type: boolean
+          description: Email notifications enabled
+          example: true
+        sms_enabled:
+          type: boolean
+          description: SMS notifications enabled
+          example: false
+        push_enabled:
+          type: boolean
+          description: Push notifications enabled
+          example: true
+        in_app_enabled:
+          type: boolean
+          description: In-app notifications enabled
+          example: true
+        categories:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              email:
+                type: boolean
+              sms:
+                type: boolean
+              push:
+                type: boolean
+              in_app:
+                type: boolean
+          description: Notification preferences by category
+          example:
+            documents:
+              email: true
+              sms: false
+              push: true
+              in_app: true
+            announcements:
+              email: true
+              sms: false
+              push: false
+              in_app: true
+        quiet_hours_start:
+          type: string
+          description: Quiet hours start time (HH:MM)
+          example: "22:00"
+        quiet_hours_end:
+          type: string
+          description: Quiet hours end time (HH:MM)
+          example: "08:00"
+        timezone:
+          type: string
+          description: User timezone
+          example: "America/New_York"
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - user_id
+        - email_enabled
+        - sms_enabled
+        - push_enabled
+        - in_app_enabled
+        - created_at
+        - updated_at
+    
+    SendNotificationRequest:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: User ID to notify
+          example: "123e4567-e89b-12d3-a456-426614174002"
+        type:
+          type: string
+          enum: [email, sms, push, in_app]
+          description: Notification type
+          example: "email"
+        template_id:
+          type: string
+          format: uuid
+          description: Template ID to use
+          example: "123e4567-e89b-12d3-a456-426614174003"
+        variables:
+          type: object
+          description: Template variables
+          example:
+            user_name: "John Doe"
+            document_title: "Employee Handbook"
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+          default: "normal"
+          description: Notification priority
+          example: "normal"
+        scheduled_at:
+          type: string
+          format: date-time
+          description: Scheduled send time
+          example: "2024-01-01T00:00:00Z"
+        metadata:
+          type: object
+          description: Additional data
+          example:
+            action_url: "/documents/123e4567-e89b-12d3-a456-426614174004"
+      required:
+        - user_id
+        - type
+        - template_id
+    
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Always false for errors
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Error code
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              description: Human-readable error message
+              example: "Invalid notification data"
+            details:
+              type: object
+              description: Additional error details
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - success
+        - error
+        - timestamp
+    
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Service status
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp
+          example: "2024-01-01T00:00:00Z"
+        version:
+          type: string
+          description: Service version
+          example: "1.0.0"
+        uptime:
+          type: number
+          description: Service uptime in seconds
+          example: 3600
+        email_service:
+          type: object
+          properties:
+            status:
+              type: string
+              description: Email service status
+              example: "connected"
+        sms_service:
+          type: object
+          properties:
+            status:
+              type: string
+              description: SMS service status
+              example: "connected"
+      required:
+        - status
+        - timestamp
+        - version
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Check the health status of the notification service
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /notifications:
+    get:
+      tags:
+        - Notifications
+      summary: Get notifications
+      description: Retrieve notifications for the current user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [email, sms, push, in_app]
+          description: Filter by notification type
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, sent, delivered, failed, read]
+          description: Filter by status
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, normal, high, urgent]
+          description: Filter by priority
+        - name: unread_only
+          in: query
+          schema:
+            type: boolean
+          description: Return only unread notifications
+      responses:
+        '200':
+          description: Notifications retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 20
+                      total:
+                        type: integer
+                        example: 150
+                      pages:
+                        type: integer
+                        example: 8
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    post:
+      tags:
+        - Notifications
+      summary: Send notification
+      description: Send a new notification
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendNotificationRequest'
+      responses:
+        '201':
+          description: Notification sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  notification:
+                    $ref: '#/components/schemas/Notification'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /notifications/{notificationId}:
+    get:
+      tags:
+        - Notifications
+      summary: Get notification by ID
+      description: Retrieve a specific notification by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Notification ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Notification retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  notification:
+                    $ref: '#/components/schemas/Notification'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Notification not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    patch:
+      tags:
+        - Notifications
+      summary: Mark notification as read
+      description: Mark a notification as read
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Notification ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Notification marked as read
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  notification:
+                    $ref: '#/components/schemas/Notification'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Notification not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /notifications/mark-all-read:
+    patch:
+      tags:
+        - Notifications
+      summary: Mark all notifications as read
+      description: Mark all notifications for the current user as read
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: All notifications marked as read
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "All notifications marked as read"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /templates:
+    get:
+      tags:
+        - Templates
+      summary: Get notification templates
+      description: Retrieve notification templates for the current company
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [email, sms, push, in_app]
+          description: Filter by template type
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+          description: Filter by active status
+      responses:
+        '200':
+          description: Templates retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  templates:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/NotificationTemplate'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /preferences:
+    get:
+      tags:
+        - Preferences
+      summary: Get notification preferences
+      description: Retrieve notification preferences for the current user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Preferences retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  preferences:
+                    $ref: '#/components/schemas/NotificationPreference'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    put:
+      tags:
+        - Preferences
+      summary: Update notification preferences
+      description: Update notification preferences for the current user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email_enabled:
+                  type: boolean
+                  description: Email notifications enabled
+                  example: true
+                sms_enabled:
+                  type: boolean
+                  description: SMS notifications enabled
+                  example: false
+                push_enabled:
+                  type: boolean
+                  description: Push notifications enabled
+                  example: true
+                in_app_enabled:
+                  type: boolean
+                  description: In-app notifications enabled
+                  example: true
+                categories:
+                  type: object
+                  description: Notification preferences by category
+                  example:
+                    documents:
+                      email: true
+                      sms: false
+                      push: true
+                      in_app: true
+                quiet_hours_start:
+                  type: string
+                  description: Quiet hours start time (HH:MM)
+                  example: "22:00"
+                quiet_hours_end:
+                  type: string
+                  description: Quiet hours end time (HH:MM)
+                  example: "08:00"
+                timezone:
+                  type: string
+                  description: User timezone
+                  example: "America/New_York"
+      responses:
+        '200':
+          description: Preferences updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  preferences:
+                    $ref: '#/components/schemas/NotificationPreference'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

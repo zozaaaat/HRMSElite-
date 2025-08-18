@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   extends: ['expo'],
   plugins: [
     '@typescript-eslint',

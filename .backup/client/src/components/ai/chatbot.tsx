@@ -1,10 +1,10 @@
-import { useChat } from 'ai/react';
-import { useState, useRef, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import {useState, useRef, useEffect} from 'react';
+import type {ChangeEvent, FormEvent, KeyboardEvent} from 'react';
+import {Card, CardContent, CardHeader, CardTitle} from '../ui/card';
+import {Button} from '../ui/button';
+import {Input} from '../ui/input';
+import {Badge} from '../ui/badge';
+import {ScrollArea} from '../ui/scroll-area';
 import { 
   Brain, 
   Send, 
@@ -14,18 +14,85 @@ import {
   AlertTriangle,
   Target,
   Lightbulb,
-  TrendingUp,
-  Users,
   FileText,
-  Clock,
   Activity,
-  Zap,
   X,
   Minimize2,
   Maximize2,
   Loader2
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import {useToast} from "../../hooks/use-toast";
+
+// Type definitions for API responses
+interface ChatApiResponse {
+  id?: string;
+  content: string;
+  createdAt?: string;
+}
+
+// Lightweight local chat hook to replace missing `ai/react`
+interface UseLocalChatOptions {
+  api: string;
+  onError?: (error: unknown) => void;
+}
+
+interface ChatMessage {
+  id?: string | undefined;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  createdAt?: string | undefined;
+}
+
+function useLocalChat (options: UseLocalChatOptions) {
+  const {api, onError} = options;
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleInputChange = (e: ChangeEvent<{ value: string }>) => {
+    setInput(e.target.value);
+  };
+
+  const submit = async () => {
+    const trimmed = input.trim();
+    if (!trimmed || isLoading) return;
+
+    const nextMessages: ChatMessage[] = [...messages, {'role': 'user', 'content': trimmed}];
+    setMessages(nextMessages);
+    setIsLoading(true);
+    try {
+      const res = await fetch(api, {
+        'method': 'POST',
+        'headers': {'Content-Type': 'application/json'},
+        'credentials': 'include',
+        'body': JSON.stringify({'messages': nextMessages})
+      });
+      if (!res.ok) {
+        throw new Error(`Request failed: ${res.status}`);
+      }
+      const data = await res.json() as ChatApiResponse;
+      const assistantMessage: ChatMessage = {
+        'id': data.id,
+        'role': 'assistant',
+        'content': data.content,
+        'createdAt': data.createdAt
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+      setInput('');
+    } catch (err) {
+      onError?.(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (_e?: FormEvent) => {
+    if (_e) _e.preventDefault();
+    await submit();
+  };
+
+  return {messages, input, handleInputChange, handleSubmit, isLoading, setMessages, setInput};
+}
 
 interface ChatbotProps {
   className?: string;
@@ -74,19 +141,11 @@ export default function Chatbot({ className }: ChatbotProps) {
   const { toast } = useToast();
   const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
-  // استخدام useChat hook من مكتبة ai
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
+  // استخدام useLocalChat hook بدلاً من useChat
+  const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } = useLocalChat({
     api: '/api/ai-chat',
-    initialMessages: [
-      {
-        id: '1',
-        role: 'assistant',
-        content: 'مرحباً! أنا المساعد الذكي لـ HRMS Elite. كيف يمكنني مساعدتك اليوم؟'
-      }
-    ],
-    onError: (error) => {
+    onError: (error: unknown) => {
       console.error('Chat error:', error);
       toast({
         title: "خطأ في الاتصال",
@@ -106,19 +165,23 @@ export default function Chatbot({ className }: ChatbotProps) {
 
   const handleQuickAction = (action: string) => {
     handleInputChange({ target: { value: action } } as any);
-    handleSubmit({ preventDefault: () => {} } as any);
+    handleSubmit();
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit(e as any);
+      handleSubmit(e as unknown as FormEvent);
     }
   };
 
   const clearChat = () => {
-    // إعادة تعيين المحادثة
-    window.location.reload();
+    setMessages([]);
+    toast({
+      title: "تم مسح المحادثة",
+      description: "تم مسح جميع الرسائل بنجاح.",
+      variant: "default"
+    });
   };
 
   if (isMinimized) {
@@ -201,9 +264,9 @@ export default function Chatbot({ className }: ChatbotProps) {
           {/* Messages */}
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
-              {messages.map((message) => (
+              {messages.map((message, index) => (
                 <div
-                  key={message.id}
+                  key={index}
                   className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
@@ -245,18 +308,6 @@ export default function Chatbot({ className }: ChatbotProps) {
                   </div>
                 </div>
               )}
-              {error && (
-                <div className="flex justify-start">
-                  <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-destructive" />
-                      <span className="text-sm text-destructive">
-                        حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
               <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
@@ -265,7 +316,6 @@ export default function Chatbot({ className }: ChatbotProps) {
           <div className="p-4 border-t">
             <form onSubmit={handleSubmit} className="flex gap-2">
               <Input
-                ref={inputRef}
                 value={input}
                 onChange={handleInputChange}
                 onKeyPress={handleKeyPress}

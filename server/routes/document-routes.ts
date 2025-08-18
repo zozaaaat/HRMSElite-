@@ -19,8 +19,13 @@ export function registerDocumentRoutes (app: Express) {
       'role': userRole,
       'email': 'user@company.com',
       'firstName': 'محمد',
-      'lastName': 'أحمد'
-    };
+      'lastName': 'أحمد',
+      'permissions': [],
+      'isActive': true,
+      'claims': {},
+      'createdAt': new Date(),
+      'updatedAt': new Date()
+    } as unknown; // مؤقتًا
     next();
 
   };
@@ -411,8 +416,7 @@ export function registerDocumentRoutes (app: Express) {
       }
 
       // In real app, handle file upload here
-      const document = await storage.createDocument(result.data,
-   req.user?.sub ?? "system");
+      const document = await storage.createDocument(result.data);
       res.status(201).json(document);
 
     } catch (error) {
@@ -429,6 +433,10 @@ export function registerDocumentRoutes (app: Express) {
     try {
 
       const {id} = req.params;
+      if (!id) {
+        return res.status(400).json({ error: 'Document id is required' });
+      }
+      
       const document = await storage.getDocument(id);
 
       if (!document) {
@@ -453,6 +461,10 @@ export function registerDocumentRoutes (app: Express) {
     try {
 
       const {id} = req.params;
+      if (!id) {
+        return res.status(400).json({ error: 'Document id is required' });
+      }
+      
       const updateData = {
         ...req.body,
         'modifiedDate': new Date()
@@ -480,6 +492,10 @@ export function registerDocumentRoutes (app: Express) {
     try {
 
       const {id} = req.params;
+      if (!id) {
+        return res.status(400).json({ error: 'Document id is required' });
+      }
+      
       await storage.deleteDocument(id);
       res.json({'message': 'Document deleted successfully'});
 
@@ -497,6 +513,9 @@ export function registerDocumentRoutes (app: Express) {
     try {
 
       const {id} = req.params;
+      if (!id) {
+        return res.status(400).json({ error: 'Document id is required' });
+      }
 
       // Mock documents mapping to real files
       const documentFiles: Record<string, string> = {

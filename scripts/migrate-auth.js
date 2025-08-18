@@ -27,7 +27,7 @@ const generateSecureToken = (length = 64) => {
 
 async function migrateAuth() {
   try {
-    console.log('Starting authentication migration...');
+    console.info('Starting authentication migration...');
 
     // Add new columns to users table
     const alterQueries = [
@@ -44,10 +44,10 @@ async function migrateAuth() {
     for (const query of alterQueries) {
       try {
         await sqlite.exec(query);
-        console.log(`✓ Executed: ${query}`);
+        console.info(`✓ Executed: ${query}`);
       } catch (error) {
         if (error.message.includes('duplicate column name')) {
-          console.log(`- Column already exists: ${query}`);
+          console.info(`- Column already exists: ${query}`);
         } else {
           console.error(`✗ Error executing: ${query}`, error.message);
         }
@@ -56,7 +56,7 @@ async function migrateAuth() {
 
     // Get all existing users
     const existingUsers = await sqlite.prepare('SELECT * FROM users').all();
-    console.log(`Found ${existingUsers.length} existing users`);
+    console.info(`Found ${existingUsers.length} existing users`);
 
     // Update existing users with default passwords and verification tokens
     for (const user of existingUsers) {
@@ -90,17 +90,17 @@ async function migrateAuth() {
           user.id
         );
 
-        console.log(`✓ Updated user: ${user.email || user.id}`);
+        console.info(`✓ Updated user: ${user.email || user.id}`);
       } catch (error) {
         console.error(`✗ Error updating user ${user.id}:`, error.message);
       }
     }
 
-    console.log('Authentication migration completed successfully!');
-    console.log('\nDefault passwords for existing users:');
-    console.log('Format: Welcome{username}123!');
-    console.log('Example: Welcomejohn123! for john@example.com');
-    console.log('\nUsers should change their passwords on first login.');
+    console.info('Authentication migration completed successfully!');
+    console.info('\nDefault passwords for existing users:');
+    console.info('Format: Welcome{username}123!');
+    console.info('Example: Welcomejohn123! for john@example.com');
+    console.info('\nUsers should change their passwords on first login.');
 
   } catch (error) {
     console.error('Migration failed:', error);
@@ -112,7 +112,7 @@ async function migrateAuth() {
 
 // Run migration
 migrateAuth().then(() => {
-  console.log('Migration completed');
+  console.info('Migration completed');
   process.exit(0);
 }).catch((error) => {
   console.error('Migration failed:', error);

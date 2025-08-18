@@ -5,6 +5,15 @@ import '@testing-library/jest-dom';
 import { Router } from 'wouter';
 import AdvancedSearchPage from '../../src/pages/advanced-search';
 
+// Mock useToast hook
+vi.mock('@/hooks/use-toast', () => ({
+  useToast: vi.fn(() => ({
+    toast: vi.fn(),
+    toasts: [],
+    dismiss: vi.fn(),
+  })),
+}));
+
 // Mock IntersectionObserver
 class MockIntersectionObserver {
   constructor() {}

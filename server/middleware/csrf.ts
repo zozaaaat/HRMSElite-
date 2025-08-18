@@ -21,7 +21,7 @@ export const csrfTokenMiddleware = (req: Request, res: Response, next: NextFunct
 
   } catch (error) {
 
-    log.error('CSRF token generation error:', error, 'CSRF');
+    log.error('CSRF token generation error:', error as Error, 'CSRF');
     res.status(500).json({
       'error': 'خطأ في توليد رمز الأمان',
       'message': 'يرجى إعادة تحميل الصفحة'
@@ -51,7 +51,7 @@ export const getCsrfToken = (req: Request, res: Response) => {
 
   } catch (error) {
 
-    log.error('CSRF token generation failed:', error, 'CSRF');
+    log.error('CSRF token generation failed:', error as Error, 'CSRF');
     res.status(500).json({
       'error': 'خطأ في توليد رمز الأمان',
       'message': 'يرجى المحاولة مرة أخرى'
@@ -83,7 +83,7 @@ export const validateCsrfToken = (req: Request, res: Response, next: NextFunctio
 };
 
 // Enhanced CSRF error handler with detailed logging and security features
-export const csrfErrorHandler = (err: any,
+export const csrfErrorHandler = (err: Error & { code?: string },
    req: Request,
    res: Response,
    next: NextFunction) => {
@@ -177,7 +177,7 @@ export const refreshCsrfToken = (req: Request, res: Response, next: NextFunction
 
   } catch (error) {
 
-    log.error('CSRF token refresh failed:', error, 'CSRF');
+    log.error('CSRF token refresh failed:', error as Error, 'CSRF');
     next(error);
 
   }

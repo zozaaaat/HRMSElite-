@@ -1,0 +1,1400 @@
+openapi: 3.0.3
+info:
+  title: HRMS Elite - Company Service API
+  description: |
+    Company Management Service API for HRMS Elite
+    
+    This service handles:
+    - Company creation and management
+    - Company settings and configuration
+    - Department management
+    - Company statistics and analytics
+    - Multi-tenant data isolation
+    
+    ## Authentication
+    All endpoints require authentication via JWT Bearer token in the Authorization header:
+    ```
+    Authorization: Bearer <jwt_token>
+    ```
+    
+    ## Multi-tenancy
+    This service supports multi-tenant architecture where each company's data is isolated.
+    Company context is determined from the JWT token or explicit company_id parameter.
+    
+    ## Error Responses
+    All endpoints return consistent error responses:
+    - `400 Bad Request`: Invalid input data
+    - `401 Unauthorized`: Missing or invalid authentication
+    - `403 Forbidden`: Insufficient permissions
+    - `404 Not Found`: Resource not found
+    - `409 Conflict`: Resource already exists
+    - `422 Unprocessable Entity`: Validation errors
+    - `500 Internal Server Error`: Server error
+    
+  version: 1.0.0
+  contact:
+    name: HRMS Elite Team
+    email: support@hrmse.example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.hrmse.example.com/company
+    description: Production server
+  - url: https://staging-api.hrmse.example.com/company
+    description: Staging server
+  - url: http://localhost:3002
+    description: Local development server
+
+tags:
+  - name: Companies
+    description: Company management operations
+  - name: Departments
+    description: Department management operations
+  - name: Settings
+    description: Company settings and configuration
+  - name: Statistics
+    description: Company statistics and analytics
+  - name: Health
+    description: Health check endpoints
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+    
+  schemas:
+    Company:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique company identifier
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          description: Company name
+          example: "Acme Corporation"
+        description:
+          type: string
+          description: Company description
+          example: "Leading technology solutions provider"
+        industry:
+          type: string
+          description: Company industry
+          example: "Technology"
+        size:
+          type: string
+          enum: [startup, small, medium, large, enterprise]
+          description: Company size category
+          example: "medium"
+        website:
+          type: string
+          format: uri
+          description: Company website URL
+          example: "https://acme.com"
+        phone:
+          type: string
+          description: Company phone number
+          example: "+1-555-123-4567"
+        address:
+          type: object
+          properties:
+            street:
+              type: string
+              example: "123 Business St"
+            city:
+              type: string
+              example: "San Francisco"
+            state:
+              type: string
+              example: "CA"
+            zip_code:
+              type: string
+              example: "94105"
+            country:
+              type: string
+              example: "USA"
+          description: Company address
+        logo_url:
+          type: string
+          format: uri
+          description: Company logo URL
+          example: "https://acme.com/logo.png"
+        is_active:
+          type: boolean
+          description: Whether the company is active
+          example: true
+        subscription_plan:
+          type: string
+          enum: [free, basic, professional, enterprise]
+          description: Subscription plan
+          example: "professional"
+        subscription_expires_at:
+          type: string
+          format: date-time
+          description: Subscription expiration date
+          example: "2024-12-31T23:59:59Z"
+        created_at:
+          type: string
+          format: date-time
+          description: Company creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - id
+        - name
+        - is_active
+        - created_at
+        - updated_at
+    
+    Department:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique department identifier
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        company_id:
+          type: string
+          format: uuid
+          description: Company ID this department belongs to
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          description: Department name
+          example: "Engineering"
+        description:
+          type: string
+          description: Department description
+          example: "Software development and engineering"
+        manager_id:
+          type: string
+          format: uuid
+          description: Department manager employee ID
+          example: "123e4567-e89b-12d3-a456-426614174002"
+        parent_department_id:
+          type: string
+          format: uuid
+          description: Parent department ID for hierarchical structure
+          example: "123e4567-e89b-12d3-a456-426614174003"
+        budget:
+          type: number
+          description: Department budget
+          example: 500000
+        employee_count:
+          type: integer
+          description: Number of employees in department
+          example: 25
+        is_active:
+          type: boolean
+          description: Whether the department is active
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          description: Department creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - id
+        - company_id
+        - name
+        - is_active
+        - created_at
+        - updated_at
+    
+    CompanySetting:
+      type: object
+      properties:
+        company_id:
+          type: string
+          format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        setting_key:
+          type: string
+          description: Setting key
+          example: "timezone"
+        setting_value:
+          type: string
+          description: Setting value
+          example: "America/New_York"
+        description:
+          type: string
+          description: Setting description
+          example: "Company timezone for scheduling"
+        is_public:
+          type: boolean
+          description: Whether this setting is publicly visible
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          description: Setting creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - company_id
+        - setting_key
+        - setting_value
+        - created_at
+        - updated_at
+    
+    CompanyStatistics:
+      type: object
+      properties:
+        company_id:
+          type: string
+          format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        total_employees:
+          type: integer
+          description: Total number of employees
+          example: 150
+        active_employees:
+          type: integer
+          description: Number of active employees
+          example: 145
+        departments_count:
+          type: integer
+          description: Number of departments
+          example: 8
+        average_salary:
+          type: number
+          description: Average employee salary
+          example: 75000
+        employee_growth_rate:
+          type: number
+          description: Employee growth rate percentage
+          example: 12.5
+        turnover_rate:
+          type: number
+          description: Employee turnover rate percentage
+          example: 8.2
+        last_updated:
+          type: string
+          format: date-time
+          description: Statistics last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - company_id
+        - total_employees
+        - active_employees
+        - departments_count
+        - last_updated
+    
+    CreateCompanyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Company name
+          example: "Acme Corporation"
+        description:
+          type: string
+          maxLength: 1000
+          description: Company description
+          example: "Leading technology solutions provider"
+        industry:
+          type: string
+          maxLength: 100
+          description: Company industry
+          example: "Technology"
+        size:
+          type: string
+          enum: [startup, small, medium, large, enterprise]
+          description: Company size category
+          example: "medium"
+        website:
+          type: string
+          format: uri
+          description: Company website URL
+          example: "https://acme.com"
+        phone:
+          type: string
+          description: Company phone number
+          example: "+1-555-123-4567"
+        address:
+          type: object
+          properties:
+            street:
+              type: string
+              example: "123 Business St"
+            city:
+              type: string
+              example: "San Francisco"
+            state:
+              type: string
+              example: "CA"
+            zip_code:
+              type: string
+              example: "94105"
+            country:
+              type: string
+              example: "USA"
+          description: Company address
+        subscription_plan:
+          type: string
+          enum: [free, basic, professional, enterprise]
+          default: "free"
+          description: Initial subscription plan
+          example: "professional"
+      required:
+        - name
+    
+    UpdateCompanyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Company name
+          example: "Acme Corporation"
+        description:
+          type: string
+          maxLength: 1000
+          description: Company description
+          example: "Leading technology solutions provider"
+        industry:
+          type: string
+          maxLength: 100
+          description: Company industry
+          example: "Technology"
+        size:
+          type: string
+          enum: [startup, small, medium, large, enterprise]
+          description: Company size category
+          example: "medium"
+        website:
+          type: string
+          format: uri
+          description: Company website URL
+          example: "https://acme.com"
+        phone:
+          type: string
+          description: Company phone number
+          example: "+1-555-123-4567"
+        address:
+          type: object
+          properties:
+            street:
+              type: string
+              example: "123 Business St"
+            city:
+              type: string
+              example: "San Francisco"
+            state:
+              type: string
+              example: "CA"
+            zip_code:
+              type: string
+              example: "94105"
+            country:
+              type: string
+              example: "USA"
+          description: Company address
+        is_active:
+          type: boolean
+          description: Whether the company is active
+          example: true
+    
+    CreateDepartmentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Department name
+          example: "Engineering"
+        description:
+          type: string
+          maxLength: 500
+          description: Department description
+          example: "Software development and engineering"
+        manager_id:
+          type: string
+          format: uuid
+          description: Department manager employee ID
+          example: "123e4567-e89b-12d3-a456-426614174002"
+        parent_department_id:
+          type: string
+          format: uuid
+          description: Parent department ID for hierarchical structure
+          example: "123e4567-e89b-12d3-a456-426614174003"
+        budget:
+          type: number
+          minimum: 0
+          description: Department budget
+          example: 500000
+      required:
+        - name
+    
+    UpdateDepartmentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Department name
+          example: "Engineering"
+        description:
+          type: string
+          maxLength: 500
+          description: Department description
+          example: "Software development and engineering"
+        manager_id:
+          type: string
+          format: uuid
+          description: Department manager employee ID
+          example: "123e4567-e89b-12d3-a456-426614174002"
+        parent_department_id:
+          type: string
+          format: uuid
+          description: Parent department ID for hierarchical structure
+          example: "123e4567-e89b-12d3-a456-426614174003"
+        budget:
+          type: number
+          minimum: 0
+          description: Department budget
+          example: 500000
+        is_active:
+          type: boolean
+          description: Whether the department is active
+          example: true
+    
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Always false for errors
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Error code
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              description: Human-readable error message
+              example: "Invalid company name"
+            details:
+              type: object
+              description: Additional error details
+              example:
+                field: "name"
+                value: ""
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - success
+        - error
+        - timestamp
+    
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Service status
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp
+          example: "2024-01-01T00:00:00Z"
+        version:
+          type: string
+          description: Service version
+          example: "1.0.0"
+        uptime:
+          type: number
+          description: Service uptime in seconds
+          example: 3600
+        database:
+          type: object
+          properties:
+            status:
+              type: string
+              description: Database connection status
+              example: "connected"
+            response_time:
+              type: number
+              description: Database response time in milliseconds
+              example: 15.5
+      required:
+        - status
+        - timestamp
+        - version
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Check the health status of the company service
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /companies:
+    get:
+      tags:
+        - Companies
+      summary: Get companies
+      description: Retrieve companies (admin only) or current user's company
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search term for company name or description
+        - name: industry
+          in: query
+          schema:
+            type: string
+          description: Filter by industry
+        - name: size
+          in: query
+          schema:
+            type: string
+            enum: [startup, small, medium, large, enterprise]
+          description: Filter by company size
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+          description: Filter by active status
+      responses:
+        '200':
+          description: Companies retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  companies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Company'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 20
+                      total:
+                        type: integer
+                        example: 100
+                      pages:
+                        type: integer
+                        example: 5
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    post:
+      tags:
+        - Companies
+      summary: Create company
+      description: Create a new company (admin only)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompanyRequest'
+      responses:
+        '201':
+          description: Company created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  company:
+                    $ref: '#/components/schemas/Company'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Company already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /companies/{companyId}:
+    get:
+      tags:
+        - Companies
+      summary: Get company by ID
+      description: Retrieve a specific company by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Company retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  company:
+                    $ref: '#/components/schemas/Company'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Company not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    put:
+      tags:
+        - Companies
+      summary: Update company
+      description: Update a company by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCompanyRequest'
+      responses:
+        '200':
+          description: Company updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  company:
+                    $ref: '#/components/schemas/Company'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Company not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    delete:
+      tags:
+        - Companies
+      summary: Delete company
+      description: Delete a company by ID (admin only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Company deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Company deleted successfully"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Company not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /companies/{companyId}/departments:
+    get:
+      tags:
+        - Departments
+      summary: Get company departments
+      description: Retrieve all departments for a specific company
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search term for department name
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+          description: Filter by active status
+      responses:
+        '200':
+          description: Departments retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  departments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Department'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 20
+                      total:
+                        type: integer
+                        example: 50
+                      pages:
+                        type: integer
+                        example: 3
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Company not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    post:
+      tags:
+        - Departments
+      summary: Create department
+      description: Create a new department for a company
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDepartmentRequest'
+      responses:
+        '201':
+          description: Department created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  department:
+                    $ref: '#/components/schemas/Department'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Company not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Department already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /departments/{departmentId}:
+    get:
+      tags:
+        - Departments
+      summary: Get department by ID
+      description: Retrieve a specific department by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: departmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Department ID
+          example: "123e4567-e89b-12d3-a456-426614174001"
+      responses:
+        '200':
+          description: Department retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  department:
+                    $ref: '#/components/schemas/Department'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Department not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    put:
+      tags:
+        - Departments
+      summary: Update department
+      description: Update a department by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: departmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Department ID
+          example: "123e4567-e89b-12d3-a456-426614174001"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDepartmentRequest'
+      responses:
+        '200':
+          description: Department updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  department:
+                    $ref: '#/components/schemas/Department'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Department not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    delete:
+      tags:
+        - Departments
+      summary: Delete department
+      description: Delete a department by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: departmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Department ID
+          example: "123e4567-e89b-12d3-a456-426614174001"
+      responses:
+        '200':
+          description: Department deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Department deleted successfully"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Department not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /companies/{companyId}/settings:
+    get:
+      tags:
+        - Settings
+      summary: Get company settings
+      description: Retrieve all settings for a company
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        - name: key
+          in: query
+          schema:
+            type: string
+          description: Filter by setting key
+      responses:
+        '200':
+          description: Settings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  settings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CompanySetting'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Company not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    post:
+      tags:
+        - Settings
+      summary: Create or update company setting
+      description: Create or update a setting for a company
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                setting_key:
+                  type: string
+                  description: Setting key
+                  example: "timezone"
+                setting_value:
+                  type: string
+                  description: Setting value
+                  example: "America/New_York"
+                description:
+                  type: string
+                  description: Setting description
+                  example: "Company timezone for scheduling"
+                is_public:
+                  type: boolean
+                  description: Whether this setting is publicly visible
+                  example: false
+              required:
+                - setting_key
+                - setting_value
+      responses:
+        '200':
+          description: Setting created/updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  setting:
+                    $ref: '#/components/schemas/CompanySetting'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Company not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /companies/{companyId}/statistics:
+    get:
+      tags:
+        - Statistics
+      summary: Get company statistics
+      description: Retrieve statistics for a company
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  statistics:
+                    $ref: '#/components/schemas/CompanyStatistics'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Company not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

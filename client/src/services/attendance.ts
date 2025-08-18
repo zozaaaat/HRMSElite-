@@ -1,5 +1,4 @@
 /* eslint-env browser */
-/* global Blob */
 import {ApiService} from './api';
 
 export interface AttendanceRecord {

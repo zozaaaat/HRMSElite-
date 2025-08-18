@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { logger } from '@/lib/logger';
+import { logger } from '../src/lib/logger';
 
 
 interface TestResult {

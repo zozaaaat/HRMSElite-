@@ -10,6 +10,15 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Alert } from '@/components/ui/alert';
 
+// Mock useToast hook
+vi.mock('@/hooks/use-toast', () => ({
+  useToast: vi.fn(() => ({
+    toast: vi.fn(),
+    toasts: [],
+    dismiss: vi.fn(),
+  })),
+}));
+
 // Test wrapper component
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <BrowserRouter>

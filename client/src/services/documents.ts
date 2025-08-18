@@ -1,5 +1,5 @@
 /* eslint-env browser */
-/* global File, FormData, URLSearchParams, Blob, localStorage */
+/* global FormData, URLSearchParams */
 import {apiRequest} from '../lib/apiRequest';
 import {Document} from '../types/documents';
 

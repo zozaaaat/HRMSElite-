@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "../lib/queryClient";
 import { LoadingSpinner, ErrorMessage } from "../components/shared";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
@@ -22,8 +22,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
-import { logger } from '@utils/logger';
-
   Building2,
   Users,
   MapPin,
@@ -39,6 +37,23 @@ import { logger } from '@utils/logger';
   Clock,
   FileText
 } from "lucide-react";
+
+// Define the Company interface to fix type issues
+interface Company {
+  id: string;
+  name: string;
+  description?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  industry?: string;
+  size?: string;
+  status: "active" | "suspended" | "pending";
+  totalEmployees?: number;
+  activeLicenses?: number;
+  createdAt?: string;
+}
 
 const companySchema = z.object({
   name: z.string().min(2, "اسم الشركة يجب أن يكون أكثر من حرفين"),
@@ -58,7 +73,7 @@ export default function Companies() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingCompany, setEditingCompany] = useState<Record<string, unknown> | null>(null);
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [, setLocation] = useLocation();
 
   const form = useForm<CompanyFormData>({
@@ -81,11 +96,11 @@ export default function Companies() {
   });
 
   // Type the companies array properly
-  const typedCompanies = companies as unknown[];
+  const typedCompanies = companies as Company[];
 
   const addCompanyMutation = useMutation({
     mutationFn: async (data: CompanyFormData) => {
-      return await apiRequest("/api/companies", "POST", data);
+      return await apiRequest("POST", "/api/companies", data);
     },
     onSuccess: () => {
       setIsAddDialogOpen(false);
@@ -94,11 +109,10 @@ export default function Companies() {
     }
   });
 
-  const filteredCompanies = typedCompanies.filter((company: unknown) => {
-    const companyData = company as Record<string, unknown>;
-    const matchesSearch = (companyData.name as string)?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (companyData.description as string)?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || companyData.status === statusFilter;
+  const filteredCompanies = typedCompanies.filter((company: Company) => {
+    const matchesSearch = company.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         company.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || company.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -130,14 +144,9 @@ export default function Companies() {
 
   const statsData = {
     total: typedCompanies.length,
-    active: typedCompanies.filter((c: unknown) => (c as Record<string,
-   unknown>).status === "active").length,
-  
-    pending: typedCompanies.filter((c: unknown) => (c as Record<string,
-   unknown>).status === "pending").length,
-  
-    suspended: typedCompanies.filter((c: unknown) => (c as Record<string,
-   unknown>).status === "suspended").length
+    active: typedCompanies.filter((c: Company) => c.status === "active").length,
+    pending: typedCompanies.filter((c: Company) => c.status === "pending").length,
+    suspended: typedCompanies.filter((c: Company) => c.status === "suspended").length
   };
 
   return (
@@ -420,8 +429,8 @@ export default function Companies() {
       {/* Companies Grid */}
       {!isLoading && !error && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCompanies.map((company: Record<string, unknown>) => (
-            <Card key={company.id as string} className="hover:shadow-lg transition-shadow">
+          {filteredCompanies.map((company: Company) => (
+            <Card key={company.id} className="hover:shadow-lg transition-shadow">
               <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
@@ -429,9 +438,9 @@ export default function Companies() {
                       <Building2 className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg">{company.name as string}</CardTitle>
-                      <Badge className={`text-xs ${getStatusColor(company.status as string)}`}>
-                        {getStatusText(company.status as string)}
+                      <CardTitle className="text-lg">{company.name}</CardTitle>
+                      <Badge className={`text-xs ${getStatusColor(company.status)}`}>
+                        {getStatusText(company.status)}
                       </Badge>
                     </div>
                   </div>
@@ -441,11 +450,10 @@ export default function Companies() {
                     }}>
                       <Eye className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={
-  () => {
-  setEditingCompany(company); setIsAddDialogOpen(true);
-}
-}>
+                    <Button variant="ghost" size="sm" onClick={() => {
+                      setEditingCompany(company); 
+                      setIsAddDialogOpen(true);
+                    }}>
                       <Edit className="h-4 w-4" />
                     </Button>
                   </div>
@@ -453,27 +461,27 @@ export default function Companies() {
               </CardHeader>
 
               <CardContent className="space-y-4">
-                {company.description && (
+                {company.description && typeof company.description === 'string' && (
                   <p className="text-sm text-muted-foreground line-clamp-2">
-                    {company.description as string}
+                    {company.description}
                   </p>
                 )}
 
-                {company.address && (
+                {company.address && typeof company.address === 'string' && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <MapPin className="h-4 w-4" />
-                    <span className="line-clamp-1">{company.address as string}</span>
+                    <span className="line-clamp-1">{company.address}</span>
                   </div>
                 )}
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4 text-blue-500" />
-                    <span>{company.totalEmployees as number ?? 0} موظف</span>
+                    <span>{company.totalEmployees ?? 0} موظف</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <FileText className="h-4 w-4 text-green-500" />
-                    <span>{company.activeLicenses as number ?? 0} رخصة</span>
+                    <span>{company.activeLicenses ?? 0} رخصة</span>
                   </div>
                 </div>
 
@@ -488,7 +496,6 @@ export default function Companies() {
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => {
                     // TODO: Implement company settings
-                    // logger.info('إعدادات:', company.name);
                   }}>
                     <Settings className="h-4 w-4" />
                   </Button>
@@ -497,7 +504,7 @@ export default function Companies() {
                 <div className="text-xs text-muted-foreground flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
                   تاريخ التسجيل: {
-  new Date(company.createdAt as string ?? Date.now()).toLocaleDateString('ar-SA')
+  new Date(company.createdAt ?? Date.now()).toLocaleDateString('ar-SA')
 }
                 </div>
               </CardContent>

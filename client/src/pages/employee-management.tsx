@@ -38,7 +38,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import {Label} from '../components/ui/label';
-import logger from '../../lib/logger';
+import logger from '../lib/logger';
 
 
 interface SortConfig {

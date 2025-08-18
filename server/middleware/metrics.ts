@@ -90,53 +90,67 @@ export const metricsMiddleware = (req: Request, res: Response, next: NextFunctio
 
   // Track request in progress
   const inProgressKey = `${method}_${path}`;
-  metrics.http_requests_in_progress[inProgressKey] =
-    (metrics.http_requests_in_progress[inProgressKey] || 0) + 1;
+  
+  // قبل increment مباشرة، ضَمّن التهيئة:
+  if (!metrics.http_requests_in_progress) {
+    metrics.http_requests_in_progress = {};
+  }
+  
+  // استخدم قيمة افتراضية آمنة
+  const current = metrics.http_requests_in_progress[inProgressKey] ?? 0;
+  
+  // حدّث العداد بأمان
+  metrics.http_requests_in_progress[inProgressKey] = current + 1;
 
   // Override res.end to capture response metrics
-  const originalEnd = res.end;
-  res.end = function (chunk?: any, encoding?: Record<string, unknown>) {
+  const originalEnd = res.end.bind(res);
 
-    const duration = (Date.now() - startTime) / 1000; // Convert to seconds
-    const status = res.statusCode;
-    const statusCategory = getStatusCategory(status);
+  (res as unknown).end = function (chunk?: unknown, encoding?: string) {
+    try {
+      const duration = (Date.now() - startTime) / 1000; // Convert to seconds
+      const status = res.statusCode;
+      const statusCategory = getStatusCategory(status);
 
-    // Update request total
-    const totalKey = getMetricKey(method, path, status);
-    metrics.http_requests_total[totalKey] =
-      (metrics.http_requests_total[totalKey] || 0) + 1;
+      // Update request total
+      const totalKey = getMetricKey(method, path, status);
+      metrics.http_requests_total[totalKey] ??= 0;
+      metrics.http_requests_total[totalKey]++;
 
-    // Update duration metrics
-    const durationKey = `${method}_${path}_${statusCategory}`;
-    if (!metrics.http_request_duration_seconds[durationKey]) {
+      // Update duration metrics
+      const durationKey = `${method}_${path}_${statusCategory}`;
+      metrics.http_request_duration_seconds[durationKey] ??= [];
+      metrics.http_request_duration_seconds[durationKey].push(duration);
 
-      metrics.http_request_duration_seconds[durationKey] = [];
+      // Keep only last 1000 duration measurements
+      if (metrics.http_request_duration_seconds[durationKey].length > 1000) {
+        metrics.http_request_duration_seconds[durationKey] =
+          metrics.http_request_duration_seconds[durationKey].slice(-1000);
+      }
 
+      // Decrease in-progress requests
+      if (!metrics.http_requests_in_progress) {
+        metrics.http_requests_in_progress = {};
+      }
+
+      // استخدم قيمة افتراضية آمنة
+      const current = metrics.http_requests_in_progress[inProgressKey] ?? 0;
+
+      // حدّث العداد بأمان
+      metrics.http_requests_in_progress[inProgressKey] = Math.max(0, current - 1);
+
+      // امسح المفتاح لو صفر
+      if ((metrics.http_requests_in_progress[inProgressKey] ?? 0) <= 0) {
+        delete metrics.http_requests_in_progress[inProgressKey];
+      }
+
+      // Update system metrics
+      updateSystemMetrics();
+    } catch { 
+      /* ignore errors in metrics collection */ 
     }
-    metrics.http_request_duration_seconds[durationKey].push(duration);
 
-    // Keep only last 1000 duration measurements
-    if (metrics.http_request_duration_seconds[durationKey].length > 1000) {
-
-      metrics.http_request_duration_seconds[durationKey] =
-        metrics.http_request_duration_seconds[durationKey].slice(-1000);
-
-    }
-
-    // Decrease in-progress requests
-    metrics.http_requests_in_progress[inProgressKey]--;
-    if (metrics.http_requests_in_progress[inProgressKey] <= 0) {
-
-      delete metrics.http_requests_in_progress[inProgressKey];
-
-    }
-
-    // Update system metrics
-    updateSystemMetrics();
-
-    // Call original end method
-    originalEnd.call(this, chunk, encoding);
-
+    // Return the result of originalEnd to maintain compatibility
+    return originalEnd(chunk, encoding as unknown);
   };
 
   next();

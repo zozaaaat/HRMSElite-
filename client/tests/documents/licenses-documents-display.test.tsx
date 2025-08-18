@@ -4,10 +4,15 @@ import { Router } from 'wouter';
 import React from 'react';
 import LicensesPage from '@/pages/licenses';
 import DocumentsPage from '@/pages/documents';
-import { useToast } from '@/hooks/use-toast';
 
 // Mock the hooks and services
-vi.mock('@/hooks/use-toast');
+vi.mock('@/hooks/use-toast', () => ({
+  useToast: vi.fn(() => ({
+    toast: vi.fn(),
+    toasts: [],
+    dismiss: vi.fn(),
+  })),
+}));
 vi.mock('@/services/api');
 
 // Mock wouter

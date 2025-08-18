@@ -20,7 +20,7 @@ import {
   X
 } from 'lucide-react';
 import {useToast} from '@/hooks/use-toast';
-import logger from '../../../lib/logger';
+import logger from '../../lib/logger';
 
 
 interface UserInteraction {

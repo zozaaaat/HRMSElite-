@@ -1,5 +1,5 @@
 import React from 'react';
-import SuspenseWrapper from '@/components/optimized/SuspenseWrapper';
+import SuspenseWrapper from '../components/optimized/SuspenseWrapper';
 
 // Define a generic props type for page components
 type PageProps = Record<string, unknown>;
@@ -38,6 +38,7 @@ export const LazyRoleBasedDashboard = React.lazy(() => import('./role-based-dash
 export const LazySuperAdminDashboard = React.lazy(() => import('./super-admin-dashboard'));
 export const LazyEmployeeManagement = React.lazy(() => import('./employee-management'));
 export const LazyLayoutExample = React.lazy(() => import('./layout-example'));
+export const LazyPerformanceTest = React.lazy(() => import('./performance-test'));
 
 // Wrapped components with appropriate Suspense fallbacks
 export const CompanySelection = (props: PageProps) => (
@@ -235,5 +236,11 @@ export const EmployeeManagement = (props: PageProps) => (
 export const LayoutExample = (props: PageProps) => (
   <SuspenseWrapper type="card" message="جاري تحميل مثال التخطيط...">
     <LazyLayoutExample {...props} />
+  </SuspenseWrapper>
+);
+
+export const PerformanceTest = (props: PageProps) => (
+  <SuspenseWrapper type="chart" message="جاري تحميل صفحة اختبار الأداء...">
+    <LazyPerformanceTest {...props} />
   </SuspenseWrapper>
 );

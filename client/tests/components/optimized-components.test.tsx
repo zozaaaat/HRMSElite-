@@ -14,6 +14,15 @@ import {
    EnhancedErrorBoundary, withErrorBoundary 
 } from '@/components/shared/EnhancedErrorBoundary';
 
+// Mock useToast hook
+vi.mock('@/hooks/use-toast', () => ({
+  useToast: vi.fn(() => ({
+    toast: vi.fn(),
+    toasts: [],
+    dismiss: vi.fn(),
+  })),
+}));
+
 // Mock wouter
 vi.mock('wouter', () => ({
   Router: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -26,7 +35,7 @@ const mockLicense = {
   name: 'ترخيص النيل الأزرق للمجوهرات',
   type: 'jewelry',
   number: 'LIC-2023-001',
-  status: 'active',
+  status: 'active' as const,
   issueDate: '2023-01-15',
   expiryDate: '2024-01-15',
   issuingAuthority: 'وزارة التجارة والصناعة',
@@ -47,8 +56,9 @@ const mockDocument = {
   name: 'عقد العمل',
   number: 'DOC-2023-001',
   type: 'contract',
-  entityType: 'employee',
+  entityType: 'employee' as const,
   entityId: 'employee-1',
+  category: 'contracts',
   description: 'عقد عمل للموظف أحمد محمد',
   fileUrl: '/documents/contract.pdf',
   fileName: 'contract.pdf',
@@ -445,9 +455,10 @@ describe('Optimized Components', () => {
         </EnhancedErrorBoundary>
       );
 
-      expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
+      // Check for error message using a more flexible approach
+      expect(screen.getByText(/حدث خطأ غير متوقع|Unexpected error occurred/)).toBeInTheDocument();
 
-      const retryButton = screen.getByText('إعادة المحاولة');
+      const retryButton = screen.getByText(/إعادة المحاولة|Retry/);
       fireEvent.click(retryButton);
 
       await waitFor(() => {

@@ -1,11 +1,11 @@
 import { create } from 'zustand';
 import { api, endpoints } from '../lib/api';
-import { EmployeeData, ApiResponse, ErrorData } from '@shared/types/common';
+import { EmployeeData, ErrorData } from '../../shared/types/common';
 
 // Memoized API functions to prevent unnecessary re-renders
 const memoizedApi = {
   get: (url: string) => api.get(url),
-  post: (url: string, data: EmployeeData) => api.post(url, data),
+  post: (url: string, data: Partial<EmployeeData>) => api.post(url, data),
   put: (url: string, data: Partial<EmployeeData>) => api.put(url, data),
   delete: (url: string) => api.delete(url),
 };
@@ -41,7 +41,7 @@ interface EmployeeState {
   clearError: () => void;
 }
 
-export const useEmployeeStore = create<EmployeeState>((set, get) => ({
+export const useEmployeeStore = create<EmployeeState>((set, _get) => ({
   employees: [],
   currentEmployee: null,
   isLoading: false,
@@ -51,9 +51,9 @@ export const useEmployeeStore = create<EmployeeState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      const response: ApiResponse<Employee[]> = await memoizedApi.get(endpoints.employees.list);
+      const response = await memoizedApi.get(endpoints.employees.list);
       set({
-        employees: response.data || [],
+        employees: response.data?.data || [],
         isLoading: false,
       });
     } catch (error: unknown) {
@@ -69,9 +69,9 @@ export const useEmployeeStore = create<EmployeeState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      const response: ApiResponse<Employee> = await memoizedApi.get(endpoints.employees.get(id));
+      const response = await memoizedApi.get(endpoints.employees.get(id));
       set({
-        currentEmployee: response.data ?? null,
+        currentEmployee: response.data?.data ?? null,
         isLoading: false,
       });
     } catch (error: unknown) {
@@ -87,9 +87,8 @@ export const useEmployeeStore = create<EmployeeState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      const response: ApiResponse<Employee> = await memoizedApi.post(endpoints.employees.create,
-   employeeData as EmployeeData);
-      const newEmployee = response.data;
+      const response = await memoizedApi.post(endpoints.employees.create, employeeData as Partial<EmployeeData>);
+      const newEmployee = response.data?.data;
       
       if (newEmployee) {
         set((state) => ({
@@ -110,9 +109,8 @@ export const useEmployeeStore = create<EmployeeState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      const response: ApiResponse<Employee> = await memoizedApi.put(endpoints.employees.update(id),
-   employeeData);
-      const updatedEmployee = response.data;
+      const response = await memoizedApi.put(endpoints.employees.update(id), employeeData);
+      const updatedEmployee = response.data?.data;
       
       if (updatedEmployee) {
         set((state) => ({
@@ -120,7 +118,6 @@ export const useEmployeeStore = create<EmployeeState>((set, get) => ({
             emp.id === id ? updatedEmployee : emp
           ),
           currentEmployee: state.currentEmployee?.id === id ? updatedEmployee : state.currentEmployee,
-  
           isLoading: false,
         }));
       }

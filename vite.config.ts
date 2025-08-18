@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 import {VitePWA} from 'vite-plugin-pwa';
+import tailwindcss from '@tailwindcss/vite';
 
 
 
@@ -10,6 +11,7 @@ import {VitePWA} from 'vite-plugin-pwa';
 export default defineConfig({
   'plugins': [
     react(),
+    tailwindcss(),
     runtimeErrorOverlay(),
     VitePWA({
       'registerType': 'autoUpdate',
@@ -185,7 +187,15 @@ export default defineConfig({
     'alias': {
       '@': path.resolve(import.meta.dirname, 'client', 'src'),
       '@shared': path.resolve(import.meta.dirname, 'shared'),
-      '@assets': path.resolve(import.meta.dirname, 'assets')
+      '@assets': path.resolve(import.meta.dirname, 'assets'),
+      '@components': path.resolve(import.meta.dirname, 'client', 'src', 'components'),
+      '@pages': path.resolve(import.meta.dirname, 'client', 'src', 'pages'),
+      '@hooks': path.resolve(import.meta.dirname, 'client', 'src', 'hooks'),
+      '@stores': path.resolve(import.meta.dirname, 'client', 'src', 'stores'),
+      '@services': path.resolve(import.meta.dirname, 'client', 'src', 'services'),
+      '@lib': path.resolve(import.meta.dirname, 'client', 'src', 'lib'),
+      '@types': path.resolve(import.meta.dirname, 'client', 'src', 'types'),
+      '@tests': path.resolve(import.meta.dirname, 'client', 'tests')
     }
   },
   'root': path.resolve(import.meta.dirname, 'client'),
@@ -282,223 +292,161 @@ export default defineConfig({
           // Vendor chunks - تحسين تجميع المكتبات
           if (id.includes('node_modules')) {
 
-            // React ecosystem
+            // React ecosystem - تجميع React في chunk منفصل
             if (id.includes('react') || id.includes('react-dom') || id.includes('react-is')) {
-
               return 'react-core';
-
             }
             if (id.includes('react-router') || id.includes('wouter')) {
-
               return 'routing';
-
             }
 
-            // UI Libraries
+            // UI Libraries - تجميع مكتبات UI
             if (id.includes('@radix-ui')) {
-
               return 'radix-ui';
-
             }
             if (id.includes('framer-motion')) {
-
               return 'animations';
-
             }
             if (id.includes('lucide-react') || id.includes('react-icons')) {
-
               return 'icons';
-
             }
 
-            // Data Management
+            // Data Management - تجميع مكتبات إدارة البيانات
             if (id.includes('@tanstack')) {
-
               return 'data-management';
-
             }
             if (id.includes('zustand')) {
-
               return 'state-management';
-
             }
             if (id.includes('react-hook-form') || id.includes('@hookform')) {
-
               return 'forms';
-
             }
 
-            // Charts and Visualization
+            // Charts and Visualization - تجميع مكتبات الرسوم البيانية
             if (id.includes('recharts') || id.includes('d3')) {
-
               return 'charts';
-
             }
 
-            // Date and Time
+            // Date and Time - تجميع مكتبات التاريخ والوقت
             if (id.includes('date-fns') || id.includes('dayjs') || id.includes('moment')) {
-
               return 'date-utils';
-
             }
 
-            // Utilities
+            // Utilities - تجميع المكتبات المساعدة
             if (id.includes('clsx') || id.includes('classnames') || id.includes('tailwind-merge')) {
-
               return 'utils';
-
             }
 
-            // HTTP and API
+            // HTTP and API - تجميع مكتبات HTTP
             if (id.includes('axios') || id.includes('fetch') || id.includes('ky')) {
-
               return 'http-client';
-
             }
 
-            // Validation
+            // Validation - تجميع مكتبات التحقق
             if (id.includes('zod') || id.includes('yup') || id.includes('joi')) {
-
               return 'validation';
+            }
 
+            // AI and ML Libraries - تجميع مكتبات الذكاء الاصطناعي
+            if (id.includes('ai') || id.includes('openai') || id.includes('anthropic')) {
+              return 'ai-libraries';
+            }
+
+            // File handling - تجميع مكتبات التعامل مع الملفات
+            if (id.includes('file-saver') || id.includes('jszip') || id.includes('pdf-lib')) {
+              return 'file-handling';
             }
 
             // Default vendor chunk for other node_modules
             return 'vendor';
-
           }
 
           // Application chunks based on features - تحسين تجميع المكونات
           if (id.includes('/pages/')) {
 
-            // Core pages
+            // Core pages - الصفحات الأساسية
             if (id.includes('dashboard') || id.includes('home')) {
-
               return 'core-pages';
-
             }
             if (id.includes('employees') || id.includes('employee')) {
-
               return 'employee-pages';
-
             }
             if (id.includes('attendance') || id.includes('time')) {
-
               return 'attendance-pages';
-
             }
             if (id.includes('documents') || id.includes('files')) {
-
               return 'document-pages';
-
             }
             if (id.includes('reports') || id.includes('analytics')) {
-
               return 'report-pages';
-
             }
             if (id.includes('settings') || id.includes('config')) {
-
               return 'settings-pages';
-
             }
 
-            // AI and Advanced features
+            // AI and Advanced features - ميزات الذكاء الاصطناعي
             if (id.includes('ai-') || id.includes('chatbot') || id.includes('analytics')) {
-
               return 'ai-features';
-
             }
 
-            // Authentication
+            // Authentication - صفحات المصادقة
             if (id.includes('login') || id.includes('auth') || id.includes('register')) {
-
               return 'auth-pages';
-
             }
 
             // Other pages
             return 'other-pages';
-
           }
 
           // Component chunks - تحسين تجميع المكونات
           if (id.includes('/components/')) {
 
             if (id.includes('/ui/')) {
-
               return 'ui-components';
-
             }
             if (id.includes('/shared/')) {
-
               return 'shared-components';
-
             }
             if (id.includes('/optimized/')) {
-
               return 'optimized-components';
-
             }
             if (id.includes('/ai/')) {
-
               return 'ai-components';
-
             }
             if (id.includes('/forms/')) {
-
               return 'form-components';
-
             }
             if (id.includes('/charts/')) {
-
               return 'chart-components';
-
             }
             if (id.includes('/tables/')) {
-
               return 'table-components';
-
             }
             if (id.includes('/modals/')) {
-
               return 'modal-components';
-
             }
             return 'other-components';
-
           }
 
           // Service and utility chunks
           if (id.includes('/stores/')) {
-
             return 'stores';
-
           }
           if (id.includes('/services/')) {
-
             return 'services';
-
           }
           if (id.includes('/hooks/')) {
-
             return 'hooks';
-
           }
           if (id.includes('/utils/') || id.includes('/lib/')) {
-
             return 'utilities';
-
           }
           if (id.includes('/types/')) {
-
             return 'types';
-
           }
 
           // Default chunk for other files
           return 'app';
-
         },
         // تحسين أسماء الملفات مع hashing محسن
         'chunkFileNames': (_chunkInfo) => {
@@ -570,6 +518,9 @@ export default defineConfig({
     }
   },
   'server': {
+    'port': 5173,
+    'host': 'localhost',
+    'strictPort': false,
     'fs': {
       'strict': true,
       'deny': ['**/.*']
@@ -580,8 +531,6 @@ export default defineConfig({
       'port': 24678,
       'host': 'localhost'
     },
-    // تحسين middleware
-    'middlewareMode': true,
     // تحسين headers
     'headers': {
       'X-Content-Type-Options': 'nosniff',

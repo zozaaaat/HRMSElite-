@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-console.log('🔧 Starting ESLint issues fix...');
+console.info('🔧 Starting ESLint issues fix...');
 
 // Function to recursively find all TypeScript and JavaScript files
 function findFiles(dir, extensions = ['.ts', '.tsx', '.js', '.jsx']) {
@@ -102,7 +102,7 @@ function fixFileIssues(filePath) {
     
     if (modified) {
       fs.writeFileSync(filePath, content, 'utf8');
-      console.log(`✅ Fixed issues in ${filePath}`);
+      console.info(`✅ Fixed issues in ${filePath}`);
     }
     
   } catch (error) {

@@ -1,7 +1,7 @@
 /**
  * @fileoverview Database storage layer for HRMS Elite application
  * @description Provides data access layer for all HRMS entities including companies,
- * employees, users, licenses, leaves, and documents
+ * employees, users, leaves, and deductions
  * @author HRMS Elite Team
  * @version 1.0.0
  */
@@ -10,42 +10,31 @@ import {
   users,
   companies,
   employees,
-  licenses,
   employeeLeaves,
   employeeDeductions,
   employeeViolations,
-  documents,
-  notifications,
   companyUsers,
   type User,
-  type UpsertUser,
   type Company,
   type InsertCompany,
   type Employee,
   type InsertEmployee,
-  type License,
-  type InsertLicense,
   type EmployeeLeave,
   type InsertEmployeeLeave,
   type EmployeeDeduction,
   type InsertEmployeeDeduction,
   type EmployeeViolation,
   type InsertEmployeeViolation,
-  type Document,
-  type InsertDocument,
-  type Notification,
-  type InsertNotification,
-  type CompanyUser,
-} from "@shared/schema";
-import { db } from "./db";
-import { eq, and, desc, count } from "drizzle-orm";
-import { logger } from '@utils/logger';
+} from "../../../shared/schema";
+import { db } from "../../../server/models/db";
+import { eq, and } from "drizzle-orm";
+import logger from '../../../server/utils/logger';
 
 
 /**
  * Database storage class for HRMS Elite application
  * @description Provides methods for all database operations including CRUD operations
- * for companies, employees, users, licenses, leaves, and documents
+ * for companies, employees, users, leaves, and deductions
  * @class DatabaseStorage
  */
 export class DatabaseStorage {
@@ -275,17 +264,13 @@ export class DatabaseStorage {
    * @async
    * @param {string} companyId - Company unique identifier
    * @param {string} [status] - Optional status filter (pending, approved, rejected)
-   * @returns {
-  Promise<(EmployeeLeave & {
-   employee: Employee 
-})[]>
-} Array of leave requests with employee data
+   * @returns {Promise<(EmployeeLeave & { employee: Employee })[]>} Array of leave requests with employee data
    * @throws {Error} When database operation fails
    * @example
    * const companyLeaves = await storage.getCompanyLeaves("company-1", "pending");
    * logger.info(companyLeaves.length); // 5
    */
-  async getCompanyLeaves(companyId: string, status?: string): Promise<(EmployeeLeave & {
+  async getCompanyLeaves(companyId: string, status?: "pending" | "approved" | "rejected"): Promise<(EmployeeLeave & {
    employee: Employee 
 })[]> {
   
@@ -349,10 +334,22 @@ export class DatabaseStorage {
       .where(and(...conditions));
 
     return results
-      .filter((leave: { employee: Employee | null }) => leave.employee !== null)
-      .map((leave: { employee: Employee | null }) => ({
-        ...leave,
-        employee: leave.employee as NonNullable<typeof leave.employee>,
+      .filter((result) => result.employee !== null)
+      .map((result) => ({
+        id: result.id,
+        employeeId: result.employeeId,
+        type: result.type,
+        status: result.status,
+        startDate: result.startDate,
+        endDate: result.endDate,
+        days: result.days,
+        reason: result.reason,
+        approvedBy: result.approvedBy,
+        approvedAt: result.approvedAt,
+        rejectionReason: result.rejectionReason,
+        createdAt: result.createdAt,
+        updatedAt: result.updatedAt,
+        employee: result.employee as Employee,
       }));
   }
 

@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+**/dist/
+**/build/
+
+# Vite files
+.vite/
+**/.vite/
+**/.vite/deps/
+**/.vite/deps/**/*
+
+# Configuration files
+*.config.js
+*.config.ts
+
+# Test coverage
+coverage/
+**/coverage/
+
+# Documentation
+docs/
+**/docs/
+
+# Public assets
+public/
+**/public/
+
+# Scripts
+scripts/
+**/scripts/
+
+# Tests
+tests/
+**/tests/
+
+# Service workers
+sw.js
+workbox-*.js
+
+# Next.js
+.next/
+**/.next/

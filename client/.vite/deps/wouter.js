@@ -21,9 +21,9 @@ function parse(input, loose) {
     } else if (c === ":") {
       o = tmp.indexOf("?", 1);
       ext = tmp.indexOf(".", 1);
-      keys.push(tmp.substring(1, !!~o ? o : !!~ext ? ext : tmp.length));
+      keys.push(tmp.substring(1, ~o ? o : ~ext ? ext : tmp.length));
       pattern += !!~o && !~ext ? "(?:/([^/]+?))?" : "/([^/]+?)";
-      if (!!~ext) pattern += (!!~o ? "?" : "") + "\\" + tmp.substring(ext);
+      if (~ext) pattern += (~o ? "?" : "") + "\\" + tmp.substring(ext);
     } else {
       pattern += "/" + tmp;
     }
@@ -118,6 +118,8 @@ var defaultRouter = {
   // this option is used to override the current location during SSR
   ssrPath: void 0,
   ssrSearch: void 0,
+  // optional context to track render state during SSR
+  ssrContext: void 0,
   // customizes how `href` props are transformed for <Link />
   hrefs: (x) => x
 };
@@ -173,7 +175,7 @@ var Router = ({ children, ...props }) => {
       ref.current = next = { ...next };
     }
     next[k] = option;
-    if (option !== parent[k]) value = next;
+    if (option !== parent[k] || option !== value[k]) value = next;
   }
   return (0, import_react.createElement)(RouterCtx.Provider, { value, children });
 };
@@ -182,11 +184,24 @@ var h_route = ({ children, component }, params) => {
   return typeof children === "function" ? children(params) : children;
 };
 var useCachedParams = (value) => {
-  let prev = (0, import_react.useRef)(Params0), curr = prev.current;
-  for (const k in value) if (value[k] !== curr[k]) curr = value;
-  if (Object.keys(value).length === 0) curr = value;
-  return prev.current = curr;
+  let prev = (0, import_react.useRef)(Params0);
+  const curr = prev.current;
+  return prev.current = // Update cache if number of params changed or any value changed
+  Object.keys(value).length !== Object.keys(curr).length || Object.entries(value).some(([k, v]) => v !== curr[k]) ? value : curr;
 };
+function useSearchParams() {
+  const [location2, navigate2] = useLocation();
+  const search = useSearch2();
+  const searchParams = (0, import_react.useMemo)(() => new URLSearchParams(search), [search]);
+  let tempSearchParams = searchParams;
+  const setSearchParams = useEvent((nextInit, options) => {
+    tempSearchParams = new URLSearchParams(
+      typeof nextInit === "function" ? nextInit(tempSearchParams) : nextInit
+    );
+    navigate2(location2 + "?" + tempSearchParams, options);
+  });
+  return [searchParams, setSearchParams];
+}
 var Route = ({ path, nest, match, ...renderProps }) => {
   const router = useRouter();
   const [location2] = useLocationFromRouter(router);
@@ -264,11 +279,16 @@ var Switch = ({ children, location: location2 }) => {
 };
 var Redirect = (props) => {
   const { to, href = to } = props;
-  const [, navigate2] = useLocation();
+  const router = useRouter();
+  const [, navigate2] = useLocationFromRouter(router);
   const redirect = useEvent(() => navigate2(to || href, props));
+  const { ssrContext } = router;
   useIsomorphicLayoutEffect(() => {
     redirect();
   }, []);
+  if (ssrContext) {
+    ssrContext.redirectTo = to;
+  }
   return null;
 };
 export {
@@ -282,6 +302,7 @@ export {
   useParams,
   useRoute,
   useRouter,
-  useSearch2 as useSearch
+  useSearch2 as useSearch,
+  useSearchParams
 };
 //# sourceMappingURL=wouter.js.map

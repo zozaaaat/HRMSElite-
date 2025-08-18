@@ -28,7 +28,7 @@ import {
 import {notificationService} from '../services/notifications';
 import type {Notification} from '../../../shared/schema';
 import {useToast} from '../hooks/use-toast';
-import logger from '../../lib/logger';
+import logger from '../lib/logger';
 
 
 interface NotificationCenterProps {

@@ -29,7 +29,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color, onPress 
     >
       <View style={styles.statHeader}>
         <View style={[styles.iconContainer, { backgroundColor: color + '20' }]}>
-          <Ionicons name={icon as any} size={24} color={color} />
+          <Ionicons name={icon as unknown} size={24} color={color} />
         </View>
         <Text style={styles.statValue}>{value}</Text>
       </View>
@@ -50,7 +50,7 @@ const QuickAction: React.FC<QuickActionProps> = ({ title, subtitle, icon, color,
   return (
     <TouchableOpacity style={styles.quickAction} onPress={onPress}>
       <View style={[styles.quickActionIcon, { backgroundColor: color + '20' }]}>
-        <Ionicons name={icon as any} size={24} color={color} />
+        <Ionicons name={icon as unknown} size={24} color={color} />
       </View>
       <View style={styles.quickActionContent}>
         <Text style={styles.quickActionTitle}>{title}</Text>

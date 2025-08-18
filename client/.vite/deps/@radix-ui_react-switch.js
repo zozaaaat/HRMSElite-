@@ -4,24 +4,23 @@ import {
 } from "./chunk-YR5FLU2L.js";
 import {
   useSize
-} from "./chunk-JPR465HC.js";
+} from "./chunk-FRTG3AE5.js";
 import {
   useControllableState
-} from "./chunk-RONR7KPM.js";
+} from "./chunk-P7BYXFJ2.js";
 import {
   composeEventHandlers
 } from "./chunk-PX5IZSPS.js";
-import "./chunk-W73LSJDS.js";
+import "./chunk-6RJORZEE.js";
 import {
   createContextScope
 } from "./chunk-LMAY4ZXZ.js";
 import {
   Primitive
-} from "./chunk-CWI2VRDT.js";
-import "./chunk-HRTV7XOE.js";
+} from "./chunk-KSOZO6LG.js";
 import {
   useComposedRefs
-} from "./chunk-NNCI5OIM.js";
+} from "./chunk-MMYQZQOQ.js";
 import "./chunk-LNTKQRW3.js";
 import {
   require_jsx_runtime
@@ -57,10 +56,11 @@ var Switch = React.forwardRef(
     const composedRefs = useComposedRefs(forwardedRef, (node) => setButton(node));
     const hasConsumerStoppedPropagationRef = React.useRef(false);
     const isFormControl = button ? form || !!button.closest("form") : true;
-    const [checked = false, setChecked] = useControllableState({
+    const [checked, setChecked] = useControllableState({
       prop: checkedProp,
-      defaultProp: defaultChecked,
-      onChange: onCheckedChange
+      defaultProp: defaultChecked ?? false,
+      onChange: onCheckedChange,
+      caller: SWITCH_NAME
     });
     return (0, import_jsx_runtime.jsxs)(SwitchProvider, { scope: __scopeSwitch, checked, disabled, children: [
       (0, import_jsx_runtime.jsx)(
@@ -86,7 +86,7 @@ var Switch = React.forwardRef(
         }
       ),
       isFormControl && (0, import_jsx_runtime.jsx)(
-        BubbleInput,
+        SwitchBubbleInput,
         {
           control: button,
           bubbles: !hasConsumerStoppedPropagationRef.current,
@@ -120,42 +120,56 @@ var SwitchThumb = React.forwardRef(
   }
 );
 SwitchThumb.displayName = THUMB_NAME;
-var BubbleInput = (props) => {
-  const { control, checked, bubbles = true, ...inputProps } = props;
-  const ref = React.useRef(null);
-  const prevChecked = usePrevious(checked);
-  const controlSize = useSize(control);
-  React.useEffect(() => {
-    const input = ref.current;
-    const inputProto = window.HTMLInputElement.prototype;
-    const descriptor = Object.getOwnPropertyDescriptor(inputProto, "checked");
-    const setChecked = descriptor.set;
-    if (prevChecked !== checked && setChecked) {
-      const event = new Event("click", { bubbles });
-      setChecked.call(input, checked);
-      input.dispatchEvent(event);
-    }
-  }, [prevChecked, checked, bubbles]);
-  return (0, import_jsx_runtime.jsx)(
-    "input",
-    {
-      type: "checkbox",
-      "aria-hidden": true,
-      defaultChecked: checked,
-      ...inputProps,
-      tabIndex: -1,
-      ref,
-      style: {
-        ...props.style,
-        ...controlSize,
-        position: "absolute",
-        pointerEvents: "none",
-        opacity: 0,
-        margin: 0
+var BUBBLE_INPUT_NAME = "SwitchBubbleInput";
+var SwitchBubbleInput = React.forwardRef(
+  ({
+    __scopeSwitch,
+    control,
+    checked,
+    bubbles = true,
+    ...props
+  }, forwardedRef) => {
+    const ref = React.useRef(null);
+    const composedRefs = useComposedRefs(ref, forwardedRef);
+    const prevChecked = usePrevious(checked);
+    const controlSize = useSize(control);
+    React.useEffect(() => {
+      const input = ref.current;
+      if (!input) return;
+      const inputProto = window.HTMLInputElement.prototype;
+      const descriptor = Object.getOwnPropertyDescriptor(
+        inputProto,
+        "checked"
+      );
+      const setChecked = descriptor.set;
+      if (prevChecked !== checked && setChecked) {
+        const event = new Event("click", { bubbles });
+        setChecked.call(input, checked);
+        input.dispatchEvent(event);
       }
-    }
-  );
-};
+    }, [prevChecked, checked, bubbles]);
+    return (0, import_jsx_runtime.jsx)(
+      "input",
+      {
+        type: "checkbox",
+        "aria-hidden": true,
+        defaultChecked: checked,
+        ...props,
+        tabIndex: -1,
+        ref: composedRefs,
+        style: {
+          ...props.style,
+          ...controlSize,
+          position: "absolute",
+          pointerEvents: "none",
+          opacity: 0,
+          margin: 0
+        }
+      }
+    );
+  }
+);
+SwitchBubbleInput.displayName = BUBBLE_INPUT_NAME;
 function getState(checked) {
   return checked ? "checked" : "unchecked";
 }

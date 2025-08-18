@@ -1,0 +1,984 @@
+openapi: 3.0.3
+info:
+  title: HRMS Elite - Auth Service API
+  description: |
+    Authentication and Authorization Service API for HRMS Elite
+    
+    This service handles:
+    - User registration and authentication
+    - JWT token management
+    - Role-based access control
+    - Session management
+    - Password reset and email verification
+    
+    ## Authentication
+    Most endpoints require authentication via JWT Bearer token in the Authorization header:
+    ```
+    Authorization: Bearer <jwt_token>
+    ```
+    
+    ## Error Responses
+    All endpoints return consistent error responses:
+    - `400 Bad Request`: Invalid input data
+    - `401 Unauthorized`: Missing or invalid authentication
+    - `403 Forbidden`: Insufficient permissions
+    - `404 Not Found`: Resource not found
+    - `409 Conflict`: Resource already exists
+    - `422 Unprocessable Entity`: Validation errors
+    - `500 Internal Server Error`: Server error
+    
+  version: 1.0.0
+  contact:
+    name: HRMS Elite Team
+    email: support@hrmse.example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.hrmse.example.com/auth
+    description: Production server
+  - url: https://staging-api.hrmse.example.com/auth
+    description: Staging server
+  - url: http://localhost:3001
+    description: Local development server
+
+tags:
+  - name: Authentication
+    description: User authentication operations
+  - name: Registration
+    description: User registration operations
+  - name: Password Management
+    description: Password reset and change operations
+  - name: Profile
+    description: User profile management
+  - name: Roles & Permissions
+    description: Role and permission management
+  - name: Sessions
+    description: Session management operations
+  - name: Health
+    description: Health check endpoints
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+    
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique user identifier
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: "john.doe@example.com"
+        first_name:
+          type: string
+          description: User first name
+          example: "John"
+        last_name:
+          type: string
+          description: User last name
+          example: "Doe"
+        is_active:
+          type: boolean
+          description: Whether the user account is active
+          example: true
+        email_verified:
+          type: boolean
+          description: Whether the email has been verified
+          example: false
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+          description: User roles
+        created_at:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - id
+        - email
+        - first_name
+        - last_name
+        - is_active
+        - email_verified
+        - created_at
+        - updated_at
+    
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique role identifier
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        name:
+          type: string
+          description: Role name
+          example: "admin"
+        description:
+          type: string
+          description: Role description
+          example: "System administrator with full access"
+        permissions:
+          type: array
+          items:
+            type: string
+          description: List of permissions
+          example: ["users:read", "users:write", "companies:manage"]
+        created_at:
+          type: string
+          format: date-time
+          description: Role creation timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - id
+        - name
+        - created_at
+    
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: "john.doe@example.com"
+        password:
+          type: string
+          format: password
+          description: User password
+          example: "securePassword123"
+        company_id:
+          type: string
+          format: uuid
+          description: Optional company ID for multi-tenant login
+          example: "123e4567-e89b-12d3-a456-426614174002"
+      required:
+        - email
+        - password
+    
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: "john.doe@example.com"
+        password:
+          type: string
+          format: password
+          description: User password (minimum 8 characters)
+          example: "securePassword123"
+        first_name:
+          type: string
+          description: User first name
+          example: "John"
+        last_name:
+          type: string
+          description: User last name
+          example: "Doe"
+        company_id:
+          type: string
+          format: uuid
+          description: Optional company ID for multi-tenant registration
+          example: "123e4567-e89b-12d3-a456-426614174002"
+      required:
+        - email
+        - password
+        - first_name
+        - last_name
+    
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the operation was successful
+          example: true
+        user:
+          $ref: '#/components/schemas/User'
+        token:
+          type: string
+          description: JWT access token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refresh_token:
+          type: string
+          description: JWT refresh token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        expires_at:
+          type: string
+          format: date-time
+          description: Token expiration timestamp
+          example: "2024-01-01T24:00:00Z"
+        token_type:
+          type: string
+          description: Token type
+          example: "Bearer"
+      required:
+        - success
+        - user
+        - token
+        - expires_at
+        - token_type
+    
+    PasswordResetRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: "john.doe@example.com"
+      required:
+        - email
+    
+    PasswordChangeRequest:
+      type: object
+      properties:
+        current_password:
+          type: string
+          format: password
+          description: Current password
+          example: "oldPassword123"
+        new_password:
+          type: string
+          format: password
+          description: New password (minimum 8 characters)
+          example: "newPassword123"
+      required:
+        - current_password
+        - new_password
+    
+    ProfileUpdateRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          description: User first name
+          example: "John"
+        last_name:
+          type: string
+          description: User last name
+          example: "Doe"
+      required:
+        - first_name
+        - last_name
+    
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Always false for errors
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Error code
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              description: Human-readable error message
+              example: "Invalid email format"
+            details:
+              type: object
+              description: Additional error details
+              example:
+                field: "email"
+                value: "invalid-email"
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - success
+        - error
+        - timestamp
+    
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Service status
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp
+          example: "2024-01-01T00:00:00Z"
+        version:
+          type: string
+          description: Service version
+          example: "1.0.0"
+        uptime:
+          type: number
+          description: Service uptime in seconds
+          example: 3600
+        database:
+          type: object
+          properties:
+            status:
+              type: string
+              description: Database connection status
+              example: "connected"
+            response_time:
+              type: number
+              description: Database response time in milliseconds
+              example: 15.5
+      required:
+        - status
+        - timestamp
+        - version
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Check the health status of the auth service
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /register:
+    post:
+      tags:
+        - Registration
+      summary: Register a new user
+      description: Create a new user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              email: "john.doe@example.com"
+              password: "securePassword123"
+              first_name: "John"
+              last_name: "Doe"
+              company_id: "123e4567-e89b-12d3-a456-426614174002"
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user and return JWT tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: "john.doe@example.com"
+              password: "securePassword123"
+              company_id: "123e4567-e89b-12d3-a456-426614174002"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      description: Invalidate current session and tokens
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Successfully logged out"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Get a new access token using refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  description: JWT refresh token
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              required:
+                - refresh_token
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /profile:
+    get:
+      tags:
+        - Profile
+      summary: Get user profile
+      description: Retrieve current user's profile information
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    put:
+      tags:
+        - Profile
+      summary: Update user profile
+      description: Update current user's profile information
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdateRequest'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /password/reset:
+    post:
+      tags:
+        - Password Management
+      summary: Request password reset
+      description: Send password reset email to user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+      responses:
+        '200':
+          description: Password reset email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Password reset email sent"
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /password/change:
+    post:
+      tags:
+        - Password Management
+      summary: Change password
+      description: Change user password (requires current password)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordChangeRequest'
+      responses:
+        '200':
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Password changed successfully"
+        '400':
+          description: Invalid current password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /password/reset/{token}:
+    post:
+      tags:
+        - Password Management
+      summary: Reset password with token
+      description: Reset password using reset token from email
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Password reset token
+          example: "reset-token-123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_password:
+                  type: string
+                  format: password
+                  description: New password (minimum 8 characters)
+                  example: "newPassword123"
+              required:
+                - new_password
+      responses:
+        '200':
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Password reset successfully"
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /email/verify/{token}:
+    post:
+      tags:
+        - Registration
+      summary: Verify email address
+      description: Verify email address using verification token
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Email verification token
+          example: "verify-token-123"
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Email verified successfully"
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /email/resend-verification:
+    post:
+      tags:
+        - Registration
+      summary: Resend email verification
+      description: Resend email verification link
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Verification email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Verification email sent"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /roles:
+    get:
+      tags:
+        - Roles & Permissions
+      summary: Get all roles
+      description: Retrieve all available roles (admin only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+      responses:
+        '200':
+          description: Roles retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  roles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Role'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 20
+                      total:
+                        type: integer
+                        example: 100
+                      pages:
+                        type: integer
+                        example: 5
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /sessions:
+    get:
+      tags:
+        - Sessions
+      summary: Get user sessions
+      description: Retrieve all active sessions for current user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Sessions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  sessions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          example: "123e4567-e89b-12d3-a456-426614174003"
+                        created_at:
+                          type: string
+                          format: date-time
+                          example: "2024-01-01T00:00:00Z"
+                        expires_at:
+                          type: string
+                          format: date-time
+                          example: "2024-01-01T24:00:00Z"
+                        ip_address:
+                          type: string
+                          example: "192.168.1.1"
+                        user_agent:
+                          type: string
+                          example: "Mozilla/5.0..."
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    delete:
+      tags:
+        - Sessions
+      summary: Revoke all sessions
+      description: Revoke all active sessions for current user (except current)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Sessions revoked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "All sessions revoked successfully"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /sessions/{sessionId}:
+    delete:
+      tags:
+        - Sessions
+      summary: Revoke specific session
+      description: Revoke a specific session by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Session ID to revoke
+          example: "123e4567-e89b-12d3-a456-426614174003"
+      responses:
+        '200':
+          description: Session revoked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Session revoked successfully"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

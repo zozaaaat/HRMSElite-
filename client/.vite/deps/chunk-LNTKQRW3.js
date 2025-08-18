@@ -1981,7 +1981,7 @@ var require_react_dom_development = __commonJS({
           if (value != null) {
             if (type === "number") {
               if (value === 0 && node.value === "" || // We explicitly want to coerce to number here if possible.
-              // eslint-disable-next-line
+               
               node.value != value) {
                 node.value = toString(value);
               }

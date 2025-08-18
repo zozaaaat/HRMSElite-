@@ -13,7 +13,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Opened cache');
+        console.info('Opened cache');
         return cache.addAll(urlsToCache);
       })
   );
@@ -37,7 +37,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
+            console.info('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -98,7 +98,7 @@ self.addEventListener('notificationclick', (event) => {
 async function doBackgroundSync() {
   try {
     // Implement background sync logic here
-    console.log('Background sync completed');
+    console.info('Background sync completed');
   } catch (error) {
     console.error('Background sync failed:', error);
   }

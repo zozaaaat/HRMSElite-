@@ -24,7 +24,7 @@ export default function SuperAdminDashboard () {
 
   const {user} = useAuth();
   return (
-    <SharedLayout {...(user && { user })}>
+    <SharedLayout {...(user && { user: user as unknown })}>
       <SuperAdminContent />
     </SharedLayout>
   );

@@ -259,19 +259,14 @@ router.post('/summary', checkLLMReady, async (_req: Request, _res: Response) => 
  * @desc Analyze sentiment of provided text
  * @access Private
  */
-router.post('/sentiment', checkLLMReady, async (_req:  Request, _res:  Response) => {
-
+router.post('/sentiment', checkLLMReady, async (req: Request, res: Response) => {
   try {
-
-    const {text} = req.body;
-
-    if (!text ?? typeof text !== 'string') {
-
+    const { text } = req.body as { text?: string };
+    if (!text || typeof text !== 'string') {
       return res.status(400).json({
         'error': 'Invalid input',
         'message': 'يرجى توفير نص صحيح للتحليل'
       });
-
     }
 
     const sentiment = await localLLM.analyzeSentiment(text);
@@ -285,15 +280,12 @@ router.post('/sentiment', checkLLMReady, async (_req:  Request, _res:  Response)
     });
 
   } catch (error) {
-
     log.error('Error analyzing sentiment:', error as Error);
     res.status(500).json({
       'error': 'Failed to analyze sentiment',
       'message': 'حدث خطأ أثناء تحليل المشاعر. يرجى المحاولة مرة أخرى.'
     });
-
   }
-
 });
 
 /**
@@ -301,19 +293,14 @@ router.post('/sentiment', checkLLMReady, async (_req:  Request, _res:  Response)
  * @desc Extract keywords from provided text
  * @access Private
  */
-router.post('/keywords', checkLLMReady, async (_req:  Request, _res:  Response) => {
-
+router.post('/keywords', checkLLMReady, async (req: Request, res: Response) => {
   try {
-
-    const {text} = req.body;
-
-    if (!text ?? typeof text !== 'string') {
-
+    const { text } = req.body as { text?: string };
+    if (!text || typeof text !== 'string') {
       return res.status(400).json({
         'error': 'Invalid input',
         'message': 'يرجى توفير نص صحيح للتحليل'
       });
-
     }
 
     const keywords = await localLLM.extractKeywords(text);
@@ -327,15 +314,12 @@ router.post('/keywords', checkLLMReady, async (_req:  Request, _res:  Response) 
     });
 
   } catch (error) {
-
     log.error('Error extracting keywords:', error as Error);
     res.status(500).json({
       'error': 'Failed to extract keywords',
       'message': 'حدث خطأ أثناء استخراج الكلمات المفتاحية. يرجى المحاولة مرة أخرى.'
     });
-
   }
-
 });
 
 /**
@@ -343,19 +327,15 @@ router.post('/keywords', checkLLMReady, async (_req:  Request, _res:  Response) 
  * @desc Generate insights from provided data
  * @access Private
  */
-router.post('/insights', checkLLMReady, async (_req:  Request, _res:  Response) => {
-
+router.post('/insights', checkLLMReady, async (req: Request, res: Response) => {
   try {
-
-    const {data} = req.body;
+    const { data } = req.body as { data?: LogData };
 
     if (!data) {
-
       return res.status(400).json({
         'error': 'Invalid input',
         'message': 'يرجى توفير بيانات صحيحة للتحليل'
       });
-
     }
 
     const insights = await localLLM.generateInsights(data);
@@ -369,15 +349,12 @@ router.post('/insights', checkLLMReady, async (_req:  Request, _res:  Response) 
     });
 
   } catch (error) {
-
     log.error('Error generating insights:', error as Error);
     res.status(500).json({
       'error': 'Failed to generate insights',
       'message': 'حدث خطأ أثناء توليد الرؤى. يرجى المحاولة مرة أخرى.'
     });
-
   }
-
 });
 
 /**
@@ -385,19 +362,15 @@ router.post('/insights', checkLLMReady, async (_req:  Request, _res:  Response) 
  * @desc Comprehensive text analysis (summary + sentiment + keywords)
  * @access Private
  */
-router.post('/analyze', checkLLMReady, async (_req:  Request, _res:  Response) => {
-
+router.post('/analyze', checkLLMReady, async (req: Request, res: Response) => {
   try {
+    const { text } = req.body as { text?: string };
 
-    const {text} = req.body;
-
-    if (!text ?? typeof text !== 'string') {
-
+    if (!text || typeof text !== 'string') {
       return res.status(400).json({
         'error': 'Invalid input',
         'message': 'يرجى توفير نص صحيح للتحليل'
       });
-
     }
 
     // Perform all analyses in parallel
@@ -429,15 +402,12 @@ router.post('/analyze', checkLLMReady, async (_req:  Request, _res:  Response) =
     });
 
   } catch (error) {
-
     log.error('Error in comprehensive analysis:', error as Error);
     res.status(500).json({
       'error': 'Failed to analyze text',
       'message': 'حدث خطأ أثناء تحليل النص. يرجى المحاولة مرة أخرى.'
     });
-
   }
-
 });
 
 /**
@@ -445,8 +415,7 @@ router.post('/analyze', checkLLMReady, async (_req:  Request, _res:  Response) =
  * @desc Check AI service status
  * @access Private
  */
-router.get('/status', (_req:  Request, _res:  Response) => {
-
+router.get('/status', (req: Request, res: Response) => {
   res.json({
     'status': localLLM.isInitialized ? 'ready' : 'initializing',
     'service': 'Local LLM',
@@ -461,7 +430,6 @@ router.get('/status', (_req:  Request, _res:  Response) => {
   
     'timestamp': new Date().toISOString()
   });
-
 });
 
 /**
@@ -469,28 +437,22 @@ router.get('/status', (_req:  Request, _res:  Response) => {
  * @desc AI Chatbot endpoint
  * @access Private
  */
-router.post('/chat', checkLLMReady, async (_req:  Request, _res:  Response) => {
-
+router.post('/chat', checkLLMReady, async (req: Request, res: Response) => {
   try {
+    const { message } = req.body as { message?: string };
 
-    const {message} = req.body;
-
-    if (!message ?? typeof message !== 'string') {
-
+    if (!message || typeof message !== 'string') {
       return res.status(400).json({
         'error': 'Invalid input',
         'message': 'يرجى توفير رسالة صحيحة'
       });
-
     }
 
     // Update analytics
     analyticsData.usageStats.totalRequests++;
     const chatbotFeature = analyticsData.usageStats.popularFeatures.find(f => f.name === 'المساعد الذكي');
     if (chatbotFeature) {
-
       chatbotFeature.count++;
-
     }
 
     // Process message and generate response
@@ -506,15 +468,12 @@ router.post('/chat', checkLLMReady, async (_req:  Request, _res:  Response) => {
     });
 
   } catch (error) {
-
     log.error('Error in AI chat:', error as Error);
     res.status(500).json({
       'error': 'Failed to process chat message',
       'message': 'حدث خطأ أثناء معالجة الرسالة. يرجى المحاولة مرة أخرى.'
     });
-
   }
-
 });
 
 /**
@@ -522,10 +481,8 @@ router.post('/chat', checkLLMReady, async (_req:  Request, _res:  Response) => {
  * @desc Get knowledge base data
  * @access Private
  */
-router.get('/knowledge', (_req:  Request, _res:  Response) => {
-
+router.get('/knowledge', (req: Request, res: Response) => {
   try {
-
     const knowledgeData = [
       {
         'title': 'إدارة الموظفين',
@@ -622,15 +579,12 @@ router.get('/knowledge', (_req:  Request, _res:  Response) => {
     res.json(knowledgeData);
 
   } catch (error) {
-
     log.error('Error fetching knowledge base:', error as Error);
     res.status(500).json({
       'error': 'Failed to fetch knowledge base',
       'message': 'حدث خطأ أثناء تحميل قاعدة المعرفة. يرجى المحاولة مرة أخرى.'
     });
-
   }
-
 });
 
 /**
@@ -638,10 +592,8 @@ router.get('/knowledge', (_req:  Request, _res:  Response) => {
  * @desc Get analytics data
  * @access Private
  */
-router.get('/analytics', (_req:  Request, _res:  Response) => {
-
+router.get('/analytics', (req: Request, res: Response) => {
   try {
-
     const {period = 'week', category = 'all'} = req.query;
 
     const analyticsData = generateAnalyticsData(period as string, category as string);
@@ -651,15 +603,12 @@ router.get('/analytics', (_req:  Request, _res:  Response) => {
     res.json(analyticsData);
 
   } catch (error) {
-
     log.error('Error generating analytics data:', error as Error);
     res.status(500).json({
       'error': 'Failed to generate analytics data',
       'message': 'حدث خطأ أثناء توليد بيانات التحليلات. يرجى المحاولة مرة أخرى.'
     });
-
   }
-
 });
 
 // Helper function to process chat messages

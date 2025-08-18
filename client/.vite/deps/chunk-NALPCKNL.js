@@ -9012,7 +9012,7 @@ function Explorer(props) {
               }), null);
               insert(_el$12, createComponent(Show, {
                 get when() {
-                  return memo(() => !!!!props.onEdit)() && !serialize(props.value).meta;
+                  return memo(() => !!props.onEdit)() && !serialize(props.value).meta;
                 },
                 get children() {
                   var _el$13 = _tmpl$62();
@@ -10043,7 +10043,7 @@ var ContentView = (props) => {
     })());
     insert(_el$25, createComponent(Show, {
       get when() {
-        return memo(() => !!!pip().pipWindow)() && !pip().disabled;
+        return memo(() => !pip().pipWindow)() && !pip().disabled;
       },
       get children() {
         var _el$28 = _tmpl$83();
@@ -10768,7 +10768,7 @@ var QueryStatus = (props) => {
     } : {}), false, true);
     insert(_el$60, createComponent(Show, {
       get when() {
-        return memo(() => !!!showLabel())() && (mouseOver() || focused());
+        return memo(() => !showLabel())() && (mouseOver() || focused());
       },
       get children() {
         var _el$61 = _tmpl$27();

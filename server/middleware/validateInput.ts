@@ -1,7 +1,6 @@
 import {Request, Response, NextFunction} from 'express';
-import {ZodSchema, ZodError} from 'zod';
+import {ZodSchema} from 'zod';
 import {log} from '../utils/logger';
-import {LogData} from '../../shared/types/common';
 
 // Enhanced validation middleware with proper TypeScript support
 export function validate (schema: ZodSchema) {

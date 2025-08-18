@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState } from 'react';
-import { logger } from '@utils/logger';
+import { logger } from '@/lib/logger';
 
 
 interface LazyLoadingOptions {
@@ -68,10 +68,13 @@ export const useLazyLoading = (options: LazyLoadingOptions = {}) => {
       const timer = setTimeout(() => {
         // Preload commonly used components
         preloadComponents([
-          { importFn: () => import('@/pages/dashboard'), name: 'Dashboard' },
-          { importFn: () => import('@/pages/employees'), name: 'Employees' },
+          // Only preload pages that exist in this backup directory
           { importFn: () => import('@/pages/companies'), name: 'Companies' },
-          { importFn: () => import('@/pages/reports'), name: 'Reports' }
+          { importFn: () => import('@/pages/ai-chatbot-demo'), name: 'AIChatbotDemo' }
+          // Commented out pages that don't exist in backup-console-logs:
+          // { importFn: () => import('@/pages/dashboard'), name: 'Dashboard' },
+          // { importFn: () => import('@/pages/employees'), name: 'Employees' },
+          // { importFn: () => import('@/pages/reports'), name: 'Reports' }
         ]);
       }, preloadDelay);
 
@@ -85,17 +88,17 @@ export const useLazyLoading = (options: LazyLoadingOptions = {}) => {
    componentName: string) => {
     if (!preloadOnHover) return undefined;
 
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: number;
 
     return {
       onMouseEnter: () => {
-        timeoutId = setTimeout(() => {
+        timeoutId = window.setTimeout(() => {
           preloadComponent(importFn, componentName);
         }, 200); // Small delay to avoid unnecessary preloading
       },
       onMouseLeave: () => {
         if (timeoutId) {
-          clearTimeout(timeoutId);
+          window.clearTimeout(timeoutId);
         }
       }
     };
@@ -104,38 +107,51 @@ export const useLazyLoading = (options: LazyLoadingOptions = {}) => {
   // Preload dashboard components
   const preloadDashboardComponents = useCallback(() => {
     preloadComponents([
-      { importFn: () => import('@/pages/dashboard'), name: 'Dashboard' },
-      { importFn: () => import('@/pages/ai-dashboard'), name: 'AIDashboard' },
-      { importFn: () => import('@/pages/role-based-dashboard'), name: 'RoleBasedDashboard' },
-      { importFn: () => import('@/pages/super-admin-dashboard'), name: 'SuperAdminDashboard' }
+      // Only preload pages that exist in this backup directory
+      { importFn: () => import('@/pages/companies'), name: 'Companies' },
+      { importFn: () => import('@/pages/ai-chatbot-demo'), name: 'AIChatbotDemo' }
+      // Commented out pages that don't exist in backup-console-logs:
+      // { importFn: () => import('@/pages/dashboard'), name: 'Dashboard' },
+      // { importFn: () => import('@/pages/ai-dashboard'), name: 'AIDashboard' },
+      // { importFn: () => import('@/pages/role-based-dashboard'), name: 'RoleBasedDashboard' },
+      // { importFn: () => import('@/pages/super-admin-dashboard'), name: 'SuperAdminDashboard' }
     ]);
   }, [preloadComponents]);
 
   // Preload employee management components
   const preloadEmployeeComponents = useCallback(() => {
     preloadComponents([
-      { importFn: () => import('@/pages/employees'), name: 'Employees' },
-      { importFn: () => import('@/pages/employee-management'), name: 'EmployeeManagement' },
-      { importFn: () => import('@/pages/attendance'), name: 'Attendance' },
-      { importFn: () => import('@/pages/leave-requests'), name: 'LeaveRequests' }
+      // Only preload pages that exist in this backup directory
+      { importFn: () => import('@/pages/companies'), name: 'Companies' }
+      // Commented out pages that don't exist in backup-console-logs:
+      // { importFn: () => import('@/pages/employees'), name: 'Employees' },
+      // { importFn: () => import('@/pages/employee-management'), name: 'EmployeeManagement' },
+      // { importFn: () => import('@/pages/attendance'), name: 'Attendance' },
+      // { importFn: () => import('@/pages/leave-requests'), name: 'LeaveRequests' }
     ]);
   }, [preloadComponents]);
 
   // Preload document management components
   const preloadDocumentComponents = useCallback(() => {
     preloadComponents([
-      { importFn: () => import('@/pages/documents'), name: 'Documents' },
-      { importFn: () => import('@/pages/licenses'), name: 'Licenses' },
-      { importFn: () => import('@/pages/signatures'), name: 'Signatures' }
+      // Only preload pages that exist in this backup directory
+      { importFn: () => import('@/pages/companies'), name: 'Companies' }
+      // Commented out pages that don't exist in backup-console-logs:
+      // { importFn: () => import('@/pages/documents'), name: 'Documents' },
+      // { importFn: () => import('@/pages/licenses'), name: 'Licenses' },
+      // { importFn: () => import('@/pages/signatures'), name: 'Signatures' }
     ]);
   }, [preloadComponents]);
 
   // Preload reporting components
   const preloadReportingComponents = useCallback(() => {
     preloadComponents([
-      { importFn: () => import('@/pages/reports'), name: 'Reports' },
-      { importFn: () => import('@/pages/performance'), name: 'Performance' },
-      { importFn: () => import('@/pages/ai-analytics'), name: 'AIAnalytics' }
+      // Only preload pages that exist in this backup directory
+      { importFn: () => import('@/pages/companies'), name: 'Companies' }
+      // Commented out pages that don't exist in backup-console-logs:
+      // { importFn: () => import('@/pages/reports'), name: 'Reports' },
+      // { importFn: () => import('@/pages/performance'), name: 'Performance' },
+      // { importFn: () => import('@/pages/ai-analytics'), name: 'AIAnalytics' }
     ]);
   }, [preloadComponents]);
 
@@ -166,32 +182,46 @@ export const useRoleBasedPreloading = (userRole?: string) => {
 } = {
   
       super_admin: [
-        { importFn: () => import('@/pages/super-admin-dashboard'), name: 'SuperAdminDashboard' },
-        { importFn: () => import('@/pages/companies'), name: 'Companies' },
-        { importFn: () => import('@/pages/reports'), name: 'Reports' },
-        { importFn: () => import('@/pages/settings'), name: 'Settings' }
+        // Only preload pages that exist in this backup directory
+        { importFn: () => import('@/pages/companies'), name: 'Companies' }
+        // Commented out pages that don't exist in backup-console-logs:
+        // { importFn: () => import('@/pages/super-admin-dashboard'), name: 'SuperAdminDashboard' },
+        // { importFn: () => import('@/pages/reports'), name: 'Reports' },
+        // { importFn: () => import('@/pages/settings'), name: 'Settings' }
       ],
       company_manager: [
-        { importFn: () => import('@/pages/dashboard'), name: 'Dashboard' },
-        { importFn: () => import('@/pages/employees'), name: 'Employees' },
-        { importFn: () => import('@/pages/reports'), name: 'Reports' },
-        { importFn: () => import('@/pages/attendance'), name: 'Attendance' }
+        // Only preload pages that exist in this backup directory
+        { importFn: () => import('@/pages/companies'), name: 'Companies' }
+        // Commented out pages that don't exist in backup-console-logs:
+        // { importFn: () => import('@/pages/dashboard'), name: 'Dashboard' },
+        // { importFn: () => import('@/pages/employees'), name: 'Employees' },
+        // { importFn: () => import('@/pages/reports'), name: 'Reports' },
+        // { importFn: () => import('@/pages/attendance'), name: 'Attendance' }
       ],
       employee: [
-        { importFn: () => import('@/pages/dashboard'), name: 'Dashboard' },
-        { importFn: () => import('@/pages/documents'), name: 'Documents' },
-        { importFn: () => import('@/pages/leave-requests'), name: 'LeaveRequests' }
+        // Only preload pages that exist in this backup directory
+        { importFn: () => import('@/pages/companies'), name: 'Companies' }
+        // Commented out pages that don't exist in backup-console-logs:
+        // { importFn: () => import('@/pages/dashboard'), name: 'Dashboard' },
+        // { importFn: () => import('@/pages/documents'), name: 'Documents' },
+        // { importFn: () => import('@/pages/leave-requests'), name: 'LeaveRequests' }
       ],
       supervisor: [
-        { importFn: () => import('@/pages/dashboard'), name: 'Dashboard' },
-        { importFn: () => import('@/pages/employees'), name: 'Employees' },
-        { importFn: () => import('@/pages/attendance'), name: 'Attendance' },
-        { importFn: () => import('@/pages/performance'), name: 'Performance' }
+        // Only preload pages that exist in this backup directory
+        { importFn: () => import('@/pages/companies'), name: 'Companies' }
+        // Commented out pages that don't exist in backup-console-logs:
+        // { importFn: () => import('@/pages/dashboard'), name: 'Dashboard' },
+        // { importFn: () => import('@/pages/employees'), name: 'Employees' },
+        // { importFn: () => import('@/pages/attendance'), name: 'Attendance' },
+        // { importFn: () => import('@/pages/performance'), name: 'Performance' }
       ],
       worker: [
-        { importFn: () => import('@/pages/dashboard'), name: 'Dashboard' },
-        { importFn: () => import('@/pages/attendance'), name: 'Attendance' },
-        { importFn: () => import('@/pages/documents'), name: 'Documents' }
+        // Only preload pages that exist in this backup directory
+        { importFn: () => import('@/pages/companies'), name: 'Companies' }
+        // Commented out pages that don't exist in backup-console-logs:
+        // { importFn: () => import('@/pages/dashboard'), name: 'Dashboard' },
+        // { importFn: () => import('@/pages/attendance'), name: 'Attendance' },
+        // { importFn: () => import('@/pages/documents'), name: 'Documents' }
       ]
     };
 
@@ -213,13 +243,16 @@ export const useRouteBasedPreloading = (currentRoute: string) => {
 } 
 } = {
   
-      '/dashboard': { importFn: () => import('@/pages/dashboard'), name: 'Dashboard' },
-      '/employees': { importFn: () => import('@/pages/employees'), name: 'Employees' },
+      // Only map routes to pages that exist in this backup directory
       '/companies': { importFn: () => import('@/pages/companies'), name: 'Companies' },
-      '/reports': { importFn: () => import('@/pages/reports'), name: 'Reports' },
-      '/attendance': { importFn: () => import('@/pages/attendance'), name: 'Attendance' },
-      '/documents': { importFn: () => import('@/pages/documents'), name: 'Documents' },
-      '/settings': { importFn: () => import('@/pages/settings'), name: 'Settings' }
+      '/ai-chatbot': { importFn: () => import('@/pages/ai-chatbot-demo'), name: 'AIChatbotDemo' }
+      // Commented out routes for pages that don't exist in backup-console-logs:
+      // '/dashboard': { importFn: () => import('@/pages/dashboard'), name: 'Dashboard' },
+      // '/employees': { importFn: () => import('@/pages/employees'), name: 'Employees' },
+      // '/reports': { importFn: () => import('@/pages/reports'), name: 'Reports' },
+      // '/attendance': { importFn: () => import('@/pages/attendance'), name: 'Attendance' },
+      // '/documents': { importFn: () => import('@/pages/documents'), name: 'Documents' },
+      // '/settings': { importFn: () => import('@/pages/settings'), name: 'Settings' }
     };
 
     const componentToPreload = routeComponentMap[currentRoute];

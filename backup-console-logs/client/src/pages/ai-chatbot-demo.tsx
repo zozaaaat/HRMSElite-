@@ -1,10 +1,9 @@
 import React, { Suspense } from 'react';
 import { PageHelmet } from '@/components/shared/PageHelmet';
-import { LoadingFallback } from '@/components/shared/LoadingFallback';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Brain, Bot, MessageSquare, Zap, Users, FileText, Calendar, Target } from 'lucide-react';
-import { logger } from '@utils/logger';
+import { logger } from '@/lib/logger';
 
 
 // Lazy load AI chatbot

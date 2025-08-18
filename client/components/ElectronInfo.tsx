@@ -1,36 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Alert, AlertDescription } from './ui/alert';
+import { Card, CardContent, CardHeader, CardTitle } from '../src/components/ui/card';
+import { Button } from '../src/components/ui/button';
+import { Badge } from '../src/components/ui/badge';
+import { Alert, AlertDescription } from '../src/components/ui/alert';
 import { Info, Download, Upload, MessageSquare } from 'lucide-react';
-import { logger } from '@utils/logger';
-
-
-interface ElectronAPI {
-  getAppVersion: () => Promise<string>;
-  getAppName: () => Promise<string>;
-  getPlatform: () => Promise<string>;
-  platform: string;
-  isDev: boolean;
-  showSaveDialog: (options: Record<string, unknown>) => Promise<{
-   canceled: boolean; filePath?: string 
-}>;
-  showOpenDialog: (options: Record<string, unknown>) => Promise<{
-   canceled: boolean; filePaths?: string[] 
-}>;
-  showMessageBox: (options: Record<string, unknown>) => Promise<{
-   response: number; checkboxChecked?: boolean 
-}>;
-  onMenuAction: (callback: (action: string) => void) => void;
-  removeMenuActionListener: () => void;
-}
-
-declare global {
-  interface Window {
-    electronAPI?: ElectronAPI;
-  }
-}
+import { logger } from '../src/lib/logger';
 
 const ElectronInfo: React.FC = () => {
   const [appInfo, setAppInfo] = useState<{
@@ -87,7 +61,7 @@ const ElectronInfo: React.FC = () => {
 
   const handleSaveDialog = async () => {
     if (!window.electronAPI) {
-      alert('This feature is only available in the desktop application.');
+      logger.warn('Save dialog feature is only available in the desktop application.');
       return;
     }
 
@@ -111,7 +85,7 @@ const ElectronInfo: React.FC = () => {
 
   const handleOpenDialog = async () => {
     if (!window.electronAPI) {
-      alert('This feature is only available in the desktop application.');
+      logger.warn('Open dialog feature is only available in the desktop application.');
       return;
     }
 
@@ -135,7 +109,7 @@ const ElectronInfo: React.FC = () => {
 
   const handleMessageBox = async () => {
     if (!window.electronAPI) {
-      alert('This feature is only available in the desktop application.');
+      logger.warn('Message box feature is only available in the desktop application.');
       return;
     }
 

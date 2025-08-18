@@ -1,11 +1,12 @@
 import {Switch, Route, useParams} from 'wouter';
 import {QueryClientProvider} from '@tanstack/react-query';
-import {useAppStore} from '@/stores/useAppStore';
-import {ProtectedRoute} from '@/components/shared';
-import {ReactQueryDevTools} from '@/components/shared/ReactQueryDevTools';
-import {routes, UserRole} from '@/lib/routes';
-import {queryClient} from '@/lib/queryClient';
-import {useRoleBasedPreloading} from '@/hooks/useLazyLoading';
+import {useAppStore} from './stores/useAppStore';
+import {ProtectedRoute} from './components/shared';
+import {ReactQueryDevTools} from './components/shared/ReactQueryDevTools';
+import {routes, UserRole} from './lib/routes';
+import {queryClient} from './lib/queryClient';
+import {useRoleBasedPreloading} from './hooks/useLazyLoading';
+import {Toaster} from './components/ui/toaster';
 
 // Import lazy-loaded components
 import {
@@ -39,7 +40,7 @@ import {
   SuperAdminDashboard,
   EmployeeManagement,
   LayoutExample
-} from '@/pages/lazy-pages';
+} from './pages/lazy-pages';
 
 // Wrapper component for Dashboard to handle route parameters with proper protection
 const DashboardWrapper = () => {
@@ -339,6 +340,9 @@ const App = () => {
 
       {/* React Query DevTools for development */}
       <ReactQueryDevTools initialIsOpen={false} />
+      
+      {/* Toast notifications */}
+      <Toaster />
     </QueryClientProvider>
   );
 

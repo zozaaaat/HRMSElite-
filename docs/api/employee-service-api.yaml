@@ -1,0 +1,1546 @@
+openapi: 3.0.3
+info:
+  title: HRMS Elite - Employee Service API
+  description: |
+    Employee Management Service API for HRMS Elite
+    
+    This service handles:
+    - Employee creation and management
+    - Employee profiles and personal information
+    - Employment history and records
+    - Performance tracking
+    - Employee statistics and analytics
+    - Multi-tenant data isolation
+    
+    ## Authentication
+    All endpoints require authentication via JWT Bearer token in the Authorization header:
+    ```
+    Authorization: Bearer <jwt_token>
+    ```
+    
+    ## Multi-tenancy
+    This service supports multi-tenant architecture where each company's employee data is isolated.
+    Company context is determined from the JWT token or explicit company_id parameter.
+    
+    ## Error Responses
+    All endpoints return consistent error responses:
+    - `400 Bad Request`: Invalid input data
+    - `401 Unauthorized`: Missing or invalid authentication
+    - `403 Forbidden`: Insufficient permissions
+    - `404 Not Found`: Resource not found
+    - `409 Conflict`: Resource already exists
+    - `422 Unprocessable Entity`: Validation errors
+    - `500 Internal Server Error`: Server error
+    
+  version: 1.0.0
+  contact:
+    name: HRMS Elite Team
+    email: support@hrmse.example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.hrmse.example.com/employee
+    description: Production server
+  - url: https://staging-api.hrmse.example.com/employee
+    description: Staging server
+  - url: http://localhost:3003
+    description: Local development server
+
+tags:
+  - name: Employees
+    description: Employee management operations
+  - name: Profiles
+    description: Employee profile management
+  - name: Employment
+    description: Employment history and records
+  - name: Performance
+    description: Performance tracking and reviews
+  - name: Statistics
+    description: Employee statistics and analytics
+  - name: Health
+    description: Health check endpoints
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+    
+  schemas:
+    Employee:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique employee identifier
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        employee_id:
+          type: string
+          description: Employee ID (company-specific)
+          example: "EMP001"
+        company_id:
+          type: string
+          format: uuid
+          description: Company ID this employee belongs to
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        user_id:
+          type: string
+          format: uuid
+          description: Associated user account ID
+          example: "123e4567-e89b-12d3-a456-426614174002"
+        first_name:
+          type: string
+          description: Employee first name
+          example: "John"
+        last_name:
+          type: string
+          description: Employee last name
+          example: "Doe"
+        email:
+          type: string
+          format: email
+          description: Employee email address
+          example: "john.doe@company.com"
+        phone:
+          type: string
+          description: Employee phone number
+          example: "+1-555-123-4567"
+        position:
+          type: string
+          description: Employee job position/title
+          example: "Senior Software Engineer"
+        department_id:
+          type: string
+          format: uuid
+          description: Department ID
+          example: "123e4567-e89b-12d3-a456-426614174003"
+        manager_id:
+          type: string
+          format: uuid
+          description: Manager's employee ID
+          example: "123e4567-e89b-12d3-a456-426614174004"
+        hire_date:
+          type: string
+          format: date
+          description: Employee hire date
+          example: "2023-01-15"
+        salary:
+          type: number
+          description: Employee salary
+          example: 75000
+        employment_status:
+          type: string
+          enum: [active, inactive, terminated, on_leave, probation]
+          description: Current employment status
+          example: "active"
+        employment_type:
+          type: string
+          enum: [full_time, part_time, contract, intern, temporary]
+          description: Employment type
+          example: "full_time"
+        is_active:
+          type: boolean
+          description: Whether the employee is active
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          description: Employee creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - id
+        - employee_id
+        - company_id
+        - user_id
+        - first_name
+        - last_name
+        - email
+        - hire_date
+        - employment_status
+        - employment_type
+        - is_active
+        - created_at
+        - updated_at
+    
+    EmployeeProfile:
+      type: object
+      properties:
+        employee_id:
+          type: string
+          format: uuid
+          description: Employee ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        date_of_birth:
+          type: string
+          format: date
+          description: Date of birth
+          example: "1990-05-15"
+        gender:
+          type: string
+          enum: [male, female, other, prefer_not_to_say]
+          description: Gender
+          example: "male"
+        address:
+          type: object
+          properties:
+            street:
+              type: string
+              example: "123 Main St"
+            city:
+              type: string
+              example: "San Francisco"
+            state:
+              type: string
+              example: "CA"
+            zip_code:
+              type: string
+              example: "94105"
+            country:
+              type: string
+              example: "USA"
+          description: Employee address
+        emergency_contact_name:
+          type: string
+          description: Emergency contact name
+          example: "Jane Doe"
+        emergency_contact_phone:
+          type: string
+          description: Emergency contact phone
+          example: "+1-555-987-6543"
+        emergency_contact_relationship:
+          type: string
+          description: Relationship to emergency contact
+          example: "Spouse"
+        skills:
+          type: array
+          items:
+            type: string
+          description: Employee skills
+          example: ["JavaScript", "React", "Node.js", "PostgreSQL"]
+        certifications:
+          type: array
+          items:
+            type: string
+          description: Employee certifications
+          example: ["AWS Certified Developer", "PMP"]
+        education:
+          type: array
+          items:
+            type: object
+            properties:
+              degree:
+                type: string
+                example: "Bachelor of Science"
+              field:
+                type: string
+                example: "Computer Science"
+              institution:
+                type: string
+                example: "University of California"
+              graduation_year:
+                type: integer
+                example: 2015
+          description: Education history
+        work_experience:
+          type: array
+          items:
+            type: object
+            properties:
+              company:
+                type: string
+                example: "Previous Company"
+              position:
+                type: string
+                example: "Software Engineer"
+              start_date:
+                type: string
+                format: date
+                example: "2015-06-01"
+              end_date:
+                type: string
+                format: date
+                example: "2022-12-31"
+              description:
+                type: string
+                example: "Developed web applications using React and Node.js"
+          description: Work experience history
+        created_at:
+          type: string
+          format: date-time
+          description: Profile creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - employee_id
+        - created_at
+        - updated_at
+    
+    PerformanceReview:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique review identifier
+          example: "123e4567-e89b-12d3-a456-426614174005"
+        employee_id:
+          type: string
+          format: uuid
+          description: Employee ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        reviewer_id:
+          type: string
+          format: uuid
+          description: Reviewer's employee ID
+          example: "123e4567-e89b-12d3-a456-426614174004"
+        review_period_start:
+          type: string
+          format: date
+          description: Review period start date
+          example: "2024-01-01"
+        review_period_end:
+          type: string
+          format: date
+          description: Review period end date
+          example: "2024-06-30"
+        review_date:
+          type: string
+          format: date
+          description: Date when review was conducted
+          example: "2024-07-15"
+        overall_rating:
+          type: number
+          minimum: 1
+          maximum: 5
+          description: Overall performance rating (1-5)
+          example: 4.2
+        goals_achieved:
+          type: integer
+          description: Number of goals achieved
+          example: 8
+        total_goals:
+          type: integer
+          description: Total number of goals
+          example: 10
+        strengths:
+          type: array
+          items:
+            type: string
+          description: Employee strengths
+          example: ["Technical skills", "Team collaboration", "Problem solving"]
+        areas_for_improvement:
+          type: array
+          items:
+            type: string
+          description: Areas for improvement
+          example: ["Time management", "Documentation"]
+        comments:
+          type: string
+          description: Additional comments
+          example: "Excellent performance this quarter. Shows great potential for leadership."
+        status:
+          type: string
+          enum: [draft, submitted, approved, completed]
+          description: Review status
+          example: "completed"
+        created_at:
+          type: string
+          format: date-time
+          description: Review creation timestamp
+          example: "2024-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - id
+        - employee_id
+        - reviewer_id
+        - review_period_start
+        - review_period_end
+        - review_date
+        - overall_rating
+        - status
+        - created_at
+        - updated_at
+    
+    EmployeeStatistics:
+      type: object
+      properties:
+        company_id:
+          type: string
+          format: uuid
+          description: Company ID
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        total_employees:
+          type: integer
+          description: Total number of employees
+          example: 150
+        active_employees:
+          type: integer
+          description: Number of active employees
+          example: 145
+        new_hires_this_month:
+          type: integer
+          description: New hires in current month
+          example: 5
+        terminations_this_month:
+          type: integer
+          description: Terminations in current month
+          example: 2
+        average_salary:
+          type: number
+          description: Average employee salary
+          example: 75000
+        salary_range:
+          type: object
+          properties:
+            min:
+              type: number
+              example: 45000
+            max:
+              type: number
+              example: 120000
+          description: Salary range
+        department_distribution:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Employee count by department
+          example:
+            "Engineering": 45
+            "Sales": 30
+            "Marketing": 25
+            "HR": 15
+            "Finance": 20
+        employment_type_distribution:
+          type: object
+          additionalProperties:
+            type: integer
+          description: Employee count by employment type
+          example:
+            "full_time": 120
+            "part_time": 20
+            "contract": 8
+            "intern": 2
+        last_updated:
+          type: string
+          format: date-time
+          description: Statistics last update timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - company_id
+        - total_employees
+        - active_employees
+        - last_updated
+    
+    CreateEmployeeRequest:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: Associated user account ID
+          example: "123e4567-e89b-12d3-a456-426614174002"
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Employee first name
+          example: "John"
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Employee last name
+          example: "Doe"
+        email:
+          type: string
+          format: email
+          description: Employee email address
+          example: "john.doe@company.com"
+        phone:
+          type: string
+          description: Employee phone number
+          example: "+1-555-123-4567"
+        position:
+          type: string
+          maxLength: 100
+          description: Employee job position/title
+          example: "Senior Software Engineer"
+        department_id:
+          type: string
+          format: uuid
+          description: Department ID
+          example: "123e4567-e89b-12d3-a456-426614174003"
+        manager_id:
+          type: string
+          format: uuid
+          description: Manager's employee ID
+          example: "123e4567-e89b-12d3-a456-426614174004"
+        hire_date:
+          type: string
+          format: date
+          description: Employee hire date
+          example: "2023-01-15"
+        salary:
+          type: number
+          minimum: 0
+          description: Employee salary
+          example: 75000
+        employment_type:
+          type: string
+          enum: [full_time, part_time, contract, intern, temporary]
+          default: "full_time"
+          description: Employment type
+          example: "full_time"
+      required:
+        - user_id
+        - first_name
+        - last_name
+        - email
+        - position
+        - hire_date
+        - employment_type
+    
+    UpdateEmployeeRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Employee first name
+          example: "John"
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Employee last name
+          example: "Doe"
+        email:
+          type: string
+          format: email
+          description: Employee email address
+          example: "john.doe@company.com"
+        phone:
+          type: string
+          description: Employee phone number
+          example: "+1-555-123-4567"
+        position:
+          type: string
+          maxLength: 100
+          description: Employee job position/title
+          example: "Senior Software Engineer"
+        department_id:
+          type: string
+          format: uuid
+          description: Department ID
+          example: "123e4567-e89b-12d3-a456-426614174003"
+        manager_id:
+          type: string
+          format: uuid
+          description: Manager's employee ID
+          example: "123e4567-e89b-12d3-a456-426614174004"
+        salary:
+          type: number
+          minimum: 0
+          description: Employee salary
+          example: 75000
+        employment_status:
+          type: string
+          enum: [active, inactive, terminated, on_leave, probation]
+          description: Current employment status
+          example: "active"
+        employment_type:
+          type: string
+          enum: [full_time, part_time, contract, intern, temporary]
+          description: Employment type
+          example: "full_time"
+        is_active:
+          type: boolean
+          description: Whether the employee is active
+          example: true
+    
+    CreatePerformanceReviewRequest:
+      type: object
+      properties:
+        employee_id:
+          type: string
+          format: uuid
+          description: Employee ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        reviewer_id:
+          type: string
+          format: uuid
+          description: Reviewer's employee ID
+          example: "123e4567-e89b-12d3-a456-426614174004"
+        review_period_start:
+          type: string
+          format: date
+          description: Review period start date
+          example: "2024-01-01"
+        review_period_end:
+          type: string
+          format: date
+          description: Review period end date
+          example: "2024-06-30"
+        review_date:
+          type: string
+          format: date
+          description: Date when review was conducted
+          example: "2024-07-15"
+        overall_rating:
+          type: number
+          minimum: 1
+          maximum: 5
+          description: Overall performance rating (1-5)
+          example: 4.2
+        goals_achieved:
+          type: integer
+          minimum: 0
+          description: Number of goals achieved
+          example: 8
+        total_goals:
+          type: integer
+          minimum: 0
+          description: Total number of goals
+          example: 10
+        strengths:
+          type: array
+          items:
+            type: string
+          description: Employee strengths
+          example: ["Technical skills", "Team collaboration", "Problem solving"]
+        areas_for_improvement:
+          type: array
+          items:
+            type: string
+          description: Areas for improvement
+          example: ["Time management", "Documentation"]
+        comments:
+          type: string
+          description: Additional comments
+          example: "Excellent performance this quarter. Shows great potential for leadership."
+      required:
+        - employee_id
+        - reviewer_id
+        - review_period_start
+        - review_period_end
+        - review_date
+        - overall_rating
+    
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Always false for errors
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Error code
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              description: Human-readable error message
+              example: "Invalid employee data"
+            details:
+              type: object
+              description: Additional error details
+              example:
+                field: "email"
+                value: "invalid-email"
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+          example: "2024-01-01T00:00:00Z"
+      required:
+        - success
+        - error
+        - timestamp
+    
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Service status
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp
+          example: "2024-01-01T00:00:00Z"
+        version:
+          type: string
+          description: Service version
+          example: "1.0.0"
+        uptime:
+          type: number
+          description: Service uptime in seconds
+          example: 3600
+        database:
+          type: object
+          properties:
+            status:
+              type: string
+              description: Database connection status
+              example: "connected"
+            response_time:
+              type: number
+              description: Database response time in milliseconds
+              example: 15.5
+      required:
+        - status
+        - timestamp
+        - version
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Check the health status of the employee service
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /employees:
+    get:
+      tags:
+        - Employees
+      summary: Get employees
+      description: Retrieve employees for the current company
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search term for employee name or email
+        - name: department_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by department ID
+        - name: employment_status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, terminated, on_leave, probation]
+          description: Filter by employment status
+        - name: employment_type
+          in: query
+          schema:
+            type: string
+            enum: [full_time, part_time, contract, intern, temporary]
+          description: Filter by employment type
+        - name: is_active
+          in: query
+          schema:
+            type: boolean
+          description: Filter by active status
+      responses:
+        '200':
+          description: Employees retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  employees:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Employee'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 20
+                      total:
+                        type: integer
+                        example: 150
+                      pages:
+                        type: integer
+                        example: 8
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    post:
+      tags:
+        - Employees
+      summary: Create employee
+      description: Create a new employee
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEmployeeRequest'
+      responses:
+        '201':
+          description: Employee created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  employee:
+                    $ref: '#/components/schemas/Employee'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Employee already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /employees/{employeeId}:
+    get:
+      tags:
+        - Employees
+      summary: Get employee by ID
+      description: Retrieve a specific employee by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Employee ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Employee retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  employee:
+                    $ref: '#/components/schemas/Employee'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Employee not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    put:
+      tags:
+        - Employees
+      summary: Update employee
+      description: Update an employee by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Employee ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEmployeeRequest'
+      responses:
+        '200':
+          description: Employee updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  employee:
+                    $ref: '#/components/schemas/Employee'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Employee not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    delete:
+      tags:
+        - Employees
+      summary: Terminate employee
+      description: Terminate an employee (soft delete)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Employee ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                termination_date:
+                  type: string
+                  format: date
+                  description: Employee termination date
+                  example: "2024-12-31"
+                reason:
+                  type: string
+                  description: Termination reason
+                  example: "Resigned"
+                exit_interview_conducted:
+                  type: boolean
+                  description: Whether exit interview was conducted
+                  example: true
+              required:
+                - termination_date
+      responses:
+        '200':
+          description: Employee terminated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Employee terminated successfully"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Employee not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /employees/{employeeId}/profile:
+    get:
+      tags:
+        - Profiles
+      summary: Get employee profile
+      description: Retrieve employee profile information
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Employee ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Employee profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  profile:
+                    $ref: '#/components/schemas/EmployeeProfile'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Employee or profile not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    put:
+      tags:
+        - Profiles
+      summary: Update employee profile
+      description: Update employee profile information
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Employee ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                date_of_birth:
+                  type: string
+                  format: date
+                  description: Date of birth
+                  example: "1990-05-15"
+                gender:
+                  type: string
+                  enum: [male, female, other, prefer_not_to_say]
+                  description: Gender
+                  example: "male"
+                address:
+                  type: object
+                  properties:
+                    street:
+                      type: string
+                      example: "123 Main St"
+                    city:
+                      type: string
+                      example: "San Francisco"
+                    state:
+                      type: string
+                      example: "CA"
+                    zip_code:
+                      type: string
+                      example: "94105"
+                    country:
+                      type: string
+                      example: "USA"
+                  description: Employee address
+                emergency_contact_name:
+                  type: string
+                  description: Emergency contact name
+                  example: "Jane Doe"
+                emergency_contact_phone:
+                  type: string
+                  description: Emergency contact phone
+                  example: "+1-555-987-6543"
+                emergency_contact_relationship:
+                  type: string
+                  description: Relationship to emergency contact
+                  example: "Spouse"
+                skills:
+                  type: array
+                  items:
+                    type: string
+                  description: Employee skills
+                  example: ["JavaScript", "React", "Node.js", "PostgreSQL"]
+                certifications:
+                  type: array
+                  items:
+                    type: string
+                  description: Employee certifications
+                  example: ["AWS Certified Developer", "PMP"]
+      responses:
+        '200':
+          description: Employee profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  profile:
+                    $ref: '#/components/schemas/EmployeeProfile'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Employee not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /employees/{employeeId}/performance-reviews:
+    get:
+      tags:
+        - Performance
+      summary: Get employee performance reviews
+      description: Retrieve performance reviews for an employee
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Employee ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, submitted, approved, completed]
+          description: Filter by review status
+      responses:
+        '200':
+          description: Performance reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  reviews:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PerformanceReview'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                        example: 1
+                      limit:
+                        type: integer
+                        example: 20
+                      total:
+                        type: integer
+                        example: 50
+                      pages:
+                        type: integer
+                        example: 3
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Employee not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    post:
+      tags:
+        - Performance
+      summary: Create performance review
+      description: Create a new performance review for an employee
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Employee ID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePerformanceReviewRequest'
+      responses:
+        '201':
+          description: Performance review created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  review:
+                    $ref: '#/components/schemas/PerformanceReview'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Employee not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /performance-reviews/{reviewId}:
+    get:
+      tags:
+        - Performance
+      summary: Get performance review by ID
+      description: Retrieve a specific performance review by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Performance review ID
+          example: "123e4567-e89b-12d3-a456-426614174005"
+      responses:
+        '200':
+          description: Performance review retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  review:
+                    $ref: '#/components/schemas/PerformanceReview'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Performance review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    put:
+      tags:
+        - Performance
+      summary: Update performance review
+      description: Update a performance review by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Performance review ID
+          example: "123e4567-e89b-12d3-a456-426614174005"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePerformanceReviewRequest'
+      responses:
+        '200':
+          description: Performance review updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  review:
+                    $ref: '#/components/schemas/PerformanceReview'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Performance review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  
+  /statistics:
+    get:
+      tags:
+        - Statistics
+      summary: Get employee statistics
+      description: Retrieve employee statistics for the current company
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  statistics:
+                    $ref: '#/components/schemas/EmployeeStatistics'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

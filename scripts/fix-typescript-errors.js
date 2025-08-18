@@ -63,7 +63,7 @@ function fixFile(filePath) {
   const fullPath = path.join(__dirname, '..', filePath);
   
   if (!fs.existsSync(fullPath)) {
-    console.log(`⚠️  الملف غير موجود: ${filePath}`);
+    console.info(`⚠️  الملف غير موجود: ${filePath}`);
     return;
   }
   
@@ -75,25 +75,25 @@ function fixFile(filePath) {
     if (newContent !== content) {
       content = newContent;
       hasChanges = true;
-      console.log(`✅ إصلاح ${index + 1} في ${filePath}`);
+      console.info(`✅ إصلاح ${index + 1} في ${filePath}`);
     }
   });
   
   if (hasChanges) {
     fs.writeFileSync(fullPath, content, 'utf8');
-    console.log(`💾 تم حفظ التغييرات في ${filePath}`);
+    console.info(`💾 تم حفظ التغييرات في ${filePath}`);
   } else {
-    console.log(`ℹ️  لا توجد تغييرات مطلوبة في ${filePath}`);
+    console.info(`ℹ️  لا توجد تغييرات مطلوبة في ${filePath}`);
   }
 }
 
 function main() {
-  console.log('🔧 بدء إصلاح أخطاء TypeScript الشائعة...\n');
+  console.info('🔧 بدء إصلاح أخطاء TypeScript الشائعة...\n');
   
   filesToFix.forEach(fixFile);
   
-  console.log('\n✅ تم الانتهاء من الإصلاحات!');
-  console.log('💡 تشغيل: npm run type-check للتحقق من النتائج');
+  console.info('\n✅ تم الانتهاء من الإصلاحات!');
+  console.info('💡 تشغيل: npm run type-check للتحقق من النتائج');
 }
 
 main();

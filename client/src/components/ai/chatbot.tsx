@@ -7,7 +7,7 @@ import {Badge} from '@/components/ui/badge';
 import {ScrollArea} from '@/components/ui/scroll-area';
 import { Brain, Send, Bot, User, Calendar, AlertTriangle, Target, Lightbulb, FileText, Activity, X, Minimize2, Maximize2, Loader2, BookOpen, Search, BarChart3, PieChart, Building, CreditCard, Shield } from 'lucide-react';
 import {useToast} from '@/hooks/use-toast';
-import {logger} from '@/lib/logger';
+import logger from '../../lib/logger';
 
 // Type definitions for API responses
 interface ChatApiResponse {
@@ -113,7 +113,7 @@ interface KnowledgeBaseItem {
 
 interface QuickAction {
   title: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; // Lucide React icon type
+  icon: React.ForwardRefExoticComponent<React.SVGProps<SVGSVGElement>>; // Lucide React icon type
   description: string;
   action: string;
   category: string;

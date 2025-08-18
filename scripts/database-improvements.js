@@ -14,16 +14,16 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-console.log('🚀 Starting Database Schema Improvements...');
-console.log('بدء تطبيق تحسينات قاعدة البيانات...\n');
+console.info('🚀 Starting Database Schema Improvements...');
+console.info('بدء تطبيق تحسينات قاعدة البيانات...\n');
 
 // Database file path
 const dbPath = path.join(__dirname, '..', 'dev.db');
 
 // Check if database exists
 if (!fs.existsSync(dbPath)) {
-  console.log('❌ Database file not found. Please run the application first to create the database.');
-  console.log('ملف قاعدة البيانات غير موجود. يرجى تشغيل التطبيق أولاً لإنشاء قاعدة البيانات.\n');
+  console.info('❌ Database file not found. Please run the application first to create the database.');
+  console.info('ملف قاعدة البيانات غير موجود. يرجى تشغيل التطبيق أولاً لإنشاء قاعدة البيانات.\n');
   process.exit(1);
 }
 
@@ -129,8 +129,8 @@ const improvementCommands = [
 
 // Function to execute SQL commands
 function executeSQLCommands(commands) {
-  console.log('📊 Applying database improvements...');
-  console.log('تطبيق تحسينات قاعدة البيانات...\n');
+  console.info('📊 Applying database improvements...');
+  console.info('تطبيق تحسينات قاعدة البيانات...\n');
   
   let successCount = 0;
   let errorCount = 0;
@@ -144,22 +144,22 @@ function executeSQLCommands(commands) {
       process.stdout.write(`✅ Index ${index + 1}/${commands.length} created successfully\r`);
     } catch (error) {
       errorCount++;
-      console.log(`\n❌ Error creating index ${index + 1}: ${error.message}`);
+      console.info(`\n❌ Error creating index ${index + 1}: ${error.message}`);
     }
   });
   
-  console.log(`\n\n📈 Results:`);
-  console.log(`✅ Successful: ${successCount}`);
-  console.log(`❌ Failed: ${errorCount}`);
-  console.log(`📊 Total: ${commands.length}`);
+  console.info(`\n\n📈 Results:`);
+  console.info(`✅ Successful: ${successCount}`);
+  console.info(`❌ Failed: ${errorCount}`);
+  console.info(`📊 Total: ${commands.length}`);
   
   return { successCount, errorCount };
 }
 
 // Function to verify improvements
 function verifyImprovements() {
-  console.log('\n🔍 Verifying database improvements...');
-  console.log('التحقق من تحسينات قاعدة البيانات...\n');
+  console.info('\n🔍 Verifying database improvements...');
+  console.info('التحقق من تحسينات قاعدة البيانات...\n');
   
   try {
     // Check if indexes exist
@@ -168,48 +168,48 @@ function verifyImprovements() {
     
     const indexes = result.trim().split('\n').filter(line => line.length > 0);
     
-    console.log(`📊 Found ${indexes.length} improvement indexes:`);
+    console.info(`📊 Found ${indexes.length} improvement indexes:`);
     indexes.forEach(index => {
-      console.log(`  - ${index}`);
+      console.info(`  - ${index}`);
     });
     
     return indexes.length;
   } catch (error) {
-    console.log(`❌ Error verifying improvements: ${error.message}`);
+    console.info(`❌ Error verifying improvements: ${error.message}`);
     return 0;
   }
 }
 
 // Function to show performance tips
 function showPerformanceTips() {
-  console.log('\n💡 Performance Tips:');
-  console.log('نصائح الأداء:\n');
+  console.info('\n💡 Performance Tips:');
+  console.info('نصائح الأداء:\n');
   
-  console.log('1. Monitor index usage:');
-  console.log('   مراقبة استخدام الفهارس:');
-  console.log('   sqlite3 dev.db "ANALYZE;"');
-  console.log('');
+  console.info('1. Monitor index usage:');
+  console.info('   مراقبة استخدام الفهارس:');
+  console.info('   sqlite3 dev.db "ANALYZE;"');
+  console.info('');
   
-  console.log('2. Check query performance:');
-  console.log('   فحص أداء الاستعلامات:');
-  console.log('   sqlite3 dev.db "EXPLAIN QUERY PLAN SELECT * FROM employees WHERE company_id = ?;"');
-  console.log('');
+  console.info('2. Check query performance:');
+  console.info('   فحص أداء الاستعلامات:');
+  console.info('   sqlite3 dev.db "EXPLAIN QUERY PLAN SELECT * FROM employees WHERE company_id = ?;"');
+  console.info('');
   
-  console.log('3. Optimize database:');
-  console.log('   تحسين قاعدة البيانات:');
-  console.log('   sqlite3 dev.db "VACUUM;"');
-  console.log('');
+  console.info('3. Optimize database:');
+  console.info('   تحسين قاعدة البيانات:');
+  console.info('   sqlite3 dev.db "VACUUM;"');
+  console.info('');
   
-  console.log('4. Monitor slow queries:');
-  console.log('   مراقبة الاستعلامات البطيئة:');
-  console.log('   sqlite3 dev.db "PRAGMA stats;"');
-  console.log('');
+  console.info('4. Monitor slow queries:');
+  console.info('   مراقبة الاستعلامات البطيئة:');
+  console.info('   sqlite3 dev.db "PRAGMA stats;"');
+  console.info('');
 }
 
 // Main execution
 try {
-  console.log('🔧 Database Schema Improvements Script');
-  console.log('سكريبت تحسينات قاعدة البيانات\n');
+  console.info('🔧 Database Schema Improvements Script');
+  console.info('سكريبت تحسينات قاعدة البيانات\n');
   
   // Execute improvements
   const results = executeSQLCommands(improvementCommands);
@@ -218,19 +218,19 @@ try {
   const indexCount = verifyImprovements();
   
   // Show results
-  console.log('\n🎉 Database improvements completed!');
-  console.log('اكتملت تحسينات قاعدة البيانات!\n');
+  console.info('\n🎉 Database improvements completed!');
+  console.info('اكتملت تحسينات قاعدة البيانات!\n');
   
   if (results.errorCount === 0) {
-    console.log('✅ All improvements applied successfully');
-    console.log('تم تطبيق جميع التحسينات بنجاح');
+    console.info('✅ All improvements applied successfully');
+    console.info('تم تطبيق جميع التحسينات بنجاح');
   } else {
-    console.log(`⚠️  ${results.errorCount} improvements failed`);
-    console.log(`فشل في تطبيق ${results.errorCount} تحسينات`);
+    console.info(`⚠️  ${results.errorCount} improvements failed`);
+    console.info(`فشل في تطبيق ${results.errorCount} تحسينات`);
   }
   
-  console.log(`📊 Total indexes created: ${indexCount}`);
-  console.log(`إجمالي الفهارس المنشأة: ${indexCount}`);
+  console.info(`📊 Total indexes created: ${indexCount}`);
+  console.info(`إجمالي الفهارس المنشأة: ${indexCount}`);
   
   // Show performance tips
   showPerformanceTips();
@@ -241,5 +241,5 @@ try {
   process.exit(1);
 }
 
-console.log('\n✨ Database improvements script completed successfully!');
-console.log('اكتمل سكريبت تحسينات قاعدة البيانات بنجاح!\n');
+console.info('\n✨ Database improvements script completed successfully!');
+console.info('اكتمل سكريبت تحسينات قاعدة البيانات بنجاح!\n');

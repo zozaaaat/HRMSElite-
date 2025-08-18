@@ -1,10 +1,10 @@
-import React, { Component, ErrorInfo, ReactNode, Suspense } from 'react';
-import { AlertTriangle, RefreshCw, Home, Bug, Info } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Badge } from '../ui/badge';
-import { Separator } from '../ui/separator';
-import { logger } from '@utils/logger';
+import React, {Component, ErrorInfo, ReactNode, Suspense} from 'react';
+import {AlertTriangle, RefreshCw, Home, Bug, Info} from 'lucide-react';
+import {Button} from '../ui/button';
+import {Card, CardContent, CardHeader, CardTitle} from '../ui/card';
+import {Badge} from '../ui/badge';
+import {Separator} from '../ui/separator';
+import logger from '../../lib/logger';
 
 
 interface Props {
@@ -28,7 +28,7 @@ const LoadingFallback = () => (
   <div className="min-h-screen bg-background flex items-center justify-center p-4">
     <Card className="w-full max-w-md">
       <CardContent className="flex items-center justify-center p-6">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         <span className="mr-3 text-muted-foreground">جاري التحميل...</span>
       </CardContent>
     </Card>
@@ -36,11 +36,7 @@ const LoadingFallback = () => (
 );
 
 // Error details component with React.memo for performance
-const ErrorDetails = React.memo(({
-   error, errorInfo 
-}: {
-   error: Error; errorInfo?: ErrorInfo 
-}) => (
+const ErrorDetails = React.memo(({error, errorInfo}: { error: Error; errorInfo?: ErrorInfo | undefined }) => (
   <details className="bg-muted p-4 rounded-lg text-sm space-y-3">
     <summary className="cursor-pointer font-medium mb-3 flex items-center gap-2">
       <Bug className="h-4 w-4" />
@@ -74,113 +70,150 @@ const ErrorDetails = React.memo(({
 ErrorDetails.displayName = 'ErrorDetails';
 
 export class EnhancedErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
+
+  constructor (props: Props) {
+
     super(props);
-    this.state = { 
-      hasError: false, 
-      retryCount: 0 
+    this.state = {
+      'hasError': false,
+      'retryCount': 0
     };
+
   }
 
-  static getDerivedStateFromError(error: Error): Partial<State> {
-    return { 
-      hasError: true, 
+  static getDerivedStateFromError (error: Error): Partial<State> {
+
+    return {
+      'hasError': true,
       error,
-      errorId: `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      'errorId': `error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     };
+
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  override componentDidCatch (error: Error, errorInfo: ErrorInfo) {
+
     // Log error to console
-    logger.error('EnhancedErrorBoundary caught an error:', error, errorInfo);
-    
+    logger.error('EnhancedErrorBoundary caught an error', error, 'EnhancedErrorBoundary');
+
     // Update state with error details
-    this.setState({ error, errorInfo });
-    
+    this.setState({error, errorInfo});
+
     // Call custom error handler if provided
     if (this.props.onError) {
+
       this.props.onError(error, errorInfo);
+
     }
 
     // Log to external service in production
     if (process.env.NODE_ENV === 'production') {
+
       this.logErrorToService(error, errorInfo);
+
     }
+
   }
 
-  componentDidUpdate(prevProps: Props) {
+  override componentDidUpdate (prevProps: Props) {
+
     // Reset error state when props change (if enabled)
     if (this.props.resetOnPropsChange && prevProps.children !== this.props.children) {
-      this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+
+      this.setState({
+        'hasError': false
+      });
+
     }
+
   }
 
-  private logErrorToService = (error: Error, errorInfo: ErrorInfo) => {
+  private readonly logErrorToService = (error: Error, errorInfo: ErrorInfo) => {
+
     // In a real application, you would send this to your error tracking service
     // Example: Sentry, LogRocket, etc.
     try {
+
       const errorData = {
-        message: error.message,
-        stack: error.stack,
-        componentStack: errorInfo.componentStack,
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        url: window.location.href,
-        errorId: this.state.errorId,
+        'message': error.message,
+        'stack': error.stack,
+        'componentStack': errorInfo.componentStack,
+        'timestamp': new Date().toISOString(),
+        'userAgent': navigator.userAgent,
+        'url': window.location.href,
+        'errorId': this.state.errorId
       };
-      
+
       // Send to your error tracking service
-      logger.info('Error logged to service:', errorData);
+      // Example: await fetch('/api/error-logging', { method: 'POST', body: JSON.stringify(errorData) });
+      logger.info('Error data prepared for external service:', errorData);
+
     } catch (logError) {
+
       logger.error('Failed to log error to service:', logError);
+
     }
+
   };
 
   handleRetry = () => {
+
     this.setState(prevState => ({
-      hasError: false,
-      error: undefined,
-      errorInfo: undefined,
-      retryCount: prevState.retryCount + 1
+      'hasError': false,
+      'retryCount': prevState.retryCount + 1
     }));
+
   };
 
   handleGoHome = () => {
+
     window.location.href = '/';
+
   };
 
   handleReload = () => {
+
     window.location.reload();
+
   };
 
   handleReportError = () => {
-    const { error, errorInfo, errorId } = this.state;
+
+    const {error, errorInfo, errorId} = this.state;
     if (error) {
+
       const errorReport = {
         errorId,
-        message: error.message,
-        stack: error.stack,
-        componentStack: errorInfo?.componentStack,
-        url: window.location.href,
-        timestamp: new Date().toISOString(),
+        'message': error.message,
+        'stack': error.stack,
+        'componentStack': errorInfo?.componentStack,
+        'url': window.location.href,
+        'timestamp': new Date().toISOString()
       };
-      
+
       // In a real application, you would send this to your support system
-      logger.info('Error report:', errorReport);
-      
+      // Example: await fetch('/api/error-reporting', { method: 'POST', body: JSON.stringify(errorReport) });
+      logger.info('Error report prepared for support system:', errorReport);
+
       // Show success message
-      alert('تم إرسال تقرير الخطأ بنجاح');
+      window.alert('تم إرسال تقرير الخطأ بنجاح');
+
     }
+
   };
 
-  render() {
+  override render () {
+
     if (this.state.hasError) {
+
       // Use custom fallback if provided
       if (this.props.fallback) {
+
         return this.props.fallback;
+
       }
 
-      const { error, errorInfo, retryCount } = this.state;
+      const {error, errorInfo, retryCount} = this.state;
 
       return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -209,10 +242,10 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
               </div>
 
               <p className="text-muted-foreground text-center text-sm">
-                يرجى المحاولة مرة أخرى أو العودة إلى الصفحة الرئيسية. إذا استمرت المشكلة، 
+                يرجى المحاولة مرة أخرى أو العودة إلى الصفحة الرئيسية. إذا استمرت المشكلة،
                 يمكنك الإبلاغ عن الخطأ للمساعدة في حلها.
               </p>
-              
+
               {/* Error details for development */}
               {this.props.showDetails && error && (
                 <ErrorDetails error={error} errorInfo={errorInfo} />
@@ -221,7 +254,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
               <Separator />
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button 
+                <Button
                   onClick={this.handleRetry}
                   className="flex-1 gap-2"
                   variant="default"
@@ -229,7 +262,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                   <RefreshCw className="h-4 w-4" />
                   إعادة المحاولة
                 </Button>
-                <Button 
+                <Button
                   onClick={this.handleGoHome}
                   className="flex-1 gap-2"
                   variant="outline"
@@ -240,7 +273,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button 
+                <Button
                   onClick={this.handleReload}
                   className="flex-1 gap-2"
                   variant="outline"
@@ -249,7 +282,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                   <RefreshCw className="h-4 w-4" />
                   إعادة تحميل الصفحة
                 </Button>
-                <Button 
+                <Button
                   onClick={this.handleReportError}
                   className="flex-1 gap-2"
                   variant="outline"
@@ -263,6 +296,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
           </Card>
         </div>
       );
+
     }
 
     // Wrap children with Suspense for better loading experience
@@ -271,7 +305,9 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
         {this.props.children}
       </Suspense>
     );
+
   }
+
 }
 
 // HOC for wrapping components with error boundary
@@ -279,13 +315,16 @@ export const withErrorBoundary = <P extends object>(
   Component: React.ComponentType<P>,
   errorBoundaryProps?: Omit<Props, 'children'>
 ) => {
-  const WrappedComponent = (props: P) => 
-    React.createElement(EnhancedErrorBoundary, errorBoundaryProps,
-      React.createElement(Component, props)
-    );
-  
+
+  const WrappedComponent = (props: P) => (
+    <EnhancedErrorBoundary {...errorBoundaryProps}>
+      <Component {...props} />
+    </EnhancedErrorBoundary>
+  );
+
   WrappedComponent.displayName = `withErrorBoundary(${Component.displayName ?? Component.name})`;
   return WrappedComponent;
+
 };
 
-export default EnhancedErrorBoundary; 
+export default EnhancedErrorBoundary;

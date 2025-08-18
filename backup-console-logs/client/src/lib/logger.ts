@@ -1,4 +1,5 @@
-import { logger } from '@utils/logger';
+// Remove the circular import
+// import { logger } from '@utils/logger';
 
 /**
  * Comprehensive logging utility for HRMS Elite
@@ -21,6 +22,16 @@ export interface LogData {
   source?: string;
   userId?: string;
   sessionId?: string;
+}
+
+// Add type declarations for import.meta.env
+declare global {
+  interface ImportMeta {
+    env: {
+      DEV: boolean;
+      PROD: boolean;
+    };
+  }
 }
 
 class Logger {
@@ -54,21 +65,21 @@ class Logger {
     
     switch (level) {
       case LogLevel.DEBUG:
-        logger.debug(formattedMessage);
+        console.debug(formattedMessage);
         break;
       case LogLevel.INFO:
-        logger.info(formattedMessage);
+        console.info(formattedMessage);
         break;
       case LogLevel.WARN:
-        logger.warn(formattedMessage);
+        console.warn(formattedMessage);
         break;
       case LogLevel.ERROR:
-        logger.error(formattedMessage);
+        console.error(formattedMessage);
         break;
     }
   }
 
-  private logToService(_logData:  LogData): void {
+  private logToService(logData: LogData): void {
     // In production, send logs to external service
     if (this.isProduction) {
       // TODO: Implement external logging service (e.g., Sentry, LogRocket)
@@ -161,34 +172,10 @@ export const log = {
   debug: (message: string, data?: any, source?: string) => logger.debug(message, data, source),
   info: (message: string, data?: any, source?: string) => logger.info(message, data, source),
   warn: (message: string, data?: any, source?: string) => logger.warn(message, data, source),
-  error: (message: string,
-   error?: Error | any,
-   source?: string) => logger.error(message,
-   error,
-   source),
-  
-  api: (endpoint: string,
-   method: string,
-   status?: number,
-   duration?: number) => logger.apiCall(endpoint,
-   method,
-   status,
-   duration),
-  
-  user: (action: string,
-   userId?: string,
-   data?: Record<string,
-   unknown>) => logger.userAction(action,
-   userId,
-   data),
-  
-  perf: (operation: string,
-   duration: number,
-   data?: Record<string,
-   unknown>) => logger.performance(operation,
-   duration,
-   data),
-  
+  error: (message: string, error?: Error | any, source?: string) => logger.error(message, error, source),
+  api: (endpoint: string, method: string, status?: number, duration?: number) => logger.apiCall(endpoint, method, status, duration),
+  user: (action: string, userId?: string, data?: Record<string, unknown>) => logger.userAction(action, userId, data),
+  perf: (operation: string, duration: number, data?: Record<string, unknown>) => logger.performance(operation, duration, data),
   security: (event: string, data?: Record<string, unknown>) => logger.security(event, data),
   dev: (message: string, data?: any, source?: string) => logger.dev(message, data, source)
 };

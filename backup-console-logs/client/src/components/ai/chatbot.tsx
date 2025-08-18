@@ -1,10 +1,10 @@
-import { useChat } from 'ai/react';
-import { useState, useRef, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import React, { useState, useRef, useEffect } from "react";
+import { useChat } from '../../hooks/useChat';
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Badge } from "../ui/badge";
+import { ScrollArea } from "../ui/scroll-area";
 import { 
   Brain, 
   Send, 
@@ -22,11 +22,10 @@ import {
   Loader2,
   BookOpen,
   Search,
-  Zap,
   TrendingUp
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { logger } from '@utils/logger';
+import { useToast } from "../../hooks/use-toast";
+import { logger } from '../../lib/logger';
 
 
 interface ChatbotProps {
@@ -127,7 +126,7 @@ export default function Chatbot({ className }: ChatbotProps) {
         content: 'مرحباً! أنا المساعد الذكي لـ HRMS Elite. كيف يمكنني مساعدتك اليوم؟'
       }
     ],
-    onError: (error) => {
+    onError: (_error: any) => {
       toast({
         title: "خطأ في الاتصال",
         description: "حدث خطأ أثناء الاتصال بالمساعد الذكي. يرجى المحاولة مرة أخرى.",
@@ -392,7 +391,7 @@ export default function Chatbot({ className }: ChatbotProps) {
           {/* Messages */}
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
-              {messages.map((message) => (
+              {messages.map((message: any) => (
                 <div
                   key={message.id}
                   className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}

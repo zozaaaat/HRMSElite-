@@ -9,7 +9,7 @@ import {log} from '../lib/logger';
 // Define CompanyStats type to match the request
 type CompanyStats = CompanyWithStats;
 import {UserRole} from '../../../shared/types/user';
-import logger from '../../lib/logger';
+import logger from '../lib/logger';
 
 // Import RequestInit type for TypeScript compatibility
 type RequestInit = globalThis.RequestInit;
@@ -697,7 +697,7 @@ export const useAppStore = create<AppState>()(
         'user': state.user,
         'company': state.company,
         'lastSyncTime': state.lastSyncTime
-      }), // persist user, company, and last sync time
+      }), // persist user, compunknown, and last sync time
       'onRehydrateStorage': () => (state) => {
 
         // Called when hydration starts

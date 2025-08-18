@@ -5,41 +5,42 @@ import {
   Content,
   Root2,
   createPopperScope
-} from "./chunk-CVLSAYYX.js";
-import "./chunk-JPR465HC.js";
+} from "./chunk-PAXPMFPX.js";
 import {
   Combination_default,
-  DismissableLayer,
   FocusScope,
-  Portal,
   hideOthers,
   useFocusGuards
-} from "./chunk-U2ISI2OV.js";
+} from "./chunk-M7DOFYOV.js";
+import {
+  DismissableLayer,
+  Portal
+} from "./chunk-EDA5TWT2.js";
 import {
   useId
-} from "./chunk-CYSEBI57.js";
-import {
-  useControllableState
-} from "./chunk-RONR7KPM.js";
+} from "./chunk-ORCU6JSB.js";
+import "./chunk-FPWTGFM2.js";
+import "./chunk-FRTG3AE5.js";
 import {
   Presence
-} from "./chunk-KVK6YPDH.js";
+} from "./chunk-DNRJHVPT.js";
+import {
+  useControllableState
+} from "./chunk-P7BYXFJ2.js";
 import {
   composeEventHandlers
 } from "./chunk-PX5IZSPS.js";
-import "./chunk-W73LSJDS.js";
+import "./chunk-6RJORZEE.js";
 import {
   createContextScope
 } from "./chunk-LMAY4ZXZ.js";
 import {
   Primitive
-} from "./chunk-CWI2VRDT.js";
+} from "./chunk-KSOZO6LG.js";
 import {
-  createSlot
-} from "./chunk-HRTV7XOE.js";
-import {
+  createSlot,
   useComposedRefs
-} from "./chunk-NNCI5OIM.js";
+} from "./chunk-MMYQZQOQ.js";
 import "./chunk-LNTKQRW3.js";
 import {
   require_jsx_runtime
@@ -72,10 +73,11 @@ var Popover = (props) => {
   const popperScope = usePopperScope(__scopePopover);
   const triggerRef = React.useRef(null);
   const [hasCustomAnchor, setHasCustomAnchor] = React.useState(false);
-  const [open = false, setOpen] = useControllableState({
+  const [open, setOpen] = useControllableState({
     prop: openProp,
-    defaultProp: defaultOpen,
-    onChange: onOpenChange
+    defaultProp: defaultOpen ?? false,
+    onChange: onOpenChange,
+    caller: POPOVER_NAME
   });
   return (0, import_jsx_runtime.jsx)(Root2, { ...popperScope, children: (0, import_jsx_runtime.jsx)(
     PopoverProvider,

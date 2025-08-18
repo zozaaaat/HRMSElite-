@@ -199,7 +199,7 @@ export class AuthUtils {
   }
 
   /**
-   * Check if user has any of the specified permissions
+   * Check if user has unknown of the specified permissions
    */
   static hasAnyPermission (userPermissions: string[] = [], permissions: Permission[]): boolean {
 

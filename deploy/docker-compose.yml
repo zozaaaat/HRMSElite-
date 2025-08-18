@@ -1,128 +1,312 @@
 version: '3.8'
 
 services:
-  # HRMS Elite Application
-  hrms-app:
-    build:
-      context: ..
-      dockerfile: deploy/Dockerfile
-    container_name: hrms-elite-app
-    restart: unless-stopped
+  # Database Services
+  postgres-auth:
+    image: postgres:15-alpine
+    container_name: hrmse-auth-db
     environment:
-      - NODE_ENV=production
-      - PORT=3000
-      - DATABASE_URL=/app/data/hrms.db
-      - SESSION_SECRET=${SESSION_SECRET:-your-super-secret-session-key-change-this}
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-this}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - CSRF_SECRET=${CSRF_SECRET:-your-csrf-secret-key-change-this}
-      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-900000}
-      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-100}
-      - LOG_LEVEL=${LOG_LEVEL:-info}
+      POSTGRES_DB: auth_service_db
+      POSTGRES_USER: hrmse_user
+      POSTGRES_PASSWORD: hrmse_password
     volumes:
-      - hrms_data:/app/data
-      - hrms_uploads:/app/uploads
-      - hrms_logs:/app/logs
-    networks:
-      - hrms-network
-    depends_on:
-      - hrms-db
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  # SQLite Database (using volume for persistence)
-  hrms-db:
-    image: alpine:latest
-    container_name: hrms-elite-db
-    restart: unless-stopped
-    volumes:
-      - hrms_data:/data
-    networks:
-      - hrms-network
-    command: >
-      sh -c "
-        apk add --no-cache sqlite &&
-        if [ ! -f /data/hrms.db ]; then
-          sqlite3 /data/hrms.db 'CREATE TABLE IF NOT EXISTS migrations (id INTEGER PRIMARY KEY, name TEXT, applied_at DATETIME DEFAULT CURRENT_TIMESTAMP);'
-        fi &&
-        tail -f /dev/null
-      "
-
-  # Nginx Reverse Proxy
-  nginx:
-    image: nginx:alpine
-    container_name: hrms-elite-nginx
-    restart: unless-stopped
+      - auth_db_data:/var/lib/postgresql/data
+      - ./init-scripts/auth_service_db.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
-      - hrms_logs:/var/log/nginx
+      - "5432:5432"
     networks:
-      - hrms-network
-    depends_on:
-      - hrms-app
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - hrmse-network
 
-  # Redis for session storage and caching (optional)
+  postgres-company:
+    image: postgres:15-alpine
+    container_name: hrmse-company-db
+    environment:
+      POSTGRES_DB: company_service_db
+      POSTGRES_USER: hrmse_user
+      POSTGRES_PASSWORD: hrmse_password
+    volumes:
+      - company_db_data:/var/lib/postgresql/data
+      - ./init-scripts/company_service_db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5433:5432"
+    networks:
+      - hrmse-network
+
+  postgres-employee:
+    image: postgres:15-alpine
+    container_name: hrmse-employee-db
+    environment:
+      POSTGRES_DB: employee_service_db
+      POSTGRES_USER: hrmse_user
+      POSTGRES_PASSWORD: hrmse_password
+    volumes:
+      - employee_db_data:/var/lib/postgresql/data
+      - ./init-scripts/employee_service_db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5434:5432"
+    networks:
+      - hrmse-network
+
+  postgres-document:
+    image: postgres:15-alpine
+    container_name: hrmse-document-db
+    environment:
+      POSTGRES_DB: document_service_db
+      POSTGRES_USER: hrmse_user
+      POSTGRES_PASSWORD: hrmse_password
+    volumes:
+      - document_db_data:/var/lib/postgresql/data
+      - ./init-scripts/document_service_db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5435:5432"
+    networks:
+      - hrmse-network
+
+  postgres-notification:
+    image: postgres:15-alpine
+    container_name: hrmse-notification-db
+    environment:
+      POSTGRES_DB: notification_service_db
+      POSTGRES_USER: hrmse_user
+      POSTGRES_PASSWORD: hrmse_password
+    volumes:
+      - notification_db_data:/var/lib/postgresql/data
+      - ./init-scripts/notification_service_db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5436:5432"
+    networks:
+      - hrmse-network
+
+  postgres-analytics:
+    image: postgres:15-alpine
+    container_name: hrmse-analytics-db
+    environment:
+      POSTGRES_DB: analytics_service_db
+      POSTGRES_USER: hrmse_user
+      POSTGRES_PASSWORD: hrmse_password
+    volumes:
+      - analytics_db_data:/var/lib/postgresql/data
+      - ./init-scripts/analytics_service_db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5437:5432"
+    networks:
+      - hrmse-network
+
+  # Message Queue
   redis:
     image: redis:7-alpine
-    container_name: hrms-elite-redis
-    restart: unless-stopped
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-hrms-redis-password}
+    container_name: hrmse-redis
+    ports:
+      - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
-      - hrms-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - hrmse-network
 
-  # Backup service
-  backup:
-    image: alpine:latest
-    container_name: hrms-elite-backup
-    restart: "no"
-    volumes:
-      - hrms_data:/data:ro
-      - ./backups:/backups
+  # Microservices
+  auth-service:
+    build:
+      context: ../server/microservices/auth-service
+      dockerfile: ../../deploy/docker/auth-service/Dockerfile
+    container_name: hrmse-auth-service
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://hrmse_user:hrmse_password@postgres-auth:5432/auth_service_db
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres-auth
+      - redis
     networks:
-      - hrms-network
-    command: >
-      sh -c "
-        apk add --no-cache sqlite3 tar gzip &&
-        mkdir -p /backups &&
-        BACKUP_FILE=/backups/hrms-backup-$$(date +%Y%m%d-%H%M%S).tar.gz &&
-        tar -czf $$BACKUP_FILE -C /data . &&
-        echo 'Backup created: $$BACKUP_FILE'
-      "
+      - hrmse-network
+    volumes:
+      - ../server/microservices/auth-service:/app
+      - /app/node_modules
+
+  company-service:
+    build:
+      context: ../server/microservices/company-service
+      dockerfile: ../../deploy/docker/company-service/Dockerfile
+    container_name: hrmse-company-service
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      DATABASE_URL: postgresql://hrmse_user:hrmse_password@postgres-company:5432/company_service_db
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3002:3002"
+    depends_on:
+      - postgres-company
+      - redis
+    networks:
+      - hrmse-network
+    volumes:
+      - ../server/microservices/company-service:/app
+      - /app/node_modules
+
+  employee-service:
+    build:
+      context: ../server/microservices/employee-service
+      dockerfile: ../../deploy/docker/employee-service/Dockerfile
+    container_name: hrmse-employee-service
+    environment:
+      NODE_ENV: development
+      PORT: 3003
+      DATABASE_URL: postgresql://hrmse_user:hrmse_password@postgres-employee:5432/employee_service_db
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3003:3003"
+    depends_on:
+      - postgres-employee
+      - redis
+    networks:
+      - hrmse-network
+    volumes:
+      - ../server/microservices/employee-service:/app
+      - /app/node_modules
+
+  document-service:
+    build:
+      context: ../server/microservices/document-service
+      dockerfile: ../../deploy/docker/document-service/Dockerfile
+    container_name: hrmse-document-service
+    environment:
+      NODE_ENV: development
+      PORT: 3004
+      DATABASE_URL: postgresql://hrmse_user:hrmse_password@postgres-document:5432/document_service_db
+      REDIS_URL: redis://redis:6379
+      UPLOAD_PATH: /app/uploads
+    ports:
+      - "3004:3004"
+    depends_on:
+      - postgres-document
+      - redis
+    networks:
+      - hrmse-network
+    volumes:
+      - ../server/microservices/document-service:/app
+      - /app/node_modules
+      - document_uploads:/app/uploads
+
+  notification-service:
+    build:
+      context: ../server/microservices/notification-service
+      dockerfile: ../../deploy/docker/notification-service/Dockerfile
+    container_name: hrmse-notification-service
+    environment:
+      NODE_ENV: development
+      PORT: 3005
+      DATABASE_URL: postgresql://hrmse_user:hrmse_password@postgres-notification:5432/notification_service_db
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3005:3005"
+    depends_on:
+      - postgres-notification
+      - redis
+    networks:
+      - hrmse-network
+    volumes:
+      - ../server/microservices/notification-service:/app
+      - /app/node_modules
+
+  analytics-service:
+    build:
+      context: ../server/microservices/analytics-service
+      dockerfile: ../../deploy/docker/analytics-service/Dockerfile
+    container_name: hrmse-analytics-service
+    environment:
+      NODE_ENV: development
+      PORT: 3006
+      DATABASE_URL: postgresql://hrmse_user:hrmse_password@postgres-analytics:5432/analytics_service_db
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3006:3006"
+    depends_on:
+      - postgres-analytics
+      - redis
+    networks:
+      - hrmse-network
+    volumes:
+      - ../server/microservices/analytics-service:/app
+      - /app/node_modules
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ../server/microservices/api-gateway
+      dockerfile: ../../deploy/docker/api-gateway/Dockerfile
+    container_name: hrmse-api-gateway
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      AUTH_SERVICE_URL: http://auth-service:3001
+      COMPANY_SERVICE_URL: http://company-service:3002
+      EMPLOYEE_SERVICE_URL: http://employee-service:3003
+      DOCUMENT_SERVICE_URL: http://document-service:3004
+      NOTIFICATION_SERVICE_URL: http://notification-service:3005
+      ANALYTICS_SERVICE_URL: http://analytics-service:3006
+    ports:
+      - "3000:3000"
+    depends_on:
+      - auth-service
+      - company-service
+      - employee-service
+      - document-service
+      - notification-service
+      - analytics-service
+    networks:
+      - hrmse-network
+
+  # Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: hrmse-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - hrmse-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: hrmse-grafana
+    ports:
+      - "3007:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - hrmse-network
 
 volumes:
-  hrms_data:
-    driver: local
-  hrms_uploads:
-    driver: local
-  hrms_logs:
-    driver: local
+  auth_db_data:
+  company_db_data:
+  employee_db_data:
+  document_db_data:
+  notification_db_data:
+  analytics_db_data:
   redis_data:
-    driver: local
+  document_uploads:
+  prometheus_data:
+  grafana_data:
 
 networks:
-  hrms-network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16 
+  hrmse-network:
+    driver: bridge 

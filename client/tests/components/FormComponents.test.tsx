@@ -5,10 +5,12 @@ import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
 
-// Mock components
+// Mock useToast hook
 vi.mock('@/hooks/use-toast', () => ({
   useToast: vi.fn(() => ({
     toast: vi.fn(),
+    toasts: [],
+    dismiss: vi.fn(),
   })),
 }));
 

@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hrmse-config
+  namespace: hrmse-production
+data:
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+  CORS_ORIGIN: "https://hrmse.example.com"
+  RATE_LIMIT_WINDOW_MS: "900000"
+  RATE_LIMIT_MAX_REQUESTS: "100"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-service-config
+  namespace: hrmse-production
+data:
+  PORT: "3001"
+  JWT_SECRET: "your-super-secret-jwt-key-change-in-production"
+  JWT_EXPIRES_IN: "24h"
+  REFRESH_TOKEN_EXPIRES_IN: "7d"
+  PASSWORD_SALT_ROUNDS: "12"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: company-service-config
+  namespace: hrmse-production
+data:
+  PORT: "3002"
+  MAX_COMPANIES_PER_USER: "5"
+  COMPANY_NAME_MAX_LENGTH: "100"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: employee-service-config
+  namespace: hrmse-production
+data:
+  PORT: "3003"
+  MAX_EMPLOYEES_PER_COMPANY: "1000"
+  EMPLOYEE_ID_PREFIX: "EMP"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: document-service-config
+  namespace: hrmse-production
+data:
+  PORT: "3004"
+  UPLOAD_PATH: "/app/uploads"
+  MAX_FILE_SIZE: "10MB"
+  ALLOWED_FILE_TYPES: "pdf,doc,docx,jpg,jpeg,png"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: notification-service-config
+  namespace: hrmse-production
+data:
+  PORT: "3005"
+  EMAIL_SERVICE: "smtp"
+  SMS_SERVICE: "twilio"
+  PUSH_SERVICE: "firebase"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: analytics-service-config
+  namespace: hrmse-production
+data:
+  PORT: "3006"
+  DATA_RETENTION_DAYS: "365"
+  BATCH_SIZE: "1000"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-gateway-config
+  namespace: hrmse-production
+data:
+  PORT: "3000"
+  AUTH_SERVICE_URL: "http://auth-service:3001"
+  COMPANY_SERVICE_URL: "http://company-service:3002"
+  EMPLOYEE_SERVICE_URL: "http://employee-service:3003"
+  DOCUMENT_SERVICE_URL: "http://document-service:3004"
+  NOTIFICATION_SERVICE_URL: "http://notification-service:3005"
+  ANALYTICS_SERVICE_URL: "http://analytics-service:3006"

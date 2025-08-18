@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { api, endpoints, setAuthToken, clearAuthToken } from '../lib/api';
-import { UserData, ApiResponse, ErrorData } from '@shared/types/common';
+import { UserData, ErrorData } from '@shared/types/common';
+import { AxiosResponse } from 'axios';
 
 // Memoized API functions to prevent unnecessary re-renders
 const memoizedApi = {
@@ -49,7 +50,7 @@ interface AuthState {
   clearError: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set, _get) => ({
   user: null,
   token: null,
   isAuthenticated: false,
@@ -60,7 +61,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      const response: ApiResponse<AuthResponse> = await memoizedApi.post(endpoints.auth.login, {
+      const response: AxiosResponse<AuthResponse> = await memoizedApi.post(endpoints.auth.login, {
         email,
         password,
       } as LoginData);
@@ -99,8 +100,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true, error: null });
     
     try {
-      const response: ApiResponse<AuthResponse> = await memoizedApi.post(endpoints.auth.register,
-   userData as UserData);
+      const response: AxiosResponse<AuthResponse> = await memoizedApi.post(endpoints.auth.register, userData);
       
       const { user, token } = response.data || { user: null, token: '' };
       

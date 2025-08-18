@@ -35,12 +35,11 @@ import {
   type Document,
   type InsertDocument,
   type Notification,
-  type InsertNotification,
-  type _CompanyUser
+  type InsertNotification
 } from '@shared/schema';
 import {db} from './db';
 import {eq, and, gt} from 'drizzle-orm';
-import {log} from '@utils/logger';
+import {log} from '../utils/logger';
 
 
 /**
@@ -85,7 +84,7 @@ export class DatabaseStorage {
    * @throws {Error} When database operation fails
    * @example
    * const company = await storage.getCompany("company-1");
-   * if (company) {
+   * if (compunknown) {
    * }
    */
   async getCompany (id: string): Promise<Company | null> {
@@ -349,7 +348,7 @@ export class DatabaseStorage {
       const conditions = [eq(employees.companyId, companyId)];
       if (status) {
 
-        conditions.push(eq(employeeLeaves.status, status as any));
+        conditions.push(eq(employeeLeaves.status, status as 'pending' | 'approved' | 'rejected'));
 
       }
 
@@ -1233,20 +1232,18 @@ export class DatabaseStorage {
 
       }
 
-      let query = db.select().from(employees) as any;
+      let results: Employee[];
       if (conditions.length > 0) {
-
-        query = query.where(and(...conditions));
-
+        results = await db.select().from(employees).where(and(...conditions));
+      } else {
+        results = await db.select().from(employees);
       }
-
-      const results = await query;
 
       // Apply search filter if provided
       if (filters.search) {
 
         const searchTerm = filters.search.toLowerCase();
-        return results.filter((emp: any) =>
+        return results.filter((emp) =>
           emp.firstName?.toLowerCase().includes(searchTerm) ||
           emp.lastName?.toLowerCase().includes(searchTerm) ||
           emp.arabicName?.toLowerCase().includes(searchTerm) ||
@@ -1600,20 +1597,18 @@ export class DatabaseStorage {
 
       }
 
-      let query = db.select().from(users) as any;
+      let results: User[];
       if (conditions.length > 0) {
-
-        query = query.where(and(...conditions));
-
+        results = await db.select().from(users).where(and(...conditions));
+      } else {
+        results = await db.select().from(users);
       }
-
-      const results = await query;
 
       // Apply search filter if provided
       if (filters.search) {
 
         const searchTerm = filters.search.toLowerCase();
-        return results.filter((user: any) =>
+        return results.filter((user) =>
           user.firstName?.toLowerCase().includes(searchTerm) ||
           user.lastName?.toLowerCase().includes(searchTerm) ||
           user.email?.toLowerCase().includes(searchTerm)
@@ -2087,7 +2082,7 @@ export class DatabaseStorage {
    * @example
    * const permissions = await storage.getUserPermissions("user-1", "company-1");
    */
-  async getUserPermissions (userId: string, companyId?: string): Promise<string[]> {
+  async getUserPermissions (userId: string, _companyId?: string): Promise<string[]> {
 
     try {
 
@@ -2130,7 +2125,7 @@ export class DatabaseStorage {
    * @example
    * const roles = await storage.getUserRoles("user-1", "company-1");
    */
-  async getUserRoles (userId: string, companyId?: string): Promise<string[]> {
+  async getUserRoles (userId: string, _companyId?: string): Promise<string[]> {
 
     try {
 

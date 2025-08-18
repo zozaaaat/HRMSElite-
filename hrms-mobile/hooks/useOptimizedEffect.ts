@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useRef, DependencyList } from 'react';
-import { logger } from '@utils/logger';
+import { logger } from '@/lib/logger';
 
 
 /**
@@ -84,7 +84,7 @@ export function useAsyncEffect(
 export function useMountEffect(effect: () => void | (() => void)) {
   useEffect(() => {
     return effect();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 }
 
 /**
@@ -93,5 +93,5 @@ export function useMountEffect(effect: () => void | (() => void)) {
 export function useUnmountEffect(effect: () => void) {
   useEffect(() => {
     return effect;
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 } 

@@ -1,9 +1,12 @@
-import { logger } from '@utils/logger';
+import { logger } from './logger';
 
 /**
  * PWA (Progressive Web App) functionality
  * Handles service worker registration and PWA features
  */
+
+// Type declaration for NotificationPermission if not available
+type NotificationPermission = 'default' | 'granted' | 'denied';
 
 interface PWAConfig {
   swPath: string;
@@ -69,7 +72,7 @@ class PWAManager {
    * Show update notification to user
    */
   private showUpdateNotification(): void {
-    if (confirm('A new version is available. Would you like to update?')) {
+    if (window.confirm('A new version is available. Would you like to update?')) {
       this.swRegistration?.waiting?.postMessage({ type: 'SKIP_WAITING' });
     }
   }
@@ -126,13 +129,13 @@ class PWAManager {
     // This would typically use the BeforeInstallPromptEvent
     // For now, we'll show a manual prompt
     if (!this.isInstalled()) {
-      const shouldShow = confirm(
+      const shouldShow = window.confirm(
         'Install HRMS Elite on your home screen for quick access?'
       );
       
       if (shouldShow) {
         // Show instructions for manual installation
-        alert(
+        window.alert(
           'To install HRMS Elite:\n\n' +
           'iOS Safari:\n' +
           '1. Tap the Share button\n' +

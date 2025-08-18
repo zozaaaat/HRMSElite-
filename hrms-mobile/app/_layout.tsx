@@ -6,16 +6,10 @@ import 'react-native-reanimated';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { useEffect } from 'react';
-import { PWAUtils } from '../lib/pwa';
+// import { pwaManager } from '../lib/pwa';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { logger } from '@utils/logger';
-import { logger } from '@utils/logger';
-import { logger } from '@utils/logger';
-import { logger } from '@utils/logger';
-
-
-
+import { logger } from '../lib/logger';
 
 
 // Create a client
@@ -37,7 +31,8 @@ export default function RootLayout() {
 
   // Initialize PWA functionality
   useEffect(() => {
-    PWAUtils.init().catch(console.error);
+    // PWA manager initializes automatically when singleton is created
+    logger.info('PWA Manager initialized', { source: 'RootLayout' });
   }, []);
 
   if (!loaded) {

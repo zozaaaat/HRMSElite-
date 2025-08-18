@@ -1,8 +1,38 @@
 import {Request, Response, NextFunction} from 'express';
 import {storage} from '../models/storage';
 import {log} from '../utils/logger';
-import jwt from 'jsonwebtoken';
-import type {User} from '../../shared/types/user';
+import * as jwt from 'jsonwebtoken';
+
+// Define a local User interface that matches what we're actually using
+interface AuthUser {
+  id: string;
+  sub: string;
+  role: string;
+  email?: string | undefined;
+  firstName?: string | undefined;
+  lastName?: string | undefined;
+  companyId?: string | undefined;
+  permissions: string[];
+  isActive: boolean;
+  claims: Record<string, unknown> | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Define session user interface
+interface SessionUser {
+  id: string;
+  role: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+  permissions?: string[];
+  isActive?: boolean;
+  claims?: Record<string, unknown> | null;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
+}
 
 // JWT Configuration
 const JWT_SECRET = process.env.JWT_SECRET ?? "hrms-elite-secret-key-change-in-production";
@@ -13,8 +43,15 @@ const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN ?? "7d";
 declare global {
   namespace Express {
     interface Request {
-      user?: User;
+      user?: AuthUser;
     }
+  }
+}
+
+// Extend express-session interface to include user
+declare module 'express-session' {
+  interface SessionData {
+    user?: SessionUser;
   }
 }
 
@@ -25,11 +62,11 @@ declare global {
  */
 export const generateJWTToken = (payload: Record<string, unknown>): string => {
 
-  return jwt.sign(payload, JWT_SECRET, {
+  return jwt.sign(payload as object, JWT_SECRET as jwt.Secret, {
     'expiresIn': JWT_EXPIRES_IN,
     'issuer': 'hrms-elite',
     'audience': 'hrms-elite-users'
-  });
+  } as jwt.SignOptions);
 
 };
 
@@ -40,11 +77,11 @@ export const generateJWTToken = (payload: Record<string, unknown>): string => {
  */
 export const generateRefreshToken = (payload: Record<string, unknown>): string => {
 
-  return jwt.sign(payload, JWT_SECRET, {
+  return jwt.sign(payload as object, JWT_SECRET as jwt.Secret, {
     'expiresIn': JWT_REFRESH_EXPIRES_IN,
     'issuer': 'hrms-elite',
     'audience': 'hrms-elite-refresh'
-  });
+  } as jwt.SignOptions);
 
 };
 
@@ -53,18 +90,20 @@ export const generateRefreshToken = (payload: Record<string, unknown>): string =
  * @param token - JWT token to verify
  * @returns Decoded token payload or null if invalid
  */
-export const verifyJWTToken = (token: string): Record<string, unknown> => {
+export const verifyJWTToken = (token: string): jwt.JwtPayload | null => {
 
   try {
 
-    return jwt.verify(token, JWT_SECRET, {
+    const decoded = jwt.verify(token, JWT_SECRET, {
       'issuer': 'hrms-elite',
       'audience': 'hrms-elite-users'
-    });
+    }) as jwt.JwtPayload;
+
+    return decoded;
 
   } catch (error) {
 
-    log.error('JWT verification failed:', error, 'AUTH');
+    log.error('JWT verification failed:', error as Error, 'AUTH');
     return null;
 
   }
@@ -76,18 +115,20 @@ export const verifyJWTToken = (token: string): Record<string, unknown> => {
  * @param token - Refresh token to verify
  * @returns Decoded token payload or null if invalid
  */
-export const verifyRefreshToken = (token: string): Record<string, unknown> => {
+export const verifyRefreshToken = (token: string): jwt.JwtPayload | null => {
 
   try {
 
-    return jwt.verify(token, JWT_SECRET, {
+    const decoded = jwt.verify(token, JWT_SECRET, {
       'issuer': 'hrms-elite',
       'audience': 'hrms-elite-refresh'
-    });
+    }) as jwt.JwtPayload;
+
+    return decoded;
 
   } catch (error) {
 
-    log.error('Refresh token verification failed:', error, 'AUTH');
+    log.error('Refresh token verification failed:', error as Error, 'AUTH');
     return null;
 
   }
@@ -103,9 +144,9 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
   try {
 
     // Check for session-based authentication first
-    if ((req.session as any)?.user) {
+    if (req.session?.user) {
 
-      const sessionUser = (req.session as any).user;
+      const sessionUser = req.session.user;
       req.user = {
         'id': sessionUser.id,
         'sub': sessionUser.id,
@@ -132,8 +173,11 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
 
       if (decoded) {
 
+        // Use decoded?.id as string with proper type casting
+        const userId = String(decoded?.id ?? '');
+
         // Get fresh user data from database
-        const user = await storage.getUser(decoded.id);
+        const user = await storage.getUser(userId);
         if (!user?.isActive) {
 
           return res.status(401).json({'message': 'User not found or inactive'});
@@ -141,8 +185,20 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
         }
 
         // Get user's companies and permissions
-        const userCompanies = await storage.getUserCompanies(decoded.id);
-        const permissions = await storage.getUserPermissions(decoded.id);
+        const _userCompanies = await storage.getUserCompanies(userId);
+        const permissions = await storage.getUserPermissions(userId);
+
+        // Parse permissions from JSON string if needed
+        let parsedPermissions: string[] = [];
+        if (typeof permissions === 'string') {
+          try {
+            parsedPermissions = JSON.parse(permissions);
+          } catch {
+            parsedPermissions = [];
+          }
+        } else if (Array.isArray(permissions)) {
+          parsedPermissions = permissions;
+        }
 
         req.user = {
           'id': user.id,
@@ -151,9 +207,9 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
           'email': user.email,
           'firstName': user.firstName,
           'lastName': user.lastName,
-          'permissions': permissions,
+          'permissions': parsedPermissions,
           'isActive': user.isActive,
-          'claims': user.claims,
+          'claims': user.claims ? JSON.parse(user.claims) : null,
           'createdAt': user.createdAt,
           'updatedAt': user.updatedAt
         };
@@ -177,7 +233,7 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
       req.user = {
         'id': userId,
         'sub': userId,
-        'role': userRole as any,
+        'role': userRole,
         'email': userEmail ?? "user@company.com",
         'firstName': 'محمد',
         'lastName': 'أحمد',
@@ -196,7 +252,7 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
 
   } catch (error) {
 
-    log.error('Authentication error:', error, 'AUTH');
+    log.error('Authentication error:', error as Error, 'AUTH');
     return res.status(500).json({'message': 'Authentication service error'});
 
   }
@@ -315,9 +371,9 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
   try {
 
     // Try to authenticate, but don't fail if not authenticated
-    if ((req.session as any)?.user) {
+    if (req.session?.user) {
 
-      const sessionUser = (req.session as any).user;
+      const sessionUser = req.session.user;
       req.user = {
         'id': sessionUser.id,
         'sub': sessionUser.id,
@@ -341,7 +397,7 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
       req.user = {
         'id': userId,
         'sub': userId,
-        'role': userRole as any,
+        'role': userRole,
         'email': userEmail ?? "user@company.com",
         'firstName': 'محمد',
         'lastName': 'أحمد',
@@ -356,7 +412,7 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
 
     next();
 
-  } catch (error) {
+  } catch {
 
     // Continue without authentication
     next();
@@ -389,7 +445,7 @@ export const hasPermission = (req: Request, permission: string): boolean => {
 };
 
 /**
- * Check if user has any of the specified permissions
+ * Check if user has unknown of the specified permissions
  */
 export const hasAnyPermission = (req: Request, permissions: string[]): boolean => {
 

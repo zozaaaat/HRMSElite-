@@ -38,6 +38,8 @@ export default defineConfig({
         '**/*.stories.*',
         '**/__mocks__/**',
         '**/mock-data.ts',
+        '**/test-utils.tsx',
+        '**/setup.ts',
       ],
       thresholds: {
         global: {
@@ -102,6 +104,8 @@ export default defineConfig({
       '**/coverage/**',
       '**/__mocks__/**',
       '**/mock-data.ts',
+      '**/test-utils.tsx',
+      '**/setup.ts',
     ],
     // تحسينات إضافية
     testTimeout: 10000,
@@ -118,6 +122,12 @@ export default defineConfig({
     // تحسين UI
     ui: {
       enabled: true,
+    },
+    // Add environment variables for testing
+    env: {
+      NODE_ENV: 'test',
+      VITE_API_URL: 'http://localhost:3001',
+      VITE_APP_NAME: 'HRMS Elite Test',
     },
   },
   resolve: {
@@ -143,8 +153,14 @@ export default defineConfig({
       '@testing-library/react',
       '@testing-library/jest-dom',
       '@testing-library/user-event',
+      'vitest',
     ],
   },
   // تحسين cache
   cacheDir: '.vitest',
+  // Add define for global variables
+  define: {
+    __DEV__: true,
+    __TEST__: true,
+  },
 }); 

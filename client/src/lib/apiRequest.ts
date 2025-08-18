@@ -1,7 +1,7 @@
 // API Request utility with error handling and CSRF protection
 
 import {fetchWithCsrf, handleCsrfError} from './csrf';
-import logger from '@/lib/logger';
+import logger from './logger';
 
 // Local aliases to avoid direct references to DOM lib names in annotations
 type BodyInitLike = globalThis.BodyInit;

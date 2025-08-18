@@ -1,7 +1,7 @@
 import React, {Suspense} from 'react';
 import {PageHelmet} from '@/components/shared/PageHelmet';
 import {LoadingFallback} from '@/components/shared/LoadingFallback';
-import {useLogger} from '@/lib/logger';
+import {useLogger} from '../lib/logger';
 import {useQuery} from '@tanstack/react-query';
 import type {DashboardStats as DashboardStatsData} from '@/types/component-props';
 

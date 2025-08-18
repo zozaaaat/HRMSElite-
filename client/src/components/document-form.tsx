@@ -25,7 +25,7 @@ import {
 
 import {Document, SignatureData} from '../types/documents';
 import SignatureCapture from './signature-capture';
-import {logger} from '@/lib/logger';
+import logger from '../lib/logger';
 
 
 interface DocumentFormProps {

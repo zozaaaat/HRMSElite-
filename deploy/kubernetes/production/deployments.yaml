@@ -1,0 +1,535 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: hrmse-production
+  labels:
+    app: auth-service
+    version: v1.0.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+        version: v1.0.0
+    spec:
+      containers:
+      - name: auth-service
+        image: hrmse/auth-service:latest
+        ports:
+        - containerPort: 3001
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: hrmse-config
+              key: NODE_ENV
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: auth-service-config
+              key: PORT
+        - name: DATABASE_URL
+          value: "postgresql://hrmse_user:$(AUTH_DB_PASSWORD)@auth-db:5432/auth_service_db"
+        - name: AUTH_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: auth-db-password
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: jwt-secret
+        - name: REDIS_URL
+          value: "redis://:$(REDIS_PASSWORD)@redis:6379"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: redis-password
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: company-service
+  namespace: hrmse-production
+  labels:
+    app: company-service
+    version: v1.0.0
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: company-service
+  template:
+    metadata:
+      labels:
+        app: company-service
+        version: v1.0.0
+    spec:
+      containers:
+      - name: company-service
+        image: hrmse/company-service:latest
+        ports:
+        - containerPort: 3002
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: hrmse-config
+              key: NODE_ENV
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: company-service-config
+              key: PORT
+        - name: DATABASE_URL
+          value: "postgresql://hrmse_user:$(COMPANY_DB_PASSWORD)@company-db:5432/company_service_db"
+        - name: COMPANY_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: company-db-password
+        - name: REDIS_URL
+          value: "redis://:$(REDIS_PASSWORD)@redis:6379"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: redis-password
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3002
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3002
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: employee-service
+  namespace: hrmse-production
+  labels:
+    app: employee-service
+    version: v1.0.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: employee-service
+  template:
+    metadata:
+      labels:
+        app: employee-service
+        version: v1.0.0
+    spec:
+      containers:
+      - name: employee-service
+        image: hrmse/employee-service:latest
+        ports:
+        - containerPort: 3003
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: hrmse-config
+              key: NODE_ENV
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: employee-service-config
+              key: PORT
+        - name: DATABASE_URL
+          value: "postgresql://hrmse_user:$(EMPLOYEE_DB_PASSWORD)@employee-db:5432/employee_service_db"
+        - name: EMPLOYEE_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: employee-db-password
+        - name: REDIS_URL
+          value: "redis://:$(REDIS_PASSWORD)@redis:6379"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: redis-password
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: document-service
+  namespace: hrmse-production
+  labels:
+    app: document-service
+    version: v1.0.0
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: document-service
+  template:
+    metadata:
+      labels:
+        app: document-service
+        version: v1.0.0
+    spec:
+      containers:
+      - name: document-service
+        image: hrmse/document-service:latest
+        ports:
+        - containerPort: 3004
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: hrmse-config
+              key: NODE_ENV
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: document-service-config
+              key: PORT
+        - name: DATABASE_URL
+          value: "postgresql://hrmse_user:$(DOCUMENT_DB_PASSWORD)@document-db:5432/document_service_db"
+        - name: DOCUMENT_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: document-db-password
+        - name: REDIS_URL
+          value: "redis://:$(REDIS_PASSWORD)@redis:6379"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: redis-password
+        - name: UPLOAD_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: document-service-config
+              key: UPLOAD_PATH
+        volumeMounts:
+        - name: document-storage
+          mountPath: /app/uploads
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3004
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3004
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: document-storage
+        persistentVolumeClaim:
+          claimName: document-storage-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: hrmse-production
+  labels:
+    app: notification-service
+    version: v1.0.0
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+        version: v1.0.0
+    spec:
+      containers:
+      - name: notification-service
+        image: hrmse/notification-service:latest
+        ports:
+        - containerPort: 3005
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: hrmse-config
+              key: NODE_ENV
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: notification-service-config
+              key: PORT
+        - name: DATABASE_URL
+          value: "postgresql://hrmse_user:$(NOTIFICATION_DB_PASSWORD)@notification-db:5432/notification_service_db"
+        - name: NOTIFICATION_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: notification-db-password
+        - name: REDIS_URL
+          value: "redis://:$(REDIS_PASSWORD)@redis:6379"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: redis-password
+        - name: SMTP_HOST
+          valueFrom:
+            secretKeyRef:
+              name: email-secrets
+              key: smtp-host
+        - name: SMTP_PORT
+          valueFrom:
+            secretKeyRef:
+              name: email-secrets
+              key: smtp-port
+        - name: SMTP_USER
+          valueFrom:
+            secretKeyRef:
+              name: email-secrets
+              key: smtp-user
+        - name: SMTP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: email-secrets
+              key: smtp-password
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analytics-service
+  namespace: hrmse-production
+  labels:
+    app: analytics-service
+    version: v1.0.0
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: analytics-service
+  template:
+    metadata:
+      labels:
+        app: analytics-service
+        version: v1.0.0
+    spec:
+      containers:
+      - name: analytics-service
+        image: hrmse/analytics-service:latest
+        ports:
+        - containerPort: 3006
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: hrmse-config
+              key: NODE_ENV
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: analytics-service-config
+              key: PORT
+        - name: DATABASE_URL
+          value: "postgresql://hrmse_user:$(ANALYTICS_DB_PASSWORD)@analytics-db:5432/analytics_service_db"
+        - name: ANALYTICS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: analytics-db-password
+        - name: REDIS_URL
+          value: "redis://:$(REDIS_PASSWORD)@redis:6379"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: redis-password
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3006
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3006
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: hrmse-production
+  labels:
+    app: api-gateway
+    version: v1.0.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+        version: v1.0.0
+    spec:
+      containers:
+      - name: api-gateway
+        image: hrmse/api-gateway:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: hrmse-config
+              key: NODE_ENV
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: api-gateway-config
+              key: PORT
+        - name: AUTH_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: api-gateway-config
+              key: AUTH_SERVICE_URL
+        - name: COMPANY_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: api-gateway-config
+              key: COMPANY_SERVICE_URL
+        - name: EMPLOYEE_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: api-gateway-config
+              key: EMPLOYEE_SERVICE_URL
+        - name: DOCUMENT_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: api-gateway-config
+              key: DOCUMENT_SERVICE_URL
+        - name: NOTIFICATION_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: api-gateway-config
+              key: NOTIFICATION_SERVICE_URL
+        - name: ANALYTICS_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: api-gateway-config
+              key: ANALYTICS_SERVICE_URL
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5

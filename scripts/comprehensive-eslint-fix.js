@@ -66,7 +66,7 @@ function fixESLintIssues(filePath) {
 
     if (modified) {
       fs.writeFileSync(filePath, content, 'utf8');
-      console.log(`Fixed ESLint issues in: ${filePath}`);
+      console.info(`Fixed ESLint issues in: ${filePath}`);
     }
 
   } catch (error) {
@@ -96,10 +96,10 @@ function findTsFiles(dir, files = []) {
 const rootDir = path.join(__dirname, '..');
 const tsFiles = findTsFiles(rootDir);
 
-console.log(`Found ${tsFiles.length} TypeScript files to process...`);
+console.info(`Found ${tsFiles.length} TypeScript files to process...`);
 
 for (const file of tsFiles) {
   fixESLintIssues(file);
 }
 
-console.log('Comprehensive ESLint fix completed!');
+console.info('Comprehensive ESLint fix completed!');

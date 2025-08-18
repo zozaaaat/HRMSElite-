@@ -3,8 +3,8 @@ import Database from 'better-sqlite3';
 // إنشاء قاعدة البيانات
 const sqlite = new Database('./dev.db');
 
-console.log('✅ قاعدة البيانات تم إنشاؤها بنجاح!');
-console.log('📁 الملف: dev.db');
+console.info('✅ قاعدة البيانات تم إنشاؤها بنجاح!');
+console.info('📁 الملف: dev.db');
 
 // إنشاء الجداول الأساسية
 try {
@@ -99,11 +99,11 @@ try {
     )
   `);
 
-  console.log('✅ الجداول تم إنشاؤها بنجاح!');
-  console.log('📊 الجداول المنشأة:');
-  console.log('   - users');
-  console.log('   - companies');
-  console.log('   - employees');
+  console.info('✅ الجداول تم إنشاؤها بنجاح!');
+  console.info('📊 الجداول المنشأة:');
+  console.info('   - users');
+  console.info('   - companies');
+  console.info('   - employees');
 } catch (error) {
   console.error('❌ خطأ في إنشاء الجداول:', error);
 }

@@ -5,8 +5,8 @@
 
 // Enhanced PWA Configuration for HRMS Mobile
 import { Platform } from 'react-native';
-import { SyncData, PendingDataItem } from '@shared/types/common';
-import { logger } from '@utils/logger';
+import { SyncData, PendingDataItem, EmployeeData, CompanyData, DocumentData, LicenseData } from '@shared/types/common';
+import { logger } from './logger';
 
 
 export interface PWAConfig {
@@ -241,7 +241,17 @@ export class PWAManager {
       // Sync any data that was stored while offline
       const pendingData = await this.getPendingData();
       if (pendingData.length > 0) {
-        await this.syncData(pendingData);
+        // Convert PendingDataItem to SyncData format
+        const syncData: SyncData[] = pendingData.map(item => ({
+          id: item.id,
+          type: item.type as 'employee' | 'company' | 'document' | 'license',
+          action: item.action as 'create' | 'update' | 'delete',
+          data: item.data as EmployeeData | CompanyData | DocumentData | LicenseData,
+          timestamp: item.timestamp,
+          status: 'pending' as const,
+          retryCount: item.retryCount || 0
+        }));
+        await this.syncData(syncData);
       }
     } catch (error) {
       logger.error('Error syncing pending data:', error);
@@ -261,7 +271,7 @@ export class PWAManager {
         // Make API call to sync data
         await this.makeAPICall(item);
         // Remove from pending data
-        this.removePendingData(item);
+        await this.removePendingData(item);
       } catch (error) {
         logger.error('Error syncing item:', error);
       }
@@ -283,9 +293,9 @@ export class PWAManager {
     }
   }
 
-  private removePendingData(item: SyncData): void {
+  private async removePendingData(item: SyncData): Promise<void> {
     // Remove item from pending data
-    const pendingData = this.getPendingData();
+    const pendingData = await this.getPendingData();
     const filteredData = pendingData.filter((pendingItem: PendingDataItem) => 
       pendingItem.id !== item.id
     );

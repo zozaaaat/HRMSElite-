@@ -1,11 +1,3 @@
-import { logger } from '@utils/logger';
-import { logger } from '@utils/logger';
-import { logger } from '@utils/logger';
-import { logger } from '@utils/logger';
-
-
-
-
 /**
  * Server-side logging utility for HRMS Elite
  * Provides structured logging with different levels and environments
@@ -62,24 +54,24 @@ class ServerLogger {
     switch (level) {
       case LogLevel.DEBUG:
         // Use console.debug for debug level
-        logger.debug(formattedMessage);
+        console.debug(formattedMessage);
         break;
       case LogLevel.INFO:
         // Use console.info for info level
-        logger.info(formattedMessage);
+        console.info(formattedMessage);
         break;
       case LogLevel.WARN:
         // Use console.warn for warn level
-        logger.warn(formattedMessage);
+        console.warn(formattedMessage);
         break;
       case LogLevel.ERROR:
         // Use console.error for error level
-        logger.error(formattedMessage);
+        console.error(formattedMessage);
         break;
     }
   }
 
-  private logToService(_logData:  LogData): void {
+  private logToService(logData: LogData): void {
     // In production, send logs to external service
     if (this.isProduction) {
       // TODO: Implement external logging service (e.g., Winston, Bunyan)

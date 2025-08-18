@@ -841,9 +841,9 @@ var require_isString = __commonJS({
   }
 });
 
-// node_modules/react-is/cjs/react-is.development.js
+// node_modules/recharts/node_modules/react-is/cjs/react-is.development.js
 var require_react_is_development = __commonJS({
-  "node_modules/react-is/cjs/react-is.development.js"(exports) {
+  "node_modules/recharts/node_modules/react-is/cjs/react-is.development.js"(exports) {
     "use strict";
     if (true) {
       (function() {
@@ -1023,9 +1023,9 @@ var require_react_is_development = __commonJS({
   }
 });
 
-// node_modules/react-is/index.js
+// node_modules/recharts/node_modules/react-is/index.js
 var require_react_is = __commonJS({
-  "node_modules/react-is/index.js"(exports, module) {
+  "node_modules/recharts/node_modules/react-is/index.js"(exports, module) {
     "use strict";
     if (false) {
       module.exports = null;
@@ -8013,7 +8013,7 @@ var DefaultLegendContent = function(_PureComponent) {
         warn(
           !(0, import_isFunction2.default)(entry.value),
           `The name property is also required when using a function for the dataKey of a chart's cartesian components. Ex: <Bar name="Name of my Data"/>`
-          // eslint-disable-line max-len
+           
         );
         var color2 = entry.inactive ? inactiveColor : entry.color;
         return import_react6.default.createElement("li", _extends4({
@@ -14971,7 +14971,7 @@ var ErrorBar = function(_React$Component) {
     value: function render() {
       var _this$props = this.props, offset = _this$props.offset, layout = _this$props.layout, width = _this$props.width, dataKey = _this$props.dataKey, data = _this$props.data, dataPointFormatter = _this$props.dataPointFormatter, xAxis = _this$props.xAxis, yAxis = _this$props.yAxis, others = _objectWithoutProperties7(_this$props, _excluded8);
       var svgProps = filterProps(others, false);
-      !!(this.props.direction === "x" && xAxis.type !== "number") ? true ? invariant(false, 'ErrorBar requires Axis type property to be "number".') : invariant(false) : void 0;
+      this.props.direction === "x" && xAxis.type !== "number" ? true ? invariant(false, 'ErrorBar requires Axis type property to be "number".') : invariant(false) : void 0;
       var errorBars = data.map(function(entry) {
         var _dataPointFormatter = dataPointFormatter(entry, dataKey), x2 = _dataPointFormatter.x, y2 = _dataPointFormatter.y, value = _dataPointFormatter.value, errorVal = _dataPointFormatter.errorVal;
         if (!errorVal) {
@@ -20465,7 +20465,7 @@ function AnimateGroup(props) {
       enterOptions: enter,
       leaveOptions: leave,
       key: "child-".concat(index2)
-      // eslint-disable-line
+       
     }, child);
   }));
 }

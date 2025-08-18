@@ -1,6 +1,5 @@
 // Internal Logging System for HRMS Elite
 import React from 'react';
-import { logger } from '@utils/logger';
 
 
 interface LogLevel {
@@ -112,10 +111,15 @@ class Logger {
   }
 
   private getSessionId(): string {
-    let sessionId = sessionStorage.getItem('hrms-session-id');
+    // Check if we're in a browser environment and sessionStorage is available
+    if (typeof window === 'undefined' || typeof window.sessionStorage === 'undefined') {
+      return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+    
+    let sessionId = window.sessionStorage.getItem('hrms-session-id');
     if (!sessionId) {
       sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      sessionStorage.setItem('hrms-session-id', sessionId);
+      window.sessionStorage.setItem('hrms-session-id', sessionId);
     }
     return sessionId;
   }
@@ -129,7 +133,7 @@ class Logger {
     }
 
     // Console output based on environment
-    if (!this.isProduction ?? entry.level === 'ERROR' || entry.level === 'FATAL') {
+    if (!this.isProduction || entry.level === 'ERROR' || entry.level === 'FATAL') {
       this.outputToConsole(entry);
     }
 
@@ -145,23 +149,17 @@ class Logger {
     
     switch (entry.level) {
       case 'DEBUG':
-        logger.debug(`${prefix} ${componentPrefix} ${entry.message}`, entry.data || '');
+        console.debug(`${prefix} ${componentPrefix} ${entry.message}`, entry.data || '');
         break;
       case 'INFO':
-        logger.info(`${prefix} ${componentPrefix} ${entry.message}`, entry.data || '');
+        console.info(`${prefix} ${componentPrefix} ${entry.message}`, entry.data || '');
         break;
       case 'WARN':
-        logger.warn(`${prefix} ${componentPrefix} ${entry.message}`, entry.data || '');
+        console.warn(`${prefix} ${componentPrefix} ${entry.message}`, entry.data || '');
         break;
       case 'ERROR':
       case 'FATAL':
-        logger.error(`${
-  prefix
-} ${
-  componentPrefix
-} ${
-  entry.message
-}`, entry.data || '', entry.error || '');
+        console.error(`${prefix} ${componentPrefix} ${entry.message}`, entry.data || '', entry.error);
         break;
     }
   }
@@ -177,7 +175,7 @@ class Logger {
       });
     } catch (error) {
       // Fallback to console if server logging fails
-      logger.error('Failed to send log to server:', error);
+      console.error('Failed to send log to server:', error);
     }
   }
 
@@ -214,10 +212,10 @@ class Logger {
 
   // Performance logging
   time(label: string, component?: string) {
-    const startTime = performance.now();
+    const startTime = Date.now();
     return {
       end: (data?: Record<string, unknown>) => {
-        const duration = performance.now() - startTime;
+        const duration = Date.now() - startTime;
         this.info(`${label} completed in ${duration.toFixed(2)}ms`, data, component);
       }
     };

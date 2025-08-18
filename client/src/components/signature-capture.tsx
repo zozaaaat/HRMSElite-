@@ -1,12 +1,12 @@
 /* eslint-env browser */
-/* global HTMLCanvasElement, CanvasLineCap, CanvasLineJoin, HTMLInputElement, FileReader, Image, document */
+/* global HTMLCanvasElement, CanvasLineCap, CanvasLineJoin, FileReader, Image */
 import React, {useRef, useEffect, useState, useCallback} from 'react';
 import {Card, CardContent, CardHeader, CardTitle} from './ui/card';
 import {Button} from './ui/button';
 import {Label} from './ui/label';
 import {Alert, AlertDescription} from './ui/alert';
 import {useToast} from '../hooks/use-toast';
-import { logger } from '@/lib/logger';
+import logger from '../lib/logger';
 import {SignatureData} from '../types/documents';
 import {
   PenTool,
