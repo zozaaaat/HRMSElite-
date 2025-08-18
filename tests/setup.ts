@@ -1,4 +1,16 @@
 import '@testing-library/jest-dom';
+import { beforeAll } from 'vitest';
+import { app } from '../server/app';
+import { registerRoutes } from '../server/routes';
+
+const g = globalThis as { __routesRegistered?: boolean };
+
+beforeAll(async () => {
+  if (!g.__routesRegistered) {
+    await registerRoutes(app);
+    g.__routesRegistered = true;
+  }
+});
 
 // Mock IntersectionObserver without relying on DOM lib types
 class MockIntersectionObserver {

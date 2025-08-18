@@ -6,7 +6,7 @@
  */
 
 import request from 'supertest';
-import { app } from '../server/index';
+import { app } from '../server/app';
 
 describe('Server Security Tests', () => {
   describe('Helmet Security Headers', () => {

@@ -546,7 +546,7 @@ const options = {
   'apis': [
     './server/routes.ts',
     './server/routes/*.ts',
-    './server/index.ts',
+    './server/app.ts',
     './server/routes-documentation.ts'
   ]
 };
