@@ -1,12 +1,12 @@
 import React from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom';
 import Reports from '../src/pages/reports';
 
-// Mock fetch for API calls
-global.fetch = vi.fn();
+// Preserve original fetch to restore later
+const originalFetch = global.fetch;
 
 // Create a test query client
 const createTestQueryClient = () => new QueryClient({
@@ -29,7 +29,15 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
 
 describe('Reports Page', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({})
+    } as Response);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    global.fetch = originalFetch;
   });
 
   it('renders AI summary tab by default', () => {
@@ -44,7 +52,7 @@ describe('Reports Page', () => {
   });
 
   it('shows loading state for AI summary', async () => {
-    (fetch as ReturnType<typeof vi.fn>).mockImplementation(() => 
+    (fetch as ReturnType<typeof vi.fn>).mockImplementation(() =>
       new Promise(() => {}) // Never resolves to simulate loading
     );
 
@@ -52,6 +60,10 @@ describe('Reports Page', () => {
       <TestWrapper>
         <Reports />
       </TestWrapper>
+    );
+
+    await waitFor(() =>
+      expect(fetch).toHaveBeenCalledWith('/api/ai/summary?companyId=company-1')
     );
 
     await waitFor(() => {
@@ -89,6 +101,10 @@ describe('Reports Page', () => {
       </TestWrapper>
     );
 
+    await waitFor(() =>
+      expect(fetch).toHaveBeenCalledWith('/api/ai/summary?companyId=company-1')
+    );
+
     await waitFor(() => {
       expect(screen.getByText('التحليل الذكي الشامل')).toBeInTheDocument();
       expect(screen.getByText('نظرة عامة')).toBeInTheDocument();
@@ -104,6 +120,10 @@ describe('Reports Page', () => {
       <TestWrapper>
         <Reports />
       </TestWrapper>
+    );
+
+    await waitFor(() =>
+      expect(fetch).toHaveBeenCalledWith('/api/ai/summary?companyId=company-1')
     );
 
     await waitFor(() => {
@@ -123,13 +143,22 @@ describe('Reports Page', () => {
         <Reports />
       </TestWrapper>
     );
+    await waitFor(() =>
+      expect(fetch).toHaveBeenCalledWith('/api/ai/summary?companyId=company-1')
+    );
 
     // Click on AI Insights tab
     const insightsTab = screen.getByText('الرؤى الذكية');
     insightsTab.click();
 
+    await waitFor(() =>
+      expect(fetch).toHaveBeenCalledWith(
+        '/api/ai/insights?companyId=company-1&type=employee'
+      )
+    );
+
     await waitFor(() => {
       expect(screen.getByText('الرؤى الذكية')).toBeInTheDocument();
     });
   });
-}); 
+});
