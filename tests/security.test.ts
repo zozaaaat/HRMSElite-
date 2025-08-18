@@ -6,7 +6,19 @@
  */
 
 import request from 'supertest';
+import type { Server } from 'http';
+import { registerRoutes } from '../server/routes';
 import { app } from '../server/index';
+
+let server: Server;
+
+beforeAll(async () => {
+  server = await registerRoutes(app);
+});
+
+afterAll(async () => {
+  await new Promise(resolve => server.close(resolve));
+});
 
 describe('Server Security Tests', () => {
   describe('Helmet Security Headers', () => {

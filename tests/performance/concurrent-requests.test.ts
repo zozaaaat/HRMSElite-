@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
+import type { Server } from 'http';
+import { registerRoutes } from '../../server/routes';
 import { app } from '../../server/index';
 import { db } from '../../server/models/db';
 import { users } from '../../shared/schema';
@@ -37,11 +39,15 @@ interface ApiError {
   message?: string;
 }
 
+let server: Server;
+
 describe('Performance Tests - Concurrent Requests', () => {
   const testUsers: (typeof users.$inferSelect)[] = [];
   const authTokens: string[] = [];
 
   beforeAll(async () => {
+    server = await registerRoutes(app);
+
     // Ensure a clean slate
     await db.delete(users);
 
@@ -79,6 +85,7 @@ describe('Performance Tests - Concurrent Requests', () => {
   afterAll(async () => {
     // Clean up test users
     await db.delete(users);
+    await new Promise(resolve => server.close(resolve));
   });
 
   describe('Concurrent Login Requests', () => {
