@@ -79,7 +79,7 @@ export abstract class BaseService {
   protected buildQueryString(params?: Record<string, any>): string {
     if (!params) return '';
     
-    const searchParams = new URLSearchParams();
+    const searchParams = new globalThis.URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         searchParams.append(key, String(value));

@@ -38,7 +38,7 @@ export const optimizeDatabase = async (): Promise<void> => {
     // Vacuum database to reclaim space
     await sqlite.prepare('VACUUM').run();
     
-    console.log('Database optimization completed');
+    console.info('Database optimization completed');
   } catch (error) {
     console.error('Database optimization failed:', error);
   }

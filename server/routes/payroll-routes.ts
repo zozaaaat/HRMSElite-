@@ -95,7 +95,7 @@ export function registerPayrollRoutes (app: Express) {
 
     } catch (error) {
 
-      log.error('Error fetching payroll data:', error instanceof Error ? error : new Error(String(error)));
+      logger.error('Error fetching payroll data:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({'message': 'Failed to fetch payroll data'});
 
     }
@@ -146,7 +146,7 @@ export function registerPayrollRoutes (app: Express) {
 
     } catch (error) {
 
-      log.error('Error fetching company payroll:', error instanceof Error ? error : new Error(String(error)));
+      logger.error('Error fetching company payroll:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({'message': 'Failed to fetch company payroll'});
 
     }
@@ -180,7 +180,7 @@ export function registerPayrollRoutes (app: Express) {
 
     } catch (error) {
 
-      log.error('Error processing payroll:', error instanceof Error ? error : new Error(String(error)));
+      logger.error('Error processing payroll:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({'message': 'Failed to process payroll'});
 
     }
@@ -240,7 +240,7 @@ export function registerPayrollRoutes (app: Express) {
 
     } catch (error) {
 
-      log.error('Error fetching payroll reports:', error instanceof Error ? error : new Error(String(error)));
+      logger.error('Error fetching payroll reports:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({'message': 'Failed to fetch payroll reports'});
 
     }
@@ -294,7 +294,7 @@ export function registerPayrollRoutes (app: Express) {
 
     } catch (error) {
 
-      log.error('Error fetching tax data:', error instanceof Error ? error : new Error(String(error)));
+      logger.error('Error fetching tax data:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({'message': 'Failed to fetch tax data'});
 
     }
@@ -342,7 +342,7 @@ export function registerPayrollRoutes (app: Express) {
 
     } catch (error) {
 
-      log.error('Error fetching pay slips:', error instanceof Error ? error : new Error(String(error)));
+      logger.error('Error fetching pay slips:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({'message': 'Failed to fetch pay slips'});
 
     }
@@ -365,7 +365,7 @@ export function registerPayrollRoutes (app: Express) {
 
     } catch (error) {
 
-      log.error('Error downloading pay slip:', error instanceof Error ? error : new Error(String(error)));
+      logger.error('Error downloading pay slip:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({'message': 'Failed to download pay slip'});
 
     }

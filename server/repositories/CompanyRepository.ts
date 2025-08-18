@@ -1,6 +1,6 @@
 import { BaseRepository } from './BaseRepository';
 import { db } from '../models/db-optimized';
-import { companies, employees, licenses, companyUsers, users } from '@shared/schema/optimized-schema';
+import { companies, employees, licenses, companyUsers } from '@shared/schema/optimized-schema';
 import { eq, and, or, desc, asc, like, sql, count, sum } from 'drizzle-orm';
 import type { Company, NewCompany } from '@shared/schema/optimized-schema';
 
@@ -174,7 +174,7 @@ export class CompanyRepository extends BaseRepository<Company, NewCompany, Parti
         .where(eq(employees.companyId, companyId));
       
       return result[0]?.count || 0;
-    } catch (error) {
+    } catch {
       return 0;
     }
   }
@@ -190,7 +190,7 @@ export class CompanyRepository extends BaseRepository<Company, NewCompany, Parti
         .where(eq(licenses.companyId, companyId));
       
       return result[0]?.count || 0;
-    } catch (error) {
+    } catch {
       return 0;
     }
   }
@@ -206,7 +206,7 @@ export class CompanyRepository extends BaseRepository<Company, NewCompany, Parti
         .where(eq(companyUsers.companyId, companyId));
       
       return result[0]?.count || 0;
-    } catch (error) {
+    } catch {
       return 0;
     }
   }
@@ -222,7 +222,7 @@ export class CompanyRepository extends BaseRepository<Company, NewCompany, Parti
         .where(eq(employees.companyId, companyId));
       
       return result[0]?.total || 0;
-    } catch (error) {
+    } catch {
       return 0;
     }
   }
