@@ -20,7 +20,13 @@ export const useAuth = () => {
     if (!core.isAuthenticated && !core.loading) {
       session.initializeAuth().then((result) => {
         if (result.success && result.user) {
-          core.setUser(result.user);
+          const appUser = {
+            ...result.user,
+            profileImageUrl: result.user.profileImageUrl ?? null,
+            companyId: result.user.companyId ?? null,
+            claims: result.user.claims ?? null
+          } as Parameters<typeof core.setUser>[0];
+          core.setUser(appUser);
           if (result.company) {
             core.setCurrentCompany(result.company.id);
           }

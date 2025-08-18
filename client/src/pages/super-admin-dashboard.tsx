@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {useAuth} from '../hooks/useAuth';
+import type {User as AuthUser} from '../lib/authUtils';
 import {CompanyWithStats} from '../../../shared/schema';
 import {useLocation} from 'wouter';
 import {SharedLayout} from '../components/shared-layout';
@@ -24,7 +25,7 @@ export default function SuperAdminDashboard () {
 
   const {user} = useAuth();
   return (
-    <SharedLayout {...(user && { user: user as unknown })}>
+    <SharedLayout {...(user && { user: user as unknown as AuthUser })}>
       <SuperAdminContent />
     </SharedLayout>
   );
