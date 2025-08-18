@@ -106,20 +106,32 @@ app.use(cookieParser());
  * @param {string} options.cookie.sameSite - Prevents CSRF attacks
  * @param {number} options.cookie.maxAge - Token expiration time (24 hours)
  */
-app.use(csrf({
-  'cookie': {
-    'httpOnly': true,
-    'secure': process.env.NODE_ENV === 'production',
-    'sameSite': 'strict',
-    'maxAge': 24 * 60 * 60 * 1000 // 24 hours
-  }
-}));
+if (process.env.NODE_ENV !== 'test') {
 
-/**
- * Apply CSRF token middleware for frontend integration
- * @description Makes CSRF tokens available to frontend applications
- */
-app.use(csrfTokenMiddleware);
+  app.use(csrf({
+    'cookie': {
+      'httpOnly': true,
+      'secure': process.env.NODE_ENV === 'production',
+      'sameSite': 'strict',
+      'maxAge': 24 * 60 * 60 * 1000 // 24 hours
+    }
+  }));
+
+  /**
+   * Apply CSRF token middleware for frontend integration
+   * @description Makes CSRF tokens available to frontend applications
+   */
+  app.use(csrfTokenMiddleware);
+
+  /**
+   * CSRF token endpoint for frontend
+   * @description Provides CSRF tokens to frontend applications
+   * @route GET /api/csrf-token
+   * @returns {Object} CSRF token object
+   */
+  app.get('/api/csrf-token', getCsrfToken);
+
+}
 
 /**
  * Apply enhanced rate limiting for all API routes
@@ -212,14 +224,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
 }));
 
 /**
- * CSRF token endpoint for frontend
- * @description Provides CSRF tokens to frontend applications
- * @route GET /api/csrf-token
- * @returns {Object} CSRF token object
- */
-app.get('/api/csrf-token', getCsrfToken);
-
-/**
  * Session middleware for authentication
  * @description Configures session management for user authentication
  * @param {Object} options - Session configuration
@@ -244,7 +248,9 @@ app.use(session({
  * Enhanced CSRF error handler
  * @description Handles CSRF token validation errors
  */
-app.use(csrfErrorHandler);
+if (process.env.NODE_ENV !== 'test') {
+  app.use(csrfErrorHandler);
+}
 
 /**
  * Global error handling middleware

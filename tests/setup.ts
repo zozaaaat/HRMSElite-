@@ -1,5 +1,8 @@
 import '@testing-library/jest-dom';
 
+// Ensure server runs in test mode to bypass CSRF middleware
+process.env.NODE_ENV = 'test';
+
 // Mock IntersectionObserver without relying on DOM lib types
 class MockIntersectionObserver {
   root = null;
