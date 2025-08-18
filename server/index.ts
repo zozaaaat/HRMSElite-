@@ -7,6 +7,7 @@
  */
 
 import express, {type Request, Response, NextFunction} from 'express';
+import {type Server} from 'http';
 import session from 'express-session';
 import helmet from 'helmet';
 import csrf from 'csurf';
@@ -308,28 +309,15 @@ app.use((req, res, next) => {
 app.use(metricsMiddleware);
 
 /**
- * Main application initialization function
- * @description Sets up the server, registers routes, and starts listening
- * @async
- * @returns {Promise<void>}
+ * Start the HTTP server
+ * @description Registers routes, configures development tooling and begins listening
+ * @param {number} [port] - Optional port for tests (uses env/default when not provided)
+ * @returns {Promise<Server>} Resolves with the HTTP server instance
  */
-(async () => {
+export async function startServer (port?: number): Promise<Server> {
 
-  /**
-   * Register all application routes
-   * @description Sets up all API endpoints and route handlers
-   * @returns {Server} HTTP server instance
-   */
   const server = await registerRoutes(app);
 
-  /**
-   * Global error handling middleware
-   * @description Handles uncaught errors and provides appropriate responses
-   * @param {unknown} err - Error object
-   * @param {Request} _req - Express request object (unused)
-   * @param {Response} res - Express response object
-   * @param {NextFunction} _next - Express next function (unused)
-   */
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
 
     const error = err as { status?: number; statusCode?: number; message?: string };
@@ -341,11 +329,6 @@ app.use(metricsMiddleware);
 
   });
 
-  /**
-   * Development server setup with Vite
-   * @description Configures Vite development server in development mode
-   * Serves static files in production mode
-   */
   if (app.get('env') === 'development') {
 
     await setupVite(app, server);
@@ -356,20 +339,23 @@ app.use(metricsMiddleware);
 
   }
 
-  /**
-   * Start the server
-   * @description Binds the server to the specified port and host
-   * @param {number} port - Server port (from environment or default 3000)
-   * @param {string} host - Server host (127.0.0.1 for security)
-   */
-  const port = parseInt(process.env.PORT ?? process.env.REPL_PORT ?? "3000", 10);
-  server.listen({
-    port,
-    'host': '127.0.0.1'
-  }, () => {
+  const listenPort = port ?? parseInt(process.env.PORT ?? process.env.REPL_PORT ?? "3000", 10);
+  return await new Promise<Server>((resolve) => {
+    server.listen({
+      'port': listenPort,
+      'host': '127.0.0.1'
+    }, () => {
 
-    log.info(`serving on port ${port}`, undefined, 'SERVER');
+      log.info(`serving on port ${listenPort}`, undefined, 'SERVER');
+      resolve(server);
 
+    });
   });
+}
 
-})();
+// Automatically start the server outside of test environments
+if (!process.env.VITEST) {
+
+  void startServer();
+
+}

@@ -1,9 +1,12 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
-import { app } from '../../server/index';
+import { app, startServer } from '../../server/index';
+import type { Server } from 'http';
 import { db } from '../../server/models/db';
 import { users } from '../../shared/schema';
 import { hashPassword } from '../../server/utils/password';
+
+let server: Server;
 
 // Define response types for better type safety
 interface LoginResponse {
@@ -42,6 +45,7 @@ describe('Performance Tests - Concurrent Requests', () => {
   const authTokens: string[] = [];
 
   beforeAll(async () => {
+    server = await startServer(0);
     // Ensure a clean slate
     await db.delete(users);
 
@@ -79,6 +83,9 @@ describe('Performance Tests - Concurrent Requests', () => {
   afterAll(async () => {
     // Clean up test users
     await db.delete(users);
+    await new Promise<void>((resolve, reject) => {
+      server.close(err => (err ? reject(err) : resolve()));
+    });
   });
 
   describe('Concurrent Login Requests', () => {

@@ -1,9 +1,22 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
-import { app } from '../../server/index';
+import { app, startServer } from '../../server/index';
+import type { Server } from 'http';
 import { db } from '../../server/models/db';
 import { users } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
+
+let server: Server;
+
+beforeAll(async () => {
+  server = await startServer(0);
+});
+
+afterAll(async () => {
+  await new Promise<void>((resolve, reject) => {
+    server.close(err => (err ? reject(err) : resolve()));
+  });
+});
 
 // Avoid `any`: allow arbitrary fields while keeping `id` typed
 type TestUser = { id?: string } & Record<string, unknown>;

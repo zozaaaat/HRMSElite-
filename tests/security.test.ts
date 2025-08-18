@@ -6,7 +6,21 @@
  */
 
 import request from 'supertest';
-import { app } from '../server/index';
+import { app, startServer } from '../server/index';
+import { beforeAll, afterAll, describe, it, expect } from 'vitest';
+import type { Server } from 'http';
+
+let server: Server;
+
+beforeAll(async () => {
+  server = await startServer(0);
+});
+
+afterAll(async () => {
+  await new Promise<void>((resolve, reject) => {
+    server.close(err => (err ? reject(err) : resolve()));
+  });
+});
 
 describe('Server Security Tests', () => {
   describe('Helmet Security Headers', () => {

@@ -1,6 +1,19 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
-import { app } from '../server/index';
+import { app, startServer } from '../server/index';
+import type { Server } from 'http';
+
+let server: Server;
+
+beforeAll(async () => {
+  server = await startServer(0);
+});
+
+afterAll(async () => {
+  await new Promise<void>((resolve, reject) => {
+    server.close(err => (err ? reject(err) : resolve()));
+  });
+});
 
 // Type definitions for AI route responses
 interface SummaryResponse {
