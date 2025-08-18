@@ -196,9 +196,9 @@ class LocalLLM implements LLMModel {
 const localLLM = new LocalLLM();
 
 // Middleware to check if LLM is ready
-const checkLLMReady = (_req: Request, _res: Response, _next: NextFunction): void => {
+const checkLLMReady = (req: Request, res: Response, _next: NextFunction): void => {
   if (!localLLM.isInitialized) {
-    _res.status(503).json({
+    res.status(503).json({
       'error': 'AI service not ready',
       'message': 'خدمة الذكاء الاصطناعي غير جاهزة حالياً. يرجى المحاولة مرة أخرى لاحقاً.'
     });
@@ -214,19 +214,19 @@ const checkLLMReady = (_req: Request, _res: Response, _next: NextFunction): void
  * @desc Generate summary of provided text
  * @access Private
  */
-router.post('/summary', checkLLMReady, async (_req: Request, _res: Response) => {
+router.post('/summary', checkLLMReady, async (req: Request, res: Response) => {
   try {
-    const {text} = _req.body;
+    const {text} = req.body;
 
     if (!text || typeof text !== 'string') {
-      return _res.status(400).json({
+      return res.status(400).json({
         'error': 'Invalid input',
         'message': 'يرجى توفير نص صحيح للتحليل'
       });
     }
 
     if (text.length < 10) {
-      return _res.status(400).json({
+      return res.status(400).json({
         'error': 'Text too short',
         'message': 'النص قصير جداً. يرجى توفير نص أطول للتحليل'
       });
@@ -238,7 +238,7 @@ router.post('/summary', checkLLMReady, async (_req: Request, _res: Response) => 
       'textLength': text.length, 'summaryLength': summary.length
     } as LogData);
 
-    _res.json({
+    res.json({
       summary,
       'originalLength': text.length,
       'summaryLength': summary.length,
@@ -247,7 +247,7 @@ router.post('/summary', checkLLMReady, async (_req: Request, _res: Response) => 
 
   } catch (error) {
     log.error('Error generating summary:', error as Error);
-    _res.status(500).json({
+    res.status(500).json({
       'error': 'Failed to generate summary',
       'message': 'حدث خطأ أثناء توليد الملخص. يرجى المحاولة مرة أخرى.'
     });

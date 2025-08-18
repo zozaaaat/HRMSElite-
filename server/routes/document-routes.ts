@@ -432,7 +432,7 @@ export function registerDocumentRoutes (app: Express) {
 
     try {
 
-      const {id} = req.params;
+      const { id } = req.params as { id: string };
       if (!id) {
         return res.status(400).json({ error: 'Document id is required' });
       }
@@ -460,7 +460,7 @@ export function registerDocumentRoutes (app: Express) {
 
     try {
 
-      const {id} = req.params;
+      const { id } = req.params as { id: string };
       if (!id) {
         return res.status(400).json({ error: 'Document id is required' });
       }
@@ -491,7 +491,7 @@ export function registerDocumentRoutes (app: Express) {
 
     try {
 
-      const {id} = req.params;
+      const { id } = req.params as { id: string };
       if (!id) {
         return res.status(400).json({ error: 'Document id is required' });
       }
@@ -512,7 +512,7 @@ export function registerDocumentRoutes (app: Express) {
 
     try {
 
-      const {id} = req.params;
+      const { id } = req.params as { id: string };
       if (!id) {
         return res.status(400).json({ error: 'Document id is required' });
       }

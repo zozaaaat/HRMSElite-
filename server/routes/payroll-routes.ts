@@ -56,7 +56,7 @@ export function registerPayrollRoutes (app: Express) {
 
     try {
 
-      const {employeeId} = req.params;
+      const { employeeId } = req.params as { employeeId: string };
       const {month, year} = req.query;
 
       const payrollData = {
@@ -95,7 +95,7 @@ export function registerPayrollRoutes (app: Express) {
 
     } catch (error) {
 
-      logger.error('Error fetching payroll data:', error instanceof Error ? error : new Error(String(error)));
+      log.error('Error fetching payroll data:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({'message': 'Failed to fetch payroll data'});
 
     }
@@ -111,7 +111,7 @@ export function registerPayrollRoutes (app: Express) {
 
     try {
 
-      const {companyId} = req.params;
+      const { companyId } = req.params as { companyId: string };
       const {month, year} = req.query;
 
       const payrollSummary = {
@@ -146,7 +146,7 @@ export function registerPayrollRoutes (app: Express) {
 
     } catch (error) {
 
-      logger.error('Error fetching company payroll:', error instanceof Error ? error : new Error(String(error)));
+      log.error('Error fetching company payroll:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({'message': 'Failed to fetch company payroll'});
 
     }
@@ -162,7 +162,7 @@ export function registerPayrollRoutes (app: Express) {
 
     try {
 
-      const {companyId} = req.params;
+      const { companyId } = req.params as { companyId: string };
       const {month, year} = req.body;
 
       // Mock payroll processing
@@ -180,7 +180,7 @@ export function registerPayrollRoutes (app: Express) {
 
     } catch (error) {
 
-      logger.error('Error processing payroll:', error instanceof Error ? error : new Error(String(error)));
+      log.error('Error processing payroll:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({'message': 'Failed to process payroll'});
 
     }
@@ -240,7 +240,7 @@ export function registerPayrollRoutes (app: Express) {
 
     } catch (error) {
 
-      logger.error('Error fetching payroll reports:', error instanceof Error ? error : new Error(String(error)));
+      log.error('Error fetching payroll reports:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({'message': 'Failed to fetch payroll reports'});
 
     }
@@ -256,7 +256,7 @@ export function registerPayrollRoutes (app: Express) {
 
     try {
 
-      const {companyId} = req.params;
+      const { companyId } = req.params as { companyId: string };
 
       const taxData = {
         companyId,
@@ -294,7 +294,7 @@ export function registerPayrollRoutes (app: Express) {
 
     } catch (error) {
 
-      logger.error('Error fetching tax data:', error instanceof Error ? error : new Error(String(error)));
+      log.error('Error fetching tax data:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({'message': 'Failed to fetch tax data'});
 
     }
@@ -305,7 +305,7 @@ export function registerPayrollRoutes (app: Express) {
 
     try {
 
-      const {employeeId} = req.params;
+      const { employeeId } = req.params as { employeeId: string };
       const {year} = req.query;
 
       const payslips = [
@@ -342,7 +342,7 @@ export function registerPayrollRoutes (app: Express) {
 
     } catch (error) {
 
-      logger.error('Error fetching pay slips:', error instanceof Error ? error : new Error(String(error)));
+      log.error('Error fetching pay slips:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({'message': 'Failed to fetch pay slips'});
 
     }
@@ -365,7 +365,7 @@ export function registerPayrollRoutes (app: Express) {
 
     } catch (error) {
 
-      logger.error('Error downloading pay slip:', error instanceof Error ? error : new Error(String(error)));
+      log.error('Error downloading pay slip:', error instanceof Error ? error : new Error(String(error)));
       res.status(500).json({'message': 'Failed to download pay slip'});
 
     }
