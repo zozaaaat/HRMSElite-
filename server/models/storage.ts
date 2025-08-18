@@ -36,12 +36,11 @@ import {
   type InsertDocument,
   type Notification,
   type InsertNotification,
-  type _CompanyUser
-} from '@shared/schema';
-import {db} from './db';
-import {eq, and, gt} from 'drizzle-orm';
-import {log} from '@utils/logger';
-
+  type _CompanyUser,
+} from "@shared/schema";
+import { db } from "./db";
+import { eq, and, gt } from "drizzle-orm";
+import { log } from "@utils/logger";
 
 /**
  * Database storage class for HRMS Elite application
@@ -50,7 +49,6 @@ import {log} from '@utils/logger';
  * @class DatabaseStorage
  */
 export class DatabaseStorage {
-
   /**
    * Get all active companies
    * @description Retrieves all active companies from the database
@@ -60,20 +58,17 @@ export class DatabaseStorage {
    * @example
    * const companies = await storage.getAllCompanies();
    */
-  async getAllCompanies (): Promise<Company[]> {
-
+  async getAllCompanies(): Promise<Company[]> {
     try {
-
-      const results = await db.select().from(companies).where(eq(companies.isActive, true));
+      const results = await db
+        .select()
+        .from(companies)
+        .where(eq(companies.isActive, true));
       return results;
-
     } catch (error) {
-
-      log.error('Error fetching companies:', error as Error);
-      throw new Error('Failed to fetch companies');
-
+      log.error("Error fetching companies:", error as Error);
+      throw new Error("Failed to fetch companies");
     }
-
   }
 
   /**
@@ -88,20 +83,17 @@ export class DatabaseStorage {
    * if (company) {
    * }
    */
-  async getCompany (id: string): Promise<Company | null> {
-
+  async getCompany(id: string): Promise<Company | null> {
     try {
-
-      const results = await db.select().from(companies).where(eq(companies.id, id));
+      const results = await db
+        .select()
+        .from(companies)
+        .where(eq(companies.id, id));
       return results[0] ?? null;
-
     } catch (error) {
-
-      log.error('Error fetching company:', error as Error);
-      throw new Error('Failed to fetch company');
-
+      log.error("Error fetching company:", error as Error);
+      throw new Error("Failed to fetch company");
     }
-
   }
 
   /**
@@ -119,23 +111,17 @@ export class DatabaseStorage {
    *   classification: "شركة ذات مسؤولية محدودة"
    * });
    */
-  async createCompany (data: InsertCompany): Promise<Company> {
-
+  async createCompany(data: InsertCompany): Promise<Company> {
     try {
-
       const results = await db.insert(companies).values(data).returning();
       if (!results[0]) {
-        throw new Error('Failed to create company');
+        throw new Error("Failed to create company");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error creating company:', error as Error);
-      throw new Error('Failed to create company');
-
+      log.error("Error creating company:", error as Error);
+      throw new Error("Failed to create company");
     }
-
   }
 
   /**
@@ -147,20 +133,14 @@ export class DatabaseStorage {
    * @example
    * const employees = await storage.getAllEmployees();
    */
-  async getAllEmployees (): Promise<Employee[]> {
-
+  async getAllEmployees(): Promise<Employee[]> {
     try {
-
       const results = await db.select().from(employees);
       return results;
-
     } catch (error) {
-
-      log.error('Error fetching employees:', error as Error);
-      throw new Error('Failed to fetch employees');
-
+      log.error("Error fetching employees:", error as Error);
+      throw new Error("Failed to fetch employees");
     }
-
   }
 
   /**
@@ -175,20 +155,17 @@ export class DatabaseStorage {
    * if (employee) {
    * }
    */
-  async getEmployee (id: string): Promise<Employee | null> {
-
+  async getEmployee(id: string): Promise<Employee | null> {
     try {
-
-      const results = await db.select().from(employees).where(eq(employees.id, id));
+      const results = await db
+        .select()
+        .from(employees)
+        .where(eq(employees.id, id));
       return results[0] ?? null;
-
     } catch (error) {
-
-      log.error('Error fetching employee:', error as Error);
-      throw new Error('Failed to fetch employee');
-
+      log.error("Error fetching employee:", error as Error);
+      throw new Error("Failed to fetch employee");
     }
-
   }
 
   /**
@@ -201,20 +178,17 @@ export class DatabaseStorage {
    * @example
    * const companyEmployees = await storage.getCompanyEmployees("company-1");
    */
-  async getCompanyEmployees (companyId: string): Promise<Employee[]> {
-
+  async getCompanyEmployees(companyId: string): Promise<Employee[]> {
     try {
-
-      const results = await db.select().from(employees).where(eq(employees.companyId, companyId));
+      const results = await db
+        .select()
+        .from(employees)
+        .where(eq(employees.companyId, companyId));
       return results;
-
     } catch (error) {
-
-      log.error('Error fetching company employees:', error as Error);
-      throw new Error('Failed to fetch company employees');
-
+      log.error("Error fetching company employees:", error as Error);
+      throw new Error("Failed to fetch company employees");
     }
-
   }
 
   /**
@@ -234,23 +208,17 @@ export class DatabaseStorage {
    *   salary: 3500
    * });
    */
-  async createEmployee (data: InsertEmployee): Promise<Employee> {
-
+  async createEmployee(data: InsertEmployee): Promise<Employee> {
     try {
-
       const results = await db.insert(employees).values(data).returning();
       if (!results[0]) {
-        throw new Error('Failed to create employee');
+        throw new Error("Failed to create employee");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error creating employee:', error as Error);
-      throw new Error('Failed to create employee');
-
+      log.error("Error creating employee:", error as Error);
+      throw new Error("Failed to create employee");
     }
-
   }
 
   /**
@@ -265,20 +233,14 @@ export class DatabaseStorage {
    * if (user) {
    * }
    */
-  async getUser (id: string): Promise<User | null> {
-
+  async getUser(id: string): Promise<User | null> {
     try {
-
       const results = await db.select().from(users).where(eq(users.id, id));
       return results[0] ?? null;
-
     } catch (error) {
-
-      log.error('Error fetching user:', error as Error);
-      throw new Error('Failed to fetch user');
-
+      log.error("Error fetching user:", error as Error);
+      throw new Error("Failed to fetch user");
     }
-
   }
 
   /**
@@ -291,37 +253,31 @@ export class DatabaseStorage {
    * @example
    * const userCompanies = await storage.getUserCompanies("user-1");
    */
-  async getUserCompanies (userId: string): Promise<Company[]> {
-
+  async getUserCompanies(userId: string): Promise<Company[]> {
     try {
-
       const results = await db
         .select({
-          'id': companies.id,
-          'name': companies.name,
-          'commercialFileName': companies.commercialFileName,
-          'department': companies.department,
-          'classification': companies.classification,
-          'isActive': companies.isActive,
-          'industryType': companies.industryType,
-          'location': companies.location,
-          'establishmentDate': companies.establishmentDate,
-          'createdAt': companies.createdAt,
-          'updatedAt': companies.updatedAt
+          id: companies.id,
+          name: companies.name,
+          commercialFileName: companies.commercialFileName,
+          department: companies.department,
+          classification: companies.classification,
+          isActive: companies.isActive,
+          industryType: companies.industryType,
+          location: companies.location,
+          establishmentDate: companies.establishmentDate,
+          createdAt: companies.createdAt,
+          updatedAt: companies.updatedAt,
         })
         .from(companyUsers)
         .leftJoin(companies, eq(companyUsers.companyId, companies.id))
         .where(eq(companyUsers.userId, userId));
 
-      return results.filter(company => company.id !== null) as Company[];
-
+      return results.filter((company) => company.id !== null) as Company[];
     } catch (error) {
-
-      log.error('Error fetching user companies:', error as Error);
-      throw new Error('Failed to fetch user companies');
-
+      log.error("Error fetching user companies:", error as Error);
+      throw new Error("Failed to fetch user companies");
     }
-
   }
 
   /**
@@ -339,69 +295,69 @@ export class DatabaseStorage {
    * @example
    * const companyLeaves = await storage.getCompanyLeaves("company-1", "pending");
    */
-  async getCompanyLeaves (companyId: string, status?: string): Promise<(EmployeeLeave & {
-   employee: Employee 
-})[]> {
-  
-
+  async getCompanyLeaves(
+    companyId: string,
+    status?: string,
+  ): Promise<
+    (EmployeeLeave & {
+      employee: Employee;
+    })[]
+  > {
     try {
-
       const conditions = [eq(employees.companyId, companyId)];
       if (status) {
-
         conditions.push(eq(employeeLeaves.status, status as any));
-
       }
 
       const results = await db
         .select({
-          'id': employeeLeaves.id,
-          'employeeId': employeeLeaves.employeeId,
-          'type': employeeLeaves.type,
-          'status': employeeLeaves.status,
-          'startDate': employeeLeaves.startDate,
-          'endDate': employeeLeaves.endDate,
-          'days': employeeLeaves.days,
-          'reason': employeeLeaves.reason,
-          'approvedBy': employeeLeaves.approvedBy,
-          'approvedAt': employeeLeaves.approvedAt,
-          'rejectionReason': employeeLeaves.rejectionReason,
-          'createdAt': employeeLeaves.createdAt,
-          'updatedAt': employeeLeaves.updatedAt,
-          'employee': {
-            'id': employees.id,
-            'companyId': employees.companyId,
-            'licenseId': employees.licenseId,
-            'firstName': employees.firstName,
-            'lastName': employees.lastName,
-            'arabicName': employees.arabicName,
-            'englishName': employees.englishName,
-            'passportNumber': employees.passportNumber,
-            'civilId': employees.civilId,
-            'nationality': employees.nationality,
-            'dateOfBirth': employees.dateOfBirth,
-            'gender': employees.gender,
-            'maritalStatus': employees.maritalStatus,
-            'employeeType': employees.employeeType,
-            'status': employees.status,
-            'position': employees.position,
-            'department': employees.department,
-            'hireDate': employees.hireDate,
-            'salary': employees.salary,
-            'phone': employees.phone,
-            'email': employees.email,
-            'address': employees.address,
-            'emergencyContact': employees.emergencyContact,
-            'emergencyPhone': employees.emergencyPhone,
-            'photoUrl': employees.photoUrl,
-            'documents': employees.documents,
-            'skills': employees.skills,
-            'notes': employees.notes,
-            'isArchived': employees.isArchived,
-            'archiveReason': employees.archiveReason,
-            'createdAt': employees.createdAt,
-            'updatedAt': employees.updatedAt
-          }
+          id: employeeLeaves.id,
+          employeeId: employeeLeaves.employeeId,
+          type: employeeLeaves.type,
+          status: employeeLeaves.status,
+          startDate: employeeLeaves.startDate,
+          endDate: employeeLeaves.endDate,
+          days: employeeLeaves.days,
+          reason: employeeLeaves.reason,
+          approvedBy: employeeLeaves.approvedBy,
+          approvedAt: employeeLeaves.approvedAt,
+          rejectionReason: employeeLeaves.rejectionReason,
+          createdAt: employeeLeaves.createdAt,
+          updatedAt: employeeLeaves.updatedAt,
+          employee: {
+            id: employees.id,
+            companyId: employees.companyId,
+            licenseId: employees.licenseId,
+            firstName: employees.firstName,
+            lastName: employees.lastName,
+            arabicName: employees.arabicName,
+            englishName: employees.englishName,
+            passportNumber: employees.passportNumber,
+            civilId: employees.civilId,
+            nationality: employees.nationality,
+            dateOfBirth: employees.dateOfBirth,
+            gender: employees.gender,
+            maritalStatus: employees.maritalStatus,
+            employeeType: employees.employeeType,
+            status: employees.status,
+            position: employees.position,
+            department: employees.department,
+            hireDate: employees.hireDate,
+            salary: employees.salary,
+            phone: employees.phone,
+            email: employees.email,
+            address: employees.address,
+            emergencyContact: employees.emergencyContact,
+            emergencyPhone: employees.emergencyPhone,
+            photoUrl: employees.photoUrl,
+            documents: employees.documents,
+            skills: employees.skills,
+            notes: employees.notes,
+            isArchived: employees.isArchived,
+            archiveReason: employees.archiveReason,
+            createdAt: employees.createdAt,
+            updatedAt: employees.updatedAt,
+          },
         })
         .from(employeeLeaves)
         .leftJoin(employees, eq(employeeLeaves.employeeId, employees.id))
@@ -411,16 +367,12 @@ export class DatabaseStorage {
         .filter((leave) => leave.employee !== null)
         .map((leave) => ({
           ...leave,
-          'employee': leave.employee as Employee
+          employee: leave.employee as Employee,
         }));
-
     } catch (error) {
-
-      log.error('Error fetching company leaves:', error as Error);
-      throw new Error('Failed to fetch company leaves');
-
+      log.error("Error fetching company leaves:", error as Error);
+      throw new Error("Failed to fetch company leaves");
     }
-
   }
 
   /**
@@ -437,23 +389,24 @@ export class DatabaseStorage {
    *   position: "مهندس برمجيات أول"
    * });
    */
-  async updateEmployee (id: string, data: Partial<InsertEmployee>): Promise<Employee> {
-
+  async updateEmployee(
+    id: string,
+    data: Partial<InsertEmployee>,
+  ): Promise<Employee> {
     try {
-
-      const results = await db.update(employees).set(data).where(eq(employees.id, id)).returning();
+      const results = await db
+        .update(employees)
+        .set(data)
+        .where(eq(employees.id, id))
+        .returning();
       if (!results[0]) {
-        throw new Error('Failed to update employee');
+        throw new Error("Failed to update employee");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error updating employee:', error as Error);
-      throw new Error('Failed to update employee');
-
+      log.error("Error updating employee:", error as Error);
+      throw new Error("Failed to update employee");
     }
-
   }
 
   /**
@@ -467,30 +420,25 @@ export class DatabaseStorage {
    * @example
    * const archivedEmployee = await storage.archiveEmployee("emp-1", "استقالة الموظف");
    */
-  async archiveEmployee (id: string, reason: string): Promise<Employee> {
-
+  async archiveEmployee(id: string, reason: string): Promise<Employee> {
     try {
-
-      const results = await db.update(employees)
+      const results = await db
+        .update(employees)
         .set({
-          'isArchived': true,
-          'archiveReason': reason,
-          'updatedAt': new Date()
+          isArchived: true,
+          archiveReason: reason,
+          updatedAt: new Date(),
         })
         .where(eq(employees.id, id))
         .returning();
       if (!results[0]) {
-        throw new Error('Failed to archive employee');
+        throw new Error("Failed to archive employee");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error archiving employee:', error as Error);
-      throw new Error('Failed to archive employee');
-
+      log.error("Error archiving employee:", error as Error);
+      throw new Error("Failed to archive employee");
     }
-
   }
 
   /**
@@ -503,21 +451,17 @@ export class DatabaseStorage {
    * @example
    * const employeeLeaves = await storage.getEmployeeLeaves("emp-1");
    */
-  async getEmployeeLeaves (employeeId: string): Promise<EmployeeLeave[]> {
-
+  async getEmployeeLeaves(employeeId: string): Promise<EmployeeLeave[]> {
     try {
-
-      const results = await db.select().from(employeeLeaves).where(eq(employeeLeaves.employeeId,
-   employeeId));
+      const results = await db
+        .select()
+        .from(employeeLeaves)
+        .where(eq(employeeLeaves.employeeId, employeeId));
       return results;
-
     } catch (error) {
-
-      log.error('Error fetching employee leaves:', error as Error);
-      throw new Error('Failed to fetch employee leaves');
-
+      log.error("Error fetching employee leaves:", error as Error);
+      throw new Error("Failed to fetch employee leaves");
     }
-
   }
 
   /**
@@ -536,23 +480,17 @@ export class DatabaseStorage {
    *   reason: "إجازة سنوية"
    * });
    */
-  async createLeave (data: InsertEmployeeLeave): Promise<EmployeeLeave> {
-
+  async createLeave(data: InsertEmployeeLeave): Promise<EmployeeLeave> {
     try {
-
       const results = await db.insert(employeeLeaves).values(data).returning();
       if (!results[0]) {
-        throw new Error('Failed to create leave');
+        throw new Error("Failed to create leave");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error creating leave:', error as Error);
-      throw new Error('Failed to create leave');
-
+      log.error("Error creating leave:", error as Error);
+      throw new Error("Failed to create leave");
     }
-
   }
 
   /**
@@ -565,21 +503,19 @@ export class DatabaseStorage {
    * @example
    * const employeeDeductions = await storage.getEmployeeDeductions("emp-1");
    */
-  async getEmployeeDeductions (employeeId: string): Promise<EmployeeDeduction[]> {
-
+  async getEmployeeDeductions(
+    employeeId: string,
+  ): Promise<EmployeeDeduction[]> {
     try {
-
-      const results = await db.select().from(employeeDeductions).where(eq(employeeDeductions.employeeId,
-   employeeId));
+      const results = await db
+        .select()
+        .from(employeeDeductions)
+        .where(eq(employeeDeductions.employeeId, employeeId));
       return results;
-
     } catch (error) {
-
-      log.error('Error fetching employee deductions:', error as Error);
-      throw new Error('Failed to fetch employee deductions');
-
+      log.error("Error fetching employee deductions:", error as Error);
+      throw new Error("Failed to fetch employee deductions");
     }
-
   }
 
   /**
@@ -598,28 +534,27 @@ export class DatabaseStorage {
    *   date: "2025-01-15"
    * }, "user-1");
    */
-  async createDeduction (data: InsertEmployeeDeduction,
-   processedBy: string): Promise<EmployeeDeduction> {
-
+  async createDeduction(
+    data: InsertEmployeeDeduction,
+    processedBy: string,
+  ): Promise<EmployeeDeduction> {
     try {
-
-      const results = await db.insert(employeeDeductions).values({
-        ...data,
-        processedBy,
-        'createdAt': new Date()
-      }).returning();
+      const results = await db
+        .insert(employeeDeductions)
+        .values({
+          ...data,
+          processedBy,
+          createdAt: new Date(),
+        })
+        .returning();
       if (!results[0]) {
-        throw new Error('Failed to create deduction');
+        throw new Error("Failed to create deduction");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error creating deduction:', error as Error);
-      throw new Error('Failed to create deduction');
-
+      log.error("Error creating deduction:", error as Error);
+      throw new Error("Failed to create deduction");
     }
-
   }
 
   /**
@@ -632,21 +567,19 @@ export class DatabaseStorage {
    * @example
    * const employeeViolations = await storage.getEmployeeViolations("emp-1");
    */
-  async getEmployeeViolations (employeeId: string): Promise<EmployeeViolation[]> {
-
+  async getEmployeeViolations(
+    employeeId: string,
+  ): Promise<EmployeeViolation[]> {
     try {
-
-      const results = await db.select().from(employeeViolations).where(eq(employeeViolations.employeeId,
-   employeeId));
+      const results = await db
+        .select()
+        .from(employeeViolations)
+        .where(eq(employeeViolations.employeeId, employeeId));
       return results;
-
     } catch (error) {
-
-      log.error('Error fetching employee violations:', error as Error);
-      throw new Error('Failed to fetch employee violations');
-
+      log.error("Error fetching employee violations:", error as Error);
+      throw new Error("Failed to fetch employee violations");
     }
-
   }
 
   /**
@@ -665,28 +598,27 @@ export class DatabaseStorage {
    *   date: "2025-01-15"
    * }, "user-1");
    */
-  async createViolation (data: InsertEmployeeViolation,
-   reportedBy: string): Promise<EmployeeViolation> {
-
+  async createViolation(
+    data: InsertEmployeeViolation,
+    reportedBy: string,
+  ): Promise<EmployeeViolation> {
     try {
-
-      const results = await db.insert(employeeViolations).values({
-        ...data,
-        reportedBy,
-        'createdAt': new Date()
-      }).returning();
+      const results = await db
+        .insert(employeeViolations)
+        .values({
+          ...data,
+          reportedBy,
+          createdAt: new Date(),
+        })
+        .returning();
       if (!results[0]) {
-        throw new Error('Failed to create violation');
+        throw new Error("Failed to create violation");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error creating violation:', error as Error);
-      throw new Error('Failed to create violation');
-
+      log.error("Error creating violation:", error as Error);
+      throw new Error("Failed to create violation");
     }
-
   }
 
   /**
@@ -699,20 +631,17 @@ export class DatabaseStorage {
    * @example
    * const companyLicenses = await storage.getCompanyLicenses("company-1");
    */
-  async getCompanyLicenses (companyId: string): Promise<License[]> {
-
+  async getCompanyLicenses(companyId: string): Promise<License[]> {
     try {
-
-      const results = await db.select().from(licenses).where(eq(licenses.companyId, companyId));
+      const results = await db
+        .select()
+        .from(licenses)
+        .where(eq(licenses.companyId, companyId));
       return results;
-
     } catch (error) {
-
-      log.error('Error fetching company licenses:', error as Error);
-      throw new Error('Failed to fetch company licenses');
-
+      log.error("Error fetching company licenses:", error as Error);
+      throw new Error("Failed to fetch company licenses");
     }
-
   }
 
   /**
@@ -725,20 +654,17 @@ export class DatabaseStorage {
    * @example
    * const license = await storage.getLicense("license-1");
    */
-  async getLicense (id: string): Promise<License | null> {
-
+  async getLicense(id: string): Promise<License | null> {
     try {
-
-      const results = await db.select().from(licenses).where(eq(licenses.id, id));
+      const results = await db
+        .select()
+        .from(licenses)
+        .where(eq(licenses.id, id));
       return results[0] ?? null;
-
     } catch (error) {
-
-      log.error('Error fetching license:', error as Error);
-      throw new Error('Failed to fetch license');
-
+      log.error("Error fetching license:", error as Error);
+      throw new Error("Failed to fetch license");
     }
-
   }
 
   /**
@@ -756,23 +682,17 @@ export class DatabaseStorage {
    *   number: "LIC-001"
    * });
    */
-  async createLicense (data: InsertLicense): Promise<License> {
-
+  async createLicense(data: InsertLicense): Promise<License> {
     try {
-
       const results = await db.insert(licenses).values(data).returning();
       if (!results[0]) {
-        throw new Error('Failed to create license');
+        throw new Error("Failed to create license");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error creating license:', error as Error);
-      throw new Error('Failed to create license');
-
+      log.error("Error creating license:", error as Error);
+      throw new Error("Failed to create license");
     }
-
   }
 
   /**
@@ -789,23 +709,24 @@ export class DatabaseStorage {
    *   expiryDate: "2025-12-31"
    * });
    */
-  async updateLicense (id: string, data: Partial<InsertLicense>): Promise<License> {
-
+  async updateLicense(
+    id: string,
+    data: Partial<InsertLicense>,
+  ): Promise<License> {
     try {
-
-      const results = await db.update(licenses).set(data).where(eq(licenses.id, id)).returning();
+      const results = await db
+        .update(licenses)
+        .set(data)
+        .where(eq(licenses.id, id))
+        .returning();
       if (!results[0]) {
-        throw new Error('Failed to update license');
+        throw new Error("Failed to update license");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error updating license:', error as Error);
-      throw new Error('Failed to update license');
-
+      log.error("Error updating license:", error as Error);
+      throw new Error("Failed to update license");
     }
-
   }
 
   /**
@@ -818,22 +739,18 @@ export class DatabaseStorage {
    * @example
    * const companyDocuments = await storage.getCompanyDocuments("company-1");
    */
-  async getCompanyDocuments (companyId: string): Promise<Document[]> {
-
+  async getCompanyDocuments(companyId: string): Promise<Document[]> {
     try {
-
       // Note: This method assumes documents table has companyId field
       // If not, you may need to join with employees table
       const results = await db.select().from(documents);
-      return results.filter(doc => doc.entityId === companyId && doc.entityType === 'company');
-
+      return results.filter(
+        (doc) => doc.entityId === companyId && doc.entityType === "company",
+      );
     } catch (error) {
-
-      log.error('Error fetching company documents:', error as Error);
-      throw new Error('Failed to fetch company documents');
-
+      log.error("Error fetching company documents:", error as Error);
+      throw new Error("Failed to fetch company documents");
     }
-
   }
 
   /**
@@ -846,22 +763,18 @@ export class DatabaseStorage {
    * @example
    * const employeeDocuments = await storage.getEmployeeDocuments("emp-1");
    */
-  async getEmployeeDocuments (employeeId: string): Promise<Document[]> {
-
+  async getEmployeeDocuments(employeeId: string): Promise<Document[]> {
     try {
-
       // Note: This method assumes documents table has employeeId field
       // If not, you may need to adjust the query
       const results = await db.select().from(documents);
-      return results.filter(doc => doc.entityId === employeeId && doc.entityType === 'employee');
-
+      return results.filter(
+        (doc) => doc.entityId === employeeId && doc.entityType === "employee",
+      );
     } catch (error) {
-
-      log.error('Error fetching employee documents:', error as Error);
-      throw new Error('Failed to fetch employee documents');
-
+      log.error("Error fetching employee documents:", error as Error);
+      throw new Error("Failed to fetch employee documents");
     }
-
   }
 
   /**
@@ -880,23 +793,17 @@ export class DatabaseStorage {
    *   fileUrl: "https://example.com/passport.pdf"
    * });
    */
-  async createDocument (data: InsertDocument): Promise<Document> {
-
+  async createDocument(data: InsertDocument): Promise<Document> {
     try {
-
       const results = await db.insert(documents).values(data).returning();
       if (!results[0]) {
-        throw new Error('Failed to create document');
+        throw new Error("Failed to create document");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error creating document:', error as Error);
-      throw new Error('Failed to create document');
-
+      log.error("Error creating document:", error as Error);
+      throw new Error("Failed to create document");
     }
-
   }
 
   /**
@@ -909,20 +816,17 @@ export class DatabaseStorage {
    * @example
    * const document = await storage.getDocument("doc-1");
    */
-  async getDocument (id: string): Promise<Document | null> {
-
+  async getDocument(id: string): Promise<Document | null> {
     try {
-
-      const results = await db.select().from(documents).where(eq(documents.id, id));
+      const results = await db
+        .select()
+        .from(documents)
+        .where(eq(documents.id, id));
       return results[0] ?? null;
-
     } catch (error) {
-
-      log.error('Error fetching document:', error as Error);
-      throw new Error('Failed to fetch document');
-
+      log.error("Error fetching document:", error as Error);
+      throw new Error("Failed to fetch document");
     }
-
   }
 
   /**
@@ -939,29 +843,27 @@ export class DatabaseStorage {
    *   description: "جواز سفر محدث"
    * });
    */
-  async updateDocument (id: string, data: Partial<InsertDocument>): Promise<Document> {
-
+  async updateDocument(
+    id: string,
+    data: Partial<InsertDocument>,
+  ): Promise<Document> {
     try {
-
-      const results = await db.update(documents)
+      const results = await db
+        .update(documents)
         .set({
           ...data,
-          'updatedAt': new Date()
+          updatedAt: new Date(),
         })
         .where(eq(documents.id, id))
         .returning();
       if (!results[0]) {
-        throw new Error('Failed to update document');
+        throw new Error("Failed to update document");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error updating document:', error as Error);
-      throw new Error('Failed to update document');
-
+      log.error("Error updating document:", error as Error);
+      throw new Error("Failed to update document");
     }
-
   }
 
   /**
@@ -974,19 +876,13 @@ export class DatabaseStorage {
    * @example
    * await storage.deleteDocument("doc-1");
    */
-  async deleteDocument (id: string): Promise<void> {
-
+  async deleteDocument(id: string): Promise<void> {
     try {
-
       await db.delete(documents).where(eq(documents.id, id));
-
     } catch (error) {
-
-      log.error('Error deleting document:', error as Error);
-      throw new Error('Failed to delete document');
-
+      log.error("Error deleting document:", error as Error);
+      throw new Error("Failed to delete document");
     }
-
   }
 
   /**
@@ -999,20 +895,17 @@ export class DatabaseStorage {
    * @example
    * const userNotifications = await storage.getUserNotifications("user-1");
    */
-  async getUserNotifications (userId: string): Promise<Notification[]> {
-
+  async getUserNotifications(userId: string): Promise<Notification[]> {
     try {
-
-      const results = await db.select().from(notifications).where(eq(notifications.userId, userId));
+      const results = await db
+        .select()
+        .from(notifications)
+        .where(eq(notifications.userId, userId));
       return results;
-
     } catch (error) {
-
-      log.error('Error fetching user notifications:', error as Error);
-      throw new Error('Failed to fetch user notifications');
-
+      log.error("Error fetching user notifications:", error as Error);
+      throw new Error("Failed to fetch user notifications");
     }
-
   }
 
   /**
@@ -1030,23 +923,17 @@ export class DatabaseStorage {
    *   type: "info"
    * });
    */
-  async createNotification (data: InsertNotification): Promise<Notification> {
-
+  async createNotification(data: InsertNotification): Promise<Notification> {
     try {
-
       const results = await db.insert(notifications).values(data).returning();
       if (!results[0]) {
-        throw new Error('Failed to create notification');
+        throw new Error("Failed to create notification");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error creating notification:', error as Error);
-      throw new Error('Failed to create notification');
-
+      log.error("Error creating notification:", error as Error);
+      throw new Error("Failed to create notification");
     }
-
   }
 
   /**
@@ -1059,28 +946,23 @@ export class DatabaseStorage {
    * @example
    * const updatedNotification = await storage.markNotificationAsRead("notif-1");
    */
-  async markNotificationAsRead (id: string): Promise<Notification> {
-
+  async markNotificationAsRead(id: string): Promise<Notification> {
     try {
-
-      const results = await db.update(notifications)
+      const results = await db
+        .update(notifications)
         .set({
-          'isRead': true
+          isRead: true,
         })
         .where(eq(notifications.id, id))
         .returning();
       if (!results[0]) {
-        throw new Error('Failed to mark notification as read');
+        throw new Error("Failed to mark notification as read");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error marking notification as read:', error as Error);
-      throw new Error('Failed to mark notification as read');
-
+      log.error("Error marking notification as read:", error as Error);
+      throw new Error("Failed to mark notification as read");
     }
-
   }
 
   /**
@@ -1093,7 +975,7 @@ export class DatabaseStorage {
    * @example
    * const stats = await storage.getEmployeeStats("company-1");
    */
-  async getEmployeeStats (companyId: string): Promise<{
+  async getEmployeeStats(companyId: string): Promise<{
     totalEmployees: number;
     activeEmployees: number;
     inactiveEmployees: number;
@@ -1106,66 +988,76 @@ export class DatabaseStorage {
     departments: Array<{ name: string; count: number }>;
     nationalities: Array<{ nationality: string; count: number }>;
   }> {
-
     try {
-
       const allEmployees = await this.getCompanyEmployees(companyId);
 
       const stats = {
-        'totalEmployees': allEmployees.length,
-        'activeEmployees': allEmployees.filter(emp => emp.status === 'active').length,
-        'inactiveEmployees': allEmployees.filter(emp => emp.status === 'inactive').length,
-        'onLeaveEmployees': allEmployees.filter(emp => emp.status === 'on_leave').length,
-        'terminatedEmployees': allEmployees.filter(emp => emp.status === 'terminated').length,
-        'archivedEmployees': allEmployees.filter(emp => emp.isArchived).length,
-        'citizens': allEmployees.filter(emp => emp.employeeType === 'citizen').length,
-        'expatriates': allEmployees.filter(emp => emp.employeeType === 'expatriate').length,
-        'averageSalary': allEmployees.length > 0
-          ? allEmployees.reduce((sum, emp) => sum + (emp.salary ?? 0), 0) / allEmployees.length
-          : 0,
-        'departments': [] as Array<{ name: string; count: number }>,
-        'nationalities': [] as Array<{ nationality: string; count: number }>
+        totalEmployees: allEmployees.length,
+        activeEmployees: allEmployees.filter((emp) => emp.status === "active")
+          .length,
+        inactiveEmployees: allEmployees.filter(
+          (emp) => emp.status === "inactive",
+        ).length,
+        onLeaveEmployees: allEmployees.filter(
+          (emp) => emp.status === "on_leave",
+        ).length,
+        terminatedEmployees: allEmployees.filter(
+          (emp) => emp.status === "terminated",
+        ).length,
+        archivedEmployees: allEmployees.filter((emp) => emp.isArchived).length,
+        citizens: allEmployees.filter((emp) => emp.employeeType === "citizen")
+          .length,
+        expatriates: allEmployees.filter(
+          (emp) => emp.employeeType === "expatriate",
+        ).length,
+        averageSalary:
+          allEmployees.length > 0
+            ? allEmployees.reduce((sum, emp) => sum + (emp.salary ?? 0), 0) /
+              allEmployees.length
+            : 0,
+        departments: [] as Array<{ name: string; count: number }>,
+        nationalities: [] as Array<{ nationality: string; count: number }>,
       };
 
       // Calculate department statistics
-      const deptCounts = allEmployees.reduce((acc, emp) => {
+      const deptCounts = allEmployees.reduce(
+        (acc, emp) => {
+          if (emp.department) {
+            acc[emp.department] = (acc[emp.department] ?? 0) + 1;
+          }
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
-        if (emp.department) {
-
-          acc[emp.department] = (acc[emp.department] ?? 0) + 1;
-
-        }
-        return acc;
-
-      }, {} as Record<string, number>);
-
-      stats.departments = Object.entries(deptCounts).map(([name, count]) => ({name, count}));
+      stats.departments = Object.entries(deptCounts).map(([name, count]) => ({
+        name,
+        count,
+      }));
 
       // Calculate nationality statistics
-      const nationalityCounts = allEmployees.reduce((acc, emp) => {
+      const nationalityCounts = allEmployees.reduce(
+        (acc, emp) => {
+          if (emp.nationality) {
+            acc[emp.nationality] = (acc[emp.nationality] ?? 0) + 1;
+          }
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
-        if (emp.nationality) {
-
-          acc[emp.nationality] = (acc[emp.nationality] ?? 0) + 1;
-
-        }
-        return acc;
-
-      }, {} as Record<string, number>);
-
-      stats.nationalities = Object.entries(nationalityCounts).map(([nationality, count]) => ({
-  nationality, count
-}));
+      stats.nationalities = Object.entries(nationalityCounts).map(
+        ([nationality, count]) => ({
+          nationality,
+          count,
+        }),
+      );
 
       return stats;
-
     } catch (error) {
-
-      log.error('Error fetching employee stats:', error as Error);
-      throw new Error('Failed to fetch employee stats');
-
+      log.error("Error fetching employee stats:", error as Error);
+      throw new Error("Failed to fetch employee stats");
     }
-
   }
 
   /**
@@ -1182,7 +1074,7 @@ export class DatabaseStorage {
    *   search: "أحمد"
    * });
    */
-  async searchEmployees (filters: {
+  async searchEmployees(filters: {
     companyId?: string;
     status?: string;
     employeeType?: string;
@@ -1192,80 +1084,57 @@ export class DatabaseStorage {
     isArchived?: boolean;
     search?: string;
   }): Promise<Employee[]> {
-
     try {
-
       const conditions = [];
 
       if (filters.companyId) {
-
         conditions.push(eq(employees.companyId, filters.companyId));
-
       }
       if (filters.status) {
-
         conditions.push(eq(employees.status, filters.status));
-
       }
       if (filters.employeeType) {
-
         conditions.push(eq(employees.employeeType, filters.employeeType));
-
       }
       if (filters.department) {
-
         conditions.push(eq(employees.department, filters.department));
-
       }
       if (filters.position) {
-
         conditions.push(eq(employees.position, filters.position));
-
       }
       if (filters.nationality) {
-
         conditions.push(eq(employees.nationality, filters.nationality));
-
       }
       if (filters.isArchived !== undefined) {
-
         conditions.push(eq(employees.isArchived, filters.isArchived));
-
       }
 
       let query = db.select().from(employees) as any;
       if (conditions.length > 0) {
-
         query = query.where(and(...conditions));
-
       }
 
       const results = await query;
 
       // Apply search filter if provided
       if (filters.search) {
-
         const searchTerm = filters.search.toLowerCase();
-        return results.filter((emp: any) =>
-          emp.firstName?.toLowerCase().includes(searchTerm) ||
-          emp.lastName?.toLowerCase().includes(searchTerm) ||
-          emp.arabicName?.toLowerCase().includes(searchTerm) ||
-          emp.englishName?.toLowerCase().includes(searchTerm) ||
-          emp.position?.toLowerCase().includes(searchTerm) ||
-          emp.department?.toLowerCase().includes(searchTerm)
+        return results.filter(
+          (emp: any) =>
+            emp.firstName?.toLowerCase().includes(searchTerm) ||
+            emp.lastName?.toLowerCase().includes(searchTerm) ||
+            emp.arabicName?.toLowerCase().includes(searchTerm) ||
+            emp.englishName?.toLowerCase().includes(searchTerm) ||
+            emp.position?.toLowerCase().includes(searchTerm) ||
+            emp.department?.toLowerCase().includes(searchTerm),
         );
-
       }
 
       return results;
-
     } catch (error) {
-
-      log.error('Error searching employees:', error as Error);
-      throw new Error('Failed to search employees');
-
+      log.error("Error searching employees:", error as Error);
+      throw new Error("Failed to search employees");
     }
-
   }
 
   /**
@@ -1279,33 +1148,36 @@ export class DatabaseStorage {
    * @example
    * const expiringEmployees = await storage.getEmployeesWithExpiringDocuments("company-1", 30);
    */
-  async getEmployeesWithExpiringDocuments (companyId: string,
-   daysThreshold = 30): Promise<Employee[]> {
-
+  async getEmployeesWithExpiringDocuments(
+    companyId: string,
+    daysThreshold = 30,
+  ): Promise<Employee[]> {
     try {
-
       const allEmployees = await this.getCompanyEmployees(companyId);
       const thresholdDate = new Date();
       thresholdDate.setDate(thresholdDate.getDate() + daysThreshold);
 
-      return allEmployees.filter(emp => {
-
+      return allEmployees.filter((emp) => {
         // Check various expiry dates
-        const residenceExpiry = emp.residenceExpiry ? new Date(emp.residenceExpiry) : null;
-        const workPermitEnd = emp.workPermitEnd ? new Date(emp.workPermitEnd) : null;
+        const residenceExpiry = emp.residenceExpiry
+          ? new Date(emp.residenceExpiry)
+          : null;
+        const workPermitEnd = emp.workPermitEnd
+          ? new Date(emp.workPermitEnd)
+          : null;
 
-        return (residenceExpiry && residenceExpiry <= thresholdDate) ||
-               (workPermitEnd && workPermitEnd <= thresholdDate);
-
+        return (
+          (residenceExpiry && residenceExpiry <= thresholdDate) ||
+          (workPermitEnd && workPermitEnd <= thresholdDate)
+        );
       });
-
     } catch (error) {
-
-      log.error('Error fetching employees with expiring documents:', error as Error);
-      throw new Error('Failed to fetch employees with expiring documents');
-
+      log.error(
+        "Error fetching employees with expiring documents:",
+        error as Error,
+      );
+      throw new Error("Failed to fetch employees with expiring documents");
     }
-
   }
 
   /**
@@ -1318,7 +1190,7 @@ export class DatabaseStorage {
    * @example
    * const companyStats = await storage.getCompanyStats("company-1");
    */
-  async getCompanyStats (companyId: string): Promise<{
+  async getCompanyStats(companyId: string): Promise<{
     totalEmployees: number;
     totalLicenses: number;
     activeEmployees: number;
@@ -1328,39 +1200,41 @@ export class DatabaseStorage {
     totalDeductions: number;
     totalViolations: number;
   }> {
-
     try {
+      const [employees, licenses, leaves, deductions, violations] =
+        await Promise.all([
+          this.getCompanyEmployees(companyId),
+          this.getCompanyLicenses(companyId),
+          this.getCompanyLeaves(companyId),
+          this.getCompanyEmployeeDeductions(companyId),
+          this.getCompanyEmployeeViolations(companyId),
+        ]);
 
-      const [employees, licenses, leaves, deductions, violations] = await Promise.all([
-        this.getCompanyEmployees(companyId),
-        this.getCompanyLicenses(companyId),
-        this.getCompanyLeaves(companyId),
-        this.getCompanyEmployeeDeductions(companyId),
-        this.getCompanyEmployeeViolations(companyId)
-      ]);
-
-      const urgentAlerts = await this.getEmployeesWithExpiringDocuments(companyId, 7);
+      const urgentAlerts = await this.getEmployeesWithExpiringDocuments(
+        companyId,
+        7,
+      );
 
       return {
-        'totalEmployees': employees.length,
-        'totalLicenses': licenses.length,
-        'activeEmployees': employees.filter(emp => emp.status === 'active').length,
-        'urgentAlerts': urgentAlerts.length,
-        'recentLeaves': leaves.filter(leave =>
-          new Date(leave.startDate) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+        totalEmployees: employees.length,
+        totalLicenses: licenses.length,
+        activeEmployees: employees.filter((emp) => emp.status === "active")
+          .length,
+        urgentAlerts: urgentAlerts.length,
+        recentLeaves: leaves.filter(
+          (leave) =>
+            new Date(leave.startDate) >=
+            new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
         ).length,
-        'pendingLeaves': leaves.filter(leave => leave.status === 'pending').length,
-        'totalDeductions': deductions.length,
-        'totalViolations': violations.length
+        pendingLeaves: leaves.filter((leave) => leave.status === "pending")
+          .length,
+        totalDeductions: deductions.length,
+        totalViolations: violations.length,
       };
-
     } catch (error) {
-
-      log.error('Error fetching company stats:', error as Error);
-      throw new Error('Failed to fetch company stats');
-
+      log.error("Error fetching company stats:", error as Error);
+      throw new Error("Failed to fetch company stats");
     }
-
   }
 
   /**
@@ -1373,25 +1247,21 @@ export class DatabaseStorage {
    * @example
    * const companyDeductions = await storage.getCompanyEmployeeDeductions(companyId);
    */
-  async getCompanyEmployeeDeductions (companyId: string): Promise<EmployeeDeduction[]> {
-
+  async getCompanyEmployeeDeductions(
+    companyId: string,
+  ): Promise<EmployeeDeduction[]> {
     try {
-
       const results = await db
         .select()
         .from(employeeDeductions)
         .leftJoin(employees, eq(employeeDeductions.employeeId, employees.id))
         .where(eq(employees.companyId, companyId));
 
-      return results.map(result => result.employee_deductions);
-
+      return results.map((result) => result.employee_deductions);
     } catch (error) {
-
-      log.error('Error fetching company deductions:', error as Error);
-      throw new Error('Failed to fetch company deductions');
-
+      log.error("Error fetching company deductions:", error as Error);
+      throw new Error("Failed to fetch company deductions");
     }
-
   }
 
   /**
@@ -1404,25 +1274,21 @@ export class DatabaseStorage {
    * @example
    * const companyViolations = await storage.getCompanyEmployeeViolations(companyId);
    */
-  async getCompanyEmployeeViolations (companyId: string): Promise<EmployeeViolation[]> {
-
+  async getCompanyEmployeeViolations(
+    companyId: string,
+  ): Promise<EmployeeViolation[]> {
     try {
-
       const results = await db
         .select()
         .from(employeeViolations)
         .leftJoin(employees, eq(employeeViolations.employeeId, employees.id))
         .where(eq(employees.companyId, companyId));
 
-      return results.map(result => result.employee_violations);
-
+      return results.map((result) => result.employee_violations);
     } catch (error) {
-
-      log.error('Error fetching company violations:', error as Error);
-      throw new Error('Failed to fetch company violations');
-
+      log.error("Error fetching company violations:", error as Error);
+      throw new Error("Failed to fetch company violations");
     }
-
   }
 
   /**
@@ -1434,20 +1300,14 @@ export class DatabaseStorage {
    * @example
    * const users = await storage.getAllUsers();
    */
-  async getAllUsers (): Promise<User[]> {
-
+  async getAllUsers(): Promise<User[]> {
     try {
-
       const results = await db.select().from(users);
       return results;
-
     } catch (error) {
-
-      log.error('Error fetching users:', error as Error);
-      throw new Error('Failed to fetch users');
-
+      log.error("Error fetching users:", error as Error);
+      throw new Error("Failed to fetch users");
     }
-
   }
 
   /**
@@ -1460,25 +1320,21 @@ export class DatabaseStorage {
    * @example
    * const companyUsers = await storage.getCompanyUsers("company-1");
    */
-  async getCompanyUsers (companyId: string): Promise<User[]> {
-
+  async getCompanyUsers(companyId: string): Promise<User[]> {
     try {
-
       const results = await db
         .select()
         .from(companyUsers)
         .leftJoin(users, eq(companyUsers.userId, users.id))
         .where(eq(companyUsers.companyId, companyId));
 
-      return results.map(result => result.users).filter((user): user is User => user !== null);
-
+      return results
+        .map((result) => result.users)
+        .filter((user): user is User => user !== null);
     } catch (error) {
-
-      log.error('Error fetching company users:', error as Error);
-      throw new Error('Failed to fetch company users');
-
+      log.error("Error fetching company users:", error as Error);
+      throw new Error("Failed to fetch company users");
     }
-
   }
 
   /**
@@ -1496,28 +1352,24 @@ export class DatabaseStorage {
    *   role: "employee"
    * });
    */
-  async createUser (data: InsertUser): Promise<User> {
-
+  async createUser(data: InsertUser): Promise<User> {
     try {
-
       // Convert permissions array to string for storage
       const userData = {
         ...data,
-        'permissions': Array.isArray(data.permissions) ? JSON.stringify(data.permissions) : data.permissions
+        permissions: Array.isArray(data.permissions)
+          ? JSON.stringify(data.permissions)
+          : data.permissions,
       };
       const results = await db.insert(users).values(userData).returning();
       if (!results[0]) {
-        throw new Error('Failed to create user');
+        throw new Error("Failed to create user");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error creating user:', error as Error);
-      throw new Error('Failed to create user');
-
+      log.error("Error creating user:", error as Error);
+      throw new Error("Failed to create user");
     }
-
   }
 
   /**
@@ -1534,28 +1386,30 @@ export class DatabaseStorage {
    *   isActive: true
    * });
    */
-  async updateUser (id: string, data: Partial<UpsertUser>): Promise<User> {
-
+  async updateUser(id: string, data: Partial<UpsertUser>): Promise<User> {
     try {
-
       // Convert permissions array to string for storage
       const userData = {
         ...data,
-        'permissions': data.permissions ? (Array.isArray(data.permissions) ? JSON.stringify(data.permissions) : data.permissions) : undefined
+        permissions: data.permissions
+          ? Array.isArray(data.permissions)
+            ? JSON.stringify(data.permissions)
+            : data.permissions
+          : undefined,
       };
-      const results = await db.update(users).set(userData).where(eq(users.id, id)).returning();
+      const results = await db
+        .update(users)
+        .set(userData)
+        .where(eq(users.id, id))
+        .returning();
       if (!results[0]) {
-        throw new Error('Failed to update user');
+        throw new Error("Failed to update user");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error updating user:', error as Error);
-      throw new Error('Failed to update user');
-
+      log.error("Error updating user:", error as Error);
+      throw new Error("Failed to update user");
     }
-
   }
 
   /**
@@ -1572,64 +1426,49 @@ export class DatabaseStorage {
    *   search: "أحمد"
    * });
    */
-  async searchUsers (filters: {
+  async searchUsers(filters: {
     role?: string;
     companyId?: string;
     isActive?: boolean;
     isEmailVerified?: boolean;
     search?: string;
   }): Promise<User[]> {
-
     try {
-
       const conditions = [];
 
       if (filters.role) {
-
         conditions.push(eq(users.role, filters.role));
-
       }
       if (filters.companyId) {
-
         conditions.push(eq(users.companyId, filters.companyId));
-
       }
       if (filters.isActive !== undefined) {
-
         conditions.push(eq(users.isActive, filters.isActive));
-
       }
 
       let query = db.select().from(users) as any;
       if (conditions.length > 0) {
-
         query = query.where(and(...conditions));
-
       }
 
       const results = await query;
 
       // Apply search filter if provided
       if (filters.search) {
-
         const searchTerm = filters.search.toLowerCase();
-        return results.filter((user: any) =>
-          user.firstName?.toLowerCase().includes(searchTerm) ||
-          user.lastName?.toLowerCase().includes(searchTerm) ||
-          user.email?.toLowerCase().includes(searchTerm)
+        return results.filter(
+          (user: any) =>
+            user.firstName?.toLowerCase().includes(searchTerm) ||
+            user.lastName?.toLowerCase().includes(searchTerm) ||
+            user.email?.toLowerCase().includes(searchTerm),
         );
-
       }
 
       return results;
-
     } catch (error) {
-
-      log.error('Error searching users:', error as Error);
-      throw new Error('Failed to search users');
-
+      log.error("Error searching users:", error as Error);
+      throw new Error("Failed to search users");
     }
-
   }
 
   /**
@@ -1641,7 +1480,7 @@ export class DatabaseStorage {
    * @example
    * const userStats = await storage.getUserStats();
    */
-  async getUserStats (): Promise<{
+  async getUserStats(): Promise<{
     totalUsers: number;
     activeUsers: number;
     inactiveUsers: number;
@@ -1649,40 +1488,38 @@ export class DatabaseStorage {
     verifiedUsers: number;
     unverifiedUsers: number;
   }> {
-
     try {
-
       const allUsers = await this.getAllUsers();
 
       const stats = {
-        'totalUsers': allUsers.length,
-        'activeUsers': allUsers.filter(user => user.isActive).length,
-        'inactiveUsers': allUsers.filter(user => !user.isActive).length,
-        'usersByRole': [] as Array<{ role: string; count: number }>,
-        'verifiedUsers': 0, // This would need additional fields in the schema
-        'unverifiedUsers': 0
+        totalUsers: allUsers.length,
+        activeUsers: allUsers.filter((user) => user.isActive).length,
+        inactiveUsers: allUsers.filter((user) => !user.isActive).length,
+        usersByRole: [] as Array<{ role: string; count: number }>,
+        verifiedUsers: 0, // This would need additional fields in the schema
+        unverifiedUsers: 0,
       };
 
       // Calculate role statistics
-      const roleCounts = allUsers.reduce((acc, user) => {
+      const roleCounts = allUsers.reduce(
+        (acc, user) => {
+          const role = user.role ?? "unknown";
+          acc[role] = (acc[role] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
-        const role = user.role ?? "unknown";
-        acc[role] = (acc[role] || 0) + 1;
-        return acc;
-
-      }, {} as Record<string, number>);
-
-      stats.usersByRole = Object.entries(roleCounts).map(([role, count]) => ({role, count}));
+      stats.usersByRole = Object.entries(roleCounts).map(([role, count]) => ({
+        role,
+        count,
+      }));
 
       return stats;
-
     } catch (error) {
-
-      log.error('Error fetching user stats:', error as Error);
-      throw new Error('Failed to fetch user stats');
-
+      log.error("Error fetching user stats:", error as Error);
+      throw new Error("Failed to fetch user stats");
     }
-
   }
 
   /**
@@ -1695,28 +1532,23 @@ export class DatabaseStorage {
    * @example
    * const updatedUser = await storage.updateUserLogin("user-1");
    */
-  async updateUserLogin (userId: string): Promise<User> {
-
+  async updateUserLogin(userId: string): Promise<User> {
     try {
-
-      const results = await db.update(users)
+      const results = await db
+        .update(users)
         .set({
-          'updatedAt': new Date()
+          updatedAt: new Date(),
         })
         .where(eq(users.id, userId))
         .returning();
       if (!results[0]) {
-        throw new Error('Failed to update user login');
+        throw new Error("Failed to update user login");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error updating user login:', error as Error);
-      throw new Error('Failed to update user login');
-
+      log.error("Error updating user login:", error as Error);
+      throw new Error("Failed to update user login");
     }
-
   }
 
   /**
@@ -1729,29 +1561,24 @@ export class DatabaseStorage {
    * @example
    * const deactivatedUser = await storage.deactivateUser("user-1");
    */
-  async deactivateUser (id: string): Promise<User> {
-
+  async deactivateUser(id: string): Promise<User> {
     try {
-
-      const results = await db.update(users)
+      const results = await db
+        .update(users)
         .set({
-          'isActive': false,
-          'updatedAt': new Date()
+          isActive: false,
+          updatedAt: new Date(),
         })
         .where(eq(users.id, id))
         .returning();
       if (!results[0]) {
-        throw new Error('Failed to deactivate user');
+        throw new Error("Failed to deactivate user");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error deactivating user:', error as Error);
-      throw new Error('Failed to deactivate user');
-
+      log.error("Error deactivating user:", error as Error);
+      throw new Error("Failed to deactivate user");
     }
-
   }
 
   /**
@@ -1764,29 +1591,24 @@ export class DatabaseStorage {
    * @example
    * const activatedUser = await storage.activateUser("user-1");
    */
-  async activateUser (id: string): Promise<User> {
-
+  async activateUser(id: string): Promise<User> {
     try {
-
-      const results = await db.update(users)
+      const results = await db
+        .update(users)
         .set({
-          'isActive': true,
-          'updatedAt': new Date()
+          isActive: true,
+          updatedAt: new Date(),
         })
         .where(eq(users.id, id))
         .returning();
       if (!results[0]) {
-        throw new Error('Failed to activate user');
+        throw new Error("Failed to activate user");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error activating user:', error as Error);
-      throw new Error('Failed to activate user');
-
+      log.error("Error activating user:", error as Error);
+      throw new Error("Failed to activate user");
     }
-
   }
 
   /**
@@ -1799,20 +1621,17 @@ export class DatabaseStorage {
    * @example
    * const user = await storage.getUserByEmail("user@example.com");
    */
-  async getUserByEmail (email: string): Promise<User | null> {
-
+  async getUserByEmail(email: string): Promise<User | null> {
     try {
-
-      const results = await db.select().from(users).where(eq(users.email, email));
+      const results = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email));
       return results[0] || null;
-
     } catch (error) {
-
-      log.error('Error fetching user by email:', error as Error);
-      throw new Error('Failed to fetch user by email');
-
+      log.error("Error fetching user by email:", error as Error);
+      throw new Error("Failed to fetch user by email");
     }
-
   }
 
   /**
@@ -1826,30 +1645,28 @@ export class DatabaseStorage {
    * @example
    * const updatedUser = await storage.updateUserPassword("user-1", hashedPassword);
    */
-  async updateUserPassword (userId: string, hashedPassword: string): Promise<User> {
-
+  async updateUserPassword(
+    userId: string,
+    hashedPassword: string,
+  ): Promise<User> {
     try {
-
-      const results = await db.update(users)
+      const results = await db
+        .update(users)
         .set({
-          'password': hashedPassword,
-          'lastPasswordChange': Math.floor(Date.now() / 1000),
-          'updatedAt': new Date()
+          password: hashedPassword,
+          lastPasswordChange: Math.floor(Date.now() / 1000),
+          updatedAt: new Date(),
         })
         .where(eq(users.id, userId))
         .returning();
       if (!results[0]) {
-        throw new Error('Failed to update user password');
+        throw new Error("Failed to update user password");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error updating user password:', error as Error);
-      throw new Error('Failed to update user password');
-
+      log.error("Error updating user password:", error as Error);
+      throw new Error("Failed to update user password");
     }
-
   }
 
   /**
@@ -1863,31 +1680,29 @@ export class DatabaseStorage {
    * @example
    * const user = await storage.setEmailVerificationToken("user-1", "token123");
    */
-  async setEmailVerificationToken (userId: string, token: string): Promise<User> {
-
+  async setEmailVerificationToken(
+    userId: string,
+    token: string,
+  ): Promise<User> {
     try {
-
-      const expiresAt = Math.floor(Date.now() / 1000) + (24 * 60 * 60); // 24 hours
-      const results = await db.update(users)
+      const expiresAt = Math.floor(Date.now() / 1000) + 24 * 60 * 60; // 24 hours
+      const results = await db
+        .update(users)
         .set({
-          'emailVerificationToken': token,
-          'emailVerificationExpires': expiresAt,
-          'updatedAt': new Date()
+          emailVerificationToken: token,
+          emailVerificationExpires: expiresAt,
+          updatedAt: new Date(),
         })
         .where(eq(users.id, userId))
         .returning();
       if (!results[0]) {
-        throw new Error('Failed to set email verification token');
+        throw new Error("Failed to set email verification token");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error setting email verification token:', error as Error);
-      throw new Error('Failed to set email verification token');
-
+      log.error("Error setting email verification token:", error as Error);
+      throw new Error("Failed to set email verification token");
     }
-
   }
 
   /**
@@ -1900,49 +1715,46 @@ export class DatabaseStorage {
    * @example
    * const user = await storage.verifyEmailWithToken("token123");
    */
-  async verifyEmailWithToken (token: string): Promise<User | null> {
-
+  async verifyEmailWithToken(token: string): Promise<User | null> {
     try {
-
       const now = Math.floor(Date.now() / 1000);
-      const results = await db.select().from(users)
-        .where(and(
-          eq(users.emailVerificationToken, token),
-          gt(users.emailVerificationExpires, now)
-        ));
+      const results = await db
+        .select()
+        .from(users)
+        .where(
+          and(
+            eq(users.emailVerificationToken, token),
+            gt(users.emailVerificationExpires, now),
+          ),
+        );
 
       if (results.length === 0) {
-
         return null;
-
       }
 
       const user = results[0];
       if (!user) {
         return null;
       }
-      const updatedResults = await db.update(users)
+      const updatedResults = await db
+        .update(users)
         .set({
-          'emailVerified': true,
-          'emailVerificationToken': null,
-          'emailVerificationExpires': null,
-          'updatedAt': new Date()
+          emailVerified: true,
+          emailVerificationToken: null,
+          emailVerificationExpires: null,
+          updatedAt: new Date(),
         })
         .where(eq(users.id, user.id))
         .returning();
 
       if (!updatedResults[0]) {
-        throw new Error('Failed to verify email with token');
+        throw new Error("Failed to verify email with token");
       }
       return updatedResults[0];
-
     } catch (error) {
-
-      log.error('Error verifying email with token:', error as Error);
-      throw new Error('Failed to verify email with token');
-
+      log.error("Error verifying email with token:", error as Error);
+      throw new Error("Failed to verify email with token");
     }
-
   }
 
   /**
@@ -1956,31 +1768,26 @@ export class DatabaseStorage {
    * @example
    * const user = await storage.setPasswordResetToken("user-1", "token123");
    */
-  async setPasswordResetToken (userId: string, token: string): Promise<User> {
-
+  async setPasswordResetToken(userId: string, token: string): Promise<User> {
     try {
-
-      const expiresAt = Math.floor(Date.now() / 1000) + (60 * 60); // 1 hour
-      const results = await db.update(users)
+      const expiresAt = Math.floor(Date.now() / 1000) + 60 * 60; // 1 hour
+      const results = await db
+        .update(users)
         .set({
-          'passwordResetToken': token,
-          'passwordResetExpires': expiresAt,
-          'updatedAt': new Date()
+          passwordResetToken: token,
+          passwordResetExpires: expiresAt,
+          updatedAt: new Date(),
         })
         .where(eq(users.id, userId))
         .returning();
       if (!results[0]) {
-        throw new Error('Failed to set password reset token');
+        throw new Error("Failed to set password reset token");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error setting password reset token:', error as Error);
-      throw new Error('Failed to set password reset token');
-
+      log.error("Error setting password reset token:", error as Error);
+      throw new Error("Failed to set password reset token");
     }
-
   }
 
   /**
@@ -1994,50 +1801,50 @@ export class DatabaseStorage {
    * @example
    * const user = await storage.resetPasswordWithToken("token123", hashedPassword);
    */
-  async resetPasswordWithToken (token: string, hashedPassword: string): Promise<User | null> {
-
+  async resetPasswordWithToken(
+    token: string,
+    hashedPassword: string,
+  ): Promise<User | null> {
     try {
-
       const now = Math.floor(Date.now() / 1000);
-      const results = await db.select().from(users)
-        .where(and(
-          eq(users.passwordResetToken, token),
-          gt(users.passwordResetExpires, now)
-        ));
+      const results = await db
+        .select()
+        .from(users)
+        .where(
+          and(
+            eq(users.passwordResetToken, token),
+            gt(users.passwordResetExpires, now),
+          ),
+        );
 
       if (results.length === 0) {
-
         return null;
-
       }
 
       const user = results[0];
       if (!user) {
         return null;
       }
-      const updatedResults = await db.update(users)
+      const updatedResults = await db
+        .update(users)
         .set({
-          'password': hashedPassword,
-          'passwordResetToken': null,
-          'passwordResetExpires': null,
-          'lastPasswordChange': now,
-          'updatedAt': new Date()
+          password: hashedPassword,
+          passwordResetToken: null,
+          passwordResetExpires: null,
+          lastPasswordChange: now,
+          updatedAt: new Date(),
         })
         .where(eq(users.id, user.id))
         .returning();
 
       if (!updatedResults[0]) {
-        throw new Error('Failed to reset password with token');
+        throw new Error("Failed to reset password with token");
       }
       return updatedResults[0];
-
     } catch (error) {
-
-      log.error('Error resetting password with token:', error as Error);
-      throw new Error('Failed to reset password with token');
-
+      log.error("Error resetting password with token:", error as Error);
+      throw new Error("Failed to reset password with token");
     }
-
   }
 
   /**
@@ -2050,30 +1857,25 @@ export class DatabaseStorage {
    * @example
    * const user = await storage.updateUserLastLogin("user-1");
    */
-  async updateUserLastLogin (userId: string): Promise<User> {
-
+  async updateUserLastLogin(userId: string): Promise<User> {
     try {
-
       const now = Math.floor(Date.now() / 1000);
-      const results = await db.update(users)
+      const results = await db
+        .update(users)
         .set({
-          'lastLoginAt': now,
-          'updatedAt': new Date()
+          lastLoginAt: now,
+          updatedAt: new Date(),
         })
         .where(eq(users.id, userId))
         .returning();
       if (!results[0]) {
-        throw new Error('Failed to update user last login');
+        throw new Error("Failed to update user last login");
       }
       return results[0];
-
     } catch (error) {
-
-      log.error('Error updating user last login:', error as Error);
-      throw new Error('Failed to update user last login');
-
+      log.error("Error updating user last login:", error as Error);
+      throw new Error("Failed to update user last login");
     }
-
   }
 
   /**
@@ -2087,36 +1889,37 @@ export class DatabaseStorage {
    * @example
    * const permissions = await storage.getUserPermissions("user-1", "company-1");
    */
-  async getUserPermissions (userId: string, companyId?: string): Promise<string[]> {
-
+  async getUserPermissions(
+    userId: string,
+    companyId?: string,
+  ): Promise<string[]> {
     try {
-
       const user = await this.getUser(userId);
       if (!user) {
-
         return [];
-
       }
 
       // For now, return basic permissions based on user role
       // In a real implementation, this would query a permissions table
       const rolePermissions: Record<string, string[]> = {
-        'super_admin': ['*'],
-        'company_manager': ['read', 'write', 'delete', 'manage_users', 'manage_employees'],
-        'employee': ['read', 'write'],
-        'supervisor': ['read', 'write', 'manage_employees'],
-        'worker': ['read']
+        super_admin: ["*"],
+        company_manager: [
+          "read",
+          "write",
+          "delete",
+          "manage_users",
+          "manage_employees",
+        ],
+        employee: ["read", "write"],
+        supervisor: ["read", "write", "manage_employees"],
+        worker: ["read"],
       };
 
-      return rolePermissions[user.role] || ['read'];
-
+      return rolePermissions[user.role] || ["read"];
     } catch (error) {
-
-      log.error('Error fetching user permissions:', error as Error);
-      throw new Error('Failed to fetch user permissions');
-
+      log.error("Error fetching user permissions:", error as Error);
+      throw new Error("Failed to fetch user permissions");
     }
-
   }
 
   /**
@@ -2130,30 +1933,21 @@ export class DatabaseStorage {
    * @example
    * const roles = await storage.getUserRoles("user-1", "company-1");
    */
-  async getUserRoles (userId: string, companyId?: string): Promise<string[]> {
-
+  async getUserRoles(userId: string, companyId?: string): Promise<string[]> {
     try {
-
       const user = await this.getUser(userId);
       if (!user) {
-
         return [];
-
       }
 
       // For now, return the user's primary role
       // In a real implementation, this would query a roles table
       return [user.role];
-
     } catch (error) {
-
-      log.error('Error fetching user roles:', error as Error);
-      throw new Error('Failed to fetch user roles');
-
+      log.error("Error fetching user roles:", error as Error);
+      throw new Error("Failed to fetch user roles");
     }
-
   }
-
 }
 
 /**

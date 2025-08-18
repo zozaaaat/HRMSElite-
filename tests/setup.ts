@@ -1,9 +1,9 @@
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";
 
 // Mock IntersectionObserver without relying on DOM lib types
 class MockIntersectionObserver {
   root = null;
-  rootMargin = '';
+  rootMargin = "";
   thresholds = [] as number[];
 
   constructor(_callback?: unknown, _options?: unknown) {}
@@ -11,7 +11,9 @@ class MockIntersectionObserver {
   disconnect(): void {}
   observe(_target: unknown): void {}
   unobserve(_target: unknown): void {}
-  takeRecords(): unknown[] { return []; }
+  takeRecords(): unknown[] {
+    return [];
+  }
 }
 
 (globalThis as Record<string, unknown>).IntersectionObserver =
@@ -36,4 +38,4 @@ global.console = {
   info: vi.fn(),
   warn: vi.fn(),
   error: vi.fn(),
-}; 
+};

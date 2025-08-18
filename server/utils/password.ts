@@ -1,6 +1,6 @@
-import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
-import {log} from './logger';
+import bcrypt from "bcryptjs";
+import crypto from "crypto";
+import { log } from "./logger";
 
 /**
  * Password utility functions for HRMS Elite
@@ -15,18 +15,16 @@ const SALT_ROUNDS = 12;
  * @returns Hashed password
  */
 export const hashPassword = async (password: string): Promise<string> => {
-
   try {
-
     return await bcrypt.hash(password, SALT_ROUNDS);
-
   } catch (error) {
-
-    log.error('Error hashing password:', error instanceof Error ? error : new Error(String(error)), 'AUTH');
-    throw new Error('Failed to hash password');
-
+    log.error(
+      "Error hashing password:",
+      error instanceof Error ? error : new Error(String(error)),
+      "AUTH",
+    );
+    throw new Error("Failed to hash password");
   }
-
 };
 
 /**
@@ -35,19 +33,20 @@ export const hashPassword = async (password: string): Promise<string> => {
  * @param hash - Hashed password to compare against
  * @returns True if password matches hash
  */
-export const verifyPassword = async (password: string, hash: string): Promise<boolean> => {
-
+export const verifyPassword = async (
+  password: string,
+  hash: string,
+): Promise<boolean> => {
   try {
-
     return await bcrypt.compare(password, hash);
-
   } catch (error) {
-
-    log.error('Error verifying password:', error instanceof Error ? error : new Error(String(error)), 'AUTH');
+    log.error(
+      "Error verifying password:",
+      error instanceof Error ? error : new Error(String(error)),
+      "AUTH",
+    );
     return false;
-
   }
-
 };
 
 /**
@@ -56,9 +55,7 @@ export const verifyPassword = async (password: string, hash: string): Promise<bo
  * @returns Random token string
  */
 export const generateToken = (length = 32): string => {
-
-  return crypto.randomBytes(length).toString('hex');
-
+  return crypto.randomBytes(length).toString("hex");
 };
 
 /**
@@ -67,9 +64,7 @@ export const generateToken = (length = 32): string => {
  * @returns Random string
  */
 export const generateSecureToken = (length = 64): string => {
-
-  return crypto.randomBytes(length).toString('base64url');
-
+  return crypto.randomBytes(length).toString("base64url");
 };
 
 /**
@@ -77,43 +72,48 @@ export const generateSecureToken = (length = 64): string => {
  * @param password - Password to validate
  * @returns Object with isValid and message
  */
-export const validatePasswordStrength = (password: string): {
-   isValid: boolean; message: string 
+export const validatePasswordStrength = (
+  password: string,
+): {
+  isValid: boolean;
+  message: string;
 } => {
-  
-
   if (password.length < 8) {
-
-    return {'isValid': false, 'message': 'Password must be at least 8 characters long'};
-
+    return {
+      isValid: false,
+      message: "Password must be at least 8 characters long",
+    };
   }
 
-  if (!(/[A-Z]/).test(password)) {
-
-    return {'isValid': false, 'message': 'Password must contain at least one uppercase letter'};
-
+  if (!/[A-Z]/.test(password)) {
+    return {
+      isValid: false,
+      message: "Password must contain at least one uppercase letter",
+    };
   }
 
-  if (!(/[a-z]/).test(password)) {
-
-    return {'isValid': false, 'message': 'Password must contain at least one lowercase letter'};
-
+  if (!/[a-z]/.test(password)) {
+    return {
+      isValid: false,
+      message: "Password must contain at least one lowercase letter",
+    };
   }
 
-  if (!(/\d/).test(password)) {
-
-    return {'isValid': false, 'message': 'Password must contain at least one number'};
-
+  if (!/\d/.test(password)) {
+    return {
+      isValid: false,
+      message: "Password must contain at least one number",
+    };
   }
 
-  if (!(/[!@#$%^&*(),.?":{}|<>]/).test(password)) {
-
-    return {'isValid': false, 'message': 'Password must contain at least one special character'};
-
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    return {
+      isValid: false,
+      message: "Password must contain at least one special character",
+    };
   }
 
-  return {'isValid': true, 'message': 'Password meets strength requirements'};
-
+  return { isValid: true, message: "Password meets strength requirements" };
 };
 
 /**
@@ -122,9 +122,9 @@ export const validatePasswordStrength = (password: string): {
  * @param oldPassword - Old password hash to compare against
  * @returns True if password is different from old password
  */
-export const isPasswordDifferent = async (newPassword: string,
-   oldPasswordHash: string): Promise<boolean> => {
-
+export const isPasswordDifferent = async (
+  newPassword: string,
+  oldPasswordHash: string,
+): Promise<boolean> => {
   return !(await verifyPassword(newPassword, oldPasswordHash));
-
 };

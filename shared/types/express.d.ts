@@ -1,4 +1,4 @@
-import 'express';
+import "express";
 
 declare global {
   namespace Express {
@@ -11,7 +11,7 @@ declare global {
       companyId?: string | null;
       sub?: string;
     }
-    
+
     interface Request {
       user?: User;
     }

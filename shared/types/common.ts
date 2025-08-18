@@ -72,8 +72,8 @@ export interface LicenseData {
 
 export interface SyncData {
   id: string;
-  type: 'employee' | 'company' | 'document' | 'license';
-  action: 'create' | 'update' | 'delete';
+  type: "employee" | "company" | "document" | "license";
+  action: "create" | "update" | "delete";
   data: EmployeeData | CompanyData | DocumentData | LicenseData;
   timestamp: number;
 }
@@ -143,9 +143,9 @@ export interface MiddlewareEvent {
 }
 
 // Generic types for better type safety
-export type ApiMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal';
-export type UserRole = 'admin' | 'manager' | 'employee' | 'viewer';
+export type ApiMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+export type LogLevel = "debug" | "info" | "warn" | "error" | "fatal";
+export type UserRole = "admin" | "manager" | "employee" | "viewer";
 
 // Utility types
 export type DeepPartial<T> = {
@@ -159,4 +159,8 @@ export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>;
 // Function types
 export type ApiHandler<T = unknown> = (data: T) => Promise<ApiResponse<T>>;
 export type ErrorHandler = (error: ErrorData) => void;
-export type LogHandler = (level: LogLevel, message: string, data?: LogData) => void;
+export type LogHandler = (
+  level: LogLevel,
+  message: string,
+  data?: LogData,
+) => void;

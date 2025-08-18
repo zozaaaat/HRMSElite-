@@ -1,4 +1,9 @@
-export type UserRole = 'super_admin' | 'company_manager' | 'employee' | 'supervisor' | 'worker';
+export type UserRole =
+  | "super_admin"
+  | "company_manager"
+  | "employee"
+  | "supervisor"
+  | "worker";
 
 export interface User {
   id: string;
@@ -100,7 +105,7 @@ export interface UserStats {
 }
 
 export interface UserPreferences {
-  theme: 'light' | 'dark' | 'auto';
+  theme: "light" | "dark" | "auto";
   language: string;
   timezone: string;
   notifications: {

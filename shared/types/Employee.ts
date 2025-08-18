@@ -1,7 +1,12 @@
-export type EmployeeStatus = 'active' | 'inactive' | 'on_leave' | 'terminated' | 'archived';
-export type EmployeeType = 'citizen' | 'expatriate';
-export type Gender = 'male' | 'female';
-export type MaritalStatus = 'single' | 'married' | 'divorced' | 'widowed';
+export type EmployeeStatus =
+  | "active"
+  | "inactive"
+  | "on_leave"
+  | "terminated"
+  | "archived";
+export type EmployeeType = "citizen" | "expatriate";
+export type Gender = "male" | "female";
+export type MaritalStatus = "single" | "married" | "divorced" | "widowed";
 
 export interface Employee {
   id: string;

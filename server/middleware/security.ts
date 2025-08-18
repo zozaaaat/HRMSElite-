@@ -6,11 +6,10 @@
  * @version 1.0.0
  */
 
-import {Request, Response, NextFunction} from 'express';
-import rateLimit from 'express-rate-limit';
-import {log} from '../utils/logger';
-import {LogData} from '@shared/types/common';
-
+import { Request, Response, NextFunction } from "express";
+import rateLimit from "express-rate-limit";
+import { log } from "../utils/logger";
+import { LogData } from "@shared/types/common";
 
 // IP blocking configuration
 const BLOCKED_IPS = new Set<string>();
@@ -32,7 +31,7 @@ const SUSPICIOUS_PATTERNS = [
   /window\.location/gi,
   /document\.write/gi,
   /innerHTML/gi,
-  /outerHTML/gi
+  /outerHTML/gi,
 ];
 
 interface UploadedFile {
@@ -50,55 +49,57 @@ interface RequestWithFiles extends Request {
  * IP blocking middleware
  * @description Blocks requests from suspicious IP addresses
  */
-export const ipBlockingMiddleware = (req: Request, res: Response, next: NextFunction) => {
-
+export const ipBlockingMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   const clientIP = req.ip ?? req.connection.remoteAddress ?? "unknown";
 
   // Check if IP is blocked
   if (BLOCKED_IPS.has(clientIP)) {
-
-    log.warn('Blocked IP attempt', {'ip': clientIP, 'url': req.url}, 'SECURITY');
+    log.warn("Blocked IP attempt", { ip: clientIP, url: req.url }, "SECURITY");
     return res.status(403).json({
-      'error': 'تم حظر عنوان IP هذا',
-      'message': 'يرجى التواصل مع الإدارة'
+      error: "تم حظر عنوان IP هذا",
+      message: "يرجى التواصل مع الإدارة",
     });
-
   }
 
   // Check for suspicious patterns in request
   const requestData = JSON.stringify({
-    'url': req.url,
-    'method': req.method,
-    'headers': req.headers,
-    'body': req.body,
-    'query': req.query,
-    'params': req.params
+    url: req.url,
+    method: req.method,
+    headers: req.headers,
+    body: req.body,
+    query: req.query,
+    params: req.params,
   });
 
-  const hasSuspiciousPattern = SUSPICIOUS_PATTERNS.some(pattern =>
-    pattern.test(requestData)
+  const hasSuspiciousPattern = SUSPICIOUS_PATTERNS.some((pattern) =>
+    pattern.test(requestData),
   );
 
   if (hasSuspiciousPattern) {
-
-    log.warn('Suspicious request pattern detected', {
-      'ip': clientIP,
-      'url': req.url,
-      'pattern': requestData.substring(0, 200)
-    }, 'SECURITY');
+    log.warn(
+      "Suspicious request pattern detected",
+      {
+        ip: clientIP,
+        url: req.url,
+        pattern: requestData.substring(0, 200),
+      },
+      "SECURITY",
+    );
 
     // Temporarily block IP for suspicious activity
     BLOCKED_IPS.add(clientIP);
 
     return res.status(403).json({
-      'error': 'تم اكتشاف نشاط مشبوه',
-      'message': 'تم حظر عنوان IP هذا مؤقتاً'
+      error: "تم اكتشاف نشاط مشبوه",
+      message: "تم حظر عنوان IP هذا مؤقتاً",
     });
-
   }
 
   next();
-
 };
 
 /**
@@ -110,31 +111,37 @@ export const ipBlockingMiddleware = (req: Request, res: Response, next: NextFunc
  * @example
  * app.use(securityHeaders);
  */
-export const securityHeaders = (req: Request, res: Response, next: NextFunction) => {
-
+export const securityHeaders = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   // Additional security headers that complement helmet
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=()');
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader(
+    "Permissions-Policy",
+    "geolocation=(), microphone=(), camera=(), payment=()",
+  );
 
   // Additional headers for better security
-  res.setHeader('X-DNS-Prefetch-Control', 'off');
-  res.setHeader('X-Download-Options', 'noopen');
-  res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
+  res.setHeader("X-DNS-Prefetch-Control", "off");
+  res.setHeader("X-Download-Options", "noopen");
+  res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
 
   // Cache control for sensitive pages
-  if (req.path.startsWith('/api/') || req.path.includes('auth')) {
-
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-
+  if (req.path.startsWith("/api/") || req.path.includes("auth")) {
+    res.setHeader(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
   }
 
   next();
-
 };
 
 /**
@@ -147,65 +154,60 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
  * const apiRateLimit = createRateLimit(15 * 60 * 1000, 100); // 100 requests per 15 minutes
  * app.use('/api/', apiRateLimit);
  */
-export const createRateLimit = (windowMs: number = 15 * 60 * 1000, max = 100) => {
-
+export const createRateLimit = (
+  windowMs: number = 15 * 60 * 1000,
+  max = 100,
+) => {
   return rateLimit({
     windowMs,
     max,
-    'message': {
-      'error': 'تم تجاوز الحد المسموح من الطلبات',
-      'retryAfter': windowMs / 1000
+    message: {
+      error: "تم تجاوز الحد المسموح من الطلبات",
+      retryAfter: windowMs / 1000,
     },
-    'standardHeaders': true,
-    'legacyHeaders': false,
+    standardHeaders: true,
+    legacyHeaders: false,
     // Skip rate limiting for development or disable trust proxy validation
-    'skip': process.env.NODE_ENV === 'development' ? () => false : undefined,
-    'validate': {
-      'trustProxy': false // Disable trust proxy validation
+    skip: process.env.NODE_ENV === "development" ? () => false : undefined,
+    validate: {
+      trustProxy: false, // Disable trust proxy validation
     },
-    'handler': (req, res) => {
-
+    handler: (req, res) => {
       const clientIP = req.ip ?? req.connection.remoteAddress ?? "unknown";
-      log.warn('Rate limit exceeded', {
-        'ip': clientIP,
-        'url': req.url,
-        'method': req.method,
-        'userAgent': req.get('User-Agent')
-      }, 'SECURITY');
+      log.warn(
+        "Rate limit exceeded",
+        {
+          ip: clientIP,
+          url: req.url,
+          method: req.method,
+          userAgent: req.get("User-Agent"),
+        },
+        "SECURITY",
+      );
 
       res.status(429).json({
-        'error': 'تم تجاوز الحد المسموح من الطلبات',
-        'message': 'يرجى المحاولة مرة أخرى لاحقاً',
-        'retryAfter': Math.ceil(windowMs / 1000)
+        error: "تم تجاوز الحد المسموح من الطلبات",
+        message: "يرجى المحاولة مرة أخرى لاحقاً",
+        retryAfter: Math.ceil(windowMs / 1000),
       });
-
     },
     // Add key generator for better rate limiting
-    'keyGenerator': (req) => {
-
+    keyGenerator: (req) => {
       return req.ip ?? req.connection.remoteAddress ?? "unknown";
-
     },
     // Add skip function for certain conditions
-    'skip': (req) => {
-
+    skip: (req) => {
       // Skip rate limiting for health checks
-      if (req.path === '/health') {
-
+      if (req.path === "/health") {
         return true;
-
       }
       // Skip in development mode
-      if (process.env.NODE_ENV === 'development') {
-
+      if (process.env.NODE_ENV === "development") {
         return true;
-
       }
       return false;
-
-    }
+    },
   });
-
 };
 
 /**
@@ -259,85 +261,69 @@ export const generalApiRateLimit = createRateLimit(15 * 60 * 1000, 100); // 100 
  * @example
  * app.use(validateInput);
  */
-export const validateInput = (req:  Request, _res:  Response, next:  NextFunction) => {
-
+export const validateInput = (
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+) => {
   /**
    * Recursively sanitizes objects to remove potentially dangerous content
    * @param {unknown} obj - Object to sanitize
    * @returns {unknown} Sanitized object
    */
   const sanitizeObject = (obj: unknown): unknown => {
-
-    if (typeof obj === 'string') {
-
+    if (typeof obj === "string") {
       let sanitized = obj
-        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-        .replace(/javascript:/gi, '')
-        .replace(/on\w+\s*=/gi, '')
-        .replace(/data:text\/html/gi, '')
-        .replace(/vbscript:/gi, '')
-        .replace(/expression\s*\(/gi, '')
-        .replace(/union\s+select/gi, '')
-        .replace(/drop\s+table/gi, '')
-        .replace(/insert\s+into/gi, '')
-        .replace(/delete\s+from/gi, '')
-        .replace(/update\s+set/gi, '')
-        .replace(/exec\s*\(/gi, '')
-        .replace(/eval\s*\(/gi, '')
-        .replace(/document\.cookie/gi, '')
-        .replace(/window\.location/gi, '')
-        .replace(/document\.write/gi, '')
-        .replace(/innerHTML/gi, '')
-        .replace(/outerHTML/gi, '');
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+        .replace(/javascript:/gi, "")
+        .replace(/on\w+\s*=/gi, "")
+        .replace(/data:text\/html/gi, "")
+        .replace(/vbscript:/gi, "")
+        .replace(/expression\s*\(/gi, "")
+        .replace(/union\s+select/gi, "")
+        .replace(/drop\s+table/gi, "")
+        .replace(/insert\s+into/gi, "")
+        .replace(/delete\s+from/gi, "")
+        .replace(/update\s+set/gi, "")
+        .replace(/exec\s*\(/gi, "")
+        .replace(/eval\s*\(/gi, "")
+        .replace(/document\.cookie/gi, "")
+        .replace(/window\.location/gi, "")
+        .replace(/document\.write/gi, "")
+        .replace(/innerHTML/gi, "")
+        .replace(/outerHTML/gi, "");
 
       // Limit string length to prevent DoS
       if (sanitized.length > 10000) {
-
         sanitized = sanitized.substring(0, 10000);
-
       }
 
       return sanitized;
-
     }
     if (Array.isArray(obj)) {
-
       return obj.map(sanitizeObject);
-
     }
-    if (obj && typeof obj === 'object') {
-
+    if (obj && typeof obj === "object") {
       const sanitized: Record<string, unknown> = {};
       for (const [key, value] of Object.entries(obj)) {
-
         sanitized[key] = sanitizeObject(value);
-
       }
       return sanitized;
-
     }
     return obj;
-
   };
 
   if (req.body) {
-
     req.body = sanitizeObject(req.body) as any;
-
   }
   if (req.query) {
-
     req.query = sanitizeObject(req.query) as any;
-
   }
   if (req.params) {
-
     req.params = sanitizeObject(req.params) as any;
-
   }
 
   next();
-
 };
 
 /**
@@ -349,49 +335,53 @@ export const validateInput = (req:  Request, _res:  Response, next:  NextFunctio
  * @example
  * app.use(requestLogger);
  */
-export const requestLogger = (_req:  Request, _res:  Response, _next:  NextFunction) => {
-
+export const requestLogger = (
+  _req: Request,
+  _res: Response,
+  _next: NextFunction,
+) => {
   const start = Date.now();
 
-  res.on('finish', () => {
-
+  res.on("finish", () => {
     const duration = Date.now() - start;
     const logData = {
-      'method': req.method,
-      'url': req.url,
-      'status': res.statusCode,
-      'duration': `${duration}ms`,
-      'userAgent': req.get('User-Agent'),
-      'ip': req.ip,
-      'timestamp': new Date().toISOString(),
-      'contentLength': res.get('Content-Length') || 'unknown'
+      method: req.method,
+      url: req.url,
+      status: res.statusCode,
+      duration: `${duration}ms`,
+      userAgent: req.get("User-Agent"),
+      ip: req.ip,
+      timestamp: new Date().toISOString(),
+      contentLength: res.get("Content-Length") || "unknown",
     };
 
     // Log to console in development, would log to file/service in production
     if (res.statusCode >= 400) {
-
-      log.warn(`${logData.method} ${logData.url}`, {
-        'status': logData.status,
-        'duration': logData.duration,
-        'contentLength': logData.contentLength,
-        'timestamp': logData.timestamp
-      }, 'SECURITY');
-
+      log.warn(
+        `${logData.method} ${logData.url}`,
+        {
+          status: logData.status,
+          duration: logData.duration,
+          contentLength: logData.contentLength,
+          timestamp: logData.timestamp,
+        },
+        "SECURITY",
+      );
     } else {
-
-      log.info(`${logData.method} ${logData.url}`, {
-        'status': logData.status,
-        'duration': logData.duration,
-        'contentLength': logData.contentLength,
-        'timestamp': logData.timestamp
-      }, 'SECURITY');
-
+      log.info(
+        `${logData.method} ${logData.url}`,
+        {
+          status: logData.status,
+          duration: logData.duration,
+          contentLength: logData.contentLength,
+          timestamp: logData.timestamp,
+        },
+        "SECURITY",
+      );
     }
-
   });
 
   next();
-
 };
 
 /**
@@ -404,50 +394,46 @@ export const requestLogger = (_req:  Request, _res:  Response, _next:  NextFunct
  * @example
  * app.use(errorHandler);
  */
-export const errorHandler = (err: unknown,
-   _req:  Request,
-   _res:  Response,
-   _next:  NextFunction) => {
-
-  log.error('Error:', err);
+export const errorHandler = (
+  err: unknown,
+  _req: Request,
+  _res: Response,
+  _next: NextFunction,
+) => {
+  log.error("Error:", err);
 
   // Don't leak error details in production
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = process.env.NODE_ENV === "development";
 
   // Handle different types of errors
-  if (err && typeof err === 'object' && 'code' in err) {
-
+  if (err && typeof err === "object" && "code" in err) {
     const errorCode = (err as any).code;
 
     // Handle specific error types
     switch (errorCode) {
-
-    case 'EBADCSRFTOKEN':
-      return res.status(403).json({
-        'error': 'خطأ في التحقق من الأمان',
-        'message': 'يرجى إعادة تحميل الصفحة والمحاولة مرة أخرى'
-      });
-    case 'LIMIT_FILE_SIZE':
-      return res.status(413).json({
-        'error': 'حجم الملف كبير جداً',
-        'message': 'يرجى اختيار ملف أصغر'
-      });
-    case 'LIMIT_UNEXPECTED_FILE':
-      return res.status(400).json({
-        'error': 'نوع ملف غير متوقع',
-        'message': 'يرجى اختيار نوع ملف صحيح'
-      });
-
+      case "EBADCSRFTOKEN":
+        return res.status(403).json({
+          error: "خطأ في التحقق من الأمان",
+          message: "يرجى إعادة تحميل الصفحة والمحاولة مرة أخرى",
+        });
+      case "LIMIT_FILE_SIZE":
+        return res.status(413).json({
+          error: "حجم الملف كبير جداً",
+          message: "يرجى اختيار ملف أصغر",
+        });
+      case "LIMIT_UNEXPECTED_FILE":
+        return res.status(400).json({
+          error: "نوع ملف غير متوقع",
+          message: "يرجى اختيار نوع ملف صحيح",
+        });
     }
-
   }
 
   res.status((err as any).status ?? 500).json({
-    'error': 'حدث خطأ في الخادم',
-    'message': isDevelopment ? (err as any).message : 'خطأ داخلي في الخادم',
-    ...(isDevelopment && {'stack': (err as any).stack})
+    error: "حدث خطأ في الخادم",
+    message: isDevelopment ? (err as any).message : "خطأ داخلي في الخادم",
+    ...(isDevelopment && { stack: (err as any).stack }),
   });
-
 };
 
 /**
@@ -468,26 +454,24 @@ export const errorHandler = (err: unknown,
  *   security: { helmet: true, rateLimit: true, ... }
  * }
  */
-export const healthCheck = (_req:  Request, res:  Response) => {
-
+export const healthCheck = (_req: Request, res: Response) => {
   const healthData = {
-    'status': 'OK',
-    'timestamp': new Date().toISOString(),
-    'uptime': process.uptime(),
-    'memory': process.memoryUsage(),
-    'version': process.env.npm_package_version ?? "1.0.0",
-    'environment': process.env.NODE_ENV ?? "development",
-    'security': {
-      'helmet': true,
-      'rateLimit': true,
-      'csrf': true,
-      'inputValidation': true,
-      'ipBlocking': true
-    }
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    version: process.env.npm_package_version ?? "1.0.0",
+    environment: process.env.NODE_ENV ?? "development",
+    security: {
+      helmet: true,
+      rateLimit: true,
+      csrf: true,
+      inputValidation: true,
+      ipBlocking: true,
+    },
   };
 
   res.json(healthData);
-
 };
 
 /**
@@ -499,43 +483,44 @@ export const healthCheck = (_req:  Request, res:  Response) => {
  * @example
  * app.use('/upload', fileUploadSecurity);
  */
-export const fileUploadSecurity = (req:  RequestWithFiles,
-   res:  Response,
-   next:  NextFunction) => {
-
+export const fileUploadSecurity = (
+  req: RequestWithFiles,
+  res: Response,
+  next: NextFunction,
+) => {
   // Check file types and sizes
   if (req.files) {
-
-    const files = Array.isArray(req.files) ? req.files : Object.values(req.files);
+    const files = Array.isArray(req.files)
+      ? req.files
+      : Object.values(req.files);
 
     for (const file of files) {
-
       // Check file size (10MB limit)
       if (file.size > 10 * 1024 * 1024) {
-
         return res.status(413).json({
-          'error': 'حجم الملف كبير جداً',
-          'message': 'الحد الأقصى لحجم الملف هو 10 ميجابايت'
+          error: "حجم الملف كبير جداً",
+          message: "الحد الأقصى لحجم الملف هو 10 ميجابايت",
         });
-
       }
 
       // Check file type
       const allowedTypes = [
-        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-        'application/pdf', 'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       ];
 
       if (!allowedTypes.includes(file.mimetype)) {
-
         return res.status(400).json({
-          'error': 'نوع ملف غير مسموح',
-          'message': 'يرجى اختيار ملف من الأنواع المسموحة'
+          error: "نوع ملف غير مسموح",
+          message: "يرجى اختيار ملف من الأنواع المسموحة",
         });
-
       }
 
       // Check file name for suspicious patterns
@@ -543,30 +528,29 @@ export const fileUploadSecurity = (req:  RequestWithFiles,
         /\.(php|asp|aspx|jsp|jspx|cgi|pl|py|rb|sh|bat|cmd|exe|dll|so|dylib)$/i,
         /\.\.\//,
         /\/\//,
-        /[<>:"|?*]/
+        /[<>:"|?*]/,
       ];
 
-      if (suspiciousPatterns.some(pattern => pattern.test(file.name))) {
-
-        log.warn('Suspicious file upload attempt', {
-          'fileName': file.name,
-          'ip': req.ip,
-          'userAgent': req.get('User-Agent')
-        } as LogData, 'SECURITY');
+      if (suspiciousPatterns.some((pattern) => pattern.test(file.name))) {
+        log.warn(
+          "Suspicious file upload attempt",
+          {
+            fileName: file.name,
+            ip: req.ip,
+            userAgent: req.get("User-Agent"),
+          } as LogData,
+          "SECURITY",
+        );
 
         return res.status(400).json({
-          'error': 'اسم ملف غير مسموح',
-          'message': 'يرجى اختيار اسم ملف صحيح'
+          error: "اسم ملف غير مسموح",
+          message: "يرجى اختيار اسم ملف صحيح",
         });
-
       }
-
     }
-
   }
 
   next();
-
 };
 
 /**
@@ -588,5 +572,5 @@ export default {
   requestLogger,
   errorHandler,
   healthCheck,
-  fileUploadSecurity
+  fileUploadSecurity,
 };

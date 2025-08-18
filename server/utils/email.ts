@@ -1,5 +1,5 @@
-import nodemailer from 'nodemailer';
-import {log} from './logger';
+import nodemailer from "nodemailer";
+import { log } from "./logger";
 
 /**
  * Email utility functions for HRMS Elite
@@ -8,27 +8,25 @@ import {log} from './logger';
 
 // Email configuration
 const EMAIL_CONFIG = {
-  'host': process.env.SMTP_HOST ?? 'smtp.gmail.com',
-  'port': parseInt(process.env.SMTP_PORT ?? '587'),
-  'secure': false, // true for 465, false for other ports
-  'auth': {
-    'user': process.env.SMTP_USER ?? '',
-    'pass': process.env.SMTP_PASS ?? ''
-  }
+  host: process.env.SMTP_HOST ?? "smtp.gmail.com",
+  port: parseInt(process.env.SMTP_PORT ?? "587"),
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: process.env.SMTP_USER ?? "",
+    pass: process.env.SMTP_PASS ?? "",
+  },
 };
 
-const FROM_EMAIL = process.env.SMTP_FROM ?? 'noreply@hrms-elite.com';
-const APP_NAME = 'HRMS Elite';
-const BASE_URL = process.env.BASE_URL ?? 'http://localhost:3000';
+const FROM_EMAIL = process.env.SMTP_FROM ?? "noreply@hrms-elite.com";
+const APP_NAME = "HRMS Elite";
+const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 
 /**
  * Create email transporter
  * @returns Nodemailer transporter
  */
 const createTransporter = () => {
-
   return nodemailer.createTransport(EMAIL_CONFIG);
-
 };
 
 /**
@@ -41,19 +39,17 @@ const createTransporter = () => {
 export const sendVerificationEmail = async (
   email: string,
   token: string,
-  firstName: string
+  firstName: string,
 ): Promise<boolean> => {
-
   try {
-
     const transporter = createTransporter();
     const verificationUrl = `${BASE_URL}/verify-email?token=${token}`;
 
     const mailOptions = {
-      'from': FROM_EMAIL,
-      'to': email,
-      'subject': `تأكيد البريد الإلكتروني - ${APP_NAME}`,
-      'html': `
+      from: FROM_EMAIL,
+      to: email,
+      subject: `تأكيد البريد الإلكتروني - ${APP_NAME}`,
+      html: `
         <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #2c3e50;">مرحباً ${firstName}!</h2>
           <p>شكراً لك على التسجيل في ${APP_NAME}.</p>
@@ -74,7 +70,7 @@ export const sendVerificationEmail = async (
           </p>
         </div>
       `,
-      'text': `
+      text: `
         مرحباً ${firstName}!
         
         شكراً لك على التسجيل في ${APP_NAME}.
@@ -85,20 +81,20 @@ export const sendVerificationEmail = async (
         هذا الرابط صالح لمدة 24 ساعة فقط.
         
         إذا لم تقم بإنشاء هذا الحساب، يمكنك تجاهل هذا البريد الإلكتروني.
-      `
+      `,
     };
 
     await transporter.sendMail(mailOptions);
-    log.info(`Verification email sent to ${email}`, undefined, 'EMAIL');
+    log.info(`Verification email sent to ${email}`, undefined, "EMAIL");
     return true;
-
   } catch (error) {
-
-    log.error(`Error sending verification email to ${email}:`, error as Error, 'EMAIL');
+    log.error(
+      `Error sending verification email to ${email}:`,
+      error as Error,
+      "EMAIL",
+    );
     return false;
-
   }
-
 };
 
 /**
@@ -111,19 +107,17 @@ export const sendVerificationEmail = async (
 export const sendPasswordResetEmail = async (
   email: string,
   token: string,
-  firstName: string
+  firstName: string,
 ): Promise<boolean> => {
-
   try {
-
     const transporter = createTransporter();
     const resetUrl = `${BASE_URL}/reset-password?token=${token}`;
 
     const mailOptions = {
-      'from': FROM_EMAIL,
-      'to': email,
-      'subject': `إعادة تعيين كلمة المرور - ${APP_NAME}`,
-      'html': `
+      from: FROM_EMAIL,
+      to: email,
+      subject: `إعادة تعيين كلمة المرور - ${APP_NAME}`,
+      html: `
         <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #2c3e50;">مرحباً ${firstName}!</h2>
           <p>لقد تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بك.</p>
@@ -145,7 +139,7 @@ export const sendPasswordResetEmail = async (
           </p>
         </div>
       `,
-      'text': `
+      text: `
         مرحباً ${firstName}!
         
         لقد تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بك.
@@ -156,20 +150,20 @@ export const sendPasswordResetEmail = async (
         هذا الرابط صالح لمدة ساعة واحدة فقط.
         
         إذا لم تطلب إعادة تعيين كلمة المرور، يمكنك تجاهل هذا البريد الإلكتروني.
-      `
+      `,
     };
 
     await transporter.sendMail(mailOptions);
-    log.info(`Password reset email sent to ${email}`, undefined, 'EMAIL');
+    log.info(`Password reset email sent to ${email}`, undefined, "EMAIL");
     return true;
-
   } catch (error) {
-
-    log.error(`Error sending password reset email to ${email}:`, error as Error, 'EMAIL');
+    log.error(
+      `Error sending password reset email to ${email}:`,
+      error as Error,
+      "EMAIL",
+    );
     return false;
-
   }
-
 };
 
 /**
@@ -180,18 +174,16 @@ export const sendPasswordResetEmail = async (
  */
 export const sendWelcomeEmail = async (
   email: string,
-  firstName: string
+  firstName: string,
 ): Promise<boolean> => {
-
   try {
-
     const transporter = createTransporter();
 
     const mailOptions = {
-      'from': FROM_EMAIL,
-      'to': email,
-      'subject': `مرحباً بك في ${APP_NAME}!`,
-      'html': `
+      from: FROM_EMAIL,
+      to: email,
+      subject: `مرحباً بك في ${APP_NAME}!`,
+      html: `
         <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #2c3e50;">مرحباً ${firstName}!</h2>
           <p>أهلاً وسهلاً بك في ${APP_NAME}!</p>
@@ -210,7 +202,7 @@ export const sendWelcomeEmail = async (
           </p>
         </div>
       `,
-      'text': `
+      text: `
         مرحباً ${firstName}!
         
         أهلاً وسهلاً بك في ${APP_NAME}!
@@ -222,18 +214,18 @@ export const sendWelcomeEmail = async (
         إذا كان لديك أي أسئلة، لا تتردد في التواصل مع فريق الدعم.
         
         شكراً لك على اختيار ${APP_NAME}!
-      `
+      `,
     };
 
     await transporter.sendMail(mailOptions);
-    log.info(`Welcome email sent to ${email}`, undefined, 'EMAIL');
+    log.info(`Welcome email sent to ${email}`, undefined, "EMAIL");
     return true;
-
   } catch (error) {
-
-    log.error(`Error sending welcome email to ${email}:`, error as Error, 'EMAIL');
+    log.error(
+      `Error sending welcome email to ${email}:`,
+      error as Error,
+      "EMAIL",
+    );
     return false;
-
   }
-
 };
