@@ -30,7 +30,16 @@ const colorClassMap: Record<SupportedColor, string> = {
   gray: 'text-gray-600'
 };
 
-export function StatsCard ({
+/**
+ * Displays a small dashboard statistic with an accompanying icon.
+ *
+ * This component is memoized to avoid unnecessary re-renders when
+ * its props remain unchanged.
+ *
+ * @param {StatsCardProps} props - The stats card properties.
+ * @returns {JSX.Element} Rendered statistics card component.
+ */
+export const StatsCard = React.memo(function StatsCard ({
   title,
   value,
   icon = 'check',
@@ -51,6 +60,6 @@ export function StatsCard ({
       </CardContent>
     </Card>
   );
-}
+});
 
 

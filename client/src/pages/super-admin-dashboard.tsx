@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, Suspense, lazy} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {useAuth} from '../hooks/useAuth';
 import type {User as AuthUser} from '../lib/authUtils';
@@ -18,8 +18,9 @@ import {
   Search,
   FileText
 } from 'lucide-react';
-import {StatsCard} from '@/components/stats-card';
 import {CompanyCard} from '../components/company-card';
+
+const StatsCard = lazy(() => import('@/components/stats-card'));
 
 export default function SuperAdminDashboard () {
 
@@ -142,32 +143,34 @@ function SuperAdminContent () {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <StatsCard
-                title="إجمالي الشركات"
-                value={companies.length}
-                icon="building"
-                color="blue"
-              />
-              <StatsCard
-                title="إجمالي الموظفين"
-                value={stats?.totalEmployees ?? 0}
-                icon="users"
-                color="green"
-              />
-              <StatsCard
-                title="المستخدمين النشطين"
-                value={stats?.activeUsers ?? 0}
-                icon="users"
-                color="orange"
-              />
-              <StatsCard
-                title="حالة النظام"
-                value={1}
-                icon="check"
-                color="purple"
-              />
-            </div>
+            <Suspense fallback={<div className="h-24">Loading statistics...</div>}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatsCard
+                  title="إجمالي الشركات"
+                  value={companies.length}
+                  icon="building"
+                  color="blue"
+                />
+                <StatsCard
+                  title="إجمالي الموظفين"
+                  value={stats?.totalEmployees ?? 0}
+                  icon="users"
+                  color="green"
+                />
+                <StatsCard
+                  title="المستخدمين النشطين"
+                  value={stats?.activeUsers ?? 0}
+                  icon="users"
+                  color="orange"
+                />
+                <StatsCard
+                  title="حالة النظام"
+                  value={1}
+                  icon="check"
+                  color="purple"
+                />
+              </div>
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="companies" className="space-y-6">
@@ -201,32 +204,34 @@ function SuperAdminContent () {
           </TabsContent>
 
           <TabsContent value="system" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-              <StatsCard
-                title="حالة النظام"
-                value={1}
-                icon="check"
-                color="green"
-              />
-              <StatsCard
-                title="استخدام الخادم"
-                value={78}
-                icon="users"
-                color="blue"
-              />
-              <StatsCard
-                title="قاعدة البيانات"
-                value={1}
-                icon="check"
-                color="green"
-              />
-              <StatsCard
-                title="التحديث الأخير"
-                value={29}
-                icon="certificate"
-                color="purple"
-              />
-            </div>
+            <Suspense fallback={<div className="h-24">Loading system stats...</div>}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <StatsCard
+                  title="حالة النظام"
+                  value={1}
+                  icon="check"
+                  color="green"
+                />
+                <StatsCard
+                  title="استخدام الخادم"
+                  value={78}
+                  icon="users"
+                  color="blue"
+                />
+                <StatsCard
+                  title="قاعدة البيانات"
+                  value={1}
+                  icon="check"
+                  color="green"
+                />
+                <StatsCard
+                  title="التحديث الأخير"
+                  value={29}
+                  icon="certificate"
+                  color="purple"
+                />
+              </div>
+            </Suspense>
 
             <h2 className="text-2xl font-bold">إدارة النظام</h2>
 
