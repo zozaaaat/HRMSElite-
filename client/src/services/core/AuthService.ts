@@ -1,5 +1,5 @@
 import { BaseService } from './BaseService';
-import { User } from '../../lib/authUtils';
+import type { User } from '../../lib/authUtils';
 
 export interface LoginCredentials {
   username: string;

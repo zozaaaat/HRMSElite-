@@ -1,15 +1,5 @@
 // Common types to replace 'any' usage throughout the project
 
-// Base API Response types
-export interface ApiResponse<T = unknown> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  error?: string;
-  timestamp?: string;
-  requestId?: string;
-}
-
 export interface ApiErrorResponse {
   success: false;
   error: string;
@@ -28,7 +18,6 @@ export interface ApiSuccessResponse<T = unknown> {
   requestId?: string;
 }
 
-// Specific API Response types
 export interface PaginatedResponse<T = unknown> {
   success: true;
   data: T[];
@@ -43,68 +32,6 @@ export interface PaginatedResponse<T = unknown> {
   message?: string;
   timestamp?: string;
   requestId?: string;
-}
-
-export interface AuthResponse {
-  success: true;
-  data: {
-    user: UserData;
-    token: string;
-    refreshToken?: string;
-    expiresIn?: number;
-  };
-  message?: string;
-  timestamp?: string;
-  requestId?: string;
-}
-
-export interface LoginResponse extends AuthResponse {}
-export interface RegisterResponse extends AuthResponse {}
-
-export interface RefreshTokenResponse {
-  success: true;
-  data: {
-    token: string;
-    refreshToken?: string;
-    expiresIn?: number;
-  };
-  message?: string;
-  timestamp?: string;
-  requestId?: string;
-}
-
-export interface LogoutResponse {
-  success: true;
-  message: string;
-  timestamp?: string;
-  requestId?: string;
-}
-
-// Request types
-export interface ApiRequest<T = unknown> {
-  data: T;
-  headers?: Record<string, string>;
-  params?: Record<string, string | number | boolean>;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-  rememberMe?: boolean;
-}
-
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  firstName: string;
-  lastName: string;
-  companyName?: string;
-  role?: UserRole;
-}
-
-export interface RefreshTokenRequest {
-  refreshToken: string;
 }
 
 // Data types
@@ -355,7 +282,6 @@ export type Nullable<T> = T | null;
 export type Undefinable<T> = T | undefined;
 
 // Function types
-export type ApiHandler<T = unknown, R = unknown> = (data: T) => Promise<ApiResponse<R>>;
 export type ErrorHandler = (error: ErrorData) => void;
 export type LogHandler = (level: LogLevel, message: string, data?: LogData) => void;
 export type ValidationHandler<T> = (data: T) => ValidationResult;

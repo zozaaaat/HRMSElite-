@@ -1,3 +1,4 @@
+/* eslint-env browser */
 import { apiRequest } from '../../lib/apiRequest';
 
 /**
