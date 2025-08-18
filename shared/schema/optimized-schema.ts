@@ -358,6 +358,31 @@ export const employeeDeductions = sqliteTable('employee_deductions', {
   index('IDX_employee_deductions_amount').on(table.amount)
 ]);
 
+// Employee Salaries table
+export const employeeSalaries = sqliteTable('employee_salaries', {
+  'id': text('id').primaryKey().default(sql`(hex(randomblob(16)))`),
+  'employeeId': text('employee_id').notNull().references(() => employees.id, {'onDelete': 'cascade'}),
+  'baseSalary': real('base_salary').notNull(),
+  'allowances': real('allowances').default(0).notNull(),
+  'createdAt': integer('created_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull()
+}, (table) => [
+  index('IDX_employee_salaries_employee').on(table.employeeId)
+]);
+
+// Payroll table
+export const payrolls = sqliteTable('payrolls', {
+  'id': text('id').primaryKey().default(sql`(hex(randomblob(16)))`),
+  'employeeId': text('employee_id').notNull().references(() => employees.id, {'onDelete': 'cascade'}),
+  'periodStart': text('period_start').notNull(),
+  'periodEnd': text('period_end').notNull(),
+  'grossSalary': real('gross_salary').notNull(),
+  'deductions': real('deductions').default(0).notNull(),
+  'netSalary': real('net_salary').notNull(),
+  'createdAt': integer('created_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull()
+}, (table) => [
+  index('IDX_payrolls_employee_period').on(table.employeeId, table.periodStart, table.periodEnd)
+]);
+
 // ============================================================================
 // SESSION STORAGE
 // ============================================================================
@@ -383,6 +408,8 @@ export const schema = {
   licenses,
   employeeLeaves,
   employeeDeductions,
+  employeeSalaries,
+  payrolls,
   sessions
 };
 
@@ -391,6 +418,8 @@ export const insertCompanySchema = createInsertSchema(companies);
 export const insertUserSchema = createInsertSchema(users);
 export const insertEmployeeSchema = createInsertSchema(employees);
 export const insertLicenseSchema = createInsertSchema(licenses);
+export const insertEmployeeSalarySchema = createInsertSchema(employeeSalaries);
+export const insertPayrollSchema = createInsertSchema(payrolls);
 
 export type Company = typeof companies.$inferSelect;
 export type NewCompany = typeof companies.$inferInsert;
@@ -400,3 +429,7 @@ export type Employee = typeof employees.$inferSelect;
 export type NewEmployee = typeof employees.$inferInsert;
 export type License = typeof licenses.$inferSelect;
 export type NewLicense = typeof licenses.$inferInsert;
+export type EmployeeSalary = typeof employeeSalaries.$inferSelect;
+export type NewEmployeeSalary = typeof employeeSalaries.$inferInsert;
+export type Payroll = typeof payrolls.$inferSelect;
+export type NewPayroll = typeof payrolls.$inferInsert;
