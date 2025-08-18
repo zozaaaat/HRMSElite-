@@ -1,5 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import request from 'supertest';
+import type { Server } from 'http';
+import { registerRoutes } from '../../server/routes';
 import { app } from '../../server/index';
 import { db } from '../../server/models/db';
 import { users } from '../../shared/schema';
@@ -37,6 +39,16 @@ interface UserResponse {
     [key: string]: unknown;
   };
 }
+
+let server: Server;
+
+beforeAll(async () => {
+  server = await registerRoutes(app);
+});
+
+afterAll(async () => {
+  await new Promise(resolve => server.close(resolve));
+});
 
 describe('Authentication API', () => {
   let testUser: TestUser;
