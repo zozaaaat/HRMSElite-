@@ -8,7 +8,6 @@ import {
   primaryKey
 } from 'drizzle-orm/sqlite-core';
 import {createInsertSchema} from 'drizzle-zod';
-import {z} from 'zod';
 
 // ============================================================================
 // ENUMS - Centralized for consistency

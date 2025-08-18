@@ -27,7 +27,9 @@ export default [
       '**/create-database.js',
       '**/demo-ai-endpoints.js',
       '**/test-rate-limiting.js',
-      '**/test-main-app.cjs'
+      '**/test-main-app.cjs',
+      '**/*.config.js',
+      '**/*.config.ts'
     ]
   },
   {

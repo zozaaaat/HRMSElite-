@@ -123,7 +123,7 @@ app.use('/api/quality', isAuthenticated, qualityRoutes);
 app.use('/api/public', optionalAuth);
 
 // Error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
   log.error('Unhandled error:', err, 'SERVER');
 
   // CSRF errors

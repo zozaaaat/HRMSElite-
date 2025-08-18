@@ -1,7 +1,6 @@
 // API-specific types for better type safety and consistency
 
 import type {
-  ApiResponse,
   ApiErrorResponse,
   ApiSuccessResponse,
   PaginatedResponse,

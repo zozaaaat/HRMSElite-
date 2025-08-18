@@ -93,7 +93,7 @@ export class AuthService extends BaseService {
     try {
       const response = await this.get<{ authenticated: boolean }>('/check');
       return response.authenticated;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -104,7 +104,7 @@ export class AuthService extends BaseService {
   async getSession(): Promise<{ user?: User; company?: any }> {
     try {
       return await this.get<{ user?: User; company?: any }>('/session');
-    } catch (error) {
+    } catch {
       return {};
     }
   }
@@ -117,7 +117,7 @@ export class AuthService extends BaseService {
       const params = companyId ? { companyId } : undefined;
       const response = await this.get<{ permissions: string[] }>('/permissions', params);
       return response.permissions;
-    } catch (error) {
+    } catch {
       return [];
     }
   }
