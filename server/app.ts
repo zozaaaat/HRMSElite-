@@ -13,7 +13,6 @@ import csrf from 'csurf';
 import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
 import {registerRoutes} from './routes';
-import {setupVite, serveStatic} from './utils/vite';
 import {log} from './utils/logger';
 import {specs} from './swagger';
 import 'dotenv/config';
@@ -307,69 +306,14 @@ app.use((req, res, next) => {
  */
 app.use(metricsMiddleware);
 
-/**
- * Main application initialization function
- * @description Sets up the server, registers routes, and starts listening
- * @async
- * @returns {Promise<void>}
- */
-(async () => {
+// Register routes and create HTTP server without starting it
+export const server = await registerRoutes(app);
 
-  /**
-   * Register all application routes
-   * @description Sets up all API endpoints and route handlers
-   * @returns {Server} HTTP server instance
-   */
-  const server = await registerRoutes(app);
-
-  /**
-   * Global error handling middleware
-   * @description Handles uncaught errors and provides appropriate responses
-   * @param {unknown} err - Error object
-   * @param {Request} _req - Express request object (unused)
-   * @param {Response} res - Express response object
-   * @param {NextFunction} _next - Express next function (unused)
-   */
-  app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
-
-    const error = err as { status?: number; statusCode?: number; message?: string };
-    const status = error.status ?? error.statusCode ?? 500;
-    const message = error.message ?? "Internal Server Error";
-
-    res.status(status).json({message});
-    throw err;
-
-  });
-
-  /**
-   * Development server setup with Vite
-   * @description Configures Vite development server in development mode
-   * Serves static files in production mode
-   */
-  if (app.get('env') === 'development') {
-
-    await setupVite(app, server);
-
-  } else {
-
-    serveStatic(app);
-
-  }
-
-  /**
-   * Start the server
-   * @description Binds the server to the specified port and host
-   * @param {number} port - Server port (from environment or default 3000)
-   * @param {string} host - Server host (127.0.0.1 for security)
-   */
-  const port = parseInt(process.env.PORT ?? process.env.REPL_PORT ?? "3000", 10);
-  server.listen({
-    port,
-    'host': '127.0.0.1'
-  }, () => {
-
-    log.info(`serving on port ${port}`, undefined, 'SERVER');
-
-  });
-
-})();
+// Global error handling middleware
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  const error = err as { status?: number; statusCode?: number; message?: string };
+  const status = error.status ?? error.statusCode ?? 500;
+  const message = error.message ?? "Internal Server Error";
+  res.status(status).json({ message });
+  throw err;
+});

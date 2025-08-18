@@ -12,7 +12,7 @@ console.log('🔒 HRMS Elite Security Verification');
 console.log('=====================================\n');
 
 // Check server security implementation
-const serverIndexPath = 'server/index.ts';
+const serverIndexPath = 'server/app.ts';
 const securityMiddlewarePath = 'server/middleware/security.ts';
 const csrfMiddlewarePath = 'server/middleware/csrf.ts';
 

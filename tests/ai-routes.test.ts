@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
-import { app } from '../server/index';
+import { app } from '../server/app';
 
 // Type definitions for AI route responses
 interface SummaryResponse {
