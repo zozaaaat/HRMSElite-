@@ -839,10 +839,9 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
     try {
 
-      const _userId = (req.user as User)?.sub || 'unknown';
-      const _companyId = req.query.companyId as string;
-      // TODO: Implement getUnreadNotificationCount method in storage
-      const count = 5; // Mock count
+      const userId = (req.user as User)?.sub || 'unknown';
+      const companyId = req.query.companyId as string | undefined;
+      const count = await storage.getUnreadNotificationCount(userId, companyId);
       res.json({count});
 
     } catch (error) {
@@ -879,24 +878,14 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
     try {
 
-      const {entityType, _entityId} = req.params;
+      const {entityType, entityId} = req.params;
       if (!entityType || !['employee', 'company', 'license'].includes(entityType)) {
 
         return res.status(400).json({'message': 'Invalid entity type'});
 
       }
-      // TODO: Implement getEntityDocuments method in storage
-      const documents: Array<{
-        id: string;
-        name: string;
-        type: string;
-        category: string;
-        size: string;
-        uploadDate: string;
-        uploadedBy: string;
-        status: string;
-      }> = [];
-      res.json(documents);
+      const docs = await storage.getEntityDocuments(entityType, entityId);
+      res.json(docs);
 
     } catch (error) {
 

@@ -39,7 +39,7 @@ import {
   type _CompanyUser
 } from '@shared/schema';
 import {db} from './db';
-import {eq, and, gt} from 'drizzle-orm';
+import {eq, and, gt, sql} from 'drizzle-orm';
 import {log} from '@utils/logger';
 
 
@@ -926,6 +926,39 @@ export class DatabaseStorage {
   }
 
   /**
+   * Get documents for a specific entity
+   * @description Retrieves all active documents for a given entity
+   * @async
+   * @param {string} entityType - Type of the entity (employee, company, license)
+   * @param {string} entityId - Entity unique identifier
+   * @returns {Promise<Document[]>} Array of documents for the entity
+   * @throws {Error} When database operation fails
+   * @example
+   * const docs = await storage.getEntityDocuments('employee', 'emp-1');
+   */
+  async getEntityDocuments (entityType: string, entityId: string): Promise<Document[]> {
+
+    try {
+
+      const results = await db.select()
+        .from(documents)
+        .where(and(
+          eq(documents.entityType, entityType),
+          eq(documents.entityId, entityId),
+          eq(documents.isActive, true)
+        ));
+      return results;
+
+    } catch (error) {
+
+      log.error('Error fetching documents for entity:', error as Error);
+      throw new Error('Failed to fetch documents');
+
+    }
+
+  }
+
+  /**
    * Update a document
    * @description Updates an existing document record
    * @async
@@ -1010,6 +1043,46 @@ export class DatabaseStorage {
 
       log.error('Error fetching user notifications:', error as Error);
       throw new Error('Failed to fetch user notifications');
+
+    }
+
+  }
+
+  /**
+   * Get unread notification count for a user
+   * @description Retrieves the number of unread notifications for a specific user
+   * @async
+   * @param {string} userId - User unique identifier
+   * @param {string} [companyId] - Optional company identifier for filtering
+   * @returns {Promise<number>} Count of unread notifications
+   * @throws {Error} When database operation fails
+   * @example
+   * const count = await storage.getUnreadNotificationCount('user-1');
+   */
+  async getUnreadNotificationCount (userId: string, companyId?: string): Promise<number> {
+
+    try {
+
+      const condition = companyId
+        ? and(
+            eq(notifications.userId, userId),
+            eq(notifications.isRead, false),
+            eq(notifications.companyId, companyId)
+          )
+        : and(
+            eq(notifications.userId, userId),
+            eq(notifications.isRead, false)
+          );
+
+      const result = await db.select({count: sql<number>`count(*)`})
+        .from(notifications)
+        .where(condition);
+      return result[0]?.count ?? 0;
+
+    } catch (error) {
+
+      log.error('Error fetching unread notification count:', error as Error);
+      throw new Error('Failed to fetch unread notification count');
 
     }
 
