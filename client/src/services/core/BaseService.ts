@@ -15,9 +15,9 @@ export abstract class BaseService {
    * Generic GET request
    */
   protected async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
-    return apiRequest<T>(`${this.baseUrl}${endpoint}`, {
-      method: 'GET',
-      params
+    const query = this.buildQueryString(params);
+    return apiRequest<T>(`${this.baseUrl}${endpoint}${query}`, {
+      method: 'GET'
     });
   }
 
@@ -27,7 +27,7 @@ export abstract class BaseService {
   protected async post<T>(endpoint: string, data?: any): Promise<T> {
     return apiRequest<T>(`${this.baseUrl}${endpoint}`, {
       method: 'POST',
-      data
+      ...(data !== undefined ? { body: JSON.stringify(data) } : {})
     });
   }
 
@@ -37,7 +37,7 @@ export abstract class BaseService {
   protected async put<T>(endpoint: string, data?: any): Promise<T> {
     return apiRequest<T>(`${this.baseUrl}${endpoint}`, {
       method: 'PUT',
-      data
+      ...(data !== undefined ? { body: JSON.stringify(data) } : {})
     });
   }
 
@@ -56,7 +56,7 @@ export abstract class BaseService {
   protected async patch<T>(endpoint: string, data?: any): Promise<T> {
     return apiRequest<T>(`${this.baseUrl}${endpoint}`, {
       method: 'PATCH',
-      data
+      ...(data !== undefined ? { body: JSON.stringify(data) } : {})
     });
   }
 

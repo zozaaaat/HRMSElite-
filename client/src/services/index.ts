@@ -5,7 +5,6 @@ export * from './api';
 
 // Explicit re-exports to avoid conflicting `Company` symbols
 export { AuthService } from './auth';
-export type { User, AuthResponse, LoginCredentials, Company as AuthCompany } from './auth';
 
 export * from './employee';
 
