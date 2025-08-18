@@ -78,9 +78,19 @@ export const useElectron = () => {
   });
   const [lastMenuAction, setLastMenuAction] = useState<string>('');
 
+  const onMenuAction = useCallback((callback: (action: string) => void) => {
+    if (!window.electronAPI) return;
+    window.electronAPI.onMenuAction(callback);
+  }, []);
+
+  const removeMenuActionListener = useCallback(() => {
+    if (!window.electronAPI) return;
+    window.electronAPI.removeMenuActionListener();
+  }, []);
+
   useEffect(() => {
     const isElectron = window.electronAPI !== undefined;
-    
+
     if (isElectron && window.electronAPI) {
       // Get app information
       Promise.all([
@@ -98,7 +108,7 @@ export const useElectron = () => {
       });
 
       // Listen for menu actions
-      window.electronAPI.onMenuAction((action) => {
+      onMenuAction((action) => {
         setLastMenuAction(action);
         logger.info('Menu action received:', action);
       });
@@ -114,10 +124,10 @@ export const useElectron = () => {
 
     return () => {
       if (window.electronAPI) {
-        window.electronAPI.removeMenuActionListener();
+        removeMenuActionListener();
       }
     };
-  }, []);
+  }, [onMenuAction, removeMenuActionListener]);
 
   const showSaveDialog = useCallback(async (options: SaveDialogOptions) => {
     if (!window.electronAPI) {
@@ -230,7 +240,9 @@ export const useElectron = () => {
     showOpenDialog,
     showMessageBox,
     exportToFile,
-    importFromFile
+    importFromFile,
+    onMenuAction,
+    removeMenuActionListener
   };
 };
 
