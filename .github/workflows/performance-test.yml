@@ -79,14 +79,11 @@ jobs:
 
       - name: Run load tests
         run: |
-          # Install artillery for load testing
-          npm install -g artillery
-          
           # Run load tests
-          artillery run load-tests/load-test.yml
-          
+          npx artillery run load-tests/load-test.yml
+
           # Run stress tests
-          artillery run load-tests/stress-test.yml
+          npx artillery run load-tests/stress-test.yml
 
       - name: Upload load test reports
         uses: actions/upload-artifact@v4
