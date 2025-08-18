@@ -556,6 +556,95 @@ export class DatabaseStorage {
   }
 
   /**
+   * Approve a leave request
+   * @description Updates a leave request status to approved
+   * @async
+   * @param {string} leaveId - Leave request unique identifier
+   * @param {string} approverId - User ID who approved the leave
+   * @returns {Promise<EmployeeLeave>} Updated leave request object
+   * @throws {Error} When leave is not found or database operation fails
+   * @example
+   * const approvedLeave = await storage.approveLeave('leave-1', 'user-1');
+   */
+  async approveLeave (leaveId: string, approverId: string): Promise<EmployeeLeave> {
+
+    try {
+
+      const results = await db.update(employeeLeaves)
+        .set({
+          'status': 'approved',
+          'approvedBy': approverId,
+          'approvedAt': new Date(),
+          'rejectionReason': null,
+          'updatedAt': new Date()
+        })
+        .where(and(eq(employeeLeaves.id, leaveId), eq(employeeLeaves.status, 'pending')))
+        .returning();
+
+      if (!results[0]) {
+        throw new Error('Leave not found');
+      }
+
+      return results[0];
+
+    } catch (error) {
+
+      log.error('Error approving leave:', error as Error);
+      if (error instanceof Error && error.message === 'Leave not found') {
+        throw error;
+      }
+      throw new Error('Failed to approve leave');
+
+    }
+
+  }
+
+  /**
+   * Reject a leave request
+   * @description Updates a leave request status to rejected with a reason
+   * @async
+   * @param {string} leaveId - Leave request unique identifier
+   * @param {string} approverId - User ID who rejected the leave
+   * @param {string} reason - Rejection reason
+   * @returns {Promise<EmployeeLeave>} Updated leave request object
+   * @throws {Error} When leave is not found or database operation fails
+   * @example
+   * const rejectedLeave = await storage.rejectLeave('leave-1', 'user-1', 'No balance');
+   */
+  async rejectLeave (leaveId: string, approverId: string, reason: string): Promise<EmployeeLeave> {
+
+    try {
+
+      const results = await db.update(employeeLeaves)
+        .set({
+          'status': 'rejected',
+          'approvedBy': approverId,
+          'approvedAt': new Date(),
+          'rejectionReason': reason,
+          'updatedAt': new Date()
+        })
+        .where(and(eq(employeeLeaves.id, leaveId), eq(employeeLeaves.status, 'pending')))
+        .returning();
+
+      if (!results[0]) {
+        throw new Error('Leave not found');
+      }
+
+      return results[0];
+
+    } catch (error) {
+
+      log.error('Error rejecting leave:', error as Error);
+      if (error instanceof Error && error.message === 'Leave not found') {
+        throw error;
+      }
+      throw new Error('Failed to reject leave');
+
+    }
+
+  }
+
+  /**
    * Get employee deductions
    * @description Retrieves all deductions for a specific employee
    * @async

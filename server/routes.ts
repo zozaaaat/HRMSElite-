@@ -400,14 +400,17 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
       const {leaveId} = req.params;
       const approverId = (req.user as User)?.sub || 'unknown';
-      // TODO: Implement approveLeave method in storage
-      const leave = { id: leaveId, status: 'approved', approverId };
+      const leave = await storage.approveLeave(leaveId, approverId);
       res.json(leave);
 
     } catch (error) {
 
       safeLogError('Error approving leave:', error);
-      res.status(500).json({'message': 'Failed to approve leave'});
+      if (error instanceof Error && error.message === 'Leave not found') {
+        res.status(404).json({'message': 'Leave not found'});
+      } else {
+        res.status(500).json({'message': 'Failed to approve leave'});
+      }
 
     }
 
@@ -423,14 +426,17 @@ export async function registerRoutes (app: Express): Promise<Server> {
       const {leaveId} = req.params;
       const {reason} = req.body as { reason: string };
       const approverId = (req.user as User)?.sub || 'unknown';
-      // TODO: Implement rejectLeave method in storage
-      const leave = { id: leaveId, status: 'rejected', approverId, reason };
+      const leave = await storage.rejectLeave(leaveId, approverId, reason);
       res.json(leave);
 
     } catch (error) {
 
       safeLogError('Error rejecting leave:', error);
-      res.status(500).json({'message': 'Failed to reject leave'});
+      if (error instanceof Error && error.message === 'Leave not found') {
+        res.status(404).json({'message': 'Leave not found'});
+      } else {
+        res.status(500).json({'message': 'Failed to reject leave'});
+      }
 
     }
 
