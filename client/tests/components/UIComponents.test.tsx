@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -203,9 +204,9 @@ describe('UI Components', () => {
       expect(button).toHaveAttribute('data-variant', 'primary');
     });
 
-    it('should support keyboard navigation', () => {
+    it('should support keyboard navigation', async () => {
       const mockOnClick = vi.fn();
-      
+
       render(
         <TestWrapper>
           <MockButton onClick={mockOnClick}>Click Me</MockButton>
@@ -213,17 +214,17 @@ describe('UI Components', () => {
       );
 
       const button = screen.getByTestId('mock-button');
-      
+
       // Focus the button
       button.focus();
       expect(button).toHaveFocus();
 
       // Trigger click with Enter key
-      fireEvent.keyDown(button, { key: 'Enter' });
+      await userEvent.keyboard('{Enter}');
       expect(mockOnClick).toHaveBeenCalled();
 
       // Trigger click with Space key
-      fireEvent.keyDown(button, { key: ' ' });
+      await userEvent.keyboard(' ');
       expect(mockOnClick).toHaveBeenCalledTimes(2);
     });
   });
@@ -280,9 +281,9 @@ describe('UI Components', () => {
       });
     });
 
-    it('should support keyboard navigation', () => {
+    it('should support keyboard navigation', async () => {
       const mockOnClose = vi.fn();
-      
+
       render(
         <TestWrapper>
           <MockModal isOpen={true} onClose={mockOnClose} title="Test Modal">
@@ -292,13 +293,13 @@ describe('UI Components', () => {
       );
 
       const closeButton = screen.getByTestId('modal-close');
-      
+
       // Focus the close button
       closeButton.focus();
       expect(closeButton).toHaveFocus();
 
       // Trigger close with Enter key
-      fireEvent.keyDown(closeButton, { key: 'Enter' });
+      await userEvent.keyboard('{Enter}');
       expect(mockOnClose).toHaveBeenCalled();
     });
   });
@@ -508,13 +509,12 @@ describe('UI Components', () => {
       expect(input).toHaveAttribute('required');
     });
 
-    it('should support keyboard navigation', () => {
+    it('should support keyboard navigation', async () => {
       const mockOnChange = vi.fn();
-      
+
       render(
         <TestWrapper>
           <MockInput
-            value=""
             onChange={mockOnChange}
             placeholder="Enter text"
           />
@@ -522,13 +522,13 @@ describe('UI Components', () => {
       );
 
       const input = screen.getByTestId('mock-input');
-      
+
       // Focus the input
       input.focus();
       expect(input).toHaveFocus();
 
-      // Type some text
-      fireEvent.change(input, { target: { value: 'test' } });
+      // Type some text using keyboard
+      await userEvent.keyboard('test');
       expect(input).toHaveValue('test');
     });
   });
