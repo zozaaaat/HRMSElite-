@@ -112,40 +112,11 @@ jobs:
           NODE_ENV: test
           DATABASE_URL: ':memory:'
 
-      - name: Run server tests
-        run: npm run test:server:run
+      - name: Run tests
+        run: npm test
         env:
           NODE_ENV: test
           DATABASE_URL: ':memory:'
-
-      - name: Run client tests
-        run: npm run test:client:run
-        env:
-          NODE_ENV: test
-
-      - name: Run API tests
-        run: npm run test:api:run
-        env:
-          NODE_ENV: test
-          DATABASE_URL: ':memory:'
-
-      - name: Run performance tests
-        run: npm run test:performance
-        env:
-          NODE_ENV: test
-
-      - name: Run accessibility tests
-        run: npm run test:accessibility
-        env:
-          NODE_ENV: test
-
-      - name: Upload test coverage
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage/lcov.info
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
 
   # 📊 Coverage Report
   coverage:
@@ -169,6 +140,14 @@ jobs:
         run: |
           npm run test:coverage
           npm run test:report
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
