@@ -9,6 +9,7 @@
 import { Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import crypto from 'crypto';
 import { log } from '../utils/logger';
 
 // Security configuration
@@ -30,6 +31,7 @@ const SECURITY_CONFIG = {
     general: {
       windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutes
       max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'), // limit each IP to 100 requests per windowMs
+      userMax: parseInt(process.env.RATE_LIMIT_USER_MAX_REQUESTS || '200'), // limit each user to 200 requests per windowMs
       message: {
         error: 'تم تجاوز حد الطلبات',
         message: 'يرجى المحاولة مرة أخرى بعد فترة',
@@ -45,6 +47,7 @@ const SECURITY_CONFIG = {
     login: {
       windowMs: 15 * 60 * 1000, // 15 minutes
       max: 5, // limit each IP to 5 login attempts per windowMs
+      userMax: 10, // limit each user to 10 login attempts per windowMs
       message: {
         error: 'تم تجاوز حد محاولات تسجيل الدخول',
         message: 'يرجى المحاولة مرة أخرى بعد 15 دقيقة',
@@ -60,6 +63,7 @@ const SECURITY_CONFIG = {
     document: {
       windowMs: 5 * 60 * 1000, // 5 minutes
       max: 10, // limit each IP to 10 document uploads per windowMs
+      userMax: 20, // limit each user to 20 document uploads per windowMs
       message: {
         error: 'تم تجاوز حد رفع الملفات',
         message: 'يرجى المحاولة مرة أخرى بعد 5 دقائق',
@@ -75,6 +79,7 @@ const SECURITY_CONFIG = {
     search: {
       windowMs: 60 * 1000, // 1 minute
       max: 30, // limit each IP to 30 search requests per windowMs
+      userMax: 60, // limit each user to 60 search requests per windowMs
       message: {
         error: 'تم تجاوز حد عمليات البحث',
         message: 'يرجى المحاولة مرة أخرى بعد دقيقة',
@@ -92,7 +97,7 @@ const SECURITY_CONFIG = {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        styleSrc: ["'self'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         imgSrc: ["'self'", "data:", "https:"],
         scriptSrc: ["'self'"],
@@ -183,7 +188,93 @@ export const enhancedCsrfProtection = (req: Request, res: Response, next: NextFu
 };
 
 /**
- * Rate Limiting Middleware Factory
+ * Enhanced Rate Limiting Middleware Factory with Per-IP and Per-User Limits
+ */
+export const createEnhancedRateLimiter = (type: keyof typeof SECURITY_CONFIG.rateLimit) => {
+  const config = SECURITY_CONFIG.rateLimit[type];
+  
+  // Create IP-based rate limiter
+  const ipLimiter = rateLimit({
+    windowMs: config.windowMs,
+    max: config.max,
+    standardHeaders: config.standardHeaders,
+    legacyHeaders: config.legacyHeaders,
+    skipSuccessfulRequests: config.skipSuccessfulRequests,
+    skipFailedRequests: config.skipFailedRequests,
+    keyGenerator: (req: Request) => {
+      return `ip:${req.ip || req.connection.remoteAddress || 'unknown'}`;
+    },
+    handler: (req: Request, res: Response) => {
+      log.warn(`IP rate limit exceeded for ${type}`, {
+        ip: req.ip,
+        url: req.url,
+        method: req.method,
+        userAgent: req.get('User-Agent'),
+        userId: req.user?.id,
+        timestamp: new Date().toISOString()
+      }, 'SECURITY');
+
+      res.status(429).json({
+        error: config.message.error,
+        message: config.message.message,
+        retryAfter: config.message.retryAfter,
+        code: `RATE_LIMIT_IP_${type.toUpperCase()}`,
+        limitType: 'IP',
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // Create user-based rate limiter (only for authenticated users)
+  const userLimiter = rateLimit({
+    windowMs: config.windowMs,
+    max: config.userMax,
+    standardHeaders: config.standardHeaders,
+    legacyHeaders: config.legacyHeaders,
+    skipSuccessfulRequests: config.skipSuccessfulRequests,
+    skipFailedRequests: config.skipFailedRequests,
+    keyGenerator: (req: Request) => {
+      return req.user?.id ? `user:${req.user.id}` : 'anonymous';
+    },
+    skip: (req: Request) => {
+      // Skip user-based rate limiting for unauthenticated requests
+      return !req.user?.id;
+    },
+    handler: (req: Request, res: Response) => {
+      log.warn(`User rate limit exceeded for ${type}`, {
+        ip: req.ip,
+        url: req.url,
+        method: req.method,
+        userAgent: req.get('User-Agent'),
+        userId: req.user?.id,
+        timestamp: new Date().toISOString()
+      }, 'SECURITY');
+
+      res.status(429).json({
+        error: config.message.error,
+        message: config.message.message,
+        retryAfter: config.message.retryAfter,
+        code: `RATE_LIMIT_USER_${type.toUpperCase()}`,
+        limitType: 'USER',
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // Return middleware that applies both limiters
+  return (req: Request, res: Response, next: NextFunction) => {
+    // Apply IP-based rate limiting first
+    ipLimiter(req, res, (err) => {
+      if (err) return next(err);
+      
+      // Then apply user-based rate limiting
+      userLimiter(req, res, next);
+    });
+  };
+};
+
+/**
+ * Legacy Rate Limiting Middleware Factory (for backward compatibility)
  */
 export const createRateLimiter = (type: keyof typeof SECURITY_CONFIG.rateLimit) => {
   const config = SECURITY_CONFIG.rateLimit[type];
@@ -202,6 +293,7 @@ export const createRateLimiter = (type: keyof typeof SECURITY_CONFIG.rateLimit) 
         url: req.url,
         method: req.method,
         userAgent: req.get('User-Agent'),
+        userId: req.user?.id,
         timestamp: new Date().toISOString()
       }, 'SECURITY');
 
@@ -213,27 +305,59 @@ export const createRateLimiter = (type: keyof typeof SECURITY_CONFIG.rateLimit) 
         timestamp: new Date().toISOString()
       });
     },
-         keyGenerator: (req: Request) => {
-       // Use user ID if authenticated, otherwise use IP
-       return req.user?.id || req.ip || 'unknown';
-     }
+    keyGenerator: (req: Request) => {
+      // Use user ID if authenticated, otherwise use IP
+      return req.user?.id ? `user:${req.user.id}` : `ip:${req.ip || req.connection.remoteAddress || 'unknown'}`;
+    }
   });
 };
 
 /**
- * Security Headers Middleware
+ * Generate CSP nonce for scripts
  */
-export const securityHeaders = helmet({
-  contentSecurityPolicy: SECURITY_CONFIG.headers.contentSecurityPolicy,
-  hsts: SECURITY_CONFIG.headers.hsts,
-  noSniff: true,
-  frameguard: { action: 'deny' },
-  xssFilter: true,
-  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-  crossOriginEmbedderPolicy: false, // Disable for development
-  crossOriginOpenerPolicy: { policy: 'same-origin' },
-  crossOriginResourcePolicy: { policy: 'same-site' }
-});
+function generateNonce(): string {
+  return crypto.randomBytes(16).toString('base64');
+}
+
+/**
+ * Security Headers Middleware with Dynamic CSP
+ */
+export const securityHeaders = (req: Request, res: Response, next: NextFunction) => {
+  // Generate unique nonce for this request
+  const nonce = generateNonce();
+  
+  // Store nonce in request for use in templates
+  (req as any).cspNonce = nonce;
+  
+  // Dynamic CSP configuration with nonce
+  const cspDirectives = {
+    ...SECURITY_CONFIG.headers.contentSecurityPolicy.directives,
+    scriptSrc: [
+      "'self'",
+      `'nonce-${nonce}'`
+    ],
+    styleSrc: [
+      "'self'",
+      "https://fonts.googleapis.com",
+      `'nonce-${nonce}'` // Allow nonce-based inline styles if needed
+    ]
+  };
+
+  // Apply helmet with dynamic CSP
+  helmet({
+    contentSecurityPolicy: {
+      directives: cspDirectives
+    },
+    hsts: SECURITY_CONFIG.headers.hsts,
+    noSniff: true,
+    frameguard: { action: 'deny' },
+    xssFilter: true,
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+    crossOriginEmbedderPolicy: false, // Disable for development
+    crossOriginOpenerPolicy: { policy: 'same-origin' },
+    crossOriginResourcePolicy: { policy: 'same-site' }
+  })(req, res, next);
+};
 
 /**
  * Additional Security Headers
@@ -389,15 +513,82 @@ export const securityMonitoring = (req: Request, res: Response, next: NextFuncti
 };
 
 /**
- * CORS Configuration
+ * Parse and validate CORS origins from environment
+ */
+function parseCorsOrigins(): string[] {
+  // Use CORS_ORIGINS first, fallback to ALLOWED_ORIGINS for legacy support
+  const corsOrigins = process.env.CORS_ORIGINS || process.env.ALLOWED_ORIGINS;
+  
+  if (!corsOrigins) {
+    log.warn('CORS_ORIGINS not set, using default localhost origin', {}, 'SECURITY');
+    return ['http://localhost:3000'];
+  }
+
+  const origins = corsOrigins.split(',').map(origin => origin.trim()).filter(origin => origin.length > 0);
+  
+  if (origins.length === 0) {
+    log.warn('No valid CORS origins found, using default localhost origin', {}, 'SECURITY');
+    return ['http://localhost:3000'];
+  }
+
+  // Validate origins format
+  const validOrigins = origins.filter(origin => {
+    try {
+      const url = new URL(origin);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      log.warn('Invalid CORS origin format', { origin }, 'SECURITY');
+      return false;
+    }
+  });
+
+  if (validOrigins.length === 0) {
+    log.warn('No valid CORS origins after validation, using default localhost origin', {}, 'SECURITY');
+    return ['http://localhost:3000'];
+  }
+
+  log.info('CORS origins configured', { origins: validOrigins }, 'SECURITY');
+  return validOrigins;
+}
+
+/**
+ * CORS origin validation function
+ */
+function validateCorsOrigin(origin: string, callback: (error: Error | null, allow?: boolean) => void): void {
+  const allowedOrigins = parseCorsOrigins();
+  
+  // Allow requests with no origin (like mobile apps or Postman)
+  if (!origin) {
+    return callback(null, true);
+  }
+
+  // Check if origin is in allowlist
+  if (allowedOrigins.includes(origin)) {
+    return callback(null, true);
+  }
+
+  // Log unauthorized origin attempts
+  log.warn('CORS origin rejected', {
+    origin,
+    allowedOrigins,
+    userAgent: 'Unknown', // Will be set by middleware
+    timestamp: new Date().toISOString()
+  }, 'SECURITY');
+
+  return callback(new Error('CORS origin not allowed'), false);
+}
+
+/**
+ * CORS Configuration with Secure Origin Validation
  */
 export const corsConfig = {
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
+  origin: validateCorsOrigin,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Requested-With'],
   exposedHeaders: ['X-CSRF-Token'],
-  maxAge: 86400 // 24 hours
+  maxAge: 86400, // 24 hours
+  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 };
 
 /**
@@ -408,6 +599,51 @@ export const rateLimiters = {
   login: createRateLimiter('login'),
   document: createRateLimiter('document'),
   search: createRateLimiter('search')
+};
+
+/**
+ * Export enhanced rate limiters with per-IP and per-user limits
+ */
+export const enhancedRateLimiters = {
+  general: createEnhancedRateLimiter('general'),
+  login: createEnhancedRateLimiter('login'),
+  document: createEnhancedRateLimiter('document'),
+  search: createEnhancedRateLimiter('search')
+};
+
+/**
+ * CSP Nonce Utility Functions
+ */
+export const cspUtils = {
+  /**
+   * Get CSP nonce from request
+   */
+  getNonce: (req: Request): string => {
+    return (req as any).cspNonce || '';
+  },
+
+  /**
+   * Generate script tag with nonce
+   */
+  scriptTag: (req: Request, content: string): string => {
+    const nonce = cspUtils.getNonce(req);
+    return `<script nonce="${nonce}">${content}</script>`;
+  },
+
+  /**
+   * Generate style tag with nonce
+   */
+  styleTag: (req: Request, content: string): string => {
+    const nonce = cspUtils.getNonce(req);
+    return `<style nonce="${nonce}">${content}</style>`;
+  },
+
+  /**
+   * Validate nonce format
+   */
+  validateNonce: (nonce: string): boolean => {
+    return /^[A-Za-z0-9+/]{22}==$/.test(nonce);
+  }
 };
 
 /**

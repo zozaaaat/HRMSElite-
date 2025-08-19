@@ -1,6 +1,7 @@
 import {Request, Response, NextFunction} from 'express';
 import {storage} from '../models/storage';
 import {log} from '../utils/logger';
+import {env} from '../utils/env';
 import * as jwt from 'jsonwebtoken';
 
 // Define a local User interface that matches what we're actually using
@@ -34,10 +35,10 @@ interface SessionUser {
   updatedAt?: Date | string;
 }
 
-// JWT Configuration
-const JWT_SECRET = process.env.JWT_SECRET ?? "hrms-elite-secret-key-change-in-production";
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN ?? "24h";
-const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN ?? "7d";
+// JWT Configuration - Using validated environment variables
+const JWT_SECRET = env.JWT_SECRET;
+const JWT_EXPIRES_IN = env.JWT_EXPIRES_IN;
+const JWT_REFRESH_EXPIRES_IN = env.JWT_REFRESH_EXPIRES_IN;
 
 // Extend Express Request interface to include user
 declare global {
@@ -180,7 +181,12 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
         const user = await storage.getUser(userId);
         if (!user?.isActive) {
 
-          return res.status(401).json({'message': 'User not found or inactive'});
+          return res.status(401).json({
+            'message': 'User not found or inactive',
+            'error': 'المستخدم غير موجود أو غير نشط',
+            'code': 'USER_NOT_FOUND_OR_INACTIVE',
+            'timestamp': new Date().toISOString()
+          });
 
         }
 
@@ -217,43 +223,36 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
 
       } else {
 
-        return res.status(401).json({'message': 'Invalid or expired token'});
+        return res.status(401).json({
+          'message': 'Invalid or expired token',
+          'error': 'رمز المصادقة غير صالح أو منتهي الصلاحية',
+          'code': 'INVALID_TOKEN',
+          'timestamp': new Date().toISOString()
+        });
 
       }
 
     }
 
-    // Check for header-based authentication (for development/testing)
-    const userRole = req.headers['x-user-role'] as string;
-    const userId = req.headers['x-user-id'] as string;
-    const userEmail = req.headers['x-user-email'] as string;
-
-    if (userRole && userId) {
-
-      req.user = {
-        'id': userId,
-        'sub': userId,
-        'role': userRole,
-        'email': userEmail ?? "user@company.com",
-        'firstName': 'محمد',
-        'lastName': 'أحمد',
-        'permissions': [],
-        'isActive': true,
-        'claims': null,
-        'createdAt': new Date(),
-        'updatedAt': new Date()
-      };
-      return next();
-
-    }
+    // No authentication found - removed development header bypass for security
 
     // No authentication found
-    return res.status(401).json({'message': 'Authentication required'});
+    return res.status(401).json({
+      'message': 'Authentication required',
+      'error': 'يجب تسجيل الدخول للوصول إلى هذا المورد',
+      'code': 'AUTHENTICATION_REQUIRED',
+      'timestamp': new Date().toISOString()
+    });
 
   } catch (error) {
 
     log.error('Authentication error:', error as Error, 'AUTH');
-    return res.status(500).json({'message': 'Authentication service error'});
+    return res.status(500).json({
+      'message': 'Authentication service error',
+      'error': 'خطأ في خدمة المصادقة',
+      'code': 'AUTHENTICATION_SERVICE_ERROR',
+      'timestamp': new Date().toISOString()
+    });
 
   }
 
@@ -268,7 +267,12 @@ export const requireRole = (allowedRoles: string[]) => {
 
     if (!req.user) {
 
-      return res.status(401).json({'message': 'Authentication required'});
+      return res.status(401).json({
+        'message': 'Authentication required',
+        'error': 'يجب تسجيل الدخول للوصول إلى هذا المورد',
+        'code': 'AUTHENTICATION_REQUIRED',
+        'timestamp': new Date().toISOString()
+      });
 
     }
 
@@ -277,8 +281,11 @@ export const requireRole = (allowedRoles: string[]) => {
 
       return res.status(403).json({
         'message': 'Access denied. Insufficient permissions.',
+        'error': 'ليس لديك الصلاحيات المطلوبة للوصول إلى هذا المورد',
+        'code': 'INSUFFICIENT_PERMISSIONS',
         'requiredRoles': allowedRoles,
-        userRole
+        'userRole': userRole,
+        'timestamp': new Date().toISOString()
       });
 
     }
@@ -298,7 +305,12 @@ export const requirePermission = (requiredPermission: string) => {
 
     if (!req.user) {
 
-      return res.status(401).json({'message': 'Authentication required'});
+      return res.status(401).json({
+        'message': 'Authentication required',
+        'error': 'يجب تسجيل الدخول للوصول إلى هذا المورد',
+        'code': 'AUTHENTICATION_REQUIRED',
+        'timestamp': new Date().toISOString()
+      });
 
     }
 
@@ -307,8 +319,11 @@ export const requirePermission = (requiredPermission: string) => {
 
       return res.status(403).json({
         'message': 'Access denied. Insufficient permissions.',
-        requiredPermission,
-        userPermissions
+        'error': 'ليس لديك الصلاحيات المطلوبة للوصول إلى هذا المورد',
+        'code': 'INSUFFICIENT_PERMISSIONS',
+        'requiredPermission': requiredPermission,
+        'userPermissions': userPermissions,
+        'timestamp': new Date().toISOString()
       });
 
     }
@@ -328,14 +343,24 @@ export const requireCompanyAccess = (companyIdParam = 'companyId') => {
 
     if (!req.user) {
 
-      return res.status(401).json({'message': 'Authentication required'});
+      return res.status(401).json({
+        'message': 'Authentication required',
+        'error': 'يجب تسجيل الدخول للوصول إلى هذا المورد',
+        'code': 'AUTHENTICATION_REQUIRED',
+        'timestamp': new Date().toISOString()
+      });
 
     }
 
     const companyId = req.params[companyIdParam] || req.query.companyId as string;
     if (!companyId) {
 
-      return res.status(400).json({'message': 'Company ID is required'});
+      return res.status(400).json({
+        'message': 'Company ID is required',
+        'error': 'معرف الشركة مطلوب',
+        'code': 'COMPANY_ID_REQUIRED',
+        'timestamp': new Date().toISOString()
+      });
 
     }
 
@@ -355,7 +380,10 @@ export const requireCompanyAccess = (companyIdParam = 'companyId') => {
 
     return res.status(403).json({
       'message': 'Access denied. No access to this company.',
-      companyId
+      'error': 'ليس لديك صلاحية الوصول إلى هذه الشركة',
+      'code': 'COMPANY_ACCESS_DENIED',
+      'companyId': companyId,
+      'timestamp': new Date().toISOString()
     });
 
   };

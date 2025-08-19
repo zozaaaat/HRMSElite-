@@ -10,18 +10,38 @@ import express from 'express';
 import cors from 'cors';
 import session from 'express-session';
 import csurf from 'csurf';
+// Pino imports (will be available after npm install)
+// import pino from 'pino';
+// import pinoHttp from 'pino-http';
+import { randomUUID } from 'crypto';
+
+// Extend Express Request interface to include request ID and logger
+declare global {
+  namespace Express {
+    interface Request {
+      id?: string;
+      log?: {
+        info: (message: string, data?: any) => void;
+        warn: (message: string, data?: any) => void;
+        error: (message: string, data?: any) => void;
+      };
+      _startTime?: number;
+    }
+  }
+}
 import { 
   securityHeaders, 
   additionalSecurityHeaders,
   enhancedCsrfProtection,
   requestValidation,
   securityMonitoring,
-  rateLimiters,
+  enhancedRateLimiters,
   corsConfig
 } from './middleware/security';
 import { isAuthenticated, optionalAuth } from './middleware/auth';
 import { log } from './utils/logger';
 import { storage } from './models/storage';
+import { env } from './utils/env';
 
 // Import routes
 import authRoutes from './routes/auth-routes';
@@ -31,10 +51,95 @@ import aiRoutes from './routes/ai';
 import qualityRoutes from './routes/quality-routes';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = env.PORT;
 
 // Trust proxy for rate limiting
 app.set('trust proxy', 1);
+
+// Enhanced logging middleware with request ID and sensitive data redaction
+const enhancedLoggingMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  // Generate request ID
+  const requestId = req.headers['x-request-id'] as string || randomUUID();
+  (req as any).id = requestId;
+  
+  // Add request ID to response headers
+  res.setHeader('X-Request-ID', requestId);
+  
+  // Create request logger with context
+  const requestLogger = {
+    info: (message: string, data?: any) => {
+      log.info(message, {
+        ...data,
+        requestId,
+        method: req.method,
+        url: req.url,
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        userId: (req as any).user?.id,
+        userRole: (req as any).user?.role
+      }, 'REQUEST');
+    },
+    warn: (message: string, data?: any) => {
+      log.warn(message, {
+        ...data,
+        requestId,
+        method: req.method,
+        url: req.url,
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        userId: (req as any).user?.id,
+        userRole: (req as any).user?.role
+      }, 'REQUEST');
+    },
+    error: (message: string, data?: any) => {
+      log.error(message, {
+        ...data,
+        requestId,
+        method: req.method,
+        url: req.url,
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        userId: (req as any).user?.id,
+        userRole: (req as any).user?.role
+      }, 'REQUEST');
+    }
+  };
+  
+  // Attach logger to request
+  (req as any).log = requestLogger;
+  
+  // Log request start
+  requestLogger.info(`${req.method} ${req.url} - Request started`);
+  
+  // Override res.send to log response
+  const originalSend = res.send;
+  res.send = function(data) {
+    const responseTime = Date.now() - (req as any)._startTime || 0;
+    
+    // Log response
+    if (res.statusCode >= 400) {
+      requestLogger.warn(`${req.method} ${req.url} - ${res.statusCode}`, {
+        responseTime,
+        statusCode: res.statusCode
+      });
+    } else {
+      requestLogger.info(`${req.method} ${req.url} - ${res.statusCode}`, {
+        responseTime,
+        statusCode: res.statusCode
+      });
+    }
+    
+    return originalSend.call(this, data);
+  };
+  
+  // Set start time
+  (req as any)._startTime = Date.now();
+  
+  next();
+};
+
+// Apply enhanced logging middleware first (before other middleware)
+app.use(enhancedLoggingMiddleware);
 
 // Security middleware (order matters!)
 app.use(securityHeaders);
@@ -51,38 +156,42 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Request validation
 app.use(requestValidation);
 
-// Session configuration
+// Session configuration with secure cookie settings
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'hrms-elite-secret-key-change-in-production',
+  secret: env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict' as const,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    secure: true, // Always secure for __Host- prefix
+    sameSite: 'lax' as const,
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    path: '/',
+    domain: undefined // Let browser set domain for __Host- prefix
   },
-  name: 'hrms-elite-session'
+  name: '__Host-hrms-elite-session'
 }));
 
-// CSRF protection
+// CSRF protection with secure cookie settings
 app.use(csurf({
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict' as const,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    secure: true, // Always secure for __Host- prefix
+    sameSite: 'lax' as const,
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    path: '/',
+    domain: undefined // Let browser set domain for __Host- prefix
   }
 }));
 
 // Enhanced CSRF protection
 app.use(enhancedCsrfProtection);
 
-// Rate limiting
-app.use('/api/', rateLimiters.general);
-app.use('/api/auth/login', rateLimiters.login);
-app.use('/api/documents', rateLimiters.document);
-app.use('/api/search', rateLimiters.search);
+// Enhanced rate limiting with per-IP and per-user limits
+app.use('/api/', enhancedRateLimiters.general);
+app.use('/api/auth/login', enhancedRateLimiters.login);
+app.use('/api/documents', enhancedRateLimiters.document);
+app.use('/api/search', enhancedRateLimiters.search);
 
 // Health check endpoint (no rate limiting)
 app.get('/health', (req, res) => {
@@ -92,14 +201,15 @@ app.get('/health', (req, res) => {
     uptime: process.uptime(),
     memory: process.memoryUsage(),
     version: process.env.npm_package_version || '1.0.0',
-    environment: process.env.NODE_ENV || 'development',
+    environment: env.NODE_ENV,
     security: {
       helmet: true,
       rateLimit: true,
       csrf: true,
       cors: true,
       session: true
-    }
+    },
+    requestId: req.id
   });
 });
 
@@ -108,7 +218,8 @@ app.get('/api/csrf-token', (req, res) => {
   res.json({
     csrfToken: req.csrfToken(),
     message: 'CSRF token generated successfully',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    requestId: req.id
   });
 });
 
@@ -123,8 +234,16 @@ app.use('/api/quality', isAuthenticated, qualityRoutes);
 app.use('/api/public', optionalAuth);
 
 // Error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  log.error('Unhandled error:', err, 'SERVER');
+app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  // Log error with request context
+  req.log?.error('Unhandled error:', {
+    error: err,
+    requestId: req.id,
+    url: req.url,
+    method: req.method,
+    userId: req.user?.id,
+    userRole: req.user?.role
+  });
 
   // CSRF errors
   if (err.code === 'EBADCSRFTOKEN') {
@@ -132,7 +251,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
       error: 'خطأ في التحقق من الأمان',
       message: 'يرجى إعادة تحميل الصفحة والمحاولة مرة أخرى',
       code: 'CSRF_TOKEN_INVALID',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      requestId: req.id
     });
   }
 
@@ -142,7 +262,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
       error: 'تم تجاوز حد الطلبات',
       message: 'يرجى المحاولة مرة أخرى بعد فترة',
       code: 'RATE_LIMIT_EXCEEDED',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      requestId: req.id
     });
   }
 
@@ -152,17 +273,19 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
       error: 'بيانات غير صحيحة',
       message: err.message,
       code: 'VALIDATION_ERROR',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      requestId: req.id
     });
   }
 
   // Default error response
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = env.NODE_ENV === 'development';
   res.status(err.status || 500).json({
     error: 'حدث خطأ في الخادم',
     message: isDevelopment ? err.message : 'خطأ داخلي في الخادم',
     code: err.code || 'INTERNAL_ERROR',
     timestamp: new Date().toISOString(),
+    requestId: req.id,
     ...(isDevelopment && { stack: err.stack })
   });
 });
@@ -173,7 +296,8 @@ app.use('*', (req, res) => {
     error: 'الصفحة غير موجودة',
     message: 'المسار المطلوب غير موجود',
     code: 'NOT_FOUND',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    requestId: req.id
   });
 });
 

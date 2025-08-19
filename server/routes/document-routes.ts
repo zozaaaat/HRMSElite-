@@ -1,8 +1,186 @@
 import type {Express, Request, Response, NextFunction} from 'express';
-import {storage} from '../models/storage';
+import multer from 'multer';
+import { fileTypeFromBuffer } from 'file-type';
+import { storage} from '../models/storage';
 import {insertDocumentSchema} from '@shared/schema';
 import {log} from '@utils/logger';
 
+// Extend Request interface to include file property
+declare global {
+  namespace Express {
+    interface Request {
+      file?: Express.Multer.File;
+      user?: any;
+    }
+  }
+}
+
+// File upload configuration with security measures
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'image/png',
+  'image/jpeg',
+  'image/jpg',
+  'image/webp',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document' // docx
+];
+
+const ALLOWED_EXTENSIONS = [
+  'pdf',
+  'png',
+  'jpg',
+  'jpeg',
+  'webp',
+  'docx'
+];
+
+// File signature validation for security
+const FILE_SIGNATURES = {
+  'application/pdf': [0x25, 0x50, 0x44, 0x46], // %PDF
+  'image/png': [0x89, 0x50, 0x4E, 0x47], // PNG
+  'image/jpeg': [0xFF, 0xD8, 0xFF], // JPEG
+  'image/jpg': [0xFF, 0xD8, 0xFF], // JPG
+  'image/webp': [0x52, 0x49, 0x46, 0x46], // RIFF
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [0x50, 0x4B, 0x03, 0x04] // ZIP (DOCX is a ZIP file)
+};
+
+// Configure multer with memory storage for security
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: MAX_FILE_SIZE,
+    files: 1, // Only allow one file at a time
+    fieldSize: 1024 * 1024 // 1MB for text fields
+  },
+  fileFilter: (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+    // Check file extension
+    const fileExtension = file.originalname.split('.').pop()?.toLowerCase();
+    if (!fileExtension || !ALLOWED_EXTENSIONS.includes(fileExtension)) {
+      return cb(new Error(`File type not allowed. Allowed types: ${ALLOWED_EXTENSIONS.join(', ')}`));
+    }
+
+    // Check MIME type
+    if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+      return cb(new Error(`MIME type not allowed. Allowed types: ${ALLOWED_MIME_TYPES.join(', ')}`));
+    }
+
+    cb(null, true);
+  }
+});
+
+// File validation middleware
+const validateFile = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: 'No file uploaded',
+        message: 'Please select a file to upload'
+      });
+    }
+
+    const file = req.file;
+    
+    // Additional size check
+    if (file.size > MAX_FILE_SIZE) {
+      return res.status(400).json({
+        error: 'File too large',
+        message: `File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`
+      });
+    }
+
+    // Validate file signature (magic bytes) for security
+    const isValidSignature = await validateFileSignature(file.buffer, file.mimetype);
+    if (!isValidSignature) {
+      log.warn('Invalid file signature detected', {
+        fileName: file.originalname,
+        mimeType: file.mimetype,
+        size: file.size,
+        user: req.user?.id
+      }, 'SECURITY');
+      
+      return res.status(400).json({
+        error: 'Invalid file format',
+        message: 'File content does not match the declared format'
+      });
+    }
+
+    // Additional security checks
+    const fileType = await fileTypeFromBuffer(file.buffer);
+    if (!fileType || !ALLOWED_MIME_TYPES.includes(fileType.mime)) {
+      log.warn('File type mismatch detected', {
+        fileName: file.originalname,
+        declaredMime: file.mimetype,
+        actualMime: fileType?.mime,
+        user: req.user?.id
+      }, 'SECURITY');
+      
+      return res.status(400).json({
+        error: 'File type mismatch',
+        message: 'File content does not match the declared type'
+      });
+    }
+
+    // Sanitize filename
+    const sanitizedFilename = sanitizeFilename(file.originalname);
+    req.file.originalname = sanitizedFilename;
+
+    next();
+  } catch (error) {
+    log.error('File validation error:', error as Error, 'SECURITY');
+    res.status(500).json({
+      error: 'File validation failed',
+      message: 'Unable to validate uploaded file'
+    });
+  }
+};
+
+// Validate file signature (magic bytes)
+async function validateFileSignature(buffer: Buffer, mimeType: string): Promise<boolean> {
+  try {
+    const expectedSignature = FILE_SIGNATURES[mimeType as keyof typeof FILE_SIGNATURES];
+    if (!expectedSignature) {
+      return false;
+    }
+
+    // Check if buffer starts with expected signature
+    for (let i = 0; i < expectedSignature.length; i++) {
+      if (buffer[i] !== expectedSignature[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  } catch (error) {
+    log.error('Error validating file signature:', error as Error, 'SECURITY');
+    return false;
+  }
+}
+
+// Sanitize filename for security
+function sanitizeFilename(filename: string): string {
+  // Remove path traversal attempts
+  let sanitized = filename.replace(/\.\./g, '');
+  
+  // Remove or replace dangerous characters
+  sanitized = sanitized.replace(/[<>:"/\\|?*]/g, '_');
+  
+  // Limit length
+  if (sanitized.length > 255) {
+    const extension = sanitized.split('.').pop();
+    const name = sanitized.substring(0, 255 - (extension?.length || 0) - 1);
+    sanitized = `${name}.${extension}`;
+  }
+  
+  return sanitized;
+}
+
+// Generate secure file ID
+function generateFileId(): string {
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 15);
+  return `file_${timestamp}_${random}`;
+}
 
 export function registerDocumentRoutes (app: Express) {
 
@@ -554,23 +732,115 @@ export function registerDocumentRoutes (app: Express) {
 
   });
 
-  app.post('/api/documents/upload', isAuthenticated, async (req, res) => {
+  // Secure file upload endpoint with comprehensive validation
+  app.post('/api/documents/upload', 
+    isAuthenticated, 
+    upload.single('file'), 
+    validateFile,
+    async (req, res) => {
+      try {
+        if (!req.file) {
+          return res.status(400).json({
+            error: 'No file uploaded',
+            message: 'Please select a file to upload'
+          });
+        }
 
-    try {
+        const file = req.file;
+        const fileId = generateFileId();
+        
+        // Log successful upload for audit
+        log.info('File uploaded successfully', {
+          fileId,
+          fileName: file.originalname,
+          fileSize: file.size,
+          mimeType: file.mimetype,
+          uploadedBy: req.user?.id,
+          timestamp: new Date().toISOString()
+        }, 'UPLOAD');
 
-      // In real app, handle multipart file upload
-      res.json({
-        'message': 'File upload endpoint - implement with multer or similar',
-        'uploadedFiles': []
-      });
+        // In a real implementation, you would:
+        // 1. Store the file buffer to secure storage (S3, local filesystem, etc.)
+        // 2. Generate a secure download URL
+        // 3. Create a database record for the document
+        // 4. Implement virus scanning (optional but recommended)
 
-    } catch (error) {
+        const documentData = {
+          name: file.originalname,
+          entityId: req.body.companyId || 'default',
+          entityType: 'company',
+          type: file.mimetype,
+          fileName: `${fileId}_${file.originalname}`,
+          fileUrl: `/api/documents/${fileId}/download`,
+          uploadedBy: req.user?.sub || 'unknown',
+          fileSize: file.size,
+          mimeType: file.mimetype,
+          description: req.body.description || null
+        };
 
-      log.error('Error uploading files:', error as Error);
-      res.status(500).json({'message': 'Failed to upload files'});
+        // Store document metadata in database
+        const document = await storage.createDocument(documentData);
 
+        res.status(201).json({
+          message: 'File uploaded successfully',
+          document: {
+            id: document.id,
+            name: document.name,
+            fileName: document.fileName,
+            type: document.type,
+            size: document.size,
+            uploadDate: document.uploadDate,
+            url: document.url
+          },
+          security: {
+            validated: true,
+            fileSignature: 'verified',
+            mimeType: 'verified',
+            sizeLimit: 'within_bounds'
+          }
+        });
+
+      } catch (error) {
+        log.error('Error uploading file:', error as Error, 'UPLOAD');
+        res.status(500).json({
+          error: 'Upload failed',
+          message: 'Failed to process uploaded file'
+        });
+      }
     }
+  );
 
+  // Error handling for multer
+  app.use((error: any, req: Request, res: Response, next: NextFunction) => {
+    if (error instanceof multer.MulterError) {
+      if (error.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+          error: 'File too large',
+          message: `File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`
+        });
+      }
+      if (error.code === 'LIMIT_FILE_COUNT') {
+        return res.status(400).json({
+          error: 'Too many files',
+          message: 'Only one file can be uploaded at a time'
+        });
+      }
+      if (error.code === 'LIMIT_FIELD_COUNT') {
+        return res.status(400).json({
+          error: 'Too many fields',
+          message: 'Too many form fields'
+        });
+      }
+    }
+    
+    if (error.message) {
+      return res.status(400).json({
+        error: 'Upload error',
+        message: error.message
+      });
+    }
+    
+    next(error);
   });
 
   // Document categories based on real extracted documents
@@ -602,4 +872,15 @@ export function registerDocumentRoutes (app: Express) {
 
   });
 
+}
+
+// Utility function to format file size
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 Bytes';
+  
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
