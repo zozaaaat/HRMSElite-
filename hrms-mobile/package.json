@@ -60,7 +60,7 @@
     "eslint-plugin-jsx-a11y": "6.8.0",
     "eslint-plugin-react": "7.34.0",
     "eslint-plugin-react-hooks": "5.0.0",
-    "eslint-plugin-react-native": "4.1.0",
+    "eslint-plugin-react-native": "5.0.0",
     "typescript": "~5.8.3"
   },
   "private": true
