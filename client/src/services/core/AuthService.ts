@@ -99,6 +99,17 @@ export class AuthService extends BaseService {
   }
 
   /**
+   * Refresh authentication tokens
+   */
+  async refreshTokens(): Promise<{ success: boolean; message?: string }> {
+    try {
+      return await this.post<{ success: boolean; message?: string }>('/refresh');
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  /**
    * Get session data
    */
   async getSession(): Promise<{ user?: User; company?: any }> {

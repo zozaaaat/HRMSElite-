@@ -6,7 +6,10 @@ import {
   optionalAuth,
   generateJWTToken,
   generateRefreshToken,
-  verifyRefreshToken
+  verifyRefreshToken,
+  setAuthCookies,
+  clearAuthCookies,
+  getRefreshTokenFromRequest
 } from '../middleware/auth';
 import {
   hashPassword,
@@ -312,7 +315,10 @@ router.post('/login', async (req:  Request, res:  Response) => {
     const accessToken = generateJWTToken(tokenPayload);
     const refreshToken = generateRefreshToken(tokenPayload);
 
-    // Store user session with proper typing
+    // Set authentication cookies
+    setAuthCookies(res, accessToken, refreshToken);
+
+    // Store user session with proper typing (for backward compatibility)
     const sessionUser: SessionUser = {
       id: user.id,
       email: user.email,
@@ -329,7 +335,7 @@ router.post('/login', async (req:  Request, res:  Response) => {
       companyId: user.companyId
     };
 
-    (req.session as SessionData).user = sessionUser;
+    (req.session as any).user = sessionUser;
 
     res.json({
       'success': true,
@@ -344,11 +350,6 @@ router.post('/login', async (req:  Request, res:  Response) => {
         'companyId': user.companyId,
         'emailVerified': user.emailVerified,
         'sub': user.id
-      },
-      'tokens': {
-        accessToken,
-        refreshToken,
-        'expiresIn': process.env.JWT_EXPIRES_IN ?? "24h"
       }
     });
 
@@ -362,17 +363,83 @@ router.post('/login', async (req:  Request, res:  Response) => {
 });
 
 /**
+ * Refresh Token Endpoint
+ * POST /api/auth/refresh
+ */
+router.post('/refresh', async (req: Request, res: Response) => {
+  try {
+    const refreshToken = getRefreshTokenFromRequest(req);
+    
+    if (!refreshToken) {
+      return res.status(401).json({
+        'message': 'Refresh token not found',
+        'error': 'رمز التحديث غير موجود',
+        'code': 'REFRESH_TOKEN_MISSING'
+      });
+    }
+
+    const decoded = verifyRefreshToken(refreshToken);
+    if (!decoded) {
+      return res.status(401).json({
+        'message': 'Invalid or expired refresh token',
+        'error': 'رمز التحديث غير صالح أو منتهي الصلاحية',
+        'code': 'INVALID_REFRESH_TOKEN'
+      });
+    }
+
+    const userId = String(decoded?.id ?? '');
+    const user = await storage.getUser(userId);
+    
+    if (!user?.isActive) {
+      return res.status(401).json({
+        'message': 'User not found or inactive',
+        'error': 'المستخدم غير موجود أو غير نشط',
+        'code': 'USER_NOT_FOUND_OR_INACTIVE'
+      });
+    }
+
+    // Generate new tokens
+    const tokenPayload = {
+      'id': user.id,
+      'email': user.email,
+      'firstName': user.firstName,
+      'lastName': user.lastName,
+      'role': user.role,
+      'companyId': user.companyId
+    };
+
+    const newAccessToken = generateJWTToken(tokenPayload);
+    const newRefreshToken = generateRefreshToken(tokenPayload);
+
+    // Set new authentication cookies
+    setAuthCookies(res, newAccessToken, newRefreshToken);
+
+    res.json({
+      'success': true,
+      'message': 'Tokens refreshed successfully'
+    });
+
+  } catch (error) {
+    log.error('Token refresh error:', error as Error, 'AUTH');
+    res.status(500).json({
+      'message': 'Token refresh failed',
+      'error': 'فشل في تحديث الرمز'
+    });
+  }
+});
+
+/**
  * Logout Endpoint
  * POST /api/auth/logout
  */
-router.post('/logout', (req:  Request, res:  Response) => {
+router.post('/logout', (req: Request, res: Response) => {
+  // Clear authentication cookies
+  clearAuthCookies(res);
 
+  // Clear session (for backward compatibility)
   req.session?.destroy(() => {
-
     res.json({'success': true, 'message': 'تم تسجيل الخروج بنجاح'});
-
   });
-
 });
 
 /**
@@ -400,7 +467,7 @@ router.post('/switch-company', isAuthenticated, async (req:  Request, res:  Resp
     const permissions = await storage.getUserPermissions(userId, companyId);
 
     // Update session with proper typing
-    const currentSession = req.session as SessionData;
+    const currentSession = req.session as any;
     if (currentSession.user) {
       currentSession.user = {
         ...currentSession.user,

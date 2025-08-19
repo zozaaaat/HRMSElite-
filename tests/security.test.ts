@@ -36,6 +36,29 @@ describe('Server Security Tests', () => {
       expect(csp).toContain("frame-src 'none'");
       expect(csp).toContain("object-src 'none'");
     });
+
+    it('should have nonce-based CSP without unsafe directives', async () => {
+      const response = await request(app).get('/health');
+      
+      expect(response.headers).toHaveProperty('content-security-policy');
+      const csp = response.headers['content-security-policy'];
+      
+      // Should contain nonce-based script-src
+      expect(csp).toMatch(/script-src 'self' 'nonce-[A-Za-z0-9+/]{22}=='/);
+      
+      // Should NOT contain unsafe directives
+      expect(csp).not.toContain("'unsafe-inline'");
+      expect(csp).not.toContain("'unsafe-eval'");
+      
+      // Should contain required directives
+      expect(csp).toContain("default-src 'self'");
+      expect(csp).toContain("style-src 'self'");
+      expect(csp).toContain("img-src 'self' data: https:");
+      expect(csp).toContain("connect-src 'self'");
+      expect(csp).toContain("frame-src 'none'");
+      expect(csp).toContain("object-src 'none'");
+      expect(csp).toContain("base-uri 'self'");
+    });
   });
 
   describe('Rate Limiting', () => {

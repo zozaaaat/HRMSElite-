@@ -416,6 +416,10 @@ export default function SignatureCapture ({
               src={existingSignature.imageData}
               alt="التوقيع"
               className="w-full h-auto max-h-48 object-contain"
+              loading="lazy"
+              decoding="async"
+              width="640"
+              height="192"
             />
           </div>
           <div className="mt-4 text-sm text-gray-600">

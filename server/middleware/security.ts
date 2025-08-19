@@ -97,13 +97,13 @@ const SECURITY_CONFIG = {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "https://fonts.googleapis.com"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        scriptSrc: ["'self'"], // Will be dynamically updated with nonce
+        styleSrc: ["'self'"],
         imgSrc: ["'self'", "data:", "https:"],
-        scriptSrc: ["'self'"],
         connectSrc: ["'self'"],
         frameSrc: ["'none'"],
         objectSrc: ["'none'"],
+        baseUri: ["'self'"],
         upgradeInsecureRequests: []
       }
     },
@@ -326,20 +326,36 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
   // Generate unique nonce for this request
   const nonce = generateNonce();
   
-  // Store nonce in request for use in templates
+  // Store nonce in request and response locals for use in templates
   (req as any).cspNonce = nonce;
+  res.locals.cspNonce = nonce;
   
-  // Dynamic CSP configuration with nonce
+  // Dynamic CSP configuration with nonce - strict policy without unsafe directives
   const cspDirectives = {
-    ...SECURITY_CONFIG.headers.contentSecurityPolicy.directives,
+    defaultSrc: ["'self'"],
     scriptSrc: [
       "'self'",
       `'nonce-${nonce}'`
     ],
     styleSrc: [
+      "'self'"
+    ],
+    imgSrc: [
       "'self'",
-      "https://fonts.googleapis.com",
-      `'nonce-${nonce}'` // Allow nonce-based inline styles if needed
+      "data:",
+      "https:"
+    ],
+    connectSrc: [
+      "'self'"
+    ],
+    frameSrc: [
+      "'none'"
+    ],
+    objectSrc: [
+      "'none'"
+    ],
+    baseUri: [
+      "'self'"
     ]
   };
 

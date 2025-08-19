@@ -40,6 +40,15 @@ const JWT_SECRET = env.JWT_SECRET;
 const JWT_EXPIRES_IN = env.JWT_EXPIRES_IN;
 const JWT_REFRESH_EXPIRES_IN = env.JWT_REFRESH_EXPIRES_IN;
 
+// Cookie configuration
+const COOKIE_CONFIG = {
+  httpOnly: true,
+  secure: true, // Always secure for __Host- prefix
+  sameSite: 'lax' as const,
+  path: '/',
+  domain: undefined // Let browser set domain for __Host- prefix
+};
+
 // Extend Express Request interface to include user
 declare global {
   namespace Express {
@@ -137,14 +146,73 @@ export const verifyRefreshToken = (token: string): jwt.JwtPayload | null => {
 };
 
 /**
+ * Set authentication cookies
+ * @param res - Express response object
+ * @param accessToken - Short-lived access token
+ * @param refreshToken - Long-lived refresh token
+ */
+export const setAuthCookies = (res: Response, accessToken: string, refreshToken: string): void => {
+  // Set access token cookie (short-lived)
+  res.cookie('__Host-hrms-elite-access', accessToken, {
+    ...COOKIE_CONFIG,
+    maxAge: 15 * 60 * 1000, // 15 minutes
+  });
+
+  // Set refresh token cookie (long-lived)
+  res.cookie('__Host-hrms-elite-refresh', refreshToken, {
+    ...COOKIE_CONFIG,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+};
+
+/**
+ * Clear authentication cookies
+ * @param res - Express response object
+ */
+export const clearAuthCookies = (res: Response): void => {
+  res.clearCookie('__Host-hrms-elite-access', COOKIE_CONFIG);
+  res.clearCookie('__Host-hrms-elite-refresh', COOKIE_CONFIG);
+};
+
+/**
+ * Get token from cookies or Authorization header
+ * @param req - Express request object
+ * @returns Token string or null
+ */
+export const getTokenFromRequest = (req: Request): string | null => {
+  // First check for access token in cookie
+  const accessToken = req.cookies['__Host-hrms-elite-access'];
+  if (accessToken) {
+    return accessToken;
+  }
+
+  // Fallback to Authorization header for backward compatibility
+  const authHeader = req.headers.authorization;
+  if (authHeader?.startsWith('Bearer ')) {
+    return authHeader.substring(7);
+  }
+
+  return null;
+};
+
+/**
+ * Get refresh token from cookies
+ * @param req - Express request object
+ * @returns Refresh token string or null
+ */
+export const getRefreshTokenFromRequest = (req: Request): string | null => {
+  return req.cookies['__Host-hrms-elite-refresh'] || null;
+};
+
+/**
  * Unified Authentication Middleware
- * Handles both session-based and JWT-based authentication
+ * Handles cookie-based authentication with fallback to session-based
  */
 export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
 
   try {
 
-    // Check for session-based authentication first
+    // Check for session-based authentication first (for backward compatibility)
     if (req.session?.user) {
 
       const sessionUser = req.session.user;
@@ -165,11 +233,10 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
 
     }
 
-    // Check for JWT token authentication
-    const authHeader = req.headers.authorization;
-    if (authHeader?.startsWith('Bearer ')) {
+    // Check for cookie-based authentication
+    const token = getTokenFromRequest(req);
+    if (token) {
 
-      const token = authHeader.substring(7);
       const decoded = verifyJWTToken(token);
 
       if (decoded) {
@@ -233,8 +300,6 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
       }
 
     }
-
-    // No authentication found - removed development header bypass for security
 
     // No authentication found
     return res.status(401).json({
@@ -416,11 +481,25 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
         'updatedAt': sessionUser.updatedAt ? new Date(sessionUser.updatedAt) : new Date()
       };
 
-    } else if (req.headers['x-user-role'] && req.headers['x-user-id']) {
+    } else if (
+      env.NODE_ENV === 'development' && 
+      env.ALLOW_DEV_AUTH === 'true' && 
+      req.headers['x-user-role'] && 
+      req.headers['x-user-id']
+    ) {
 
       const userRole = req.headers['x-user-role'] as string;
       const userId = req.headers['x-user-id'] as string;
       const userEmail = req.headers['x-user-email'] as string;
+
+      log.warn('Development authentication bypass used', {
+        userId,
+        userRole,
+        userEmail,
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        timestamp: new Date().toISOString()
+      }, 'AUTH');
 
       req.user = {
         'id': userId,

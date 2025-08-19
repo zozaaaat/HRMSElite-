@@ -1,0 +1,360 @@
+name: Branch Protection Setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to protect'
+        required: true
+        default: 'main'
+      enforce_security:
+        description: 'Enforce security checks'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  setup-branch-protection:
+    name: Setup Branch Protection
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Setup Branch Protection Rules
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = '${{ github.event.inputs.branch }}' || 'main';
+            const enforceSecurity = '${{ github.event.inputs.enforce_security }}' === 'true';
+            
+            console.log(`Setting up branch protection for: ${branch}`);
+            console.log(`Enforce security checks: ${enforceSecurity}`);
+            
+            try {
+              await github.rest.repos.updateBranchProtection({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                branch: branch,
+                required_status_checks: {
+                  strict: true,
+                  contexts: enforceSecurity ? [
+                    'lint',
+                    'test',
+                    'security-audit',
+                    'osv-scanner',
+                    'semgrep',
+                    'sbom',
+                    'build',
+                    'security-gate'
+                  ] : [
+                    'lint',
+                    'test',
+                    'build'
+                  ]
+                },
+                enforce_admins: true,
+                required_pull_request_reviews: {
+                  required_approving_review_count: 2,
+                  dismiss_stale_reviews: true,
+                  require_code_owner_reviews: true,
+                  require_last_push_approval: true
+                },
+                restrictions: null,
+                allow_force_pushes: false,
+                allow_deletions: false,
+                block_creations: false,
+                required_conversation_resolution: true,
+                lock_branch: false,
+                allow_fork_syncing: true
+              });
+              
+              console.log(`✅ Branch protection rules set for ${branch}`);
+              
+              // Create issue with protection details
+              const issueBody = `## Branch Protection Rules Applied
+              
+              **Branch:** \`${branch}\`
+              **Applied:** ${new Date().toISOString()}
+              
+              ### Required Status Checks:
+              ${enforceSecurity ? `
+              - ✅ **Lint & Type Check** - ESLint and TypeScript validation
+              - ✅ **Test Suite** - Comprehensive test coverage
+              - ✅ **Security Audit** - npm audit for vulnerabilities
+              - ✅ **OSV Scanner** - Open Source Vulnerability scanning
+              - ✅ **Semgrep SAST** - Static Application Security Testing
+              - ✅ **SBOM Generation** - Software Bill of Materials
+              - ✅ **Build & Sign** - Application build and artifact signing
+              - ✅ **Security Gate** - Final security validation
+              ` : `
+              - ✅ **Lint & Type Check** - ESLint and TypeScript validation
+              - ✅ **Test Suite** - Comprehensive test coverage
+              - ✅ **Build** - Application build
+              `}
+              
+              ### Pull Request Requirements:
+              - 🔒 **2 approving reviews** required
+              - 👥 **Code owner review** required
+              - ✅ **Last push approval** required
+              - 💬 **Conversation resolution** required
+              - 🚫 **No force pushes** allowed
+              - 🚫 **No branch deletion** allowed
+              
+              ### Security Enforcement:
+              ${enforceSecurity ? '🔒 **ENABLED** - PR cannot merge if security checks fail' : '⚠️ **DISABLED** - Basic checks only'}
+              
+              ---
+              
+              *This protection ensures code quality and security standards are maintained.*`;
+              
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `Branch Protection Rules Applied - ${branch}`,
+                body: issueBody,
+                labels: ['security', 'ci/cd', 'branch-protection']
+              });
+              
+            } catch (error) {
+              console.error('❌ Failed to set branch protection:', error.message);
+              core.setFailed(`Failed to set branch protection: ${error.message}`);
+            }
+
+  create-security-policy:
+    name: Create Security Policy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create SECURITY.md
+        run: |
+          cat > SECURITY.md << 'EOF'
+          # Security Policy
+          
+          ## Supported Versions
+          
+          | Version | Supported          |
+          | ------- | ------------------ |
+          | 1.x.x   | :white_check_mark: |
+          | < 1.0   | :x:                |
+          
+          ## Reporting a Vulnerability
+          
+          We take security vulnerabilities seriously. If you discover a security vulnerability, please follow these steps:
+          
+          ### 1. **DO NOT** create a public GitHub issue
+          
+          Security vulnerabilities should be reported privately to prevent exploitation.
+          
+          ### 2. Report via Email
+          
+          Send an email to: [security@yourcompany.com](mailto:security@yourcompany.com)
+          
+          Include the following information:
+          - **Type of issue** (buffer overflow, SQL injection, cross-site scripting, etc.)
+          - **Full paths of source file(s) related to the vulnerability**
+          - **The location of the affected source code (tag/branch/commit or direct URL)**
+          - **Any special configuration required to reproduce the issue**
+          - **Step-by-step instructions to reproduce the issue**
+          - **Proof-of-concept or exploit code (if possible)**
+          - **Impact of the issue, including how an attacker might exploit it**
+          
+          ### 3. What to Expect
+          
+          - **Initial Response**: Within 48 hours
+          - **Status Updates**: Regular updates on progress
+          - **Resolution**: Patch released within 30 days for critical issues
+          
+          ### 4. Disclosure Policy
+          
+          - Vulnerabilities are disclosed via GitHub Security Advisories
+          - CVE numbers are requested for significant issues
+          - Public disclosure occurs after patches are available
+          
+          ## Security Measures
+          
+          ### CI/CD Security
+          
+          Our CI/CD pipeline includes comprehensive security checks:
+          
+          - **Static Application Security Testing (SAST)** with Semgrep
+          - **Dependency vulnerability scanning** with npm audit and OSV Scanner
+          - **Software Bill of Materials (SBOM)** generation with CycloneDX
+          - **Artifact signing** with GPG
+          - **Branch protection** with required security checks
+          
+          ### Code Quality
+          
+          - **TypeScript** for type safety
+          - **ESLint** with security rules
+          - **Comprehensive testing** with security test cases
+          - **Code review** requirements
+          
+          ### Infrastructure Security
+          
+          - **HTTPS only** for all communications
+          - **Security headers** (HSTS, CSP, etc.)
+          - **Rate limiting** on API endpoints
+          - **Input validation** and sanitization
+          - **SQL injection prevention** with parameterized queries
+          
+          ## Security Checklist
+          
+          Before submitting a pull request, ensure:
+          
+          - [ ] No hardcoded secrets or credentials
+          - [ ] Input validation implemented
+          - [ ] SQL injection prevention measures
+          - [ ] XSS protection measures
+          - [ ] CSRF protection enabled
+          - [ ] Security headers configured
+          - [ ] Rate limiting implemented
+          - [ ] Error messages don't leak sensitive information
+          - [ ] Dependencies are up to date
+          - [ ] Security tests pass
+          
+          ## Security Tools
+          
+          - **Semgrep**: SAST scanning
+          - **npm audit**: Dependency vulnerability scanning
+          - **OSV Scanner**: Open source vulnerability scanning
+          - **CycloneDX**: SBOM generation
+          - **ESLint**: Code quality and security rules
+          
+          ## Compliance
+          
+          This project follows security best practices and aims to comply with:
+          
+          - OWASP Top 10
+          - NIST Cybersecurity Framework
+          - GDPR requirements
+          - Industry security standards
+          
+          ---
+          
+          *Last updated: $(date)*
+          EOF
+
+      - name: Create .github/security.yml
+        run: |
+          mkdir -p .github
+          cat > .github/security.yml << 'EOF'
+          # Security Policy Configuration
+          
+          # Security team members
+          security_team:
+            - security@yourcompany.com
+          
+          # Vulnerability disclosure policy
+          disclosure_policy:
+            initial_response_hours: 48
+            resolution_days: 30
+            public_disclosure: after_patch
+          
+          # Security scanning configuration
+          security_scanning:
+            sast:
+              enabled: true
+              tool: semgrep
+              config: .semgrep.yml
+            dependency_scanning:
+              enabled: true
+              tools:
+                - npm audit
+                - osv-scanner
+            sbom:
+              enabled: true
+              format: cyclonedx
+              signing: true
+          
+          # Branch protection
+          branch_protection:
+            main:
+              required_checks:
+                - lint
+                - test
+                - security-audit
+                - osv-scanner
+                - semgrep
+                - sbom
+                - build
+                - security-gate
+              required_reviews: 2
+              require_code_owners: true
+              dismiss_stale_reviews: true
+              require_last_push_approval: true
+              allow_force_pushes: false
+              allow_deletions: false
+              require_conversation_resolution: true
+          EOF
+
+      - name: Commit and push security files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add SECURITY.md .github/security.yml
+          git commit -m "Add security policy and configuration" || echo "No changes to commit"
+          git push
+
+  setup-codeowners:
+    name: Setup CODEOWNERS
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create CODEOWNERS
+        run: |
+          cat > .github/CODEOWNERS << 'EOF'
+          # Global code owners
+          * @your-username @security-team
+          
+          # Security-related files
+          .github/workflows/secure-ci.yml @security-team
+          .github/workflows/security-scan.yml @security-team
+          .semgrep.yml @security-team
+          scripts/security-*.js @security-team
+          SECURITY.md @security-team
+          
+          # Configuration files
+          package.json @dev-team
+          tsconfig.json @dev-team
+          eslint.config.js @dev-team
+          
+          # Documentation
+          docs/ @docs-team
+          *.md @docs-team
+          
+          # Database and models
+          server/models/ @backend-team
+          shared/schema/ @backend-team
+          
+          # Frontend components
+          client/src/components/ @frontend-team
+          client/src/pages/ @frontend-team
+          
+          # API routes
+          server/routes/ @backend-team
+          server/middleware/ @backend-team
+          
+          # Tests
+          tests/ @qa-team
+          client/tests/ @qa-team
+          EOF
+
+      - name: Commit and push CODEOWNERS
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .github/CODEOWNERS
+          git commit -m "Add CODEOWNERS file" || echo "No changes to commit"
+          git push

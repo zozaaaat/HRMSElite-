@@ -23,6 +23,12 @@ export interface ApiRequestOptions {
   responseType?: 'json' | 'text' | 'blob' | 'arrayBuffer' | 'formData';
 }
 
+// Simple ETag cache keyed by request URL
+const etagCache: Map<string, string> = new Map();
+
+export const getCachedEtag = (url: string): string | undefined => etagCache.get(url);
+export const clearCachedEtag = (url: string): void => { etagCache.delete(url); };
+
 /**
  * Wrapped fetch function with error handling
  * @param url - The URL to fetch from
@@ -55,16 +61,15 @@ export const apiRequest = async <T = unknown>(
     if (isFormDataBody) {
       // Remove content-type for multipart/form-data
       if (typeof computedHeaders === 'object' && computedHeaders !== null) {
-         
         delete (computedHeaders)['Content-Type'];
-         
         delete (computedHeaders)['content-type'];
       }
     }
 
     const requestOptions: RequestInitLike = {
       method,
-      headers: computedHeaders
+      headers: computedHeaders,
+      credentials: 'include' // Always include cookies for authentication
     };
 
     if (body !== undefined) {
@@ -75,6 +80,16 @@ export const apiRequest = async <T = unknown>(
     const response = useCsrf
       ? await fetchWithCsrf(url, requestOptions)
       : await fetch(url, requestOptions);
+
+    // Cache ETag header if present
+    const etag = response.headers.get('etag');
+    if (etag) {
+      try {
+        etagCache.set(url, etag);
+      } catch {
+        // ignore cache set errors
+      }
+    }
 
     if (!response.ok) {
 
@@ -191,4 +206,9 @@ export const apiPatch = <T = unknown>(
     headers: headers ?? {}
   });
 
+};
+
+// Helpers for optimistic concurrency (ETag)
+export const withIfMatch = (etag: string | null | undefined): Record<string, string> => {
+  return etag ? { 'If-Match': etag } : {};
 };

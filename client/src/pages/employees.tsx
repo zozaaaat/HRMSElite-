@@ -5,6 +5,7 @@ import {Card, CardContent, CardHeader, CardTitle} from '../components/ui/card';
 import {Badge} from '../components/ui/badge';
 import {Input} from '../components/ui/input';
 import {Label} from '../components/ui/label';
+import {useTranslation} from 'react-i18next';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from '../components/ui/table';
@@ -135,6 +136,7 @@ export default function EmployeesPage () {
 function EmployeesContent () {
 
   const {toast} = useToast();
+  const {t} = useTranslation();
   const queryClient = useQueryClient();
   const [isAddEmployeeOpen, setIsAddEmployeeOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -181,8 +183,8 @@ function EmployeesContent () {
     'onSuccess': () => {
 
       toast({
-        'title': 'تم إضافة الموظف',
-        'description': 'تم إضافة الموظف الجديد بنجاح'
+        'title': t('messages.saveSuccess'),
+        'description': t('employees.addEmployee')
       });
       setIsAddEmployeeOpen(false);
       queryClient.invalidateQueries({'queryKey': ['/api/employees']});

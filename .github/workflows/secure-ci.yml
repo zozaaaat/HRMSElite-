@@ -1,0 +1,484 @@
+name: Secure CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  NPM_VERSION: '10'
+
+jobs:
+  # 🔍 Lint & Type Check
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint:strict
+        continue-on-error: false
+
+      - name: Type checking
+        run: npm run type-check:strict
+        continue-on-error: false
+
+      - name: Upload lint results
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-results
+          path: |
+            .eslintcache
+            eslint-report.txt
+
+  # 🧪 Test Suite
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+        os: [ubuntu-latest, windows-latest]
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run database migrations
+        run: npm run db:push
+        env:
+          NODE_ENV: test
+          DATABASE_URL: ':memory:'
+
+      - name: Run comprehensive tests
+        run: |
+          npm run test:comprehensive
+          npm run test:security-full
+        env:
+          NODE_ENV: test
+          DATABASE_URL: ':memory:'
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}-${{ matrix.node-version }}
+          path: |
+            client/test-reports/
+            tests/coverage/
+            coverage/
+
+  # 🔒 Security Audit (npm audit)
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: |
+          echo "Running npm audit..."
+          npm audit --audit-level=moderate --json > audit-report.json || true
+          
+          # Check for high/critical vulnerabilities
+          if [ -f audit-report.json ]; then
+            VULNERABILITIES=$(node -e "
+              try {
+                const audit = JSON.parse(require('fs').readFileSync('audit-report.json', 'utf8'));
+                const vulns = audit.metadata?.vulnerabilities || {};
+                const high = vulns.high || 0;
+                const critical = vulns.critical || 0;
+                console.log(high + critical);
+                if (high > 0 || critical > 0) {
+                  console.error('High/Critical vulnerabilities found');
+                  process.exit(1);
+                }
+              } catch (e) {
+                console.log('0');
+              }
+            ")
+            
+            if [ $? -ne 0 ]; then
+              echo "❌ High or critical vulnerabilities found. PR cannot merge."
+              exit 1
+            fi
+          fi
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-audit-report
+          path: audit-report.json
+
+  # 🔍 OSV Scanner
+  osv-scanner:
+    name: OSV Scanner
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install OSV Scanner
+        run: |
+          curl -L https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_1.7.0_linux_amd64.tar.gz | tar -xz
+          sudo mv osv-scanner /usr/local/bin/
+
+      - name: Scan for vulnerabilities
+        run: |
+          echo "Running OSV Scanner..."
+          osv-scanner --lockfile=package-lock.json --json > osv-report.json || true
+          
+          # Check for high/critical vulnerabilities
+          if [ -f osv-report.json ]; then
+            HIGH_VULNS=$(jq -r '.results[] | select(.vulnerabilities[].severity == "HIGH" or .vulnerabilities[].severity == "CRITICAL") | .vulnerabilities[] | .id' osv-report.json | wc -l)
+            
+            if [ "$HIGH_VULNS" -gt 0 ]; then
+              echo "❌ High/Critical vulnerabilities found by OSV Scanner. PR cannot merge."
+              echo "Found $HIGH_VULNS high/critical vulnerabilities:"
+              jq -r '.results[] | select(.vulnerabilities[].severity == "HIGH" or .vulnerabilities[].severity == "CRITICAL") | .vulnerabilities[] | "  - \(.id): \(.summary)"' osv-report.json
+              exit 1
+            fi
+          fi
+
+      - name: Upload OSV report
+        uses: actions/upload-artifact@v4
+        with:
+          name: osv-scanner-report
+          path: osv-report.json
+
+  # 🛡️ Semgrep SAST
+  semgrep:
+    name: Semgrep SAST
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/owasp-top-ten
+            p/javascript
+            p/typescript
+            p/react
+            p/expressjs
+          output-format: sarif
+          output-file: semgrep-results.sarif
+          fail-on: error
+
+      - name: Check for security rule violations
+        run: |
+          if [ -f semgrep-results.sarif ]; then
+            # Count security rule violations
+            SECURITY_VIOLATIONS=$(jq -r '.runs[].results[] | select(.properties.category == "security" or .properties.severity == "ERROR") | .rule.id' semgrep-results.sarif | wc -l)
+            
+            if [ "$SECURITY_VIOLATIONS" -gt 0 ]; then
+              echo "❌ Security rule violations found by Semgrep. PR cannot merge."
+              echo "Found $SECURITY_VIOLATIONS security violations:"
+              jq -r '.runs[].results[] | select(.properties.category == "security" or .properties.severity == "ERROR") | "  - \(.rule.id): \(.message.text)"' semgrep-results.sarif
+              exit 1
+            fi
+          fi
+
+      - name: Upload Semgrep results
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-results
+          path: semgrep-results.sarif
+
+  # 📦 SBOM Generation (CycloneDX)
+  sbom:
+    name: Generate SBOM
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install CycloneDX
+        run: |
+          npm install -g @cyclonedx/cyclonedx-npm
+
+      - name: Generate SBOM
+        run: |
+          echo "Generating CycloneDX SBOM..."
+          cyclonedx-npm --output-file sbom.xml --output-format xml
+          cyclonedx-npm --output-file sbom.json --output-format json
+
+      - name: Validate SBOM
+        run: |
+          echo "Validating SBOM..."
+          if [ ! -f sbom.xml ] || [ ! -f sbom.json ]; then
+            echo "❌ SBOM generation failed"
+            exit 1
+          fi
+          
+          # Basic validation
+          echo "SBOM files generated successfully:"
+          echo "- sbom.xml: $(wc -l < sbom.xml) lines"
+          echo "- sbom.json: $(wc -l < sbom.json) lines"
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-artifacts
+          path: |
+            sbom.xml
+            sbom.json
+
+  # 🏗️ Build & Sign
+  build:
+    name: Build & Sign Artifacts
+    runs-on: ubuntu-latest
+    needs: [lint, test, security-audit, osv-scanner, semgrep, sbom]
+    timeout-minutes: 25
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Build Electron app
+        run: npm run build:electron
+        env:
+          NODE_ENV: production
+        continue-on-error: true
+
+      - name: Download SBOM artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sbom-artifacts
+          path: ./
+
+      - name: Sign build artifacts (if GPG key available)
+        run: |
+          if [ -n "${{ secrets.GPG_PRIVATE_KEY }}" ]; then
+            echo "Signing build artifacts..."
+            echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --import
+            
+            # Sign the build artifacts
+            find dist/ -type f -name "*.js" -exec gpg --detach-sign --armor {} \;
+            find dist/ -type f -name "*.css" -exec gpg --detach-sign --armor {} \;
+            
+            # Sign SBOM files
+            gpg --detach-sign --armor sbom.xml
+            gpg --detach-sign --armor sbom.json
+            
+            echo "✅ Build artifacts signed successfully"
+          else
+            echo "⚠️  No GPG key provided, skipping artifact signing"
+          fi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            dist/
+            electron/dist/
+            sbom.xml*
+            sbom.json*
+
+  # 🔄 Security Gate
+  security-gate:
+    name: Security Gate
+    runs-on: ubuntu-latest
+    needs: [lint, test, security-audit, osv-scanner, semgrep, build]
+    if: always()
+    timeout-minutes: 5
+    
+    steps:
+      - name: Check security status
+        run: |
+          echo "🔒 Security Gate Check"
+          echo "====================="
+          
+          # Check if all security jobs passed
+          if [ "${{ needs.lint.result }}" != "success" ]; then
+            echo "❌ Lint failed"
+            exit 1
+          fi
+          
+          if [ "${{ needs.test.result }}" != "success" ]; then
+            echo "❌ Tests failed"
+            exit 1
+          fi
+          
+          if [ "${{ needs.security-audit.result }}" != "success" ]; then
+            echo "❌ Security audit failed - High/Critical vulnerabilities found"
+            exit 1
+          fi
+          
+          if [ "${{ needs.osv-scanner.result }}" != "success" ]; then
+            echo "❌ OSV Scanner failed - High/Critical vulnerabilities found"
+            exit 1
+          fi
+          
+          if [ "${{ needs.semgrep.result }}" != "success" ]; then
+            echo "❌ Semgrep failed - Security rule violations found"
+            exit 1
+          fi
+          
+          if [ "${{ needs.build.result }}" != "success" ]; then
+            echo "❌ Build failed"
+            exit 1
+          fi
+          
+          echo "✅ All security checks passed!"
+          echo "✅ PR can be merged safely"
+
+      - name: Comment PR with security status
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = {
+              'lint': '${{ needs.lint.result }}',
+              'test': '${{ needs.test.result }}',
+              'security-audit': '${{ needs.security-audit.result }}',
+              'osv-scanner': '${{ needs.osv-scanner.result }}',
+              'semgrep': '${{ needs.semgrep.result }}',
+              'build': '${{ needs.build.result }}'
+            };
+            
+            const allPassed = Object.values(status).every(s => s === 'success');
+            const emoji = allPassed ? '✅' : '❌';
+            
+            const body = `## 🔒 Security CI Results
+            
+            | Check | Status |
+            |-------|--------|
+            | Lint & Type Check | ${status['lint'] === 'success' ? '✅' : '❌'} |
+            | Tests | ${status['test'] === 'success' ? '✅' : '❌'} |
+            | Security Audit (npm audit) | ${status['security-audit'] === 'success' ? '✅' : '❌'} |
+            | OSV Scanner | ${status['osv-scanner'] === 'success' ? '✅' : '❌'} |
+            | Semgrep SAST | ${status['semgrep'] === 'success' ? '✅' : '❌'} |
+            | Build & SBOM | ${status['build'] === 'success' ? '✅' : '❌'} |
+            
+            ${allPassed ? '🎉 **All security checks passed! PR can be merged.**' : '🚨 **Security checks failed. PR cannot be merged until issues are resolved.**'}
+            
+            ### Artifacts Generated:
+            - 📦 SBOM (CycloneDX): Available in build artifacts
+            - 🔐 Signed Artifacts: Available in build artifacts (if GPG key configured)
+            - 📊 Security Reports: Available in individual job artifacts`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+  # 📊 Security Report
+  security-report:
+    name: Generate Security Report
+    runs-on: ubuntu-latest
+    needs: [security-audit, osv-scanner, semgrep, sbom]
+    if: always()
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download security artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: security-*-report
+          merge-multiple: true
+
+      - name: Generate security report
+        run: |
+          echo "🔒 Security Report" > security-report.md
+          echo "=================" >> security-report.md
+          echo "" >> security-report.md
+          echo "**Date:** $(date)" >> security-report.md
+          echo "**Commit:** ${{ github.sha }}" >> security-report.md
+          echo "**Branch:** ${{ github.ref_name }}" >> security-report.md
+          echo "" >> security-report.md
+          echo "## Security Check Results" >> security-report.md
+          echo "" >> security-report.md
+          echo "| Check | Status |" >> security-report.md
+          echo "|-------|--------|" >> security-report.md
+          echo "| npm audit | ${{ needs.security-audit.result }} |" >> security-report.md
+          echo "| OSV Scanner | ${{ needs.osv-scanner.result }} |" >> security-report.md
+          echo "| Semgrep SAST | ${{ needs.semgrep.result }} |" >> security-report.md
+          echo "| SBOM Generation | ${{ needs.sbom.result }} |" >> security-report.md
+          echo "" >> security-report.md
+          echo "## Artifacts" >> security-report.md
+          echo "- SBOM (CycloneDX): sbom.xml, sbom.json" >> security-report.md
+          echo "- Security Reports: Available in job artifacts" >> security-report.md
+          echo "- Build Artifacts: Available in build job artifacts" >> security-report.md
+
+      - name: Upload security report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: security-report.md

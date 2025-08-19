@@ -31,6 +31,9 @@ const envSchema = z.object({
   
   // CSRF configuration
   CSRF_ENABLED: z.string().optional(),
+  
+  // Development authentication bypass (only for local development)
+  ALLOW_DEV_AUTH: z.string().optional(),
 });
 
 /**

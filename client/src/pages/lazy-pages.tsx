@@ -39,6 +39,7 @@ export const LazySuperAdminDashboard = React.lazy(() => import('./super-admin-da
 export const LazyEmployeeManagement = React.lazy(() => import('./employee-management'));
 export const LazyLayoutExample = React.lazy(() => import('./layout-example'));
 export const LazyPerformanceTest = React.lazy(() => import('./performance-test'));
+export const LazyI18nTest = React.lazy(() => import('../tests/i18n-test'));
 
 // Wrapped components with appropriate Suspense fallbacks
 export const CompanySelection = (props: PageProps) => (
@@ -242,5 +243,11 @@ export const LayoutExample = (props: PageProps) => (
 export const PerformanceTest = (props: PageProps) => (
   <SuspenseWrapper type="chart" message="جاري تحميل صفحة اختبار الأداء...">
     <LazyPerformanceTest {...props} />
+  </SuspenseWrapper>
+);
+
+export const I18nTest = (props: PageProps) => (
+  <SuspenseWrapper type="card" message="جاري تحميل اختبار الترجمة...">
+    <LazyI18nTest {...props} />
   </SuspenseWrapper>
 );

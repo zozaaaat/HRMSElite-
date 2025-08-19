@@ -93,13 +93,13 @@ export const defaultSecurityConfig: SecurityConfig = {
     'contentSecurityPolicy': {
       'directives': {
         'defaultSrc': ['\'self\''],
-        'scriptSrc': ['\'self\'', '\'unsafe-inline\'', '\'unsafe-eval\''],
-        'styleSrc': ['\'self\'', '\'unsafe-inline\'', 'https://fonts.googleapis.com'],
-        'fontSrc': ['\'self\'', 'https://fonts.gstatic.com'],
+        'scriptSrc': ['\'self\''], // Will be dynamically updated with nonce
+        'styleSrc': ['\'self\''],
         'imgSrc': ['\'self\'', 'data:', 'https:'],
         'connectSrc': ['\'self\''],
         'frameSrc': ['\'none\''],
         'objectSrc': ['\'none\''],
+        'baseUri': ['\'self\''],
         ...(process.env.NODE_ENV === 'production' && {'upgradeInsecureRequests': []})
       }
     },

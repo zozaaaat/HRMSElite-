@@ -3,6 +3,7 @@ import {PageHelmet} from '@/components/shared/PageHelmet';
 import {LoadingFallback} from '@/components/shared/LoadingFallback';
 import {useLogger} from '../lib/logger';
 import {useQuery} from '@tanstack/react-query';
+import {useTranslation} from 'react-i18next';
 import type {DashboardStats as DashboardStatsData} from '@/types/component-props';
 
 // Lazy load dashboard components
@@ -36,6 +37,7 @@ interface DashboardData {
 export default function Dashboard ({role = 'admin'}: DashboardProps) {
 
   const log = useLogger('Dashboard');
+  const {t} = useTranslation();
 
   // Log component mount
   React.useEffect(() => {
@@ -80,7 +82,7 @@ export default function Dashboard ({role = 'admin'}: DashboardProps) {
 
   if (isLoading) {
 
-    return <LoadingFallback type="dashboard" message="جاري تحميل لوحة التحكم..." />;
+    return <LoadingFallback type="dashboard" message={t('dashboard.loadingMessage')} />;
 
   }
 
@@ -89,13 +91,13 @@ export default function Dashboard ({role = 'admin'}: DashboardProps) {
     return (
       <div className="p-6">
         <div className="text-center space-y-4">
-          <h2 className="text-xl font-semibold text-red-600">خطأ في تحميل البيانات</h2>
-          <p className="text-muted-foreground">فشل في تحميل بيانات لوحة التحكم</p>
+          <h2 className="text-xl font-semibold text-red-600">{t('dashboard.errorMessage')}</h2>
+          <p className="text-muted-foreground">{t('messages.errorLoadingData')}</p>
           <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
           >
-            إعادة المحاولة
+            {t('dashboard.retryButton')}
           </button>
         </div>
       </div>

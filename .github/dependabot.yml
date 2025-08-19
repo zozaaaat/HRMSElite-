@@ -1,0 +1,62 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "deps"
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "npm"
+    directory: "/client"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:15"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "deps(client)"
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "npm"
+    directory: "/electron"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:30"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "deps(electron)"
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "npm"
+    directory: "/hrms-mobile"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:45"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "deps(mobile)"
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+

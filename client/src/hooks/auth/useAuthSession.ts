@@ -24,11 +24,11 @@ export const useAuthSession = () => {
    */
   const initializeAuth = useCallback(async () => {
     try {
-      const { 'user': sessionUser, company } = await AuthService.getSession();
+      const response = await AuthService.getCurrentUser();
 
-      if (sessionUser) {
-        const unifiedUser = AuthUtils.createUnifiedUser(sessionUser);
-        return { 'success': true, 'user': unifiedUser, company };
+      if (response) {
+        const unifiedUser = AuthUtils.createUnifiedUser(response);
+        return { 'success': true, 'user': unifiedUser };
       } else {
         return { 'success': false, 'error': 'No session found' };
       }

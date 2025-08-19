@@ -54,17 +54,17 @@ export const queryClient = new QueryClient({
   'defaultOptions': {
     'queries': {
       'queryFn': getQueryFn({'on401': 'throw'}),
-      // Strong caching strategy with extended staleTime
-      'staleTime': 10 * 60 * 1000, // 10 minutes - data considered fresh (increased from 5)
+      // Strong caching strategy; slightly shorter to reduce staleness under concurrency
+      'staleTime': 5 * 60 * 1000, // 5 minutes
       'gcTime': 30 * 60 * 1000, // 30 minutes - garbage collection time (increased from 10)
       'refetchInterval': false,
       'refetchOnWindowFocus': false, // ✅ Disabled as requested
       'refetchOnReconnect': true,
-      'refetchOnMount': true, // Only refetch if data is stale
+      'refetchOnMount': 'always',
       'retry': (failureCount, error) => {
 
         // Retry on network errors, not on 4xx errors
-        if (error instanceof Error && error.message.includes('4')) {
+        if (error instanceof Error && (error.message.includes('4') || error.message.includes('412'))) {
 
           return false;
 

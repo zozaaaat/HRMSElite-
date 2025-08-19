@@ -3,6 +3,7 @@ import {QueryClientProvider} from '@tanstack/react-query';
 import {useAppStore} from './stores/useAppStore';
 import {ProtectedRoute} from './components/shared';
 import {ReactQueryDevTools} from './components/shared/ReactQueryDevTools';
+import {AccessibilityProvider} from './components/shared/AccessibilityProvider';
 import {routes, UserRole} from './lib/routes';
 import {queryClient} from './lib/queryClient';
 import {useRoleBasedPreloading} from './hooks/useLazyLoading';
@@ -39,7 +40,8 @@ import {
   RoleBasedDashboard,
   SuperAdminDashboard,
   EmployeeManagement,
-  LayoutExample
+  LayoutExample,
+  I18nTest
 } from './pages/lazy-pages';
 
 // Wrapper component for Dashboard to handle route parameters with proper protection
@@ -80,7 +82,8 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Switch>
+      <AccessibilityProvider>
+        <Switch>
         {/* Public Routes */}
         <Route path={routes.public.home}>
           <CompanySelection />
@@ -329,6 +332,13 @@ const App = () => {
                 <div>Mobile Apps Page</div>
               </ProtectedRoute>
             </Route>
+
+            {/* I18n Test Route */}
+            <Route path="/i18n-test">
+              <ProtectedRoute pageId="i18n-test">
+                <I18nTest />
+              </ProtectedRoute>
+            </Route>
           </>
         )}
 
@@ -343,6 +353,7 @@ const App = () => {
       
       {/* Toast notifications */}
       <Toaster />
+      </AccessibilityProvider>
     </QueryClientProvider>
   );
 

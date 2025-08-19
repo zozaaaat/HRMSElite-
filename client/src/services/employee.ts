@@ -20,6 +20,7 @@ export interface Employee {
   emergencyContact?: string;
   experience?: number;
   education?: string;
+  updatedAt?: number | string | Date;
 }
 
 export interface CreateEmployeeData {
@@ -42,6 +43,7 @@ export interface CreateEmployeeData {
 
 export interface UpdateEmployeeData extends Partial<CreateEmployeeData> {
   id: string;
+  __etag?: string;
 }
 
 export class EmployeeService {

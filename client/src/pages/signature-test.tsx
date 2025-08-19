@@ -217,6 +217,10 @@ export default function SignatureTestPage () {
                           src={signature.imageData}
                           alt="التوقيع"
                           className="w-full h-20 object-contain border rounded bg-white"
+                          loading="lazy"
+                          decoding="async"
+                          width="320"
+                          height="80"
                         />
                       </div>
 

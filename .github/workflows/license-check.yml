@@ -1,0 +1,45 @@
+name: License Check
+
+on:
+  schedule:
+    - cron: '0 5 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  license-check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project:
+          - .
+          - client
+          - electron
+          - hrms-mobile
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install license-checker
+        run: npm i -g license-checker
+
+      - name: Install deps
+        working-directory: ${{ matrix.project }}
+        run: npm ci
+
+      - name: Generate license report
+        working-directory: ${{ matrix.project }}
+        run: |
+          license-checker --production --json > license-report.json
+          license-checker --production --onlyAllow 'MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0'
+
+      - name: Upload license report
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-report-${{ matrix.project }}
+          path: ${{ matrix.project }}/license-report.json
+

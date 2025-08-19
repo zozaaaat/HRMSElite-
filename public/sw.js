@@ -21,11 +21,22 @@ self.addEventListener('install', (event) => {
 
 // Fetch event - serve from cache if available
 self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip caching for auth endpoints
+  if (url.pathname.startsWith('/api/auth/') || url.pathname.startsWith('/auth/')) {
+    // For auth endpoints, always fetch from network and don't cache
+    event.respondWith(fetch(request));
+    return;
+  }
+
+  // For other requests, use cache-first strategy
   event.respondWith(
-    caches.match(event.request)
+    caches.match(request)
       .then((response) => {
         // Return cached version or fetch from network
-        return response || fetch(event.request);
+        return response || fetch(request);
       })
   );
 });

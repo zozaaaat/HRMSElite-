@@ -40,10 +40,7 @@ const convertUserToAppUser = (user: User) => {
 export const useAuthCore = () => {
   const {
     setUser,
-    setToken,
     updateUser,
-    setCurrentCompany,
-    setPermissions,
     setLoading,
     setError,
     'logout': storeLogout,
@@ -76,10 +73,6 @@ export const useAuthCore = () => {
         const unifiedUser = AuthUtils.createUnifiedUser(response.user);
         const appUser = convertUserToAppUser(unifiedUser);
         setUser(appUser);
-
-        if (response.token) {
-          setToken(response.token);
-        }
 
         return { 'success': true, 'user': unifiedUser };
       } else {
@@ -147,10 +140,7 @@ export const useAuthCore = () => {
 
     // Store Actions
     setUser,
-    setToken,
     updateUser,
-    setCurrentCompany,
-    setPermissions,
     setLoading,
     setError,
     clearUser,

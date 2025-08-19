@@ -1,0 +1,267 @@
+rules:
+  # OWASP Top 10 Security Rules
+  - id: owasp-a1-injection
+    pattern: |
+      $VAR = $INPUT
+      ...$VAR...
+    message: "Potential SQL injection vulnerability. Use parameterized queries."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: owasp-a2-auth
+    pattern: |
+      if ($CONDITION) {
+        $AUTH = true
+      }
+    message: "Weak authentication check. Implement proper session management."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: owasp-a3-sensitive-data
+    pattern: |
+      console.log($SENSITIVE)
+    message: "Sensitive data exposure in logs. Remove or mask sensitive information."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: owasp-a4-xxe
+    pattern: |
+      $XML.parse($INPUT)
+    message: "Potential XXE vulnerability. Disable external entity processing."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: owasp-a5-access-control
+    pattern: |
+      if ($USER.role == "admin") {
+        $ACTION
+      }
+    message: "Weak access control. Implement proper authorization checks."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  # JavaScript/TypeScript Specific Security Rules
+  - id: js-eval-injection
+    pattern: |
+      eval($INPUT)
+    message: "Dangerous eval() usage. Use safer alternatives."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: js-innerhtml-injection
+    pattern: |
+      $ELEMENT.innerHTML = $INPUT
+    message: "Potential XSS vulnerability. Use textContent or sanitize input."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: js-unsafe-regex
+    pattern: |
+      new RegExp($INPUT)
+    message: "Potential ReDoS vulnerability. Validate regex input."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  # Express.js Specific Rules
+  - id: express-unsafe-query
+    pattern: |
+      $QUERY = req.query.$PARAM
+      ...$QUERY...
+    message: "Unsafe query parameter usage. Validate and sanitize input."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: express-unsafe-body
+    pattern: |
+      $BODY = req.body.$PARAM
+      ...$BODY...
+    message: "Unsafe request body usage. Validate and sanitize input."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: express-no-csrf
+    pattern: |
+      app.post($ROUTE, $HANDLER)
+    message: "Missing CSRF protection on POST endpoint."
+    severity: WARNING
+    languages: [javascript, typescript]
+
+  # React Specific Rules
+  - id: react-dangerously-set-html
+    pattern: |
+      <div dangerouslySetInnerHTML={{ __html: $INPUT }} />
+    message: "Dangerous HTML injection. Sanitize content or use safe alternatives."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: react-unsafe-props
+    pattern: |
+      <Component {...$PROPS} />
+    message: "Unsafe prop spreading. Validate props before spreading."
+    severity: WARNING
+    languages: [javascript, typescript]
+
+  # File Upload Security
+  - id: unsafe-file-upload
+    pattern: |
+      $FILE = req.files.$PARAM
+      ...$FILE...
+    message: "Unsafe file upload handling. Validate file type and size."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  # Database Security
+  - id: sql-injection
+    pattern: |
+      $QUERY = "SELECT * FROM $TABLE WHERE $CONDITION = " + $INPUT
+    message: "SQL injection vulnerability. Use parameterized queries."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  # Environment Variables
+  - id: hardcoded-secrets
+    pattern: |
+      $SECRET = "password123"
+    message: "Hardcoded secret detected. Use environment variables."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: exposed-env-vars
+    pattern: |
+      console.log(process.env.$VAR)
+    message: "Environment variable exposure in logs."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  # Crypto Security
+  - id: weak-crypto
+    pattern: |
+      crypto.createHash("md5")
+    message: "Weak cryptographic algorithm. Use SHA-256 or better."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: weak-random
+    pattern: |
+      Math.random()
+    message: "Weak random number generation. Use crypto.randomBytes() for security."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  # HTTP Security
+  - id: missing-security-headers
+    pattern: |
+      res.send($DATA)
+    message: "Missing security headers. Use helmet middleware."
+    severity: WARNING
+    languages: [javascript, typescript]
+
+  - id: cors-misconfiguration
+    pattern: |
+      app.use(cors({
+        origin: "*"
+      }))
+    message: "Overly permissive CORS configuration."
+    severity: WARNING
+    languages: [javascript, typescript]
+
+  # Rate Limiting
+  - id: missing-rate-limit
+    pattern: |
+      app.post($ROUTE, $HANDLER)
+    message: "Missing rate limiting on POST endpoint."
+    severity: WARNING
+    languages: [javascript, typescript]
+
+  # Input Validation
+  - id: missing-input-validation
+    pattern: |
+      $VAR = req.body.$PARAM
+      ...$VAR...
+    message: "Missing input validation. Validate and sanitize user input."
+    severity: WARNING
+    languages: [javascript, typescript]
+
+  # Error Handling
+  - id: error-information-disclosure
+    pattern: |
+      res.status(500).send($ERROR)
+    message: "Potential error information disclosure. Sanitize error messages."
+    severity: WARNING
+    languages: [javascript, typescript]
+
+  # Session Security
+  - id: weak-session-config
+    pattern: |
+      app.use(session({
+        secret: $SECRET
+      }))
+    message: "Weak session configuration. Use strong secrets and secure options."
+    severity: WARNING
+    languages: [javascript, typescript]
+
+  # Authentication
+  - id: weak-password-validation
+    pattern: |
+      if ($PASSWORD.length > 6) {
+        $ACCEPT
+      }
+    message: "Weak password validation. Implement strong password requirements."
+    severity: WARNING
+    languages: [javascript, typescript]
+
+  # Authorization
+  - id: missing-authorization
+    pattern: |
+      app.get($ROUTE, $HANDLER)
+    message: "Missing authorization check on protected route."
+    severity: WARNING
+    languages: [javascript, typescript]
+
+# Exclude patterns
+exclude:
+  - "node_modules/**"
+  - "dist/**"
+  - "build/**"
+  - "coverage/**"
+  - "tests/**"
+  - "**/*.test.js"
+  - "**/*.test.ts"
+  - "**/*.spec.js"
+  - "**/*.spec.ts"
+  - ".git/**"
+  - "docs/**"
+  - "scripts/**"
+
+# Custom patterns for HRMS Elite specific security concerns
+  - id: hrms-sensitive-data-logging
+    pattern: |
+      console.log($EMPLOYEE_DATA)
+    message: "Employee data logging detected. Remove sensitive information from logs."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: hrms-weak-permissions
+    pattern: |
+      if ($USER.department == $EMPLOYEE.department) {
+        $ACCESS
+      }
+    message: "Weak permission check. Implement proper role-based access control."
+    severity: ERROR
+    languages: [javascript, typescript]
+
+  - id: hrms-document-access
+    pattern: |
+      $DOCUMENT = getDocument($ID)
+      ...$DOCUMENT...
+    message: "Unsafe document access. Validate user permissions before access."
+    severity: WARNING
+    languages: [javascript, typescript]
+
+  - id: hrms-payroll-data
+    pattern: |
+      $PAYROLL = calculatePayroll($EMPLOYEE)
+      ...$PAYROLL...
+    message: "Payroll data handling. Ensure proper access controls and encryption."
+    severity: WARNING
+    languages: [javascript, typescript]

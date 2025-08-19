@@ -22,9 +22,9 @@ import {CompanyCard} from '../components/company-card';
 
 export default function SuperAdminDashboard () {
 
-  const {user} = useAuth();
+  const {_user: _unused} = { _user: useAuth().user };
   return (
-    <SharedLayout {...(user && { user: user as unknown })}>
+    <SharedLayout>
       <SuperAdminContent />
     </SharedLayout>
   );
@@ -73,6 +73,10 @@ function SuperAdminContent () {
                 src="/logo.svg"
                 alt="Zeylab Logo"
                 className="w-10 h-10 object-contain"
+                decoding="async"
+                fetchPriority="high"
+                width="40"
+                height="40"
               />
               <div>
                 <h1 className="text-2xl font-bold text-foreground">Zeylab HRMS</h1>

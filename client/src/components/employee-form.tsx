@@ -216,7 +216,8 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
         await updateEmployeeMutation.mutateAsync({
           'id': employee.id,
           ...data,
-          'companyId': data.companyId
+          'companyId': data.companyId,
+          '__etag': (employee as any).__etag || undefined
         });
 
       }

@@ -1,38 +1,34 @@
-import {create} from 'zustand';
-import {persist} from 'zustand/middleware';
-import {logger} from '../lib/logger';
+import { create } from 'zustand';
+import { logger } from '../lib/logger';
+import { UserRole } from '../lib/routes';
 
-// Flexible AppUser type that can handle both complex and simple user objects
+// Define AppUser type locally since it's not in common types
 type AppUser = {
-  sub: string | null;
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  profileImageUrl: string | null | undefined;
-  role: string; // لاحقًا هنقوّيها لـ UserRole
-  companyId: string | null | undefined;
-  permissions?: string | string[]; // أو string[]
+  role: string;
+  companyId?: string | null;
+  permissions?: string | string[];
   companies?: Array<{
     id: string;
     name: string;
     role?: string;
     permissions?: string[];
-  }>;    // مبدئيًا لتوافق authUtils
+  }>;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   isActive?: boolean;
   emailVerified?: boolean;
   lastLoginAt?: string | undefined;
   claims?: Record<string, unknown> | null;
-  // خليه متساهل مؤقتًا مع حقول ممكن تيجي من الـ server
   [k: string]: unknown;
 };
 
-// Interface for current user state
 interface CurrentUserState {
   id: string | null;
-  role: string | null;
+  role: UserRole | null;
   companyId: string | null;
   token: string | null;
   isAuthenticated: boolean;
@@ -40,288 +36,149 @@ interface CurrentUserState {
   permissions: string[];
   loading: boolean;
   error: string | null;
-  currentCompany?: string | null;
+  currentCompany: any | null;
 }
 
-// Interface for user store actions
-interface UserStoreActions {
-  // Actions
+interface CurrentUserActions {
   setUser: (user: AppUser) => void;
   setToken: (token: string) => void;
   updateUser: (updates: Partial<AppUser>) => void;
-  setPermissions: (permissions: string[]) => void;
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
   logout: () => void;
   clearUser: () => void;
-  initializeFromSession: (userData: unknown) => void;
-  setCurrentCompany: (companyId: string | null) => void;
+  initializeFromSession: (userData: any) => void;
 }
 
-// Combined interface for the store
-interface UserStore extends CurrentUserState, UserStoreActions {}
+type UserStore = CurrentUserState & CurrentUserActions;
 
 // Validation functions
-const isRecordObject = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null;
-
-const isValidUserData = (data: unknown): data is AppUser => {
-  if (!isRecordObject(data)) return false;
-  const hasId = typeof data.id === 'string' && data.id.trim() !== '';
-  const hasRole = typeof data.role === 'string';
-  const hasEmail = typeof data.email === 'string';
-  const hasFirst = typeof data.firstName === 'string';
-  const hasLast = typeof data.lastName === 'string';
-  return hasId && hasRole && hasEmail && hasFirst && hasLast;
+const isValidUserData = (user: any): user is AppUser => {
+  return user && 
+         typeof user === 'object' && 
+         typeof user.id === 'string' && 
+         user.id.trim() !== '' &&
+         typeof user.role === 'string' && 
+         user.role.trim() !== '';
 };
 
-const isValidToken = (token: unknown): token is string => {
+const isValidToken = (token: any): token is string => {
   return typeof token === 'string' && token.trim() !== '';
 };
 
 export const useUserStore = create<UserStore>()(
-  persist(
-    (set, get) => ({
-      // Initial state
-      'id': null,
-      'role': null,
-      'companyId': null,
-      'token': null,
-      'isAuthenticated': false,
-      'user': null,
-      'permissions': [],
-      'loading': false,
-      'error': null,
-      'currentCompany': null,
+  (set, get) => ({
+    // Initial state
+    'id': null,
+    'role': null,
+    'companyId': null,
+    'token': null,
+    'isAuthenticated': false,
+    'user': null,
+    'permissions': [],
+    'loading': false,
+    'error': null,
+    'currentCompany': null,
 
-      // Actions
-      'setUser': (user) => {
-        if (isValidUserData(user)) {
-          // Parse permissions from string to array
-          let permissions: string[] = [];
-          try {
-            if (typeof user.permissions === 'string') {
-              permissions = JSON.parse(user.permissions || '[]');
-            } else if (Array.isArray(user.permissions)) {
-              permissions = user.permissions;
-            }
-          } catch {
-            permissions = [];
+    // Actions
+    'setUser': (user) => {
+      if (isValidUserData(user)) {
+        // Parse permissions from string to array
+        let permissions: string[] = [];
+        try {
+          if (typeof user.permissions === 'string') {
+            permissions = JSON.parse(user.permissions || '[]');
+          } else if (Array.isArray(user.permissions)) {
+            permissions = user.permissions;
           }
-
-          set({
-            'id': user.id,
-            'role': user.role,
-            'companyId': user.companyId ?? null,
-            'token': get().token,
-            'isAuthenticated': true,
-            user,
-            'permissions': permissions,
-            'loading': false,
-            'error': null
-          });
-        } else {
-          logger.error('Invalid user data provided to setUser');
-          set({'error': 'Invalid user data', 'loading': false});
-        }
-      },
-
-      'setToken': (token) => {
-        if (isValidToken(token)) {
-          set({token, 'isAuthenticated': true});
-        } else {
-          logger.error('Invalid token provided to setToken');
-          set({'error': 'Invalid token', 'loading': false});
-        }
-      },
-
-      'updateUser': (updates) => {
-        const currentState = get();
-        if (!currentState.user) {
-          logger.error('No user to update');
-          return;
+        } catch {
+          permissions = [];
         }
 
-        const updatedUser = {...currentState.user, ...updates};
-        if (isValidUserData(updatedUser)) {
-          // Parse permissions from string to array
-          let permissions: string[] = [];
-          try {
-            if (typeof updatedUser.permissions === 'string') {
-              permissions = JSON.parse(updatedUser.permissions || '[]');
-            } else if (Array.isArray(updatedUser.permissions)) {
-              permissions = updatedUser.permissions;
-            }
-          } catch {
-            permissions = [];
-          }
-
-          set({
-            'user': updatedUser,
-            'id': updatedUser.id,
-            'role': updatedUser.role,
-            'companyId': updatedUser.companyId ?? null,
-            'permissions': permissions
-          });
-        } else {
-          logger.error('Invalid user data in updateUser');
-          set({'error': 'Invalid user data', 'loading': false});
-        }
-      },
-
-      'setPermissions': (permissions) => {
-        set({permissions});
-      },
-
-      'setLoading': (loading) => {
-        set({loading});
-      },
-
-      'setError': (error) => {
-        set({error, 'loading': false});
-      },
-
-      'setCurrentCompany': (companyId) => {
-        set({currentCompany: companyId});
-      },
-
-      'logout': () => {
         set({
-          'id': null,
-          'role': null,
-          'companyId': null,
-          'token': null,
-          'isAuthenticated': false,
-          'user': null,
-          'permissions': [],
+          'id': user.id,
+          'role': user.role as UserRole,
+          'companyId': user.companyId ?? null,
+          'token': get().token,
+          'isAuthenticated': true,
+          user,
+          'permissions': permissions,
           'loading': false,
-          'error': null,
-          'currentCompany': null
+          'error': null
         });
-      },
-
-      'clearUser': () => {
-        set({
-          'id': null,
-          'role': null,
-          'companyId': null,
-          'token': null,
-          'isAuthenticated': false,
-          'user': null,
-          'permissions': [],
-          'loading': false,
-          'error': null,
-          'currentCompany': null
-        });
-      },
-
-      'initializeFromSession': (userData) => {
-        // ضع تحويل بسيط إن لزم
-        set({ user: (userData || null) as AppUser });
+      } else {
+        logger.error('Invalid user data provided to setUser');
+        set({'error': 'Invalid user data', 'loading': false});
       }
-    }),
-    {
-      'name': 'user-store', // unique name for localStorage key
-      'partialize': (state) => ({
-        'id': state.id,
-        'role': state.role,
-        'companyId': state.companyId,
-        'token': state.token,
-        'isAuthenticated': state.isAuthenticated,
-        'user': state.user,
-        'permissions': state.permissions,
-        'currentCompany': state.currentCompany
-      }),
-      'onRehydrateStorage': () => (state) => {
-        // Validate stored data on rehydration
-        if (state) {
-          const isValid = state.id && state.role && state.user;
-          if (!isValid) {
-            state.clearUser();
-          }
-        }
+    },
+
+    'setToken': (token) => {
+      if (isValidToken(token)) {
+        set({token, 'isAuthenticated': true});
+      } else {
+        logger.error('Invalid token provided to setToken');
+        set({'error': 'Invalid token', 'loading': false});
       }
+    },
+
+    'updateUser': (updates) => {
+      const currentState = get();
+      if (currentState.user) {
+        const updatedUser = { ...currentState.user, ...updates };
+        set({ user: updatedUser });
+      }
+    },
+
+    'logout': () => {
+      set({
+        'id': null,
+        'role': null,
+        'companyId': null,
+        'token': null,
+        'isAuthenticated': false,
+        'user': null,
+        'permissions': [],
+        'loading': false,
+        'error': null,
+        'currentCompany': null
+      });
+    },
+
+    'clearUser': () => {
+      set({
+        'id': null,
+        'role': null,
+        'companyId': null,
+        'token': null,
+        'isAuthenticated': false,
+        'user': null,
+        'permissions': [],
+        'loading': false,
+        'error': null,
+        'currentCompany': null
+      });
+    },
+
+    'initializeFromSession': (userData) => {
+      // ضع تحويل بسيط إن لزم
+      set({ user: (userData || null) as AppUser });
     }
-  )
+  })
 );
 
 // Convenience hooks for accessing specific parts of the store
 export const useCurrentUserId = () => useUserStore((state) => state.id);
 export const useCurrentUserRole = () => useUserStore((state) => state.role);
 export const useCurrentUserCompanyId = () => useUserStore((state) => state.companyId);
-export const useCurrentUserToken = () => useUserStore((state) => state.token);
 export const useIsUserAuthenticated = () => useUserStore((state) => state.isAuthenticated);
 export const useCurrentUser = () => useUserStore((state) => state.user);
-export const useUserPermissions = () => useUserStore((state) => state.permissions);
-export const useUserLoading = () => useUserStore((state) => state.loading);
-export const useUserError = () => useUserStore((state) => state.error);
+export const useCurrentUserPermissions = () => useUserStore((state) => state.permissions);
+export const useCurrentCompany = () => useUserStore((state) => state.currentCompany);
 
-// Add the useCurrentCompany selector
-export const useCurrentCompany = () =>
-  useUserStore((s) => s.currentCompany ?? s.user?.companyId ?? null);
-
-// Hook for user actions
+// Action hooks
 export const useUserActions = () => useUserStore((state) => ({
-  'setUser': state.setUser,
-  'setToken': state.setToken,
-  'updateUser': state.updateUser,
-  'setPermissions': state.setPermissions,
-  'setLoading': state.setLoading,
-  'setError': state.setError,
-  'logout': state.logout,
-  'clearUser': state.clearUser,
-  'initializeFromSession': state.initializeFromSession,
-  'setCurrentCompany': state.setCurrentCompany
+  setUser: state.setUser,
+  setToken: state.setToken,
+  updateUser: state.updateUser,
+  logout: state.logout,
+  clearUser: state.clearUser,
+  initializeFromSession: state.initializeFromSession
 }));
-
-// Hook for complete user state and actions
-export const useUserStoreComplete = () => useUserStore((state) => ({
-  // State
-  'id': state.id,
-  'role': state.role,
-  'companyId': state.companyId,
-  'token': state.token,
-  'isAuthenticated': state.isAuthenticated,
-  'user': state.user,
-  'permissions': state.permissions,
-  'loading': state.loading,
-  'error': state.error,
-  'currentCompany': state.currentCompany,
-  // Actions
-  'setUser': state.setUser,
-  'setToken': state.setToken,
-  'updateUser': state.updateUser,
-  'setPermissions': state.setPermissions,
-  'setLoading': state.setLoading,
-  'setError': state.setError,
-  'logout': state.logout,
-  'clearUser': state.clearUser,
-  'initializeFromSession': state.initializeFromSession,
-  'setCurrentCompany': state.setCurrentCompany
-}));
-
-// Utility hooks for common operations
-export const useHasPermission = (permission: string) => {
-  const permissions = useUserPermissions();
-  return permissions.includes(permission);
-};
-
-export const useHasAnyPermission = (requiredPermissions: string[]) => {
-  const permissions = useUserPermissions();
-  return requiredPermissions.some(permission => permissions.includes(permission));
-};
-
-export const useHasAllPermissions = (requiredPermissions: string[]) => {
-  const permissions = useUserPermissions();
-  return requiredPermissions.every(permission => permissions.includes(permission));
-};
-
-export const useIsSuperAdmin = () => {
-  const role = useCurrentUserRole();
-  return role === 'super_admin';
-};
-
-export const useIsCompanyManager = () => {
-  const role = useCurrentUserRole();
-  return role === 'company_manager';
-};

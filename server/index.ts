@@ -10,25 +10,14 @@ import express from 'express';
 import cors from 'cors';
 import session from 'express-session';
 import csurf from 'csurf';
-// Pino imports (will be available after npm install)
-// import pino from 'pino';
-// import pinoHttp from 'pino-http';
+import cookieParser from 'cookie-parser';
 import { randomUUID } from 'crypto';
 
-// Extend Express Request interface to include request ID and logger
-declare global {
-  namespace Express {
-    interface Request {
-      id?: string;
-      log?: {
-        info: (message: string, data?: any) => void;
-        warn: (message: string, data?: any) => void;
-        error: (message: string, data?: any) => void;
-      };
-      _startTime?: number;
-    }
-  }
-}
+// Import observability middleware
+import { observability } from './middleware/observability';
+import { prometheusMiddleware, metricsHandler, healthCheckHandler, initializeMetrics } from './middleware/metrics';
+import { initializeLogShipper } from './utils/log-shipper';
+
 import { 
   securityHeaders, 
   additionalSecurityHeaders,
@@ -45,10 +34,15 @@ import { env } from './utils/env';
 
 // Import routes
 import authRoutes from './routes/auth-routes';
-import employeeRoutes from './routes/employee-routes';
-import documentRoutes from './routes/document-routes';
+import { registerEmployeeRoutes } from './routes/employee-routes';
+import { registerDocumentRoutes } from './routes/document-routes';
 import aiRoutes from './routes/ai';
 import qualityRoutes from './routes/quality-routes';
+
+// Import versioned routes
+import v1AuthRoutes from './routes/v1/auth-routes';
+import { registerEmployeeRoutes as registerV1EmployeeRoutes } from './routes/v1/employee-routes';
+import { registerDocumentRoutes as registerV1DocumentRoutes } from './routes/v1/document-routes';
 
 const app = express();
 const PORT = env.PORT;
@@ -56,90 +50,26 @@ const PORT = env.PORT;
 // Trust proxy for rate limiting
 app.set('trust proxy', 1);
 
-// Enhanced logging middleware with request ID and sensitive data redaction
-const enhancedLoggingMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  // Generate request ID
-  const requestId = req.headers['x-request-id'] as string || randomUUID();
-  (req as any).id = requestId;
-  
-  // Add request ID to response headers
-  res.setHeader('X-Request-ID', requestId);
-  
-  // Create request logger with context
-  const requestLogger = {
-    info: (message: string, data?: any) => {
-      log.info(message, {
-        ...data,
-        requestId,
-        method: req.method,
-        url: req.url,
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
-        userId: (req as any).user?.id,
-        userRole: (req as any).user?.role
-      }, 'REQUEST');
-    },
-    warn: (message: string, data?: any) => {
-      log.warn(message, {
-        ...data,
-        requestId,
-        method: req.method,
-        url: req.url,
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
-        userId: (req as any).user?.id,
-        userRole: (req as any).user?.role
-      }, 'REQUEST');
-    },
-    error: (message: string, data?: any) => {
-      log.error(message, {
-        ...data,
-        requestId,
-        method: req.method,
-        url: req.url,
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
-        userId: (req as any).user?.id,
-        userRole: (req as any).user?.role
-      }, 'REQUEST');
-    }
-  };
-  
-  // Attach logger to request
-  (req as any).log = requestLogger;
-  
-  // Log request start
-  requestLogger.info(`${req.method} ${req.url} - Request started`);
-  
-  // Override res.send to log response
-  const originalSend = res.send;
-  res.send = function(data) {
-    const responseTime = Date.now() - (req as any)._startTime || 0;
+// Initialize observability systems
+async function initializeObservability() {
+  try {
+    // Initialize Prometheus metrics
+    initializeMetrics();
     
-    // Log response
-    if (res.statusCode >= 400) {
-      requestLogger.warn(`${req.method} ${req.url} - ${res.statusCode}`, {
-        responseTime,
-        statusCode: res.statusCode
-      });
-    } else {
-      requestLogger.info(`${req.method} ${req.url} - ${res.statusCode}`, {
-        responseTime,
-        statusCode: res.statusCode
-      });
-    }
+    // Initialize log shipper
+    await initializeLogShipper();
     
-    return originalSend.call(this, data);
-  };
-  
-  // Set start time
-  (req as any)._startTime = Date.now();
-  
-  next();
-};
+    log.info('Observability systems initialized successfully', {}, 'SERVER');
+  } catch (error) {
+    log.error('Failed to initialize observability systems', { error }, 'SERVER');
+  }
+}
 
-// Apply enhanced logging middleware first (before other middleware)
-app.use(enhancedLoggingMiddleware);
+// Apply observability middleware first (before other middleware)
+app.use(observability.middleware);
+app.use(observability.performance);
+app.use(observability.security);
+app.use(prometheusMiddleware);
 
 // Security middleware (order matters!)
 app.use(securityHeaders);
@@ -147,91 +77,90 @@ app.use(additionalSecurityHeaders);
 app.use(securityMonitoring);
 
 // CORS configuration
-app.use(cors(corsConfig));
+app.use(cors({
+  origin: true, // Allow all origins for now
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
+  exposedHeaders: ['X-Request-ID', 'X-Response-Time']
+}));
+
+// Cookie parsing middleware
+app.use(cookieParser());
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Request validation
-app.use(requestValidation);
-
-// Session configuration with secure cookie settings
+// Session configuration
 app.use(session({
+  store: storage as any, // Type assertion for compatibility
   secret: env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
+    secure: env.NODE_ENV === 'production',
     httpOnly: true,
-    secure: true, // Always secure for __Host- prefix
-    sameSite: 'lax' as const,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    path: '/',
-    domain: undefined // Let browser set domain for __Host- prefix
-  },
-  name: '__Host-hrms-elite-session'
-}));
-
-// CSRF protection with secure cookie settings
-app.use(csurf({
-  cookie: {
-    httpOnly: true,
-    secure: true, // Always secure for __Host- prefix
-    sameSite: 'lax' as const,
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    path: '/',
-    domain: undefined // Let browser set domain for __Host- prefix
+    sameSite: 'strict'
   }
 }));
 
-// Enhanced CSRF protection
+// CSRF protection
 app.use(enhancedCsrfProtection);
 
-// Enhanced rate limiting with per-IP and per-user limits
-app.use('/api/', enhancedRateLimiters.general);
-app.use('/api/auth/login', enhancedRateLimiters.login);
-app.use('/api/documents', enhancedRateLimiters.document);
-app.use('/api/search', enhancedRateLimiters.search);
+// Rate limiting
+app.use(enhancedRateLimiters.general);
 
-// Health check endpoint (no rate limiting)
-app.get('/health', (req, res) => {
+// Request validation middleware
+app.use(requestValidation);
+
+// Health check endpoint
+app.get('/health', healthCheckHandler);
+
+// Metrics endpoint for Prometheus
+app.get('/metrics', metricsHandler);
+
+// API documentation
+app.get('/api-docs', (req, res) => {
   res.json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    memory: process.memoryUsage(),
-    version: process.env.npm_package_version || '1.0.0',
-    environment: env.NODE_ENV,
-    security: {
-      helmet: true,
-      rateLimit: true,
-      csrf: true,
-      cors: true,
-      session: true
+    name: 'HRMS Elite API',
+    version: '1.0.0',
+    description: 'Human Resource Management System Elite API',
+    endpoints: {
+      auth: '/api/auth',
+      employees: '/api/employees',
+      documents: '/api/documents',
+      ai: '/api/ai',
+      quality: '/api/quality',
+      v1: {
+        auth: '/api/v1/auth',
+        employees: '/api/v1/employees',
+        documents: '/api/v1/documents'
+      }
     },
-    requestId: req.id
-  });
-});
-
-// CSRF token endpoint
-app.get('/api/csrf-token', (req, res) => {
-  res.json({
-    csrfToken: req.csrfToken(),
-    message: 'CSRF token generated successfully',
-    timestamp: new Date().toISOString(),
-    requestId: req.id
+    health: '/health',
+    metrics: '/metrics'
   });
 });
 
 // API routes with authentication
-app.use('/api/auth', authRoutes);
-app.use('/api/employees', isAuthenticated, employeeRoutes);
-app.use('/api/documents', isAuthenticated, documentRoutes);
+app.use('/api/auth', isAuthenticated, authRoutes);
+registerEmployeeRoutes(app);
+registerDocumentRoutes(app);
 app.use('/api/ai', isAuthenticated, aiRoutes);
 app.use('/api/quality', isAuthenticated, qualityRoutes);
 
+// Versioned API routes
+app.use('/api/v1/auth', isAuthenticated, v1AuthRoutes);
+registerV1EmployeeRoutes(app);
+registerV1DocumentRoutes(app);
+
 // Optional auth routes (for public endpoints)
 app.use('/api/public', optionalAuth);
+
+// Error handling middleware with observability
+app.use(observability.errorTracking);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
@@ -293,8 +222,8 @@ app.use((err: any, req: express.Request, res: express.Response, _next: express.N
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({
-    error: 'الصفحة غير موجودة',
-    message: 'المسار المطلوب غير موجود',
+    error: 'المسار غير موجود',
+    message: 'الرابط المطلوب غير متاح',
     code: 'NOT_FOUND',
     timestamp: new Date().toISOString(),
     requestId: req.id
@@ -302,49 +231,50 @@ app.use('*', (req, res) => {
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
   log.info('SIGTERM received, shutting down gracefully', {}, 'SERVER');
+  
+  // Close log shipper
+  const { closeLogShipper } = await import('./utils/log-shipper');
+  await closeLogShipper();
+  
   process.exit(0);
 });
 
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   log.info('SIGINT received, shutting down gracefully', {}, 'SERVER');
+  
+  // Close log shipper
+  const { closeLogShipper } = await import('./utils/log-shipper');
+  await closeLogShipper();
+  
   process.exit(0);
 });
 
-// Unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  log.error('Unhandled Rejection at:', reason as Error, 'SERVER');
-  log.error('Promise:', promise, 'SERVER');
-});
-
-// Uncaught exceptions
-process.on('uncaughtException', (error) => {
-  log.error('Uncaught Exception:', error, 'SERVER');
-  process.exit(1);
-});
-
-// Initialize database and start server
+// Start server
 async function startServer() {
   try {
-    // Initialize storage
-    await storage.initialize();
-    log.info('Database initialized successfully', {}, 'SERVER');
-
-    // Start server
+    // Initialize observability systems
+    await initializeObservability();
+    
+    // Start the server
     app.listen(PORT, () => {
-      log.info(`Server running on port ${PORT}`, {
+      log.info(`🚀 HRMS Elite server started on port ${PORT}`, {
         port: PORT,
-        environment: process.env.NODE_ENV || 'development',
-        timestamp: new Date().toISOString()
+        environment: env.NODE_ENV,
+        nodeVersion: process.version,
+        platform: process.platform,
+        arch: process.arch
       }, 'SERVER');
     });
+    
   } catch (error) {
-    log.error('Failed to start server:', error as Error, 'SERVER');
+    log.error('Failed to start server', { error }, 'SERVER');
     process.exit(1);
   }
 }
 
+// Start the server
 startServer();
 
 export default app;

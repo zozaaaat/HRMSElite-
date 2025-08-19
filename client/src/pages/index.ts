@@ -31,7 +31,8 @@ export {
   EmployeeManagement,
   LayoutExample,
   AIChatbotDemo,
-  AIAnalytics
+  AIAnalytics,
+  I18nTest
 } from './lazy-pages';
 
 // Direct exports for backward compatibility (deprecated - use lazy versions instead)

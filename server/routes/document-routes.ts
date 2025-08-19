@@ -4,6 +4,10 @@ import { fileTypeFromBuffer } from 'file-type';
 import { storage} from '../models/storage';
 import {insertDocumentSchema} from '@shared/schema';
 import {log} from '@utils/logger';
+import { isAuthenticated, requireRole } from '../middleware/auth';
+import { antivirusScanner, type ScanResult } from '../utils/antivirus';
+import { secureFileStorage, type StoredFile } from '../utils/secureStorage';
+import crypto from 'crypto';
 
 // Extend Request interface to include file property
 declare global {
@@ -135,6 +139,57 @@ const validateFile = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
+// Antivirus scanning middleware
+const scanFile = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: 'No file uploaded',
+        message: 'Please select a file to upload'
+      });
+    }
+
+    const file = req.file;
+    
+    // Perform antivirus scan
+    const scanResult: ScanResult = await antivirusScanner.scanBuffer(file.buffer, file.originalname);
+    
+    if (!scanResult.isClean) {
+      log.warn('Virus detected in uploaded file', {
+        fileName: file.originalname,
+        threats: scanResult.threats,
+        provider: scanResult.provider,
+        user: req.user?.id
+      }, 'SECURITY');
+      
+      return res.status(400).json({
+        error: 'Virus detected',
+        message: 'The uploaded file contains malicious content and has been rejected',
+        threats: scanResult.threats,
+        scanProvider: scanResult.provider
+      });
+    }
+
+    // Add scan result to request for logging
+    (req as any).scanResult = scanResult;
+
+    log.info('File passed antivirus scan', {
+      fileName: file.originalname,
+      scanTime: scanResult.scanTime,
+      provider: scanResult.provider,
+      user: req.user?.id
+    }, 'SECURITY');
+
+    next();
+  } catch (error) {
+    log.error('Antivirus scan failed', error as Error, 'SECURITY');
+    res.status(500).json({
+      error: 'Security scan failed',
+      message: 'Unable to complete security scan - file rejected'
+    });
+  }
+};
+
 // Validate file signature (magic bytes)
 async function validateFileSignature(buffer: Buffer, mimeType: string): Promise<boolean> {
   try {
@@ -182,48 +237,94 @@ function generateFileId(): string {
   return `file_${timestamp}_${random}`;
 }
 
+// Antivirus scanning middleware
+const scanFile = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: 'No file uploaded',
+        message: 'Please select a file to upload'
+      });
+    }
+
+    const file = req.file;
+    
+    // Perform antivirus scan
+    const scanResult: ScanResult = await antivirusScanner.scanBuffer(file.buffer, file.originalname);
+    
+    if (!scanResult.isClean) {
+      log.warn('Virus detected in uploaded file', {
+        fileName: file.originalname,
+        threats: scanResult.threats,
+        provider: scanResult.provider,
+        user: req.user?.id
+      }, 'SECURITY');
+      
+      return res.status(400).json({
+        error: 'Virus detected',
+        message: 'The uploaded file contains malicious content and has been rejected',
+        threats: scanResult.threats,
+        scanProvider: scanResult.provider
+      });
+    }
+
+    // Add scan result to request for logging
+    (req as any).scanResult = scanResult;
+
+    log.info('File passed antivirus scan', {
+      fileName: file.originalname,
+      scanTime: scanResult.scanTime,
+      provider: scanResult.provider,
+      user: req.user?.id
+    }, 'SECURITY');
+
+    next();
+  } catch (error) {
+    log.error('Antivirus scan failed', error as Error, 'SECURITY');
+    res.status(500).json({
+      error: 'Security scan failed',
+      message: 'Unable to complete security scan - file rejected'
+    });
+  }
+};
+
+// Verify signed URL signature
+function verifySignedUrl(fileId: string, expires: string, signature: string): boolean {
+  try {
+    const expectedSignature = crypto
+      .createHmac('sha256', process.env.FILE_SIGNATURE_SECRET || 'default-secret')
+      .update(`${fileId}:${expires}`)
+      .digest('hex');
+    
+    return crypto.timingSafeEqual(
+      Buffer.from(signature, 'hex'),
+      Buffer.from(expectedSignature, 'hex')
+    );
+  } catch {
+    return false;
+  }
+}
+
+// Verify signed URL signature
+function verifySignedUrl(fileId: string, expires: string, signature: string): boolean {
+  try {
+    const expectedSignature = crypto
+      .createHmac('sha256', process.env.FILE_SIGNATURE_SECRET || 'default-secret')
+      .update(`${fileId}:${expires}`)
+      .digest('hex');
+    
+    return crypto.timingSafeEqual(
+      Buffer.from(signature, 'hex'),
+      Buffer.from(expectedSignature, 'hex')
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function registerDocumentRoutes (app: Express) {
 
-  // Enhanced auth middleware with role-based access
-  const isAuthenticated = (req:  Request, res:  Response, next:  NextFunction) => {
-
-    // Enhanced authentication for development with role simulation
-    const userRole = (req.headers['x-user-role'] as string) || 'company_manager';
-    const userId = (req.headers['x-user-id'] as string) || '1';
-
-    req.user = {
-      'id': userId,
-      'sub': userId,
-      'role': userRole,
-      'email': 'user@company.com',
-      'firstName': 'محمد',
-      'lastName': 'أحمد',
-      'permissions': [],
-      'isActive': true,
-      'claims': {},
-      'createdAt': new Date(),
-      'updatedAt': new Date()
-    } as unknown; // مؤقتًا
-    next();
-
-  };
-
-  // Role-based authorization middleware
-  const requireRole = (allowedRoles: string[]) => {
-
-    return (req:  Request, res:  Response, next:  NextFunction) => {
-
-      const userRole = req.user?.role || '';
-      if (!allowedRoles.includes(userRole)) {
-
-        return res.status(403).json({'message': 'Access denied. Insufficient permissions.'});
-
-      }
-      next();
-
-    };
-
-  };
+  // Document routes use proper authentication middleware
 
   // Documents routes
   app.get('/api/documents', isAuthenticated, async (req, res) => {
@@ -732,11 +833,12 @@ export function registerDocumentRoutes (app: Express) {
 
   });
 
-  // Secure file upload endpoint with comprehensive validation
+  // Secure file upload endpoint with comprehensive validation and antivirus scanning
   app.post('/api/documents/upload', 
     isAuthenticated, 
     upload.single('file'), 
     validateFile,
+    scanFile,
     async (req, res) => {
       try {
         if (!req.file) {
@@ -747,39 +849,54 @@ export function registerDocumentRoutes (app: Express) {
         }
 
         const file = req.file;
-        const fileId = generateFileId();
+        const scanResult = (req as any).scanResult as ScanResult;
         
-        // Log successful upload for audit
-        log.info('File uploaded successfully', {
-          fileId,
-          fileName: file.originalname,
-          fileSize: file.size,
-          mimeType: file.mimetype,
-          uploadedBy: req.user?.id,
-          timestamp: new Date().toISOString()
-        }, 'UPLOAD');
+        // Store file securely
+        const storedFile: StoredFile = await secureFileStorage.storeFile(
+          file.buffer,
+          file.originalname,
+          file.mimetype,
+          req.user?.id || 'unknown'
+        );
 
-        // In a real implementation, you would:
-        // 1. Store the file buffer to secure storage (S3, local filesystem, etc.)
-        // 2. Generate a secure download URL
-        // 3. Create a database record for the document
-        // 4. Implement virus scanning (optional but recommended)
-
+        // Create document record
         const documentData = {
           name: file.originalname,
           entityId: req.body.companyId || 'default',
           entityType: 'company',
           type: file.mimetype,
-          fileName: `${fileId}_${file.originalname}`,
-          fileUrl: `/api/documents/${fileId}/download`,
+          fileName: storedFile.id,
+          fileUrl: storedFile.url,
           uploadedBy: req.user?.sub || 'unknown',
-          fileSize: file.size,
-          mimeType: file.mimetype,
-          description: req.body.description || null
+          fileSize: storedFile.metadata.size,
+          mimeType: storedFile.metadata.mimeType,
+          description: req.body.description || null,
+          checksum: storedFile.metadata.checksum,
+          isImage: storedFile.metadata.isImage,
+          imageMetadata: storedFile.metadata.imageMetadata
         };
 
         // Store document metadata in database
         const document = await storage.createDocument(documentData);
+
+        // Log successful upload for audit
+        log.info('File uploaded and stored securely', {
+          fileId: storedFile.id,
+          fileName: file.originalname,
+          fileSize: file.size,
+          mimeType: file.mimetype,
+          uploadedBy: req.user?.id,
+          scanResult: {
+            isClean: scanResult.isClean,
+            provider: scanResult.provider,
+            scanTime: scanResult.scanTime
+          },
+          storage: {
+            provider: secureFileStorage.getStatus().provider,
+            urlExpiration: secureFileStorage.getStatus().urlExpiration
+          },
+          timestamp: new Date().toISOString()
+        }, 'UPLOAD');
 
         res.status(201).json({
           message: 'File uploaded successfully',
@@ -788,15 +905,26 @@ export function registerDocumentRoutes (app: Express) {
             name: document.name,
             fileName: document.fileName,
             type: document.type,
-            size: document.size,
+            size: document.fileSize,
             uploadDate: document.uploadDate,
-            url: document.url
+            url: document.fileUrl,
+            expiresAt: storedFile.expiresAt
           },
           security: {
             validated: true,
             fileSignature: 'verified',
             mimeType: 'verified',
-            sizeLimit: 'within_bounds'
+            sizeLimit: 'within_bounds',
+            antivirusScan: {
+              isClean: scanResult.isClean,
+              provider: scanResult.provider,
+              scanTime: scanResult.scanTime
+            },
+            storage: {
+              provider: secureFileStorage.getStatus().provider,
+              encrypted: true,
+              urlExpiration: secureFileStorage.getStatus().urlExpiration
+            }
           }
         });
 
@@ -809,6 +937,208 @@ export function registerDocumentRoutes (app: Express) {
       }
     }
   );
+
+  // Secure file download endpoint with signed URL verification
+  app.get('/api/files/:fileId/download', isAuthenticated, async (req, res) => {
+    try {
+      const { fileId } = req.params;
+      const { expires, signature } = req.query;
+
+      // Verify signed URL
+      if (expires && signature) {
+        const expiresNum = parseInt(expires as string);
+        const now = Date.now();
+
+        // Check if URL has expired
+        if (now > expiresNum) {
+          return res.status(410).json({
+            error: 'URL expired',
+            message: 'Download link has expired'
+          });
+        }
+
+        // Verify signature
+        if (!verifySignedUrl(fileId, expires as string, signature as string)) {
+          log.warn('Invalid file download signature', {
+            fileId,
+            user: req.user?.id,
+            ip: req.ip
+          }, 'SECURITY');
+          
+          return res.status(403).json({
+            error: 'Invalid signature',
+            message: 'Download link is invalid'
+          });
+        }
+      }
+
+      // Get document from database
+      const document = await storage.getDocument(fileId);
+      if (!document) {
+        return res.status(404).json({
+          error: 'File not found',
+          message: 'Requested file does not exist'
+        });
+      }
+
+      // Check user permissions (simplified - in real app, implement proper access control)
+      if (document.uploadedBy !== req.user?.sub && !req.user?.roles?.includes('admin')) {
+        log.warn('Unauthorized file access attempt', {
+          fileId,
+          requestedBy: req.user?.id,
+          uploadedBy: document.uploadedBy
+        }, 'SECURITY');
+        
+        return res.status(403).json({
+          error: 'Access denied',
+          message: 'You do not have permission to access this file'
+        });
+      }
+
+      // Generate new signed URL
+      const newSignedUrl = await secureFileStorage.generateSignedUrl(fileId, document.fileName);
+
+      // Log download access
+      log.info('File download accessed', {
+        fileId,
+        fileName: document.name,
+        accessedBy: req.user?.id,
+        ip: req.ip
+      }, 'ACCESS');
+
+      res.json({
+        message: 'File ready for download',
+        fileId,
+        fileName: document.name,
+        downloadUrl: newSignedUrl,
+        expiresAt: new Date(Date.now() + secureFileStorage.getStatus().urlExpiration * 1000)
+      });
+
+    } catch (error) {
+      log.error('Error generating download URL:', error as Error, 'ACCESS');
+      res.status(500).json({
+        error: 'Download failed',
+        message: 'Failed to generate download link'
+      });
+    }
+  });
+
+  // Secure file download endpoint with signed URL verification
+  app.get('/api/files/:fileId/download', isAuthenticated, async (req, res) => {
+    try {
+      const { fileId } = req.params;
+      const { expires, signature } = req.query;
+
+      // Verify signed URL
+      if (expires && signature) {
+        const expiresNum = parseInt(expires as string);
+        const now = Date.now();
+
+        // Check if URL has expired
+        if (now > expiresNum) {
+          return res.status(410).json({
+            error: 'URL expired',
+            message: 'Download link has expired'
+          });
+        }
+
+        // Verify signature
+        if (!verifySignedUrl(fileId, expires as string, signature as string)) {
+          log.warn('Invalid file download signature', {
+            fileId,
+            user: req.user?.id,
+            ip: req.ip
+          }, 'SECURITY');
+          
+          return res.status(403).json({
+            error: 'Invalid signature',
+            message: 'Download link is invalid'
+          });
+        }
+      }
+
+      // Get document from database
+      const document = await storage.getDocument(fileId);
+      if (!document) {
+        return res.status(404).json({
+          error: 'File not found',
+          message: 'Requested file does not exist'
+        });
+      }
+
+      // Check user permissions (simplified - in real app, implement proper access control)
+      if (document.uploadedBy !== req.user?.sub && req.user?.role !== 'admin') {
+        log.warn('Unauthorized file access attempt', {
+          fileId,
+          requestedBy: req.user?.id,
+          uploadedBy: document.uploadedBy
+        }, 'SECURITY');
+        
+        return res.status(403).json({
+          error: 'Access denied',
+          message: 'You do not have permission to access this file'
+        });
+      }
+
+      // Generate new signed URL
+      const newSignedUrl = await secureFileStorage.generateSignedUrl(fileId, document.fileName);
+
+      // Log download access
+      log.info('File download accessed', {
+        fileId,
+        fileName: document.name,
+        accessedBy: req.user?.id,
+        ip: req.ip
+      }, 'ACCESS');
+
+      res.json({
+        message: 'File ready for download',
+        fileId,
+        fileName: document.name,
+        downloadUrl: newSignedUrl,
+        expiresAt: new Date(Date.now() + secureFileStorage.getStatus().urlExpiration * 1000)
+      });
+
+    } catch (error) {
+      log.error('Error generating download URL:', error as Error, 'ACCESS');
+      res.status(500).json({
+        error: 'Download failed',
+        message: 'Failed to generate download link'
+      });
+    }
+  });
+
+  // Security status endpoint
+  app.get('/api/security/status', isAuthenticated, requireRole(['admin', 'super_admin']), async (req, res) => {
+    try {
+      const antivirusStatus = antivirusScanner.getStatus();
+      const storageStatus = secureFileStorage.getStatus();
+
+      res.json({
+        antivirus: antivirusStatus,
+        storage: storageStatus,
+        uploadLimits: {
+          maxFileSize: MAX_FILE_SIZE,
+          allowedMimeTypes: ALLOWED_MIME_TYPES,
+          allowedExtensions: ALLOWED_EXTENSIONS
+        },
+        securityFeatures: {
+          fileSignatureValidation: true,
+          antivirusScanning: antivirusStatus.enabled,
+          secureStorage: true,
+          signedUrls: true,
+          metadataStripping: true,
+          eicarDetection: true
+        }
+      });
+    } catch (error) {
+      log.error('Error getting security status:', error as Error, 'SECURITY');
+      res.status(500).json({
+        error: 'Failed to get security status',
+        message: 'Unable to retrieve security configuration'
+      });
+    }
+  });
 
   // Error handling for multer
   app.use((error: any, req: Request, res: Response, next: NextFunction) => {
@@ -870,6 +1200,38 @@ export function registerDocumentRoutes (app: Express) {
 
     }
 
+  });
+
+  // Security status endpoint
+  app.get('/api/security/status', isAuthenticated, requireRole(['admin', 'super_admin']), async (req, res) => {
+    try {
+      const antivirusStatus = antivirusScanner.getStatus();
+      const storageStatus = secureFileStorage.getStatus();
+
+      res.json({
+        antivirus: antivirusStatus,
+        storage: storageStatus,
+        uploadLimits: {
+          maxFileSize: MAX_FILE_SIZE,
+          allowedMimeTypes: ALLOWED_MIME_TYPES,
+          allowedExtensions: ALLOWED_EXTENSIONS
+        },
+        securityFeatures: {
+          fileSignatureValidation: true,
+          antivirusScanning: antivirusStatus.enabled,
+          secureStorage: true,
+          signedUrls: true,
+          metadataStripping: true,
+          eicarDetection: true
+        }
+      });
+    } catch (error) {
+      log.error('Error getting security status:', error as Error, 'SECURITY');
+      res.status(500).json({
+        error: 'Failed to get security status',
+        message: 'Unable to retrieve security configuration'
+      });
+    }
   });
 
 }

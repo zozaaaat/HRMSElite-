@@ -1,414 +1,383 @@
 /**
- * @fileoverview Prometheus metrics middleware for HRMS Elite
- * @description Collects and exposes metrics for monitoring and alerting
- * @author HRMS Elite Team
- * @version 1.0.0
+ * Prometheus Metrics Middleware for HRMS Elite
+ * Provides comprehensive metrics collection for monitoring and alerting
  */
 
-import {Request, Response, NextFunction} from 'express';
-import {log} from '../utils/logger';
+import { Request, Response, NextFunction } from 'express';
+import { register, Counter, Histogram, Gauge, collectDefaultMetrics } from 'prom-client';
 
-// Simple in-memory metrics storage (in production, use prom-client)
-interface Metrics {
-  http_requests_total: { [key: string]: number };
-  http_request_duration_seconds: { [key: string]: number[] };
-  http_requests_in_progress: { [key: string]: number };
-  active_users: number;
-  database_connections: number;
-  memory_usage_bytes: number;
-  cpu_usage_percent: number;
-  custom_metrics: { [key: string]: number };
-}
+// Enable default metrics collection
+collectDefaultMetrics({ register });
 
-const metrics: Metrics = {
-  'http_requests_total': {},
-  'http_request_duration_seconds': {},
-  'http_requests_in_progress': {},
-  'active_users': 0,
-  'database_connections': 0,
-  'memory_usage_bytes': 0,
-  'cpu_usage_percent': 0,
-  'custom_metrics': {}
+/**
+ * HTTP Request Metrics
+ */
+const httpRequestsTotal = new Counter({
+  name: 'http_requests_total',
+  help: 'Total number of HTTP requests',
+  labelNames: ['method', 'endpoint', 'status', 'version']
+});
+
+const httpRequestDuration = new Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'HTTP request duration in seconds',
+  labelNames: ['method', 'endpoint', 'version'],
+  buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10]
+});
+
+const httpRequestSize = new Histogram({
+  name: 'http_request_size_bytes',
+  help: 'HTTP request size in bytes',
+  labelNames: ['method', 'endpoint'],
+  buckets: [100, 500, 1000, 5000, 10000, 50000, 100000]
+});
+
+const httpResponseSize = new Histogram({
+  name: 'http_response_size_bytes',
+  help: 'HTTP response size in bytes',
+  labelNames: ['method', 'endpoint', 'status'],
+  buckets: [100, 500, 1000, 5000, 10000, 50000, 100000]
+});
+
+/**
+ * Error Metrics
+ */
+const httpErrorsTotal = new Counter({
+  name: 'http_errors_total',
+  help: 'Total number of HTTP errors',
+  labelNames: ['method', 'endpoint', 'status', 'error_type']
+});
+
+const httpClientErrorsTotal = new Counter({
+  name: 'http_client_errors_total',
+  help: 'Total number of HTTP client errors (4xx)',
+  labelNames: ['method', 'endpoint', 'status']
+});
+
+const httpServerErrorsTotal = new Counter({
+  name: 'http_server_errors_total',
+  help: 'Total number of HTTP server errors (5xx)',
+  labelNames: ['method', 'endpoint', 'status']
+});
+
+/**
+ * Authentication Metrics
+ */
+const authFailuresTotal = new Counter({
+  name: 'auth_failures_total',
+  help: 'Total number of authentication failures',
+  labelNames: ['method', 'endpoint', 'reason']
+});
+
+const authSuccessTotal = new Counter({
+  name: 'auth_success_total',
+  help: 'Total number of successful authentications',
+  labelNames: ['method', 'user_role']
+});
+
+const activeSessions = new Gauge({
+  name: 'active_sessions',
+  help: 'Number of active user sessions'
+});
+
+/**
+ * Security Metrics
+ */
+const securityAlertsTotal = new Counter({
+  name: 'security_alerts_total',
+  help: 'Total number of security alerts',
+  labelNames: ['type', 'severity', 'pattern']
+});
+
+const suspiciousRequestsTotal = new Counter({
+  name: 'suspicious_requests_total',
+  help: 'Total number of suspicious requests',
+  labelNames: ['type', 'pattern']
+});
+
+/**
+ * Database Metrics
+ */
+const dbQueriesTotal = new Counter({
+  name: 'db_queries_total',
+  help: 'Total number of database queries',
+  labelNames: ['operation', 'table', 'status']
+});
+
+const dbQueryDuration = new Histogram({
+  name: 'db_query_duration_seconds',
+  help: 'Database query duration in seconds',
+  labelNames: ['operation', 'table'],
+  buckets: [0.01, 0.05, 0.1, 0.5, 1, 2, 5]
+});
+
+const dbConnectionsActive = new Gauge({
+  name: 'db_connections_active',
+  help: 'Number of active database connections'
+});
+
+/**
+ * File Upload Metrics
+ */
+const fileUploadsTotal = new Counter({
+  name: 'file_uploads_total',
+  help: 'Total number of file uploads',
+  labelNames: ['type', 'status', 'size_range']
+});
+
+const fileUploadSize = new Histogram({
+  name: 'file_upload_size_bytes',
+  help: 'File upload size in bytes',
+  labelNames: ['type'],
+  buckets: [1024, 10240, 102400, 1048576, 10485760, 104857600]
+});
+
+/**
+ * Business Logic Metrics
+ */
+const employeeOperationsTotal = new Counter({
+  name: 'employee_operations_total',
+  help: 'Total number of employee operations',
+  labelNames: ['operation', 'status', 'user_role']
+});
+
+const documentOperationsTotal = new Counter({
+  name: 'document_operations_total',
+  help: 'Total number of document operations',
+  labelNames: ['operation', 'status', 'user_role']
+});
+
+const payrollOperationsTotal = new Counter({
+  name: 'payroll_operations_total',
+  help: 'Total number of payroll operations',
+  labelNames: ['operation', 'status', 'user_role']
+});
+
+/**
+ * System Metrics
+ */
+const memoryUsage = new Gauge({
+  name: 'memory_usage_bytes',
+  help: 'Memory usage in bytes',
+  labelNames: ['type']
+});
+
+const cpuUsage = new Gauge({
+  name: 'cpu_usage_percent',
+  help: 'CPU usage percentage'
+});
+
+const diskUsage = new Gauge({
+  name: 'disk_usage_bytes',
+  help: 'Disk usage in bytes',
+  labelNames: ['path']
+});
+
+/**
+ * Metrics utilities
+ */
+export const metricsUtils = {
+  // HTTP Metrics
+  incrementHttpRequest: (method: string, endpoint: string, status: number, version: string = 'v1') => {
+    httpRequestsTotal.inc({ method, endpoint, status: status.toString(), version });
+  },
+
+  recordHttpDuration: (method: string, endpoint: string, duration: number, version: string = 'v1') => {
+    httpRequestDuration.observe({ method, endpoint, version }, duration);
+  },
+
+  recordHttpRequestSize: (method: string, endpoint: string, size: number) => {
+    httpRequestSize.observe({ method, endpoint }, size);
+  },
+
+  recordHttpResponseSize: (method: string, endpoint: string, status: number, size: number) => {
+    httpResponseSize.observe({ method, endpoint, status: status.toString() }, size);
+  },
+
+  // Error Metrics
+  incrementHttpError: (method: string, endpoint: string, status: number, errorType: string) => {
+    httpErrorsTotal.inc({ method, endpoint, status: status.toString(), error_type: errorType });
+  },
+
+  incrementClientError: (method: string, endpoint: string, status: number) => {
+    httpClientErrorsTotal.inc({ method, endpoint, status: status.toString() });
+  },
+
+  incrementServerError: (method: string, endpoint: string, status: number) => {
+    httpServerErrorsTotal.inc({ method, endpoint, status: status.toString() });
+  },
+
+  // Authentication Metrics
+  incrementAuthFailure: (method: string, endpoint: string, reason: string) => {
+    authFailuresTotal.inc({ method, endpoint, reason });
+  },
+
+  incrementAuthSuccess: (method: string, userRole: string) => {
+    authSuccessTotal.inc({ method, user_role: userRole });
+  },
+
+  setActiveSessions: (count: number) => {
+    activeSessions.set(count);
+  },
+
+  // Security Metrics
+  incrementSecurityAlert: (type: string, severity: string, pattern: string) => {
+    securityAlertsTotal.inc({ type, severity, pattern });
+  },
+
+  incrementSuspiciousRequest: (type: string, pattern: string) => {
+    suspiciousRequestsTotal.inc({ type, pattern });
+  },
+
+  // Database Metrics
+  incrementDbQuery: (operation: string, table: string, status: string) => {
+    dbQueriesTotal.inc({ operation, table, status });
+  },
+
+  recordDbDuration: (operation: string, table: string, duration: number) => {
+    dbQueryDuration.observe({ operation, table }, duration);
+  },
+
+  setDbConnections: (count: number) => {
+    dbConnectionsActive.set(count);
+  },
+
+  // File Upload Metrics
+  incrementFileUpload: (type: string, status: string, sizeRange: string) => {
+    fileUploadsTotal.inc({ type, status, size_range: sizeRange });
+  },
+
+  recordFileUploadSize: (type: string, size: number) => {
+    fileUploadSize.observe({ type }, size);
+  },
+
+  // Business Logic Metrics
+  incrementEmployeeOperation: (operation: string, status: string, userRole: string) => {
+    employeeOperationsTotal.inc({ operation, status, user_role: userRole });
+  },
+
+  incrementDocumentOperation: (operation: string, status: string, userRole: string) => {
+    documentOperationsTotal.inc({ operation, status, user_role: userRole });
+  },
+
+  incrementPayrollOperation: (operation: string, status: string, userRole: string) => {
+    payrollOperationsTotal.inc({ operation, status, user_role: userRole });
+  },
+
+  // System Metrics
+  setMemoryUsage: (type: string, bytes: number) => {
+    memoryUsage.set({ type }, bytes);
+  },
+
+  setCpuUsage: (percent: number) => {
+    cpuUsage.set(percent);
+  },
+
+  setDiskUsage: (path: string, bytes: number) => {
+    diskUsage.set({ path }, bytes);
+  }
 };
 
 /**
- * Generate metric key for HTTP requests
- * @param method - HTTP method
- * @param path - Request path
- * @param status - Response status code
- * @returns Metric key
+ * Prometheus metrics middleware
  */
-const getMetricKey = (method: string, path: string, status: number): string => {
+export const prometheusMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  const startTime = process.hrtime.bigint();
+  const requestSize = parseInt(req.get('content-length') || '0');
 
-  return `${method}_${path}_${status}`;
-
-};
-
-/**
- * Get status code category
- * @param status - HTTP status code
- * @returns Status category
- */
-const getStatusCategory = (status: number): string => {
-
-  if (status >= 200 && status < 300) {
-
-    return '2xx';
-
+  // Record request size
+  if (requestSize > 0) {
+    metricsUtils.recordHttpRequestSize(req.method, req.url, requestSize);
   }
-  if (status >= 300 && status < 400) {
 
-    return '3xx';
+  // Override res.send to record metrics
+  const originalSend = res.send;
+  res.send = function(data) {
+    const endTime = process.hrtime.bigint();
+    const duration = Number(endTime - startTime) / 1000000000; // Convert to seconds
+    const responseSize = Buffer.byteLength(data, 'utf8');
 
-  }
-  if (status >= 400 && status < 500) {
+    // Record metrics
+    metricsUtils.incrementHttpRequest(req.method, req.url, res.statusCode);
+    metricsUtils.recordHttpDuration(req.method, req.url, duration);
+    metricsUtils.recordHttpResponseSize(req.method, req.url, res.statusCode, responseSize);
 
-    return '4xx';
-
-  }
-  if (status >= 500) {
-
-    return '5xx';
-
-  }
-  return 'other';
-
-};
-
-/**
- * Metrics collection middleware
- * @description Collects HTTP request metrics
- * @param req - Express request object
- * @param res - Express response object
- * @param next - Express next function
- */
-export const metricsMiddleware = (req: Request, res: Response, next: NextFunction) => {
-
-  const startTime = Date.now();
-  const {method} = req;
-  const path = req.route?.path ?? req.path;
-
-  // Track request in progress
-  const inProgressKey = `${method}_${path}`;
-  
-  // قبل increment مباشرة، ضَمّن التهيئة:
-  if (!metrics.http_requests_in_progress) {
-    metrics.http_requests_in_progress = {};
-  }
-  
-  // استخدم قيمة افتراضية آمنة
-  const current = metrics.http_requests_in_progress[inProgressKey] ?? 0;
-  
-  // حدّث العداد بأمان
-  metrics.http_requests_in_progress[inProgressKey] = current + 1;
-
-  // Override res.end to capture response metrics
-  const originalEnd = res.end.bind(res);
-
-  (res as unknown).end = function (chunk?: unknown, encoding?: string) {
-    try {
-      const duration = (Date.now() - startTime) / 1000; // Convert to seconds
-      const status = res.statusCode;
-      const statusCategory = getStatusCategory(status);
-
-      // Update request total
-      const totalKey = getMetricKey(method, path, status);
-      metrics.http_requests_total[totalKey] ??= 0;
-      metrics.http_requests_total[totalKey]++;
-
-      // Update duration metrics
-      const durationKey = `${method}_${path}_${statusCategory}`;
-      metrics.http_request_duration_seconds[durationKey] ??= [];
-      metrics.http_request_duration_seconds[durationKey].push(duration);
-
-      // Keep only last 1000 duration measurements
-      if (metrics.http_request_duration_seconds[durationKey].length > 1000) {
-        metrics.http_request_duration_seconds[durationKey] =
-          metrics.http_request_duration_seconds[durationKey].slice(-1000);
-      }
-
-      // Decrease in-progress requests
-      if (!metrics.http_requests_in_progress) {
-        metrics.http_requests_in_progress = {};
-      }
-
-      // استخدم قيمة افتراضية آمنة
-      const current = metrics.http_requests_in_progress[inProgressKey] ?? 0;
-
-      // حدّث العداد بأمان
-      metrics.http_requests_in_progress[inProgressKey] = Math.max(0, current - 1);
-
-      // امسح المفتاح لو صفر
-      if ((metrics.http_requests_in_progress[inProgressKey] ?? 0) <= 0) {
-        delete metrics.http_requests_in_progress[inProgressKey];
-      }
-
-      // Update system metrics
-      updateSystemMetrics();
-    } catch { 
-      /* ignore errors in metrics collection */ 
+    // Record errors
+    if (res.statusCode >= 400 && res.statusCode < 500) {
+      metricsUtils.incrementClientError(req.method, req.url, res.statusCode);
+    } else if (res.statusCode >= 500) {
+      metricsUtils.incrementServerError(req.method, req.url, res.statusCode);
     }
 
-    // Return the result of originalEnd to maintain compatibility
-    return originalEnd(chunk, encoding as unknown);
+    return originalSend.call(this, data);
   };
 
   next();
-
-};
-
-/**
- * Update system metrics
- * @description Updates system-level metrics
- */
-const updateSystemMetrics = () => {
-
-  // Memory usage
-  const memUsage = process.memoryUsage();
-  metrics.memory_usage_bytes = memUsage.heapUsed;
-
-  // CPU usage (simplified)
-  const startUsage = process.cpuUsage();
-  setTimeout(() => {
-
-    const endUsage = process.cpuUsage(startUsage);
-    const totalUsage = endUsage.user + endUsage.system;
-    metrics.cpu_usage_percent = (totalUsage / 1000000) * 100; // Convert to percentage
-
-  }, 100);
-
-};
-
-/**
- * Custom metrics functions
- */
-export const metricsUtils = {
-  /**
-   * Increment custom metric
-   * @param name - Metric name
-   * @param value - Increment value (default: 1)
-   */
-  'incrementMetric': (name: string, value = 1) => {
-
-    metrics.custom_metrics[name] = (metrics.custom_metrics[name] || 0) + value;
-
-  },
-
-  /**
-   * Set custom metric value
-   * @param name - Metric name
-   * @param value - Metric value
-   */
-  'setMetric': (name: string, value: number) => {
-
-    metrics.custom_metrics[name] = value;
-
-  },
-
-  /**
-   * Update active users count
-   * @param count - Active users count
-   */
-  'updateActiveUsers': (count: number) => {
-
-    metrics.active_users = count;
-
-  },
-
-  /**
-   * Update database connections count
-   * @param count - Database connections count
-   */
-  'updateDatabaseConnections': (count: number) => {
-
-    metrics.database_connections = count;
-
-  }
-};
-
-/**
- * Generate Prometheus metrics format
- * @returns Prometheus-formatted metrics string
- */
-const generatePrometheusMetrics = (): string => {
-
-  let output = '';
-
-  // HTTP requests total
-  output += '# HELP http_requests_total Total number of HTTP requests\n';
-  output += '# TYPE http_requests_total counter\n';
-  for (const [key, value] of Object.entries(metrics.http_requests_total)) {
-
-    const [method, path, status] = key.split('_');
-    output += `http_requests_total{
-  method="${
-  method
-}",path="${
-  path
-}",status="${
-  status
-}"
-} ${
-  value
-}\n`;
-
-  }
-
-  // HTTP request duration
-  output += '# HELP http_request_duration_seconds HTTP request duration in seconds\n';
-  output += '# TYPE http_request_duration_seconds histogram\n';
-  for (const [key, durations] of Object.entries(metrics.http_request_duration_seconds)) {
-
-    const [method, path, status] = key.split('_');
-    const sum = durations.reduce((a, b) => a + b, 0);
-    const count = durations.length;
-    const avg = count > 0 ? sum / count : 0;
-
-    output += `http_request_duration_seconds_sum{
-  method="${
-  method
-}",path="${
-  path
-}",status="${
-  status
-}"
-} ${
-  sum
-}\n`;
-    output += `http_request_duration_seconds_count{
-  method="${
-  method
-}",path="${
-  path
-}",status="${
-  status
-}"
-} ${
-  count
-}\n`;
-    output += `http_request_duration_seconds_avg{
-  method="${
-  method
-}",path="${
-  path
-}",status="${
-  status
-}"
-} ${
-  avg
-}\n`;
-
-  }
-
-  // HTTP requests in progress
-  output += '# HELP http_requests_in_progress Current number of HTTP requests being processed\n';
-  output += '# TYPE http_requests_in_progress gauge\n';
-  for (const [key, value] of Object.entries(metrics.http_requests_in_progress)) {
-
-    const [method, path] = key.split('_');
-    output += `http_requests_in_progress{method="${method}",path="${path}"} ${value}\n`;
-
-  }
-
-  // System metrics
-  output += '# HELP process_memory_usage_bytes Memory usage in bytes\n';
-  output += '# TYPE process_memory_usage_bytes gauge\n';
-  output += `process_memory_usage_bytes ${metrics.memory_usage_bytes}\n`;
-
-  output += '# HELP process_cpu_usage_percent CPU usage percentage\n';
-  output += '# TYPE process_cpu_usage_percent gauge\n';
-  output += `process_cpu_usage_percent ${metrics.cpu_usage_percent}\n`;
-
-  // Custom metrics
-  output += '# HELP active_users Current number of active users\n';
-  output += '# TYPE active_users gauge\n';
-  output += `active_users ${metrics.active_users}\n`;
-
-  output += '# HELP database_connections Current number of database connections\n';
-  output += '# TYPE database_connections gauge\n';
-  output += `database_connections ${metrics.database_connections}\n`;
-
-  // Custom business metrics
-  for (const [name, value] of Object.entries(metrics.custom_metrics)) {
-
-    output += `# HELP ${name} Custom metric: ${name}\n`;
-    output += `# TYPE ${name} counter\n`;
-    output += `${name} ${value}\n`;
-
-  }
-
-  return output;
-
 };
 
 /**
  * Metrics endpoint handler
- * @description Exposes metrics in Prometheus format
- * @param req - Express request object
- * @param res - Express response object
  */
-export const metricsEndpoint = (req: Request, res: Response) => {
-
+export const metricsHandler = async (req: Request, res: Response) => {
   try {
-
-    const metricsData = generatePrometheusMetrics();
-    res.set('Content-Type', 'text/plain');
-    res.send(metricsData);
-
-    log.info('Metrics endpoint accessed', {
-      'ip': req.ip,
-      'userAgent': req.get('User-Agent'),
-      'timestamp': new Date().toISOString()
-    });
-
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
   } catch (error) {
-
-    log.error('Error generating metrics', {
-  'error': error instanceof Error ? error.message : 'Unknown error'
-});
-    res.status(500).send('# Error generating metrics\n');
-
+    res.status(500).end(error);
   }
-
 };
 
 /**
- * Health check with metrics
- * @description Enhanced health check that includes metrics information
- * @param req - Express request object
- * @param res - Express response object
+ * Health check endpoint with metrics
  */
-export const healthCheckWithMetrics = (req: Request, res: Response) => {
-
-  const healthData = {
-    'status': 'OK',
-    'timestamp': new Date().toISOString(),
-    'uptime': process.uptime(),
-    'memory': process.memoryUsage(),
-    'version': process.env.npm_package_version ?? "1.0.0",
-    'environment': process.env.NODE_ENV ?? "development",
-    'metrics': {
-      'activeUsers': metrics.active_users,
-      'databaseConnections': metrics.database_connections,
-      'memoryUsageBytes': metrics.memory_usage_bytes,
-      'cpuUsagePercent': metrics.cpu_usage_percent,
-      'totalRequests': Object.values(metrics.http_requests_total).reduce((a, b) => a + b, 0)
-    },
-    'security': {
-      'helmet': true,
-      'rateLimit': true,
-      'csrf': true,
-      'inputValidation': true
-    }
+export const healthCheckHandler = async (req: Request, res: Response) => {
+  const health = {
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    version: process.env.npm_package_version || '1.0.0',
+    environment: process.env.NODE_ENV || 'development'
   };
 
-  res.json(healthData);
+  // Update system metrics
+  const memUsage = process.memoryUsage();
+  metricsUtils.setMemoryUsage('rss', memUsage.rss);
+  metricsUtils.setMemoryUsage('heapUsed', memUsage.heapUsed);
+  metricsUtils.setMemoryUsage('heapTotal', memUsage.heapTotal);
+  metricsUtils.setMemoryUsage('external', memUsage.external);
 
+  res.json(health);
+};
+
+/**
+ * Initialize metrics collection
+ */
+export const initializeMetrics = () => {
+  // Update system metrics periodically
+  setInterval(() => {
+    const memUsage = process.memoryUsage();
+    metricsUtils.setMemoryUsage('rss', memUsage.rss);
+    metricsUtils.setMemoryUsage('heapUsed', memUsage.heapUsed);
+    metricsUtils.setMemoryUsage('heapTotal', memUsage.heapTotal);
+    metricsUtils.setMemoryUsage('external', memUsage.external);
+  }, 30000); // Every 30 seconds
+
+  // Update CPU usage (simplified)
+  setInterval(() => {
+    const startUsage = process.cpuUsage();
+    setTimeout(() => {
+      const endUsage = process.cpuUsage(startUsage);
+      const cpuPercent = (endUsage.user + endUsage.system) / 1000000; // Convert to seconds
+      metricsUtils.setCpuUsage(cpuPercent);
+    }, 100);
+  }, 5000); // Every 5 seconds
 };
 
 export default {
-  metricsMiddleware,
-  metricsEndpoint,
-  healthCheckWithMetrics,
-  metricsUtils
+  middleware: prometheusMiddleware,
+  handler: metricsHandler,
+  health: healthCheckHandler,
+  utils: metricsUtils,
+  initialize: initializeMetrics
 };

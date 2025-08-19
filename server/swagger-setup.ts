@@ -19,12 +19,20 @@ const options = {
     },
     'servers': [
       {
-        'url': 'http://localhost:3000',
-        'description': 'Development server'
+        'url': 'http://localhost:3000/api/v1',
+        'description': 'Development server - API v1'
       },
       {
-        'url': 'https://api.hrmselite.com',
-        'description': 'Production server'
+        'url': 'https://api.hrmselite.com/api/v1',
+        'description': 'Production server - API v1'
+      },
+      {
+        'url': 'http://localhost:3000/api',
+        'description': 'Development server - Legacy API'
+      },
+      {
+        'url': 'https://api.hrmselite.com/api',
+        'description': 'Production server - Legacy API'
       }
     ],
     'components': {
@@ -212,24 +220,119 @@ const options = {
         'Error': {
           'type': 'object',
           'properties': {
-            'error': {
+            'code': {
+              'type': 'string',
+              'description': 'Error code',
+              'example': 'VALIDATION_ERROR'
+            },
+            'message': {
+              'type': 'string',
+              'description': 'Error message',
+              'example': 'Invalid input data'
+            },
+            'details': {
+              'type': 'object',
+              'description': 'Additional error details',
+              'additionalProperties': true
+            },
+            'traceId': {
+              'type': 'string',
+              'description': 'Unique trace ID for debugging',
+              'example': '550e8400-e29b-41d4-a716-446655440000'
+            }
+          },
+          'required': ['code', 'message']
+        },
+        'PaginatedResponse': {
+          'type': 'object',
+          'properties': {
+            'success': {
+              'type': 'boolean',
+              'description': 'Success status',
+              'example': true
+            },
+            'data': {
+              'type': 'array',
+              'description': 'Array of items',
+              'items': {
+                'type': 'object'
+              }
+            },
+            'pagination': {
               'type': 'object',
               'properties': {
-                'message': {
-                  'type': 'string',
-                  'description': 'رسالة الخطأ'
+                'page': {
+                  'type': 'integer',
+                  'description': 'Current page number',
+                  'example': 1
                 },
-                'code': {
-                  'type': 'string',
-                  'description': 'رمز الخطأ'
+                'pageSize': {
+                  'type': 'integer',
+                  'description': 'Number of items per page',
+                  'example': 20
                 },
-                'details': {
-                  'type': 'object',
-                  'description': 'تفاصيل إضافية'
+                'total': {
+                  'type': 'integer',
+                  'description': 'Total number of items',
+                  'example': 100
+                },
+                'totalPages': {
+                  'type': 'integer',
+                  'description': 'Total number of pages',
+                  'example': 5
+                },
+                'hasNext': {
+                  'type': 'boolean',
+                  'description': 'Whether there is a next page',
+                  'example': true
+                },
+                'hasPrev': {
+                  'type': 'boolean',
+                  'description': 'Whether there is a previous page',
+                  'example': false
                 }
-              }
+              },
+              'required': ['page', 'pageSize', 'total', 'totalPages', 'hasNext', 'hasPrev']
+            },
+            'links': {
+              'type': 'object',
+              'properties': {
+                'first': {
+                  'type': 'string',
+                  'description': 'Link to first page',
+                  'example': '/api/v1/documents?page=1&pageSize=20'
+                },
+                'last': {
+                  'type': 'string',
+                  'description': 'Link to last page',
+                  'example': '/api/v1/documents?page=5&pageSize=20'
+                },
+                'prev': {
+                  'type': 'string',
+                  'description': 'Link to previous page',
+                  'example': '/api/v1/documents?page=1&pageSize=20'
+                },
+                'next': {
+                  'type': 'string',
+                  'description': 'Link to next page',
+                  'example': '/api/v1/documents?page=2&pageSize=20'
+                }
+              },
+              'required': ['first', 'last']
+            },
+            'message': {
+              'type': 'string',
+              'description': 'Response message',
+              'example': 'Documents retrieved successfully'
+            },
+            'timestamp': {
+              'type': 'string',
+              'format': 'date-time',
+              'description': 'Response timestamp',
+              'example': '2025-01-28T10:30:00.000Z'
             }
-          }
+          },
+          'required': ['success', 'data', 'pagination', 'links', 'timestamp']
         }
       }
     },
@@ -272,6 +375,7 @@ const options = {
   },
   'apis': [
     './server/routes/*.ts',
+    './server/routes/v1/*.ts',
     './server/models/*.ts',
     './server/middleware/*.ts'
   ]

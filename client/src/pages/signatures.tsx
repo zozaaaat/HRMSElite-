@@ -497,6 +497,10 @@ export default function SignaturesPage () {
                           src={signature.imageData}
                           alt="التوقيع"
                           className="w-full h-24 object-contain border rounded bg-white"
+                          loading="lazy"
+                          decoding="async"
+                          width="384"
+                          height="96"
                         />
                       </div>
 

@@ -1,4 +1,5 @@
-import {apiDelete, apiGet, apiPatch, apiPost, apiPut} from '../lib/apiRequest';
+import {apiDelete, apiGet, apiPatch, apiPost, apiPut, withIfMatch} from '../lib/apiRequest';
+import { getCachedEtag } from '../lib/apiRequest';
 
 // Base API service with common HTTP methods
 export class ApiService {
@@ -13,7 +14,12 @@ export class ApiService {
   }
 
   static async put<T> (url: string, data?: unknown): Promise<T> {
-    return apiPut<T>(url, data ?? {});
+    // Allow callers to pass { __etag } to include If-Match
+    const payload = (data ?? {}) as Record<string, unknown> & { __etag?: string };
+    const { __etag, ...rest } = payload;
+    const cached = __etag || getCachedEtag(url);
+    const headers = withIfMatch(cached ?? undefined);
+    return apiPut<T>(url, rest, headers);
   }
 
   static async delete<T> (url: string): Promise<T> {

@@ -166,6 +166,10 @@ export default function CompanySelection () {
                 src="/logo.svg"
                 alt="Zeylab Logo"
                 className="w-20 h-20 object-contain"
+                decoding="async"
+                fetchPriority="high"
+                width="80"
+                height="80"
               />
               <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Zeylab

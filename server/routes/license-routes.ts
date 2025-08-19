@@ -5,6 +5,7 @@ import {eq, and, desc, like, inArray} from 'drizzle-orm';
 import {insertLicenseSchema, type InsertLicense} from '@shared/schema';
 import {log} from '../utils/logger';
 import {isAuthenticated, requireRole} from '../middleware/auth';
+import { generateETag, setETagHeader, matchesIfMatchHeader } from '../utils/etag';
 
 export function registerLicenseRoutes (app: Express) {
 
@@ -156,6 +157,8 @@ export function registerLicenseRoutes (app: Express) {
         'employees': licenseEmployees
       };
 
+      const etag = generateETag(result as any);
+      setETagHeader(res, etag);
       res.json(result);
 
     } catch (error) {
@@ -225,6 +228,20 @@ export function registerLicenseRoutes (app: Express) {
         return res.status(400).json({'message': 'License ID is required'});
       }
       
+      const ifMatch = req.headers['if-match'];
+      const existing = await db
+        .select()
+        .from(licenses)
+        .where(eq(licenses.id, id))
+        .limit(1);
+      if (existing.length === 0) {
+        return res.status(404).json({'message': 'License not found'});
+      }
+      const currentEtag = generateETag(existing[0] as any);
+      if (!matchesIfMatchHeader(ifMatch as any, currentEtag)) {
+        return res.status(412).json({'message': 'Precondition Failed: ETag mismatch'});
+      }
+
       const updateData: Partial<InsertLicense> = {
         ...req.body as Partial<InsertLicense>,
         'updatedAt': new Date()
@@ -242,6 +259,8 @@ export function registerLicenseRoutes (app: Express) {
 
       }
 
+      const newEtag = generateETag(updatedLicense as any);
+      setETagHeader(res, newEtag);
       res.json(updatedLicense);
 
     } catch (error) {

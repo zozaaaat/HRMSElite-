@@ -1,5 +1,6 @@
-import type {Express, Request, Response, NextFunction} from 'express';
+import type {Express, Request} from 'express';
 import logger from '../utils/logger';
+import { isAuthenticated, requireRole } from '../middleware/auth';
 
 // Define interface for payroll processing request body
 interface PayrollProcessRequest {
@@ -9,47 +10,7 @@ interface PayrollProcessRequest {
 
 export function registerPayrollRoutes (app: Express) {
 
-  // Enhanced auth middleware with role-based access
-  const isAuthenticated = (req: Request, _res: Response, next: NextFunction) => {
-
-    // Enhanced authentication for development with role simulation
-    const userRole = (req.headers['x-user-role'] as string) || 'company_manager';
-    const userId = (req.headers['x-user-id'] as string) || '1';
-
-    req.user = {
-      id: userId,
-      sub: userId,
-      role: userRole,
-      email: 'user@company.com',
-      firstName: 'محمد',
-      lastName: 'أحمد',
-      companyId: '1',
-      permissions: ['payroll_read', 'payroll_write'],
-      isActive: true,
-      claims: {},
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    next();
-
-  };
-
-  // Role-based authorization middleware
-  const requireRole = (allowedRoles: string[]) => {
-
-    return (req: Request, res: Response, next: NextFunction) => {
-
-      const userRole = req.user?.role;
-      if (!userRole || !allowedRoles.includes(userRole)) {
-
-        return res.status(403).json({'message': 'Access denied. Insufficient permissions.'});
-
-      }
-      next();
-
-    };
-
-  };
+  // Payroll routes use proper authentication middleware
 
   // Payroll routes
   app.get('/api/payroll/employee/:employeeId', isAuthenticated, async (req, res) => {

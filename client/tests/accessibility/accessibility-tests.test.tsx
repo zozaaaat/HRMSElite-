@@ -1,477 +1,332 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { render as _render, waitFor as _waitFor } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { axe, toHaveNoViolations } from 'jest-axe';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter } from 'react-router-dom';
+import { I18nextProvider } from 'react-i18next';
+import i18n from '../../src/lib/i18n';
 
-// Mock accessibility testing utilities (intentionally omitted as unused)
+// Import key pages and components
+import Login from '../../src/pages/login';
+import Dashboard from '../../src/pages/dashboard';
+import Employees from '../../src/pages/employees';
+import Documents from '../../src/pages/documents';
+import CompanySelection from '../../src/pages/company-selection';
 
-// Mock color contrast utilities
-const calculateContrastRatio = (color1: string, color2: string): number => {
-  // Simplified contrast ratio calculation for testing
-  const hex1 = color1.replace('#', '');
-  const hex2 = color2.replace('#', '');
-  const r1 = parseInt(hex1.substr(0, 2), 16);
-  const g1 = parseInt(hex1.substr(2, 2), 16);
-  const b1 = parseInt(hex1.substr(4, 2), 16);
-  const r2 = parseInt(hex2.substr(0, 2), 16);
-  const g2 = parseInt(hex2.substr(2, 2), 16);
-  const b2 = parseInt(hex2.substr(4, 2), 16);
-  
-  const luminance1 = (0.299 * r1 + 0.587 * g1 + 0.114 * b1) / 255;
-  const luminance2 = (0.299 * r2 + 0.587 * g2 + 0.114 * b2) / 255;
-  
-  const brightest = Math.max(luminance1, luminance2);
-  const darkest = Math.min(luminance1, luminance2);
-  
-  return (brightest + 0.05) / (darkest + 0.05);
+// Extend expect to include axe matchers
+expect.extend(toHaveNoViolations);
+
+// Test wrapper with all necessary providers
+const TestWrapper = ({ children }: { children: React.ReactNode }) => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <I18nextProvider i18n={i18n}>
+        <BrowserRouter>
+          {children}
+        </BrowserRouter>
+      </I18nextProvider>
+    </QueryClientProvider>
+  );
 };
 
-// Test wrapper component not required for these unit tests
+// Mock authentication store
+vi.mock('../../src/stores/useAppStore', () => ({
+  useAppStore: () => ({
+    user: null,
+    setUser: vi.fn(),
+    clearUser: vi.fn(),
+  }),
+}));
+
+// Mock toast hook
+vi.mock('../../src/hooks/use-toast', () => ({
+  useToast: () => ({
+    toast: vi.fn(),
+  }),
+}));
 
 describe('Accessibility Tests', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+  describe('Login Page', () => {
+    it('should have no critical accessibility violations', async () => {
+      const { container } = render(
+        <TestWrapper>
+          <Login />
+        </TestWrapper>
+      );
+
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('should have proper form labels and ARIA attributes', () => {
+      render(
+        <TestWrapper>
+          <Login />
+        </TestWrapper>
+      );
+
+      // Check for form labels
+      expect(screen.getByLabelText(/username|اسم المستخدم/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/password|كلمة المرور/i)).toBeInTheDocument();
+
+      // Check for submit button
+      const submitButton = screen.getByRole('button', { name: /login|تسجيل الدخول/i });
+      expect(submitButton).toBeInTheDocument();
+      expect(submitButton).toHaveAttribute('type', 'submit');
+    });
+
+    it('should support keyboard navigation', () => {
+      render(
+        <TestWrapper>
+          <Login />
+        </TestWrapper>
+      );
+
+      const usernameInput = screen.getByLabelText(/username|اسم المستخدم/i);
+      const passwordInput = screen.getByLabelText(/password|كلمة المرور/i);
+      const submitButton = screen.getByRole('button', { name: /login|تسجيل الدخول/i });
+
+      // Check tab order
+      expect(usernameInput).toHaveAttribute('tabIndex', '0');
+      expect(passwordInput).toHaveAttribute('tabIndex', '0');
+      expect(submitButton).toHaveAttribute('tabIndex', '0');
+    });
   });
 
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
+  describe('Company Selection Page', () => {
+    it('should have no critical accessibility violations', async () => {
+      const { container } = render(
+        <TestWrapper>
+          <CompanySelection />
+        </TestWrapper>
+      );
 
-  describe('WCAG 2.1 AA Compliance', () => {
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
     it('should have proper heading structure', () => {
-      // Test heading hierarchy
-      const headingStructure = {
-        h1: 1, // Should have one main heading
-        h2: 3, // Section headings
-        h3: 5, // Subsection headings
-        h4: 0, // No h4 in this structure
-        h5: 0, // No h5 in this structure
-        h6: 0, // No h6 in this structure
-      };
+      render(
+        <TestWrapper>
+          <CompanySelection />
+        </TestWrapper>
+      );
 
-      // Simulate checking heading structure
-      Object.entries(headingStructure).forEach(([_tag, count]) => {
-        // This would normally check actual DOM elements
-        expect(count).toBeGreaterThanOrEqual(0);
-      });
-    });
-
-    it('should have proper ARIA labels', () => {
-      // Test common ARIA attributes
-      const ariaAttributes = [
-        'aria-label',
-        'aria-labelledby',
-        'aria-describedby',
-        'aria-hidden',
-        'aria-expanded',
-        'aria-selected',
-        'aria-required',
-        'aria-invalid'
-      ];
-
-      ariaAttributes.forEach(attribute => {
-        // This would normally check actual DOM elements
-        expect(attribute).toBeDefined();
-      });
-    });
-
-    it('should have proper form labels', () => {
-      // Test form accessibility
-      const formElements = [
-        { type: 'text', label: 'Name' },
-        { type: 'email', label: 'Email' },
-        { type: 'password', label: 'Password' },
-        { type: 'select', label: 'Department' },
-        { type: 'textarea', label: 'Description' }
-      ];
-
-      formElements.forEach(element => {
-        // This would normally check actual form elements
-        expect(element.label).toBeDefined();
-        expect(element.type).toBeDefined();
-      });
-    });
-
-    it('should have proper button labels', () => {
-      // Test button accessibility
-      const buttons = [
-        { text: 'Submit', ariaLabel: 'Submit form' },
-        { text: 'Cancel', ariaLabel: 'Cancel operation' },
-        { text: 'Delete', ariaLabel: 'Delete item' },
-        { text: 'Edit', ariaLabel: 'Edit item' },
-        { text: 'Save', ariaLabel: 'Save changes' }
-      ];
-
-      buttons.forEach(button => {
-        expect(button.text).toBeDefined();
-        expect(button.ariaLabel).toBeDefined();
-      });
+      // Check for main heading
+      const mainHeading = screen.getByRole('heading', { level: 1 });
+      expect(mainHeading).toBeInTheDocument();
     });
   });
 
-  describe('Keyboard Navigation', () => {
-    it('should support tab navigation', async () => {
-      
-      // Test tab order
-      const focusableElements = [
-        'input[type="text"]',
-        'input[type="email"]',
-        'input[type="password"]',
-        'button',
-        'select',
-        'textarea',
-        'a[href]'
-      ];
+  describe('Dashboard Page', () => {
+    it('should have no critical accessibility violations', async () => {
+      const { container } = render(
+        <TestWrapper>
+          <Dashboard />
+        </TestWrapper>
+      );
 
-      focusableElements.forEach(selector => {
-        // This would normally check actual DOM elements
-        expect(selector).toBeDefined();
-      });
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
 
-    it('should support arrow key navigation', async () => {
-      
-      // Test arrow key navigation for lists and menus
-      const navigableElements = [
-        'ul li',
-        'select option',
-        'table tr',
-        'menu item'
-      ];
+    it('should have proper navigation structure', () => {
+      render(
+        <TestWrapper>
+          <Dashboard />
+        </TestWrapper>
+      );
 
-      navigableElements.forEach(selector => {
-        // This would normally check actual DOM elements
-        expect(selector).toBeDefined();
-      });
-    });
+      // Check for navigation landmarks
+      const nav = screen.getByRole('navigation');
+      expect(nav).toBeInTheDocument();
 
-    it('should support Enter and Space key activation', async () => {
-      
-      // Test keyboard activation
-      const activatableElements = [
-        'button',
-        'a[href]',
-        'input[type="checkbox"]',
-        'input[type="radio"]',
-        'select'
-      ];
-
-      activatableElements.forEach(selector => {
-        // This would normally check actual DOM elements
-        expect(selector).toBeDefined();
-      });
-    });
-
-    it('should support Escape key for closing modals', async () => {
-      
-      // Test modal accessibility
-      const modalElements = [
-        'dialog',
-        '[role="dialog"]',
-        '[role="alertdialog"]'
-      ];
-
-      modalElements.forEach(selector => {
-        // This would normally check actual DOM elements
-        expect(selector).toBeDefined();
-      });
+      // Check for main content area
+      const main = screen.getByRole('main');
+      expect(main).toBeInTheDocument();
     });
   });
 
-  describe('Screen Reader Compatibility', () => {
-    it('should have proper alt text for images', () => {
-      // Test image accessibility
-      const images = [
-        { src: 'logo.png', alt: 'Company Logo' },
-        { src: 'avatar.jpg', alt: 'User Avatar' },
-        { src: 'chart.png', alt: 'Performance Chart' },
-        { src: 'icon.svg', alt: 'Settings Icon' }
-      ];
+  describe('Employees Page', () => {
+    it('should have no critical accessibility violations', async () => {
+      const { container } = render(
+        <TestWrapper>
+          <Employees />
+        </TestWrapper>
+      );
 
-      images.forEach(image => {
-        expect(image.alt).toBeDefined();
-        expect(image.alt.length).toBeGreaterThan(0);
-      });
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
 
-    it('should have proper table headers', () => {
-      // Test table accessibility
-      const tables = [
-        {
-          headers: ['Name', 'Email', 'Department', 'Salary'],
-          hasScope: true,
-          hasCaption: true
+    it('should have proper table accessibility', () => {
+      render(
+        <TestWrapper>
+          <Employees />
+        </TestWrapper>
+      );
+
+      // Check for table with proper structure
+      const table = screen.getByRole('table');
+      expect(table).toBeInTheDocument();
+
+      // Check for table headers
+      const headers = screen.getAllByRole('columnheader');
+      expect(headers.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Documents Page', () => {
+    it('should have no critical accessibility violations', async () => {
+      const { container } = render(
+        <TestWrapper>
+          <Documents />
+        </TestWrapper>
+      );
+
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
+    });
+
+    it('should have proper file upload accessibility', () => {
+      render(
+        <TestWrapper>
+          <Documents />
+        </TestWrapper>
+      );
+
+      // Check for file input with proper labeling
+      const fileInput = screen.getByLabelText(/file|ملف/i);
+      expect(fileInput).toBeInTheDocument();
+      expect(fileInput).toHaveAttribute('type', 'file');
+    });
+  });
+
+  describe('Global Accessibility', () => {
+    it('should have proper page title', () => {
+      render(
+        <TestWrapper>
+          <Login />
+        </TestWrapper>
+      );
+
+      expect(document.title).toBeTruthy();
+    });
+
+    it('should have proper language attribute', () => {
+      render(
+        <TestWrapper>
+          <Login />
+        </TestWrapper>
+      );
+
+      expect(document.documentElement).toHaveAttribute('lang');
+    });
+
+    it('should have skip links for keyboard users', () => {
+      render(
+        <TestWrapper>
+          <Dashboard />
+        </TestWrapper>
+      );
+
+      // Look for skip links
+      const skipLinks = screen.queryAllByRole('link', { name: /skip|تخطي/i });
+      expect(skipLinks.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Color Contrast and Visual Accessibility', () => {
+    it('should have sufficient color contrast', async () => {
+      const { container } = render(
+        <TestWrapper>
+          <Login />
+        </TestWrapper>
+      );
+
+      const results = await axe(container, {
+        rules: {
+          'color-contrast': { enabled: true },
         },
-        {
-          headers: ['Document', 'Type', 'Size', 'Upload Date'],
-          hasScope: true,
-          hasCaption: true
-        }
-      ];
-
-      tables.forEach(table => {
-        expect(table.headers).toBeDefined();
-        expect(table.headers.length).toBeGreaterThan(0);
-        expect(table.hasScope).toBe(true);
-        expect(table.hasCaption).toBe(true);
       });
+
+      // Check for color contrast violations
+      const colorContrastViolations = results.violations.filter(
+        violation => violation.id === 'color-contrast'
+      );
+      expect(colorContrastViolations).toHaveLength(0);
     });
 
-    it('should have proper list semantics', () => {
-      // Test list accessibility
-      const lists = [
-        { type: 'ul', items: 5, hasLabel: true },
-        { type: 'ol', items: 3, hasLabel: true },
-        { type: 'dl', items: 4, hasLabel: true }
-      ];
+    it('should have proper focus indicators', async () => {
+      const { container } = render(
+        <TestWrapper>
+          <Login />
+        </TestWrapper>
+      );
 
-      lists.forEach(list => {
-        expect(list.type).toBeDefined();
-        expect(list.items).toBeGreaterThan(0);
-        expect(list.hasLabel).toBe(true);
+      const results = await axe(container, {
+        rules: {
+          'focus-visible': { enabled: true },
+        },
       });
-    });
 
-    it('should announce dynamic content changes', () => {
-      // Test live regions
-      const liveRegions = [
-        { role: 'status', ariaLive: 'polite' },
-        { role: 'alert', ariaLive: 'assertive' },
-        { role: 'log', ariaLive: 'polite' },
-        { role: 'marquee', ariaLive: 'off' }
-      ];
-
-      liveRegions.forEach(region => {
-        expect(region.role).toBeDefined();
-        expect(region.ariaLive).toBeDefined();
-      });
+      // Check for focus visibility violations
+      const focusViolations = results.violations.filter(
+        violation => violation.id === 'focus-visible'
+      );
+      expect(focusViolations).toHaveLength(0);
     });
   });
 
-  describe('Color and Contrast', () => {
-    it('should meet minimum contrast ratios', () => {
-      // Test color contrast ratios
-      const colorPairs = [
-        { foreground: '#000000', background: '#FFFFFF', ratio: 21.0 }, // Black on white
-        { foreground: '#1A1A1A', background: '#FFFFFF', ratio: 15.0 }, // Very dark gray on white
-        { foreground: '#2D2D2D', background: '#FFFFFF', ratio: 10.0 }, // Dark gray on white
-        { foreground: '#FFFFFF', background: '#000000', ratio: 21.0 }, // White on black
-        { foreground: '#FFFFFF', background: '#0B1426', ratio: 8.3 }   // White on dark blue
-      ];
+  describe('Screen Reader Accessibility', () => {
+    it('should have proper ARIA labels and descriptions', async () => {
+      const { container } = render(
+        <TestWrapper>
+          <Login />
+        </TestWrapper>
+      );
 
-      colorPairs.forEach(pair => {
-        const calculatedRatio = calculateContrastRatio(pair.foreground, pair.background);
-        expect(calculatedRatio).toBeGreaterThanOrEqual(4.5); // WCAG AA minimum for normal text
+      const results = await axe(container, {
+        rules: {
+          'aria-allowed-attr': { enabled: true },
+          'aria-required-attr': { enabled: true },
+          'aria-valid-attr-value': { enabled: true },
+        },
       });
+
+      // Check for ARIA violations
+      const ariaViolations = results.violations.filter(
+        violation => violation.id.startsWith('aria-')
+      );
+      expect(ariaViolations).toHaveLength(0);
     });
 
-    it('should not rely solely on color for information', () => {
-      // Test color independence
-      const colorDependentElements = [
-        { type: 'link', hasUnderline: true },
-        { type: 'error', hasIcon: true },
-        { type: 'success', hasIcon: true },
-        { type: 'warning', hasIcon: true }
-      ];
+    it('should have proper heading hierarchy', async () => {
+      const { container } = render(
+        <TestWrapper>
+          <Dashboard />
+        </TestWrapper>
+      );
 
-      colorDependentElements.forEach(element => {
-        expect(element.hasUnderline ?? element.hasIcon).toBe(true);
+      const results = await axe(container, {
+        rules: {
+          'heading-order': { enabled: true },
+        },
       });
-    });
 
-    it('should support high contrast mode', () => {
-      // Test high contrast support
-      const highContrastElements = [
-        { element: 'button', hasBorder: true },
-        { element: 'input', hasBorder: true },
-        { element: 'link', hasUnderline: true },
-        { element: 'focus', hasOutline: true }
-      ];
-
-      highContrastElements.forEach(item => {
-        expect(item.hasBorder ?? item.hasUnderline ?? item.hasOutline).toBe(true);
-      });
-    });
-  });
-
-  describe('Focus Management', () => {
-    it('should have visible focus indicators', () => {
-      // Test focus visibility
-      const focusableElements = [
-        'button',
-        'input',
-        'select',
-        'textarea',
-        'a[href]',
-        '[tabindex]'
-      ];
-
-      focusableElements.forEach(selector => {
-        // This would normally check actual DOM elements
-        expect(selector).toBeDefined();
-      });
-    });
-
-    it('should manage focus in modals', () => {
-      // Test modal focus management
-      const modalFocusBehavior = {
-        trapFocus: true,
-        returnFocus: true,
-        initialFocus: true,
-        hasCloseButton: true
-      };
-
-      expect(modalFocusBehavior.trapFocus).toBe(true);
-      expect(modalFocusBehavior.returnFocus).toBe(true);
-      expect(modalFocusBehavior.initialFocus).toBe(true);
-      expect(modalFocusBehavior.hasCloseButton).toBe(true);
-    });
-
-    it('should skip navigation links', () => {
-      // Test skip links
-      const skipLinks = [
-        { href: '#main-content', text: 'Skip to main content' },
-        { href: '#navigation', text: 'Skip to navigation' },
-        { href: '#footer', text: 'Skip to footer' }
-      ];
-
-      skipLinks.forEach(link => {
-        expect(link.href).toBeDefined();
-        expect(link.text).toBeDefined();
-      });
-    });
-  });
-
-  describe('Form Accessibility', () => {
-    it('should have proper form validation', () => {
-      // Test form validation accessibility
-      const formValidation = [
-        { field: 'email', required: true, pattern: 'email', ariaInvalid: true },
-        { field: 'password', required: true, minLength: 8, ariaInvalid: true },
-        { field: 'phone', required: false, pattern: 'phone', ariaInvalid: false }
-      ];
-
-      formValidation.forEach(validation => {
-        expect(validation.field).toBeDefined();
-        expect(validation.required !== undefined).toBe(true);
-      });
-    });
-
-    it('should have proper error messaging', () => {
-      // Test error message accessibility
-      const errorMessages = [
-        { field: 'email', message: 'Please enter a valid email address', ariaDescribedby: true },
-        {
-   field: 'password', message: 'Password must be at least 8 characters', ariaDescribedby: true 
-},
-        { field: 'confirmPassword', message: 'Passwords do not match', ariaDescribedby: true }
-      ];
-
-      errorMessages.forEach(error => {
-        expect(error.message).toBeDefined();
-        expect(error.ariaDescribedby).toBe(true);
-      });
-    });
-
-    it('should have proper field grouping', () => {
-      // Test fieldset and legend usage
-      const fieldGroups = [
-        { legend: 'Personal Information', fields: ['firstName', 'lastName', 'email'] },
-        { legend: 'Address Information', fields: ['street', 'city', 'zipCode'] },
-        { legend: 'Employment Details', fields: ['position', 'department', 'salary'] }
-      ];
-
-      fieldGroups.forEach(group => {
-        expect(group.legend).toBeDefined();
-        expect(group.fields.length).toBeGreaterThan(0);
-      });
-    });
-  });
-
-  describe('Mobile Accessibility', () => {
-    it('should have proper touch targets', () => {
-      // Test touch target sizes
-      const touchTargets = [
-        { element: 'button', minSize: 44 },
-        { element: 'link', minSize: 44 },
-        { element: 'input', minSize: 44 },
-        { element: 'select', minSize: 44 }
-      ];
-
-      touchTargets.forEach(target => {
-        expect(target.minSize).toBeGreaterThanOrEqual(44); // 44px minimum for touch targets
-      });
-    });
-
-    it('should support gesture alternatives', () => {
-      // Test gesture alternatives
-      const gestureAlternatives = [
-        { gesture: 'swipe', alternative: 'button' },
-        { gesture: 'pinch', alternative: 'zoom controls' },
-        { gesture: 'long press', alternative: 'context menu' }
-      ];
-
-      gestureAlternatives.forEach(item => {
-        expect(item.alternative).toBeDefined();
-      });
-    });
-
-    it('should have proper viewport settings', () => {
-      // Test viewport accessibility
-      const viewportSettings = {
-        width: 'device-width',
-        initialScale: 1,
-        userScalable: true,
-        maximumScale: 5
-      };
-
-      expect(viewportSettings.width).toBe('device-width');
-      expect(viewportSettings.initialScale).toBe(1);
-      expect(viewportSettings.userScalable).toBe(true);
-      expect(viewportSettings.maximumScale).toBeGreaterThan(1);
-    });
-  });
-
-  describe('Assistive Technology Support', () => {
-    it('should work with screen readers', () => {
-      // Test screen reader compatibility
-      const screenReaderSupport = [
-        { element: 'button', hasAccessibleName: true },
-        { element: 'input', hasAccessibleName: true },
-        { element: 'image', hasAltText: true },
-        { element: 'table', hasHeaders: true }
-      ];
-
-      screenReaderSupport.forEach(item => {
-        expect(item.hasAccessibleName ?? item.hasAltText ?? item.hasHeaders).toBe(true);
-      });
-    });
-
-    it('should support voice control', () => {
-      // Test voice control compatibility
-      const voiceControlSupport = [
-        { element: 'button', hasLabel: true },
-        { element: 'link', hasText: true },
-        { element: 'input', hasLabel: true },
-        { element: 'form', hasSubmit: true }
-      ];
-
-      voiceControlSupport.forEach(item => {
-        expect(item.hasLabel ?? item.hasText ?? item.hasSubmit).toBe(true);
-      });
-    });
-
-    it('should support switch navigation', () => {
-      // Test switch navigation support
-      const switchNavigation = {
-        hasLogicalOrder: true,
-        hasSkipOptions: true,
-        hasTimeout: true,
-        hasVisualFeedback: true
-      };
-
-      expect(switchNavigation.hasLogicalOrder).toBe(true);
-      expect(switchNavigation.hasSkipOptions).toBe(true);
-      expect(switchNavigation.hasTimeout).toBe(true);
-      expect(switchNavigation.hasVisualFeedback).toBe(true);
+      // Check for heading order violations
+      const headingViolations = results.violations.filter(
+        violation => violation.id === 'heading-order'
+      );
+      expect(headingViolations).toHaveLength(0);
     });
   });
 }); 

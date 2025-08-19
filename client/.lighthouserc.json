@@ -1,0 +1,25 @@
+{
+  "ci": {
+    "collect": {
+      "numberOfRuns": 3,
+      "startServerCommand": "vite preview --port 4173 --strictPort",
+      "startServerReadyPattern": "Local:",
+      "url": [
+        "http://localhost:4173/"
+      ]
+    },
+    "assert": {
+      "preset": "lighthouse:recommended",
+      "assertions": {
+        "categories:performance": ["error", { "minScore": 0.85 }],
+        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1, "aggregationMethod": "median" }],
+        "largest-contentful-paint": ["error", { "maxNumericValue": 2500, "aggregationMethod": "median" }]
+      }
+    },
+    "upload": {
+      "target": "temporary-public-storage"
+    }
+  }
+}
+
+

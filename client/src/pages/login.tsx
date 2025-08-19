@@ -9,11 +9,13 @@ import {Loader2, User, Lock, AlertCircle} from 'lucide-react';
 import {useToast} from '../hooks/use-toast';
 import {getDashboardRouteWithCompany} from '../lib/routes';
 import {useAppStore} from '../stores/useAppStore';
+import {useTranslation} from 'react-i18next';
 
 export default function Login () {
 
   const [, setLocation] = useLocation();
   const {toast} = useToast();
+  const {t} = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -70,10 +72,8 @@ export default function Login () {
    companyName ?? undefined);
 
         toast({
-          'title': 'تسجيل دخول ناجح',
-          'description': `مرحباً بك في نظام Zeylab HRMS - ${
-  userRole === 'super_admin' ? 'المسؤول العام' : companyName ?? "الشركة"
-}`
+          'title': t('auth.loginSuccess'),
+          'description': t('auth.welcomeMessage', { company: userRole === 'super_admin' ? t('auth.admin') : companyName ?? t('common.companies') })
         });
 
         // تحديث حالة المستخدم في المتجر
@@ -110,13 +110,13 @@ export default function Login () {
 
       } else {
 
-        setError('يرجى إدخال اسم المستخدم وكلمة المرور');
+        setError(t('validation.required'));
 
       }
 
     } catch {
 
-      setError('خطأ في تسجيل الدخول. يرجى المحاولة مرة أخرى.');
+      setError(t('auth.loginError'));
 
     } finally {
 
@@ -133,9 +133,9 @@ export default function Login () {
           <div className="mx-auto mb-4 w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
             <User className="h-10 w-10 text-primary" />
           </div>
-          <CardTitle className="text-2xl">تسجيل الدخول</CardTitle>
+          <CardTitle className="text-2xl">{t('auth.login')}</CardTitle>
           <CardDescription>
-            نظام إدارة الموارد البشرية - Zeylab HRMS
+            {t('auth.loginDescription')}
             {companyName && (
               <div className="mt-2 text-sm font-medium text-primary">
                 {companyName}
@@ -153,13 +153,13 @@ export default function Login () {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="username">اسم المستخدم</Label>
+              <Label htmlFor="username">{t('auth.username')}</Label>
               <div className="relative">
                 <User className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="username"
                   type="text"
-                  placeholder="أدخل اسم المستخدم"
+                  placeholder={t('auth.username')}
                   value={formData.username}
                   onChange={(e) => setFormData({...formData, 'username': e.target.value})}
                   className="pr-10"
@@ -170,13 +170,13 @@ export default function Login () {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">كلمة المرور</Label>
+              <Label htmlFor="password">{t('auth.password')}</Label>
               <div className="relative">
                 <Lock className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
                   type="password"
-                  placeholder="أدخل كلمة المرور"
+                  placeholder={t('auth.password')}
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, 'password': e.target.value})}
                   className="pr-10"
@@ -190,10 +190,10 @@ export default function Login () {
               {isLoading ? (
                 <>
                   <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                  جاري تسجيل الدخول...
+                  {t('common.loading')}
                 </>
               ) : (
-                'تسجيل الدخول'
+                t('auth.login')
               )}
             </Button>
           </form>

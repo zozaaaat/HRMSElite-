@@ -7,6 +7,7 @@ import {
 } from './ui/dropdown-menu';
 import {Search, Settings, User as UserIcon, LogOut, Moon, Sun} from 'lucide-react';
 import {NotificationCenter} from './notification-center';
+import {LanguageSwitcher} from './LanguageSwitcher';
 import type {User} from '../lib/authUtils';
 import type {Company} from '../../../shared/schema';
 
@@ -100,6 +101,9 @@ export function Header ({
           {user && (
             <NotificationCenter userId={user.id} />
           )}
+
+          {/* Language Switcher */}
+          <LanguageSwitcher />
 
           {/* زر تبديل المظهر */}
           <Button
