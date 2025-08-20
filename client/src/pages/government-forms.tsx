@@ -100,6 +100,7 @@ function GovernmentFormsContent () {
       const response = await fetch('/api/form-requests', {
         'method': 'POST',
         'headers': {'Content-Type': 'application/json'},
+        'credentials': 'include',
         'body': JSON.stringify(formData)
       });
       if (!response.ok) {
@@ -137,7 +138,8 @@ function GovernmentFormsContent () {
 
       const response = await fetch(`/api/government-forms/${formId}/auto-fill`, {
         'method': 'POST',
-        'headers': {'Content-Type': 'application/json'}
+        'headers': {'Content-Type': 'application/json'},
+        'credentials': 'include'
       });
       if (!response.ok) {
 

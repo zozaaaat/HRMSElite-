@@ -10,7 +10,6 @@ vi.mock('../../src/lib/authUtils');
 vi.mock('../../src/stores/useUserStore', () => ({
   useUserActions: () => ({
     setUser: vi.fn(),
-    setToken: vi.fn(),
     updateUser: vi.fn(),
     setCurrentCompany: vi.fn(),
     setPermissions: vi.fn(),
@@ -529,7 +528,6 @@ describe('useAuth Hook', () => {
       const { result } = renderHook(() => useAuth());
 
       expect(typeof result.current.setUser).toBe('function');
-      expect(typeof result.current.setToken).toBe('function');
       expect(typeof result.current.updateUser).toBe('function');
       expect(typeof result.current.setCurrentCompany).toBe('function');
       expect(typeof result.current.setPermissions).toBe('function');

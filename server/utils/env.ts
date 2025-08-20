@@ -9,6 +9,7 @@ const envSchema = z.object({
   // Required secrets with minimum length validation
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters long'),
   SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 characters long'),
+  DB_ENCRYPTION_KEY: z.string().min(32, 'DB_ENCRYPTION_KEY must be at least 32 characters long'),
   
   // Optional environment variables with defaults
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -20,6 +21,7 @@ const envSchema = z.object({
   
   // Database configuration
   DATABASE_URL: z.string().optional(),
+  DB_ENCRYPTION_KEY_PREVIOUS: z.string().min(32).optional(),
   
   // CORS configuration
   CORS_ORIGINS: z.string().optional(),

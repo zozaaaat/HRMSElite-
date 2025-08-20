@@ -8,7 +8,6 @@ export {
   useCurrentUserId,
   useCurrentUserRole,
   useCurrentUserCompanyId,
-  useCurrentUserToken,
   useIsUserAuthenticated,
   useUserActions,
   useUserStoreComplete

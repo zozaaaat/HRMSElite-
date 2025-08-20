@@ -534,14 +534,17 @@ export const securityMonitoring = (req: Request, res: Response, next: NextFuncti
 function parseCorsOrigins(): string[] {
   // Use CORS_ORIGINS first, fallback to ALLOWED_ORIGINS for legacy support
   const corsOrigins = process.env.CORS_ORIGINS || process.env.ALLOWED_ORIGINS;
-  
+
   if (!corsOrigins) {
     log.warn('CORS_ORIGINS not set, using default localhost origin', {}, 'SECURITY');
     return ['http://localhost:3000'];
   }
 
-  const origins = corsOrigins.split(',').map(origin => origin.trim()).filter(origin => origin.length > 0);
-  
+  const origins = corsOrigins
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(origin => origin.length > 0);
+
   if (origins.length === 0) {
     log.warn('No valid CORS origins found, using default localhost origin', {}, 'SECURITY');
     return ['http://localhost:3000'];
@@ -567,44 +570,41 @@ function parseCorsOrigins(): string[] {
   return validOrigins;
 }
 
-/**
- * CORS origin validation function
- */
-function validateCorsOrigin(origin: string, callback: (error: Error | null, allow?: boolean) => void): void {
-  const allowedOrigins = parseCorsOrigins();
-  
-  // Allow requests with no origin (like mobile apps or Postman)
-  if (!origin) {
-    return callback(null, true);
-  }
-
-  // Check if origin is in allowlist
-  if (allowedOrigins.includes(origin)) {
-    return callback(null, true);
-  }
-
-  // Log unauthorized origin attempts
-  log.warn('CORS origin rejected', {
-    origin,
-    allowedOrigins,
-    userAgent: 'Unknown', // Will be set by middleware
-    timestamp: new Date().toISOString()
-  }, 'SECURITY');
-
-  return callback(new Error('CORS origin not allowed'), false);
-}
+// Parse origins once at startup
+const allowedCorsOrigins = parseCorsOrigins();
 
 /**
- * CORS Configuration with Secure Origin Validation
+ * CORS configuration with strict origin validation and detailed logging
  */
-export const corsConfig = {
-  origin: validateCorsOrigin,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Requested-With'],
-  exposedHeaders: ['X-CSRF-Token'],
-  maxAge: 86400, // 24 hours
-  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+export const corsConfig = (req: Request, callback: (err: Error | null, options?: any) => void) => {
+  const origin = req.header('Origin');
+
+  // Allow requests with no origin (mobile apps, Postman)
+  if (!origin || allowedCorsOrigins.includes(origin)) {
+    return callback(null, {
+      origin: origin || true,
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Requested-With'],
+      exposedHeaders: ['X-CSRF-Token', 'X-Request-ID', 'X-Response-Time']
+    });
+  }
+
+  // Log unauthorized origin attempts with request ID
+  log.warn(
+    'CORS origin rejected',
+    {
+      origin,
+      allowedOrigins: allowedCorsOrigins,
+      requestId: req.id,
+      timestamp: new Date().toISOString()
+    },
+    'SECURITY'
+  );
+
+  const error: Error & { status?: number } = new Error('CORS origin not allowed');
+  error.status = 403;
+  return callback(error);
 };
 
 /**

@@ -53,7 +53,7 @@ export default function Dashboard ({role = 'admin'}: DashboardProps) {
     queryFn: async (): Promise<DashboardData> => {
 
       log.apiRequest('GET', `/api/dashboard/${role}`);
-      const response = await fetch(`/api/dashboard/${role}`);
+      const response = await fetch(`/api/dashboard/${role}`, { 'credentials': 'include' });
       if (!response.ok) {
 
         throw new Error('Failed to fetch dashboard data');

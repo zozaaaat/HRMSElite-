@@ -85,7 +85,7 @@ export const useAuthCore = () => {
     } finally {
       setLoading(false);
     }
-  }, [setUser, setToken, setLoading, setError]);
+  }, [setUser, setLoading, setError]);
 
   /**
    * Core logout functionality

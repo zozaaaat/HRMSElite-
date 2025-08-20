@@ -193,7 +193,7 @@ const AISummary = ({companyId}: { companyId: string }) => {
 
   const { data: aiSummary, isLoading, error } = useQuery<AISummaryResponse>({
     queryKey: ['ai-summary', companyId],
-    queryFn: () => fetch(`/api/ai/summary?companyId=${companyId}`).then(res => res.json())
+    queryFn: () => fetch(`/api/ai/summary?companyId=${companyId}`, { 'credentials': 'include' }).then(res => res.json())
   });
 
   if (isLoading) {
@@ -330,7 +330,7 @@ const AIInsights = ({companyId}: { companyId: string }) => {
 
   const { data: insights, isLoading } = useQuery<AIInsightsResponse>({
     queryKey: ['ai-insights', companyId, selectedType],
-    queryFn: () => fetch(`/api/ai/insights?companyId=${companyId}&type=${selectedType}`).then(res => res.json())
+    queryFn: () => fetch(`/api/ai/insights?companyId=${companyId}&type=${selectedType}`, { 'credentials': 'include' }).then(res => res.json())
   });
 
   return (
@@ -409,7 +409,7 @@ const AIPredictions = ({companyId}: { companyId: string }) => {
 
   const { data: predictions, isLoading } = useQuery<AIPredictionsResponse>({
     queryKey: ['ai-predictions', companyId, selectedTimeframe],
-    queryFn: () => fetch(`/api/ai/predictions?companyId=${companyId}&timeframe=${selectedTimeframe}`).then(res => res.json())
+    queryFn: () => fetch(`/api/ai/predictions?companyId=${companyId}&timeframe=${selectedTimeframe}`, { 'credentials': 'include' }).then(res => res.json())
   });
 
   return (
@@ -509,7 +509,7 @@ const AITrends = ({companyId}: { companyId: string }) => {
 
   const { data: trends, isLoading } = useQuery<AITrendsResponse>({
     queryKey: ['ai-trends', companyId, selectedMetric],
-    queryFn: () => fetch(`/api/ai/trends?companyId=${companyId}&metric=${selectedMetric}`).then(res => res.json())
+    queryFn: () => fetch(`/api/ai/trends?companyId=${companyId}&metric=${selectedMetric}`, { 'credentials': 'include' }).then(res => res.json())
   });
 
   return (
