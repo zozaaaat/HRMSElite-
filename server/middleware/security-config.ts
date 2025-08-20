@@ -39,7 +39,8 @@ export interface SecurityConfig {
     contentSecurityPolicy: {
       directives: Record<string, string[]>;
     };
-    crossOriginEmbedderPolicy: boolean;
+    crossOriginOpenerPolicy: boolean | { policy: string };
+    crossOriginEmbedderPolicy: boolean | { policy: string };
     crossOriginResourcePolicy: {
       policy: string;
     };
@@ -103,7 +104,8 @@ export const defaultSecurityConfig: SecurityConfig = {
         ...(process.env.NODE_ENV === 'production' && {'upgradeInsecureRequests': []})
       }
     },
-    'crossOriginEmbedderPolicy': false, // Disable for development compatibility
+    'crossOriginOpenerPolicy': false,
+    'crossOriginEmbedderPolicy': false,
     'crossOriginResourcePolicy': {
       'policy': 'cross-origin'
     }
@@ -148,7 +150,8 @@ export const productionSecurityConfig: SecurityConfig = {
   },
   'helmet': {
     ...defaultSecurityConfig.helmet,
-    'crossOriginEmbedderPolicy': true, // Enable in production
+    'crossOriginOpenerPolicy': { 'policy': 'same-origin' },
+    'crossOriginEmbedderPolicy': { 'policy': 'require-corp' },
     'contentSecurityPolicy': {
       'directives': {
         ...defaultSecurityConfig.helmet.contentSecurityPolicy.directives,
@@ -171,6 +174,7 @@ export const developmentSecurityConfig: SecurityConfig = {
   },
   'helmet': {
     ...defaultSecurityConfig.helmet,
+    'crossOriginOpenerPolicy': false,
     'crossOriginEmbedderPolicy': false // Disable for development
   },
   'fileUpload': {
