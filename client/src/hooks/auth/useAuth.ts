@@ -68,7 +68,6 @@ export const useAuth = () => {
 
     // Store Actions (for advanced usage)
     setUser: core.setUser,
-    setToken: core.setToken,
     updateUser: core.updateUser,
     setCurrentCompany: core.setCurrentCompany,
     setPermissions: core.setPermissions,

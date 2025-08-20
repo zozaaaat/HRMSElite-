@@ -109,22 +109,10 @@ export const documentService = {
 
   // Download document
   async downloadDocument (id: string): Promise<Blob> {
-
-    const response = await fetch(`/api/documents/${id}/download`, {
+    return apiRequest<Blob>(`/api/documents/${id}/download`, {
       'method': 'GET',
-      'headers': {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
+      'responseType': 'blob'
     });
-
-    if (!response.ok) {
-
-      throw new Error('Failed to download document');
-
-    }
-
-    return response.blob();
-
   },
 
   // Get document categories

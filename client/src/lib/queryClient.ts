@@ -116,7 +116,7 @@ export const prefetchQueries = async () => {
   // Prefetch user data with longer cache time
   await queryClient.prefetchQuery({
     'queryKey': ['user'],
-    'queryFn': () => fetch('/api/user').then(res => res.json()),
+    'queryFn': () => fetch('/api/user', { 'credentials': 'include' }).then(res => res.json()),
     'staleTime': 15 * 60 * 1000, // 15 minutes
     'gcTime': 60 * 60 * 1000 // 1 hour
   });
@@ -124,7 +124,7 @@ export const prefetchQueries = async () => {
   // Prefetch companies data with longer cache time
   await queryClient.prefetchQuery({
     'queryKey': ['companies'],
-    'queryFn': () => fetch('/api/companies').then(res => res.json()),
+    'queryFn': () => fetch('/api/companies', { 'credentials': 'include' }).then(res => res.json()),
     'staleTime': 20 * 60 * 1000, // 20 minutes
     'gcTime': 60 * 60 * 1000 // 1 hour
   });
@@ -132,7 +132,7 @@ export const prefetchQueries = async () => {
   // Prefetch employees data
   await queryClient.prefetchQuery({
     'queryKey': ['employees'],
-    'queryFn': () => fetch('/api/employees').then(res => res.json()),
+    'queryFn': () => fetch('/api/employees', { 'credentials': 'include' }).then(res => res.json()),
     'staleTime': 10 * 60 * 1000, // 10 minutes
     'gcTime': 30 * 60 * 1000 // 30 minutes
   });
