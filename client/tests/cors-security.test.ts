@@ -305,6 +305,7 @@ describe('CORS Security Configuration', () => {
         expect.objectContaining({
           origin: 'https://malicious-site.com',
           allowedOrigins: ['https://app.example.com'],
+          requestId: expect.any(String),
           timestamp: expect.any(String)
         }),
         'SECURITY'
@@ -406,6 +407,7 @@ describe('CORS Security Configuration', () => {
         expect.objectContaining({
           origin: maliciousOrigin,
           allowedOrigins: ['https://app.example.com', 'https://admin.example.com'],
+          requestId: expect.any(String),
           timestamp: expect.any(String)
         }),
         'SECURITY'
