@@ -97,6 +97,7 @@
 # Database Security
 DB_ENCRYPTION_ENABLED=true
 DB_ENCRYPTION_KEY=your-32-byte-hex-key
+# DB_ENCRYPTION_KEY_PREVIOUS=old-key-for-rotation
 
 # Backup Configuration
 DB_BACKUP_DIR=./backups
@@ -118,6 +119,12 @@ DB_AUDIT_LOG_CONNECTIONS=true
 3. **Backup Storage**: Configure secure backup storage location
 4. **Monitoring**: Enable audit logging and monitoring alerts
 5. **Scheduled Tasks**: Setup automated backup scheduling
+
+### **Key Rotation**
+1. Generate a new 32+ character key.
+2. Set `DB_ENCRYPTION_KEY` to the new key and `DB_ENCRYPTION_KEY_PREVIOUS` to the old key.
+3. Restart the application; the database will re-encrypt with the new key at startup.
+4. Remove `DB_ENCRYPTION_KEY_PREVIOUS` after confirming successful rotation.
 
 ## 🚀 **Usage Examples**
 

@@ -17,6 +17,7 @@ This runbook provides step-by-step procedures for database backup, restore, and 
 DATABASE_URL=./data/hrms.db
 DB_ENCRYPTION_ENABLED=true
 DB_ENCRYPTION_KEY=your-32-byte-hex-key
+# DB_ENCRYPTION_KEY_PREVIOUS=old-key-for-rotation
 
 # Backup Configuration
 DB_BACKUP_DIR=./backups
@@ -30,6 +31,12 @@ DB_BACKUP_RETENTION_MONTHLY=12
 NODE_ENV=production
 DB_AUDIT_ENABLED=true
 ```
+
+## Key Rotation
+1. Generate a new 32+ character key.
+2. Set `DB_ENCRYPTION_KEY` to the new key and `DB_ENCRYPTION_KEY_PREVIOUS` to the old key.
+3. Restart the application to re-encrypt the database at startup.
+4. Remove `DB_ENCRYPTION_KEY_PREVIOUS` once rotation is verified.
 
 ## Backup Procedures
 

@@ -9,9 +9,8 @@ import { drizzle } from 'drizzle-orm/better-sqlite3';
 import Database from 'better-sqlite3';
 import SQLCipher from '@journeyapps/sqlcipher';
 import * as schema from '@shared/schema';
-import crypto from 'crypto';
 import { log } from './logger';
-import 'dotenv/config';
+import { env } from './env';
 
 export interface DatabaseSecurityConfig {
   encryption: {
@@ -58,6 +57,7 @@ export interface DatabaseStatus {
 export class SecureDatabaseManager {
   private config: DatabaseSecurityConfig;
   private encryptionKey: string;
+  private previousEncryptionKey?: string;
   private database: Database.Database | null = null;
   private drizzleDb: any = null;
 
@@ -94,27 +94,8 @@ export class SecureDatabaseManager {
       ...config
     };
 
-    this.encryptionKey = this.generateOrRetrieveKey();
-  }
-
-  /**
-   * Generate or retrieve encryption key
-   */
-  private generateOrRetrieveKey(): string {
-    const keyFromEnv = process.env.DB_ENCRYPTION_KEY;
-    
-    if (keyFromEnv) {
-      return keyFromEnv;
-    }
-
-    // Generate a new key if none exists
-    const key = crypto.randomBytes(32).toString('hex');
-    
-    log.warn('Database encryption key not found in environment. Generated new key. Please save this key securely:', {
-      key: key.substring(0, 8) + '...' // Only log first 8 characters for security
-    });
-
-    return key;
+    this.encryptionKey = env.DB_ENCRYPTION_KEY;
+    this.previousEncryptionKey = env.DB_ENCRYPTION_KEY_PREVIOUS;
   }
 
   /**
@@ -122,19 +103,32 @@ export class SecureDatabaseManager {
    */
   public async initializeDatabase(dbPath?: string): Promise<any> {
     try {
-      const databasePath = dbPath || process.env.DATABASE_URL || 'dev.db';
-      
+      const databasePath = dbPath || env.DATABASE_URL || 'dev.db';
+
       if (this.config.encryption.enabled) {
         // Use SQLCipher for encrypted database
         this.database = new SQLCipher(databasePath) as any;
-        
-        // Set encryption key
+
+        // Set encryption key and verify
         this.database.pragma(`key = '${this.encryptionKey}'`);
-        
+        try {
+          this.database.prepare('SELECT 1').get();
+        } catch (err) {
+          if (this.previousEncryptionKey) {
+            this.database.pragma(`key = '${this.previousEncryptionKey}'`);
+            this.database.prepare('SELECT 1').get();
+            this.database.pragma(`rekey = '${this.encryptionKey}'`);
+            this.database.pragma(`key = '${this.encryptionKey}'`);
+            log.info('Database encryption key rotated');
+          } else {
+            throw err;
+          }
+        }
+
         // Configure encryption
         this.database.pragma(`cipher_algorithm = '${this.config.encryption.algorithm}'`);
         this.database.pragma(`kdf_iter = ${this.config.encryption.iterations}`);
-        
+
         log.info('Database initialized with encryption enabled');
       } else {
         // Use regular SQLite
