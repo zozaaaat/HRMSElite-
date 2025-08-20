@@ -8,25 +8,11 @@ const API_URL = Constants.expoConfig?.extra?.apiUrl || 'http://localhost:3000';
 export const api = axios.create({
   baseURL: API_URL,
   timeout: 10000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
-
-// Request interceptor to add auth token
-api.interceptors.request.use(
-  (config) => {
-    // Add auth token if available
-    const token = getAuthToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
 
 // Response interceptor to handle errors
 api.interceptors.response.use(
@@ -34,36 +20,11 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Handle unauthorized access
-      clearAuthToken();
       // You can add navigation to login screen here
     }
     return Promise.reject(error);
   }
 );
-
-// Auth token management
-const AUTH_TOKEN_KEY = 'hrms_auth_token';
-
-export const setAuthToken = (token: string) => {
-  // In a real app, you'd use secure storage
-  // For now, we'll use AsyncStorage or similar
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(AUTH_TOKEN_KEY, token);
-  }
-};
-
-export const getAuthToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem(AUTH_TOKEN_KEY);
-  }
-  return null;
-};
-
-export const clearAuthToken = () => {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-  }
-};
 
 // API endpoints
 export const endpoints = {

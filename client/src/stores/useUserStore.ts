@@ -30,7 +30,6 @@ interface CurrentUserState {
   id: string | null;
   role: UserRole | null;
   companyId: string | null;
-  token: string | null;
   isAuthenticated: boolean;
   user: AppUser | null;
   permissions: string[];
@@ -41,7 +40,6 @@ interface CurrentUserState {
 
 interface CurrentUserActions {
   setUser: (user: AppUser) => void;
-  setToken: (token: string) => void;
   updateUser: (updates: Partial<AppUser>) => void;
   logout: () => void;
   clearUser: () => void;
@@ -60,17 +58,12 @@ const isValidUserData = (user: any): user is AppUser => {
          user.role.trim() !== '';
 };
 
-const isValidToken = (token: any): token is string => {
-  return typeof token === 'string' && token.trim() !== '';
-};
-
 export const useUserStore = create<UserStore>()(
   (set, get) => ({
     // Initial state
     'id': null,
     'role': null,
     'companyId': null,
-    'token': null,
     'isAuthenticated': false,
     'user': null,
     'permissions': [],
@@ -97,7 +90,6 @@ export const useUserStore = create<UserStore>()(
           'id': user.id,
           'role': user.role as UserRole,
           'companyId': user.companyId ?? null,
-          'token': get().token,
           'isAuthenticated': true,
           user,
           'permissions': permissions,
@@ -107,15 +99,6 @@ export const useUserStore = create<UserStore>()(
       } else {
         logger.error('Invalid user data provided to setUser');
         set({'error': 'Invalid user data', 'loading': false});
-      }
-    },
-
-    'setToken': (token) => {
-      if (isValidToken(token)) {
-        set({token, 'isAuthenticated': true});
-      } else {
-        logger.error('Invalid token provided to setToken');
-        set({'error': 'Invalid token', 'loading': false});
       }
     },
 
@@ -132,7 +115,6 @@ export const useUserStore = create<UserStore>()(
         'id': null,
         'role': null,
         'companyId': null,
-        'token': null,
         'isAuthenticated': false,
         'user': null,
         'permissions': [],
@@ -147,7 +129,6 @@ export const useUserStore = create<UserStore>()(
         'id': null,
         'role': null,
         'companyId': null,
-        'token': null,
         'isAuthenticated': false,
         'user': null,
         'permissions': [],
@@ -176,7 +157,6 @@ export const useCurrentCompany = () => useUserStore((state) => state.currentComp
 // Action hooks
 export const useUserActions = () => useUserStore((state) => ({
   setUser: state.setUser,
-  setToken: state.setToken,
   updateUser: state.updateUser,
   logout: state.logout,
   clearUser: state.clearUser,

@@ -56,7 +56,7 @@ export default function QualityDashboard ({className}: QualityDashboardProps) {
     setLoading(true);
     try {
 
-      const response = await fetch('/api/quality-metrics');
+      const response = await fetch('/api/quality-metrics', { 'credentials': 'include' });
       if (response.ok) {
 
         const rawData = await response.json() as unknown;

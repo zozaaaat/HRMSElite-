@@ -171,6 +171,7 @@ class Logger {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(entry),
       });
     } catch (error) {

@@ -77,13 +77,7 @@ app.use(additionalSecurityHeaders);
 app.use(securityMonitoring);
 
 // CORS configuration
-app.use(cors({
-  origin: true, // Allow all origins for now
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token'],
-  exposedHeaders: ['X-Request-ID', 'X-Response-Time']
-}));
+app.use(cors(corsConfig));
 
 // Cookie parsing middleware
 app.use(cookieParser());

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { api, endpoints, setAuthToken, clearAuthToken } from '../lib/api';
+import { api, endpoints } from '../lib/api';
 import { UserData, ErrorData } from '@shared/types/common';
 import { AxiosResponse } from 'axios';
 
@@ -31,28 +31,24 @@ interface RegisterData {
 
 interface AuthResponse {
   user: User;
-  token: string;
 }
 
 interface AuthState {
   user: User | null;
-  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  
+
   // Actions
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (userData: RegisterData) => Promise<void>;
   setUser: (user: User) => void;
-  setToken: (token: string) => void;
   clearError: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set, _get) => ({
   user: null,
-  token: null,
   isAuthenticated: false,
   isLoading: false,
   error: null,
@@ -66,13 +62,11 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
         password,
       } as LoginData);
       
-      const { user, token } = response.data || { user: null, token: '' };
-      
-      if (user && token) {
-        setAuthToken(token);
+      const { user } = response.data || { user: null };
+
+      if (user) {
         set({
           user,
-          token,
           isAuthenticated: true,
           isLoading: false,
         });
@@ -87,10 +81,8 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
   },
 
   logout: () => {
-    clearAuthToken();
     set({
       user: null,
-      token: null,
       isAuthenticated: false,
       error: null,
     });
@@ -102,13 +94,11 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
     try {
       const response: AxiosResponse<AuthResponse> = await memoizedApi.post(endpoints.auth.register, userData);
       
-      const { user, token } = response.data || { user: null, token: '' };
-      
-      if (user && token) {
-        setAuthToken(token);
+      const { user } = response.data || { user: null };
+
+      if (user) {
         set({
           user,
-          token,
           isAuthenticated: true,
           isLoading: false,
         });
@@ -126,12 +116,7 @@ export const useAuthStore = create<AuthState>((set, _get) => ({
     set({ user });
   },
 
-  setToken: (token: string) => {
-    setAuthToken(token);
-    set({ token, isAuthenticated: true });
-  },
-
   clearError: () => {
     set({ error: null });
   },
-})); 
+}));

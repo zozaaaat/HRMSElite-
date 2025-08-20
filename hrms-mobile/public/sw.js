@@ -13,7 +13,6 @@ const STATIC_ASSETS = [
 ];
 
 const API_CACHE_PATTERNS = [
-  /\/api\/auth/,
   /\/api\/employees/,
   /\/api\/attendance/,
   /\/api\/documents/,
@@ -63,6 +62,12 @@ self.addEventListener('fetch', (event) => {
 
   // Skip non-GET requests
   if (request.method !== 'GET') {
+    return;
+  }
+
+  // Skip caching for auth endpoints
+  if (url.pathname.startsWith('/api/auth/') || url.pathname.startsWith('/auth/')) {
+    event.respondWith(fetch(request));
     return;
   }
 
