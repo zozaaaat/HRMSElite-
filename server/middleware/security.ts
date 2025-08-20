@@ -360,6 +360,8 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
   };
 
   // Apply helmet with dynamic CSP
+  const isProd = process.env.NODE_ENV === 'production';
+
   helmet({
     contentSecurityPolicy: {
       directives: cspDirectives
@@ -369,9 +371,9 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
     frameguard: { action: 'deny' },
     xssFilter: true,
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-    crossOriginEmbedderPolicy: false, // Disable for development
-    crossOriginOpenerPolicy: { policy: 'same-origin' },
-    crossOriginResourcePolicy: { policy: 'same-site' }
+    crossOriginEmbedderPolicy: isProd ? { policy: 'require-corp' } : false,
+    crossOriginOpenerPolicy: isProd ? { policy: 'same-origin' } : false,
+    crossOriginResourcePolicy: { policy: isProd ? 'same-origin' : 'cross-origin' }
   })(req, res, next);
 };
 
