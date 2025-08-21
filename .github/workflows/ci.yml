@@ -109,11 +109,10 @@ jobs:
         env:
           NODE_ENV: test
 
-      - name: Run accessibility tests
+      - name: Run axe-core accessibility tests
         run: npm run test:accessibility
         env:
           NODE_ENV: test
-        continue-on-error: true
 
       - name: Upload test coverage
         uses: codecov/codecov-action@v4
@@ -188,6 +187,12 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+
+      - name: Check bundle size
+        run: node client/scripts/check-bundle-size.mjs
+
+      - name: Run Lighthouse CI
+        run: npx lhci autorun
 
       - name: Build Electron app
         run: npm run build:electron
