@@ -101,7 +101,7 @@ function main() {
   console.log('\n📋 Recommendations:');
   console.log('1. Review the security-config.json file');
   console.log('2. Consider replacing csurf with a maintained alternative');
-  console.log('3. Update taffydb if possible or remove if not needed');
+  console.log('3. Remove unused or deprecated dependencies');
   console.log('4. Regularly run npm audit to check for new vulnerabilities');
   console.log('5. Consider using npm audit --audit-level=moderate for stricter checks');
 }

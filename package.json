@@ -213,7 +213,6 @@
     "supertest": "7.0.0",
     "swagger-jsdoc": "6.2.8",
     "swagger-ui-express": "5.0.1",
-    "taffydb": "2.7.3",
     "tailwind-merge": "2.6.0",
     "tailwindcss-animate": "1.0.7",
     "tw-animate-css": "1.2.5",
