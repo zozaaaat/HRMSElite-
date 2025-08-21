@@ -36,7 +36,7 @@ describe('Cookie Security Tests', () => {
         // Verify security attributes
         expect(sessionCookie).toMatch(/HttpOnly/i);
         expect(sessionCookie).toMatch(/Secure/i);
-        expect(sessionCookie).toMatch(/SameSite=Lax/i);
+        expect(sessionCookie).toMatch(/SameSite=Strict/i);
         expect(sessionCookie).toMatch(/Path=\//);
       } finally {
         process.env.NODE_ENV = originalEnv;
@@ -84,7 +84,7 @@ describe('Cookie Security Tests', () => {
 
         expect(sessionCookie).toBeDefined();
         expect(sessionCookie).toMatch(/HttpOnly/i);
-        expect(sessionCookie).toMatch(/SameSite=Lax/i);
+        expect(sessionCookie).toMatch(/SameSite=Strict/i);
         expect(sessionCookie).toMatch(/Path=\//);
         
         // Should not require secure in development
@@ -116,7 +116,7 @@ describe('Cookie Security Tests', () => {
         if (csrfCookie) {
           expect(csrfCookie).toMatch(/HttpOnly/i);
           expect(csrfCookie).toMatch(/Secure/i);
-          expect(csrfCookie).toMatch(/SameSite=Lax/i);
+          expect(csrfCookie).toMatch(/SameSite=Strict/i);
           expect(csrfCookie).toMatch(/Path=\//);
         }
       } finally {
