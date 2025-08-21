@@ -4,6 +4,49 @@ import path from 'path';
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 import {VitePWA} from 'vite-plugin-pwa';
 import tailwindcss from '@tailwindcss/vite';
+import {promises as fs} from 'fs';
+import {glob} from 'glob';
+import {execSync} from 'child_process';
+
+function secureSourceMaps() {
+  return {
+    'name': 'secure-source-maps',
+    'apply': 'build',
+    async 'closeBundle'() {
+      const distDir = path.resolve(import.meta.dirname, 'dist');
+      const publicDir = path.join(distDir, 'public');
+      const mapsDir = path.join(distDir, 'maps');
+      await fs.mkdir(mapsDir, {'recursive': true});
+
+      const mapFiles = await glob('**/*.map', {'cwd': publicDir});
+      for (const file of mapFiles) {
+        const from = path.join(publicDir, file);
+        const to = path.join(mapsDir, path.basename(file));
+        await fs.rename(from, to);
+      }
+
+      const bundleFiles = await glob('**/*.{js,css}', {'cwd': publicDir});
+      for (const file of bundleFiles) {
+        const filePath = path.join(publicDir, file);
+        const code = await fs.readFile(filePath, 'utf8');
+        await fs.writeFile(filePath, code.replace(/\n?\/\/\# sourceMappingURL=.*\.map\n?/g, '\n'), 'utf8');
+      }
+
+      const sentryUrl = process.env.SENTRY_UPLOAD_URL;
+      const sentryAuth = process.env.SENTRY_AUTH_TOKEN;
+      const gcpBucket = process.env.GCP_BUCKET;
+      try {
+        if (sentryUrl && sentryAuth) {
+          execSync(`curl -sf --header "Authorization: Bearer ${sentryAuth}" --upload-file ${mapsDir}/*.map ${sentryUrl}`, {'stdio': 'inherit'});
+        } else if (gcpBucket) {
+          execSync(`gsutil cp ${mapsDir}/*.map gs://${gcpBucket}`, {'stdio': 'inherit'});
+        }
+      } catch (err) {
+        console.warn('Source map upload failed', err);
+      }
+    }
+  };
+}
 
 
 
@@ -174,6 +217,7 @@ export default defineConfig({
         ]
       }
     }),
+    secureSourceMaps(),
     ...(process.env.NODE_ENV !== 'production' &&
     process.env.REPL_ID !== undefined
       ? [
@@ -205,7 +249,7 @@ export default defineConfig({
     // ✅ تحسين إعدادات Vite للأداء - المرحلة الثالثة
     'target': 'esnext',
     'minify': 'terser',
-    'sourcemap': process.env.NODE_ENV === 'development',
+    'sourcemap': true,
     'reportCompressedSize': true,
     // ✅ تحسين chunkSizeWarningLimit - زيادة الحد لتحسين الأداء
     'chunkSizeWarningLimit': 2000,
@@ -484,7 +528,6 @@ export default defineConfig({
         // تحسين تجميع الكود
         'compact': true,
         // تحسين source maps
-        'sourcemap': process.env.NODE_ENV === 'development',
         // تحسين exports
         'exports': 'named',
         // تحسين globals
