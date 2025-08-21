@@ -493,20 +493,72 @@ function parseCorsOrigins(): string[] {
 const allowedCorsOrigins = parseCorsOrigins();
 
 /**
+ * Parse API keys that are allowed to bypass origin checks
+ */
+function parseOriginlessApiKeys(): string[] {
+  const apiKeys = process.env.CORS_ORIGINLESS_API_KEYS;
+
+  if (!apiKeys) {
+    return [];
+  }
+
+  const keys = apiKeys
+    .split(',')
+    .map(key => key.trim())
+    .filter(key => key.length > 0);
+
+  if (keys.length > 0) {
+    log.info('CORS originless API keys configured', { count: keys.length }, 'SECURITY');
+  }
+
+  return keys;
+}
+
+// Parse API keys once at startup
+const allowedOriginlessApiKeys = parseOriginlessApiKeys();
+
+/**
  * CORS configuration with strict origin validation and detailed logging
  */
 export const corsConfig = (req: Request, callback: (err: Error | null, options?: any) => void) => {
   const origin = req.header('Origin');
 
-  // Allow requests with no origin (mobile apps, Postman)
-  if (!origin || allowedCorsOrigins.includes(origin)) {
+  // Allow requests from configured origins
+  if (origin && allowedCorsOrigins.includes(origin)) {
     return callback(null, {
-      origin: origin || true,
+      origin,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Requested-With'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Requested-With', 'X-API-Key'],
       exposedHeaders: ['X-CSRF-Token', 'X-Request-ID', 'X-Response-Time']
     });
+  }
+
+  // Handle requests with no origin using API key authentication
+  if (!origin) {
+    const apiKey = req.header('x-api-key');
+    if (apiKey && allowedOriginlessApiKeys.includes(apiKey)) {
+      return callback(null, {
+        origin: true,
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Requested-With', 'X-API-Key'],
+        exposedHeaders: ['X-CSRF-Token', 'X-Request-ID', 'X-Response-Time']
+      });
+    }
+
+    log.warn(
+      'CORS origin missing or API key invalid',
+      {
+        requestId: req.id,
+        timestamp: new Date().toISOString()
+      },
+      'SECURITY'
+    );
+
+    const error: Error & { status?: number } = new Error('CORS origin not allowed');
+    error.status = 403;
+    return callback(error);
   }
 
   // Log unauthorized origin attempts with request ID

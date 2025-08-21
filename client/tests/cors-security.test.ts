@@ -343,13 +343,33 @@ describe('CORS Security Configuration', () => {
     });
   });
 
-  describe('Edge Cases', () => {
-    it('should allow requests with no origin (mobile apps, Postman)', async () => {
+  describe('Originless Requests', () => {
+    beforeEach(() => {
       process.env.CORS_ORIGINS = 'https://app.example.com';
+      process.env.CORS_ORIGINLESS_API_KEYS = 'test-api-key';
+    });
 
+    it('should reject requests with no origin and no API key', async () => {
       const response = await request(app)
         .get('/api/test')
-        // No Origin header
+        .expect(403);
+
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('should reject requests with empty origin header', async () => {
+      const response = await request(app)
+        .get('/api/test')
+        .set('Origin', '')
+        .expect(403);
+
+      expect(response.body).toHaveProperty('error');
+    });
+
+    it('should allow requests with valid API key and no origin', async () => {
+      const response = await request(app)
+        .get('/api/test')
+        .set('X-API-Key', 'test-api-key')
         .expect(200);
 
       expect(response.body).toEqual({
@@ -358,26 +378,21 @@ describe('CORS Security Configuration', () => {
       });
     });
 
-    it('should handle empty origin strings', async () => {
-      process.env.CORS_ORIGINS = 'https://app.example.com';
-
+    it('should reject requests with invalid API key', async () => {
       const response = await request(app)
         .get('/api/test')
-        .set('Origin', '')
-        .expect(200);
+        .set('X-API-Key', 'invalid')
+        .expect(403);
 
-      expect(response.body).toEqual({
-        success: true,
-        message: 'CORS test endpoint'
-      });
+      expect(response.body).toHaveProperty('error');
     });
 
     it('should handle whitespace in environment variables', () => {
       process.env.CORS_ORIGINS = '  https://app.example.com  ,  https://admin.example.com  ';
-      
+
       const testApp = express();
       testApp.use(cors(corsConfig));
-      
+
       // Should trim whitespace and work correctly
       expect(() => {
         testApp.get('/api/test', (req, res) => res.json({ success: true }));
