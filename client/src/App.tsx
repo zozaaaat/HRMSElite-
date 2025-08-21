@@ -7,6 +7,7 @@ import { ReactQueryDevTools } from './components/shared/ReactQueryDevTools';
 import { AccessibilityProvider } from './components/shared/AccessibilityProvider';
 import { queryClient } from './lib/queryClient';
 import { useRoleBasedPreloading } from './hooks/useLazyLoading';
+import { useDirection } from './hooks/useDirection';
 import { Toaster } from './components/ui/toaster';
 import { NotFound } from './pages/lazy-pages';
 
@@ -18,6 +19,7 @@ const App = () => {
   const { user } = useAppStore();
   const isAuthenticated = !!user;
   useRoleBasedPreloading(user?.role ?? undefined);
+  useDirection();
 
   return (
     <QueryClientProvider client={queryClient}>
