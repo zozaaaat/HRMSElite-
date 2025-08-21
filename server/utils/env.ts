@@ -26,6 +26,7 @@ const envSchema = z.object({
   // CORS configuration
   CORS_ORIGINS: z.string().optional(),
   ALLOWED_ORIGINS: z.string().optional(), // Legacy support
+  CORS_ORIGINLESS_API_KEYS: z.string().optional(),
   
   // Rate limiting configuration
   RATE_LIMIT_WINDOW_MS: z.string().optional(),
@@ -59,6 +60,7 @@ export function validateEnv(): EnvConfig {
       databaseUrl: env.DATABASE_URL ? 'configured' : 'using default',
       corsOrigins: env.CORS_ORIGINS ? 'configured' : 'using default',
       allowedOrigins: env.ALLOWED_ORIGINS ? 'configured (legacy)' : 'not set',
+      originlessApiKeys: env.CORS_ORIGINLESS_API_KEYS ? 'configured' : 'not set',
     }, 'ENV');
     
     return env;
