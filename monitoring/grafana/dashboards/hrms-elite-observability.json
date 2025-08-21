@@ -62,8 +62,8 @@
         "type": "stat",
         "targets": [
           {
-            "expr": "rate(http_errors_total[5m])",
-            "legendFormat": "{{method}} {{endpoint}} - {{error_type}}"
+            "expr": "rate(http_requests_errors_total[5m])",
+            "legendFormat": "{{method}} {{route}} - {{status}}"
           }
         ],
         "fieldConfig": {
@@ -264,11 +264,11 @@
       },
       {
         "id": 6,
-        "title": "Top Endpoints by Error Rate",
+        "title": "Top Routes by Error Rate",
         "type": "table",
         "targets": [
           {
-            "expr": "topk(10, sum(rate(http_errors_total[5m])) by (endpoint))",
+            "expr": "topk(10, sum(rate(http_requests_errors_total[5m])) by (route))",
             "format": "table",
             "instant": true
           }
@@ -370,7 +370,7 @@
         "type": "stat",
         "targets": [
           {
-            "expr": "rate(file_uploads_total[5m])",
+            "expr": "rate(uploads_total[5m])",
             "legendFormat": "{{type}} - {{status}}"
           }
         ],
