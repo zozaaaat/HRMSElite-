@@ -106,9 +106,32 @@ describe('Server Security Tests', () => {
       const response = await request(app)
         .post('/api/test-endpoint')
         .send({ data: 'test' });
-      
+
       // Should be blocked by CSRF protection
       expect(response.status).toBe(403);
+    });
+
+    it('should reject requests with invalid CSRF token', async () => {
+      const response = await request(app)
+        .post('/api/test-endpoint')
+        .set('X-CSRF-Token', 'invalid-token')
+        .send({ data: 'test' });
+
+      expect(response.status).toBe(403);
+    });
+
+    it('should allow requests with valid CSRF token', async () => {
+      const tokenResponse = await request(app).get('/api/csrf-token');
+      const token = tokenResponse.body.csrfToken;
+      const cookies = tokenResponse.headers['set-cookie'];
+
+      const response = await request(app)
+        .post('/api/test-endpoint')
+        .set('Cookie', cookies)
+        .set('X-CSRF-Token', token)
+        .send({ data: 'test' });
+
+      expect(response.status).not.toBe(403);
     });
   });
 

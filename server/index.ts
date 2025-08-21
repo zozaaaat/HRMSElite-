@@ -9,7 +9,6 @@
 import express from 'express';
 import cors from 'cors';
 import session from 'express-session';
-import csurf from 'csurf';
 import cookieParser from 'cookie-parser';
 import { randomUUID } from 'crypto';
 
@@ -18,15 +17,15 @@ import { observability } from './middleware/observability';
 import { prometheusMiddleware, metricsHandler, healthCheckHandler, initializeMetrics } from './middleware/metrics';
 import { initializeLogShipper } from './utils/log-shipper';
 
-import { 
-  securityHeaders, 
+import {
+  securityHeaders,
   additionalSecurityHeaders,
-  enhancedCsrfProtection,
   requestValidation,
   securityMonitoring,
   enhancedRateLimiters,
   corsConfig
 } from './middleware/security';
+import { csrfProtection, generateCsrfToken, csrfTokenHandler, csrfErrorHandler } from './middleware/csrf';
 import { isAuthenticated, optionalAuth } from './middleware/auth';
 import { log } from './utils/logger';
 import { storage } from './models/storage';
@@ -44,7 +43,7 @@ import v1AuthRoutes from './routes/v1/auth-routes';
 import { registerEmployeeRoutes as registerV1EmployeeRoutes } from './routes/v1/employee-routes';
 import { registerDocumentRoutes as registerV1DocumentRoutes } from './routes/v1/document-routes';
 
-const app = express();
+export const app = express();
 const PORT = env.PORT;
 
 // Trust proxy for rate limiting
@@ -92,16 +91,19 @@ app.use(session({
   secret: env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  name: env.NODE_ENV === 'production' ? '__Host-hrms-elite-session' : 'hrms-elite-session',
   cookie: {
     secure: env.NODE_ENV === 'production',
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'strict'
+    sameSite: 'lax'
   }
 }));
 
 // CSRF protection
-app.use(enhancedCsrfProtection);
+app.use(csrfProtection);
+app.use(generateCsrfToken);
+app.get('/api/csrf-token', csrfTokenHandler);
 
 // Rate limiting
 app.use(enhancedRateLimiters.general);
@@ -153,6 +155,9 @@ registerV1DocumentRoutes(app);
 // Optional auth routes (for public endpoints)
 app.use('/api/public', optionalAuth);
 
+// CSRF error handler
+app.use(csrfErrorHandler);
+
 // Error handling middleware with observability
 app.use(observability.errorTracking);
 
@@ -167,17 +172,6 @@ app.use((err: any, req: express.Request, res: express.Response, _next: express.N
     userId: req.user?.id,
     userRole: req.user?.role
   });
-
-  // CSRF errors
-  if (err.code === 'EBADCSRFTOKEN') {
-    return res.status(403).json({
-      error: 'خطأ في التحقق من الأمان',
-      message: 'يرجى إعادة تحميل الصفحة والمحاولة مرة أخرى',
-      code: 'CSRF_TOKEN_INVALID',
-      timestamp: new Date().toISOString(),
-      requestId: req.id
-    });
-  }
 
   // Rate limit errors
   if (err.status === 429) {
