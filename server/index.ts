@@ -8,10 +8,8 @@
 
 import express from 'express';
 import cors from 'cors';
-import session from 'express-session';
 import cookieParser from 'cookie-parser';
-import { RedisStore } from 'connect-redis';
-import Redis from 'ioredis';
+import { createSessionMiddleware } from './utils/session';
 
 // Import observability middleware
 import { observability } from './middleware/observability';
@@ -86,26 +84,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Session configuration with Redis store
-const redisClient = new Redis(env.REDIS_URL || 'redis://localhost:6379');
-const sessionStore = new RedisStore({ client: redisClient });
-
-redisClient.on('error', (err) => {
-  log.error('Redis connection error', { error: err }, 'SERVER');
-});
-
-app.use(session({
-  store: sessionStore,
-  secret: env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  name: env.NODE_ENV === 'production' ? '__Host-hrms-elite-session' : 'hrms-elite-session',
-  cookie: {
-    secure: env.NODE_ENV === 'production',
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'strict'
-  }
-}));
+app.use(createSessionMiddleware());
 
 // CSRF protection
 app.use(csrfProtection);
