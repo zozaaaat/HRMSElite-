@@ -31,6 +31,7 @@ import {
   verifyEmailSchema,
   type InsertUser
 } from '@shared/schema';
+import { enhancedRateLimiters } from '../middleware/security';
 
 // Define session interface
 interface SessionUser {
@@ -251,7 +252,7 @@ router.post('/register', async (req:  Request, res:  Response) => {
  * Login Endpoint
  * POST /api/auth/login
  */
-router.post('/login', async (req:  Request, res:  Response) => {
+router.post('/login', enhancedRateLimiters.login, async (req:  Request, res:  Response) => {
 
   try {
 
@@ -268,27 +269,34 @@ router.post('/login', async (req:  Request, res:  Response) => {
 
     const {email, password, companyId} = validationResult.data;
 
+    const logFailedAttempt = (reason: string) => {
+      req.log?.warn('Failed login attempt', {
+        reason,
+        email,
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        timestamp: new Date().toISOString()
+      });
+    };
+
     // Get user by email
     const user = await storage.getUserByEmail(email);
     if (!user) {
-
+      logFailedAttempt('user_not_found');
       return res.status(401).json({'message': 'البريد الإلكتروني أو كلمة المرور غير صحيحة'});
-
     }
 
     // Check if user is active
     if (!user.isActive) {
-
+      logFailedAttempt('inactive_user');
       return res.status(401).json({'message': 'الحساب غير مفعل'});
-
     }
 
     // Verify password
     const isPasswordValid = await verifyPassword(password, user.password ?? '');
     if (!isPasswordValid) {
-
+      logFailedAttempt('invalid_password');
       return res.status(401).json({'message': 'البريد الإلكتروني أو كلمة المرور غير صحيحة'});
-
     }
 
     // Update last login
