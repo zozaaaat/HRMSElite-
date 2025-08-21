@@ -1,21 +1,26 @@
 import csurf from 'csurf';
 import { Request, Response, NextFunction } from 'express';
 
-// CSurf middleware configured to use the existing session.
-// Tokens are bound to the session cookie and generated on every request.
+// Stateful CSRF protection using session-backed tokens
 export const csrfProtection = csurf({
   cookie: false,
   ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
 });
 
-// Generate a fresh token for each request and expose it via cookie and locals
-export const generateCsrfToken = (req: Request, res: Response, next: NextFunction) => {
+// Issue a CSRF token per session and expose it via cookie and locals
+export const csrfTokenMiddleware = (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.csrfToken();
+
+    // Persist token with the user's session
+    // This allows cryptographic validation on each request
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    (req.session as any).csrfToken = token;
+
     res.cookie('_csrf', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'strict',
       path: '/'
     });
     res.setHeader('X-CSRF-Token', token);

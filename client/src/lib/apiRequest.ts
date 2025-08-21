@@ -19,7 +19,6 @@ export interface ApiRequestOptions {
   method?: string;
   body?: BodyInitLike | null;
   headers?: HeadersInitLike;
-  useCsrf?: boolean; // Whether to include CSRF token
   responseType?: 'json' | 'text' | 'blob' | 'arrayBuffer' | 'formData';
 }
 
@@ -42,7 +41,7 @@ export const apiRequest = async <T = unknown>(
 
   try {
 
-    const {method = 'GET', body, headers = {}, useCsrf = true, responseType} = options;
+    const {method = 'GET', body, headers = {}, responseType} = options;
 
     // Compute headers; remove Content-Type if sending FormData so the browser can set boundary
     const isFormDataBody = (() => {
@@ -76,10 +75,8 @@ export const apiRequest = async <T = unknown>(
       requestOptions.body = body as BodyInitLike;
     }
 
-    // Use CSRF-protected fetch if enabled
-    const response = useCsrf
-      ? await fetchWithCsrf(url, requestOptions)
-      : await fetch(url, requestOptions);
+    // Always include CSRF token via wrapped fetch
+    const response = await fetchWithCsrf(url, requestOptions);
 
     // Cache ETag header if present
     const etag = response.headers.get('etag');

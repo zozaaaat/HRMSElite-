@@ -24,7 +24,7 @@ import {
   enhancedRateLimiters,
   corsConfig
 } from './middleware/security';
-import { csrfProtection, generateCsrfToken, csrfTokenHandler, csrfErrorHandler } from './middleware/csrf';
+import { csrfProtection, csrfTokenMiddleware, csrfTokenHandler, csrfErrorHandler } from './middleware/csrf';
 import { isAuthenticated, optionalAuth } from './middleware/auth';
 import { log } from './utils/logger';
 import { env } from './utils/env';
@@ -88,7 +88,7 @@ app.use(createSessionMiddleware());
 
 // CSRF protection
 app.use(csrfProtection);
-app.use(generateCsrfToken);
+app.use(csrfTokenMiddleware);
 app.get('/api/csrf-token', csrfTokenHandler);
 
 // Rate limiting
