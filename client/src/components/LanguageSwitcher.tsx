@@ -1,10 +1,16 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from './ui/button';
 import { Globe } from 'lucide-react';
+import {useAppStore} from '../stores/useAppStore';
 
 export const LanguageSwitcher: React.FC = () => {
   const { i18n, t } = useTranslation();
+  const setLanguage = useAppStore((state) => state.setLanguage);
+
+  useEffect(() => {
+    setLanguage(i18n.language);
+  }, [i18n.language, setLanguage]);
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'ar' ? 'en' : 'ar';
@@ -16,6 +22,7 @@ export const LanguageSwitcher: React.FC = () => {
     
     // Store language preference in localStorage
     localStorage.setItem('i18nextLng', newLang);
+    setLanguage(newLang);
   };
 
   const currentLanguage = i18n.language === 'ar' ? 'العربية' : 'English';
