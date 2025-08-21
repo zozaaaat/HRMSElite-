@@ -32,6 +32,7 @@ import {
   type InsertUser
 } from '@shared/schema';
 import { enhancedRateLimiters } from '../middleware/security';
+import { metricsUtils } from '../middleware/metrics';
 
 // Define session interface
 interface SessionUser {
@@ -277,6 +278,7 @@ router.post('/login', enhancedRateLimiters.login, async (req:  Request, res:  Re
         userAgent: req.get('User-Agent'),
         timestamp: new Date().toISOString()
       });
+      metricsUtils.incrementLoginFailure(reason);
     };
 
     // Get user by email
@@ -301,6 +303,8 @@ router.post('/login', enhancedRateLimiters.login, async (req:  Request, res:  Re
 
     // Update last login
     await storage.updateUserLastLogin(user.id);
+
+    metricsUtils.incrementAuthSuccess(req.method, user.role);
 
     // Get user companies
     const userCompanies = await storage.getUserCompanies(user.id);

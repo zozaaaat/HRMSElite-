@@ -92,11 +92,31 @@ groups:
           description: "Network receive rate is above 1GB/s on {{ $labels.device }}"
 
       # Application Memory Leak
-      - alert: ApplicationMemoryLeak
-        expr: increase(process_resident_memory_bytes[1h]) > 100000000
-        for: 10m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Potential memory leak detected"
-          description: "Application memory usage increased by more than 100MB in the last hour" 
+        - alert: ApplicationMemoryLeak
+          expr: increase(process_resident_memory_bytes[1h]) > 100000000
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Potential memory leak detected"
+            description: "Application memory usage increased by more than 100MB in the last hour"
+
+        # High Login Failure Rate
+        - alert: HighLoginFailureRate
+          expr: rate(login_failures_total[5m]) > 5
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High login failure rate detected"
+            description: "Login failure rate is above 5 per minute over the last 5 minutes"
+
+        # Slow Database Queries
+        - alert: SlowDatabaseQueries
+          expr: histogram_quantile(0.95, rate(db_query_duration_seconds_bucket[5m])) > 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Slow database queries detected"
+            description: "95th percentile database query time is above 1 second"

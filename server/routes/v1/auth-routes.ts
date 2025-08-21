@@ -36,6 +36,7 @@ import {
   createSuccessResponse
 } from '../../middleware/api-versioning';
 import { generateETag, setETagHeader } from '../../utils/etag';
+import { metricsUtils } from '../../middleware/metrics';
 
 // Define session interface
 interface SessionUser {
@@ -179,6 +180,7 @@ router.post('/login', async (req: Request, res: Response) => {
         { reason: 'invalid_credentials' },
         401
       );
+      metricsUtils.incrementLoginFailure('invalid_credentials');
       return res.status(errorResponse.statusCode).json(errorResponse.body);
     }
 
@@ -190,6 +192,7 @@ router.post('/login', async (req: Request, res: Response) => {
         { reason: 'account_deactivated' },
         401
       );
+      metricsUtils.incrementLoginFailure('account_deactivated');
       return res.status(errorResponse.statusCode).json(errorResponse.body);
     }
 
@@ -202,6 +205,7 @@ router.post('/login', async (req: Request, res: Response) => {
         { reason: 'invalid_credentials' },
         401
       );
+      metricsUtils.incrementLoginFailure('invalid_credentials');
       return res.status(errorResponse.statusCode).json(errorResponse.body);
     }
 
@@ -242,6 +246,7 @@ router.post('/login', async (req: Request, res: Response) => {
     };
 
     const response = createSuccessResponse(loginResponse, 'Login successful');
+    metricsUtils.incrementAuthSuccess(req.method, user.role);
     res.json(response);
 
   } catch (error) {

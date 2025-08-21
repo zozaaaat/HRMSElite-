@@ -6,6 +6,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
 import { log } from '../utils/logger';
+import { Counter, Gauge, Histogram, register } from 'prom-client';
 
 // Extend Express Request interface for observability
 declare global {
@@ -191,20 +192,35 @@ function createRequestLogger(req: Request): Request['log'] {
  * Create metrics interface for request
  */
 function createRequestMetrics(req: Request): Request['metrics'] {
+  const getCounter = (name: string, labelNames: string[]) => {
+    return (register.getSingleMetric(name) as Counter<string>) ||
+      new Counter({ name, help: `${name} counter`, labelNames });
+  };
+
+  const getHistogram = (name: string, labelNames: string[]) => {
+    return (register.getSingleMetric(name) as Histogram<string>) ||
+      new Histogram({ name, help: `${name} histogram`, labelNames });
+  };
+
+  const getGauge = (name: string, labelNames: string[]) => {
+    return (register.getSingleMetric(name) as Gauge<string>) ||
+      new Gauge({ name, help: `${name} gauge`, labelNames });
+  };
+
   return {
-    increment: (name: string, labels?: Record<string, string>) => {
-      // TODO: Integrate with Prometheus client
-      log.debug(`Metric increment: ${name}`, { labels }, 'METRICS');
+    increment: (name: string, labels: Record<string, string> = {}) => {
+      const counter = getCounter(name, Object.keys(labels));
+      counter.inc(labels);
     },
-    
-    histogram: (name: string, value: number, labels?: Record<string, string>) => {
-      // TODO: Integrate with Prometheus client
-      log.debug(`Metric histogram: ${name} = ${value}`, { labels }, 'METRICS');
+
+    histogram: (name: string, value: number, labels: Record<string, string> = {}) => {
+      const histogram = getHistogram(name, Object.keys(labels));
+      histogram.observe(labels, value);
     },
-    
-    gauge: (name: string, value: number, labels?: Record<string, string>) => {
-      // TODO: Integrate with Prometheus client
-      log.debug(`Metric gauge: ${name} = ${value}`, { labels }, 'METRICS');
+
+    gauge: (name: string, value: number, labels: Record<string, string> = {}) => {
+      const gauge = getGauge(name, Object.keys(labels));
+      gauge.set(labels, value);
     }
   };
 }
