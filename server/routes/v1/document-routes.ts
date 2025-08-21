@@ -6,6 +6,7 @@ import { log } from '../../utils/logger';
 import { isAuthenticated, requireRole } from '../../middleware/auth';
 import { antivirusScanner, type ScanResult } from '../../utils/antivirus';
 import { secureFileStorage, type StoredFile } from '../../utils/secureStorage';
+import { quarantineFile } from '../../utils/quarantine';
 import crypto from 'crypto';
 import { generateETag, setETagHeader, matchesIfMatchHeader } from '../../utils/etag';
 import {
@@ -171,22 +172,24 @@ const scanFile = async (req: Request, res: Response, next: NextFunction) => {
     const scanResult: ScanResult = await antivirusScanner.scanBuffer(file.buffer, file.originalname);
     
     if (!scanResult.isClean) {
-      log.warn('Virus detected in uploaded file', {
+      await quarantineFile(file.buffer, file.originalname);
+      log.error('Virus detected in uploaded file', {
         fileName: file.originalname,
         threats: scanResult.threats,
         provider: scanResult.provider,
-        user: req.user?.id
+        user: req.user?.id,
+        severity: 'high'
       }, 'SECURITY');
-      
+
       const errorResponse = createErrorResponse(
         'SECURITY_ERROR',
         'Virus detected',
-        { 
-          message: 'The uploaded file contains malicious content and has been rejected',
+        {
+          message: 'The uploaded file contains malicious content and has been quarantined',
           threats: scanResult.threats,
           scanProvider: scanResult.provider
         },
-        400
+        422
       );
       return res.status(errorResponse.statusCode).json(errorResponse.body);
     }
@@ -572,20 +575,8 @@ export function registerDocumentRoutes(app: Express) {
           return res.status(errorResponse.statusCode).json(errorResponse.body);
         }
 
-        // Mock documents mapping to real files
-        const documentFiles: Record<string, string> = {
-          '1': 'ترخيص النيل الازرق الرئيسي مباركية.pdf',
-          '2': 'اسماء عمال شركة النيل الازرق جميع التراخيص جورج.xlsx',
-          '3': 'استيراد النيل الازرق للمجوهرات 2025.pdf',
-          '4': 'اعتماد النيل الازرق 20250528.pdf',
-          '5': 'ترخيص قمة النيل.pdf',
-          '6': 'اسماء عمال شركة قمة النيل الخالد جميع التراخيص - - Copy.xlsx',
-          '7': 'ترخيص الاتحاد الخليجي للاقمشة 2023.pdf',
-          '8': 'اسماء عمال شركة الاتحاد الخليجي جميع التراخيص (2).xlsx'
-        };
-
-        const fileName = documentFiles[id];
-        if (!fileName) {
+        const document = await storage.getDocument(id);
+        if (!document) {
           const errorResponse = createErrorResponse(
             'NOT_FOUND',
             'Document not found',
@@ -595,13 +586,19 @@ export function registerDocumentRoutes(app: Express) {
           return res.status(errorResponse.statusCode).json(errorResponse.body);
         }
 
-        // Return download URL for real file
+        const signedUrl = await secureFileStorage.generateSignedUrl(
+          id,
+          document.fileName
+        );
+
         const downloadData = {
-          'message': 'Document ready for download',
-          'documentId': id,
-          fileName,
-          'downloadUrl': `/demo-data/${fileName}`,
-          'directLink': `${req.protocol}://${req.get('host')}/demo-data/${encodeURIComponent(fileName)}`
+          message: 'Document ready for download',
+          documentId: id,
+          fileName: document.name,
+          downloadUrl: signedUrl,
+          expiresAt: new Date(
+            Date.now() + secureFileStorage.getStatus().urlExpiration * 1000
+          )
         };
 
         const response = createSuccessResponse(downloadData, 'Download link generated successfully');

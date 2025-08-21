@@ -58,12 +58,13 @@ export class AntivirusScanner {
       // Check for EICAR test file
       const eicarResult = this.checkEICAR(buffer);
       if (!eicarResult.isClean) {
-        log.warn('EICAR test file detected and rejected', {
+        log.error('EICAR test file detected and rejected', {
           filename,
           threats: eicarResult.threats,
-          userAgent: 'antivirus-scanner'
+          userAgent: 'antivirus-scanner',
+          severity: 'high'
         }, 'SECURITY');
-        
+
         return {
           ...eicarResult,
           scanTime: Date.now() - startTime,
