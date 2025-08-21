@@ -380,6 +380,50 @@ jobs:
           echo "❌ Production deployment failed!"
           # Add notification logic
 
+  # ✅ Deployment Verification Checklist
+  deploy-checklist:
+    name: Deployment Verification Checklist
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    env:
+      PRODUCTION_DOMAIN: hrms-elite.com
+    steps:
+      - name: Verify TLS certificate
+        run: |
+          echo "Verifying TLS certificate for $PRODUCTION_DOMAIN..."
+          if ! openssl s_client -connect $PRODUCTION_DOMAIN:443 -servername $PRODUCTION_DOMAIN </dev/null 2>/dev/null | openssl x509 -noout -checkend 0; then
+            echo "TLS certificate validation failed"
+            exit 1
+          fi
+
+      - name: Check HSTS preload
+        run: |
+          echo "Checking HSTS preload header..."
+          if ! curl -fsSLI https://$PRODUCTION_DOMAIN | grep -i 'strict-transport-security' | grep -qi 'preload'; then
+            echo "HSTS preload not enabled"
+            exit 1
+          fi
+
+      - name: Verify backups
+        run: |
+          echo "Ensuring backup files are present..."
+          if [ -z "$(ls -A backups 2>/dev/null)" ]; then
+            echo "No backups found"
+            exit 1
+          fi
+          ls -l backups | head -n 5
+
+      - name: Run restore drill
+        run: |
+          echo "Running backup restore drill..."
+          LATEST_DB_BACKUP=$(ls -t backups/database/*.db 2>/dev/null | head -n 1)
+          if [ -z "$LATEST_DB_BACKUP" ]; then
+            echo "No database backup available for restore test"
+            exit 1
+          fi
+          sqlite3 :memory: ".restore $LATEST_DB_BACKUP"
+
   # 📱 Mobile App Build & Deploy
   mobile-build:
     name: Mobile App Build & Deploy
