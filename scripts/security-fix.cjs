@@ -22,7 +22,7 @@ function updatePackageJson() {
 
   // Update vulnerable packages
   const updates = {
-    'csurf': '^1.11.0',
+    'csurf': '^1.2.2',
     'drizzle-kit': '^0.31.4',
     'ink-docstrap': '^1.3.2'
   };
