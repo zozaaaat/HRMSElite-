@@ -38,6 +38,23 @@ import {
   type InsertNotification
 } from '@shared/schema';
 import {db} from './db';
+import { metricsUtils } from '../middleware/metrics';
+
+async function withDbMetrics<T>(operation: string, table: string, query: () => Promise<T>): Promise<T> {
+  const start = process.hrtime.bigint();
+  try {
+    const result = await query();
+    metricsUtils.incrementDbQuery(operation, table, 'success');
+    const duration = Number(process.hrtime.bigint() - start) / 1_000_000_000;
+    metricsUtils.recordDbDuration(operation, table, duration);
+    return result;
+  } catch (error) {
+    metricsUtils.incrementDbQuery(operation, table, 'error');
+    const duration = Number(process.hrtime.bigint() - start) / 1_000_000_000;
+    metricsUtils.recordDbDuration(operation, table, duration);
+    throw error;
+  }
+}
 import {eq, and, gt} from 'drizzle-orm';
 import {log} from '../utils/logger';
 
@@ -1691,27 +1708,23 @@ export class DatabaseStorage {
    * const updatedUser = await storage.updateUserLogin("user-1");
    */
   async updateUserLogin (userId: string): Promise<User> {
-
     try {
-
-      const results = await db.update(users)
-        .set({
-          'updatedAt': new Date()
-        })
-        .where(eq(users.id, userId))
-        .returning();
+      const results = await withDbMetrics('update', 'users', async () =>
+        db.update(users)
+          .set({
+            'updatedAt': new Date()
+          })
+          .where(eq(users.id, userId))
+          .returning()
+      );
       if (!results[0]) {
         throw new Error('Failed to update user login');
       }
       return results[0];
-
     } catch (error) {
-
       log.error('Error updating user login:', error as Error);
       throw new Error('Failed to update user login');
-
     }
-
   }
 
   /**
@@ -1795,19 +1808,15 @@ export class DatabaseStorage {
    * const user = await storage.getUserByEmail("user@example.com");
    */
   async getUserByEmail (email: string): Promise<User | null> {
-
     try {
-
-      const results = await db.select().from(users).where(eq(users.email, email));
+      const results = await withDbMetrics('select', 'users', async () =>
+        db.select().from(users).where(eq(users.email, email))
+      );
       return results[0] || null;
-
     } catch (error) {
-
       log.error('Error fetching user by email:', error as Error);
       throw new Error('Failed to fetch user by email');
-
     }
-
   }
 
   /**
@@ -2046,29 +2055,25 @@ export class DatabaseStorage {
    * const user = await storage.updateUserLastLogin("user-1");
    */
   async updateUserLastLogin (userId: string): Promise<User> {
-
     try {
-
       const now = Math.floor(Date.now() / 1000);
-      const results = await db.update(users)
-        .set({
-          'lastLoginAt': now,
-          'updatedAt': new Date()
-        })
-        .where(eq(users.id, userId))
-        .returning();
+      const results = await withDbMetrics('update', 'users', async () =>
+        db.update(users)
+          .set({
+            'lastLoginAt': now,
+            'updatedAt': new Date()
+          })
+          .where(eq(users.id, userId))
+          .returning()
+      );
       if (!results[0]) {
         throw new Error('Failed to update user last login');
       }
       return results[0];
-
     } catch (error) {
-
       log.error('Error updating user last login:', error as Error);
       throw new Error('Failed to update user last login');
-
     }
-
   }
 
   /**

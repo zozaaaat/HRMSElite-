@@ -96,6 +96,12 @@ const activeSessions = new Gauge({
   help: 'Number of active user sessions'
 });
 
+const loginFailuresTotal = new Counter({
+  name: 'login_failures_total',
+  help: 'Total number of failed login attempts',
+  labelNames: ['reason']
+});
+
 /**
  * Security Metrics
  */
@@ -234,6 +240,10 @@ export const metricsUtils = {
 
   incrementAuthSuccess: (method: string, userRole: string) => {
     authSuccessTotal.inc({ method, user_role: userRole });
+  },
+
+  incrementLoginFailure: (reason: string) => {
+    loginFailuresTotal.inc({ reason });
   },
 
   setActiveSessions: (count: number) => {
