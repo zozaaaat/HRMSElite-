@@ -36,7 +36,7 @@ const SECURITY_CONFIG = {
     login: {
       windowMs: 15 * 60 * 1000, // 15 minutes
       max: 5, // limit each IP to 5 login attempts per windowMs
-      userMax: 10, // limit each user to 10 login attempts per windowMs
+      userMax: 5, // limit each user to 5 login attempts per windowMs
       message: {
         error: 'تم تجاوز حد محاولات تسجيل الدخول',
         message: 'يرجى المحاولة مرة أخرى بعد 15 دقيقة',
@@ -122,14 +122,20 @@ export const createEnhancedRateLimiter = (type: keyof typeof SECURITY_CONFIG.rat
       return `ip:${req.ip || req.connection.remoteAddress || 'unknown'}`;
     },
     handler: (req: Request, res: Response) => {
-      log.warn(`IP rate limit exceeded for ${type}`, {
+      const logData = {
         ip: req.ip,
         url: req.url,
         method: req.method,
         userAgent: req.get('User-Agent'),
         userId: req.user?.id,
         timestamp: new Date().toISOString()
-      }, 'SECURITY');
+      };
+      req.log?.warn(`IP rate limit exceeded for ${type}`, logData);
+      req.metrics?.increment('security_alerts_total', {
+        type: `${type}_rate_limit`,
+        limitType: 'ip'
+      });
+      log.warn(`IP rate limit exceeded for ${type}`, logData, 'SECURITY');
 
       res.status(429).json({
         error: config.message.error,
@@ -158,14 +164,20 @@ export const createEnhancedRateLimiter = (type: keyof typeof SECURITY_CONFIG.rat
       return !req.user?.id;
     },
     handler: (req: Request, res: Response) => {
-      log.warn(`User rate limit exceeded for ${type}`, {
+      const logData = {
         ip: req.ip,
         url: req.url,
         method: req.method,
         userAgent: req.get('User-Agent'),
         userId: req.user?.id,
         timestamp: new Date().toISOString()
-      }, 'SECURITY');
+      };
+      req.log?.warn(`User rate limit exceeded for ${type}`, logData);
+      req.metrics?.increment('security_alerts_total', {
+        type: `${type}_rate_limit`,
+        limitType: 'user'
+      });
+      log.warn(`User rate limit exceeded for ${type}`, logData, 'SECURITY');
 
       res.status(429).json({
         error: config.message.error,
