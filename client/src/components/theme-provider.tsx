@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import {useAppStore} from '../stores/useAppStore';
 
 type Theme = 'dark' | 'light' | 'system';
 
@@ -26,7 +27,7 @@ export function ThemeProvider ({
   storageKey = 'vite-ui-theme',
   ...props
 }: ThemeProviderProps) {
-
+  const setGlobalTheme = useAppStore((state) => state.setTheme);
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window === 'undefined') {
       return defaultTheme;
@@ -57,6 +58,10 @@ export function ThemeProvider ({
 
   }, [theme]);
 
+  useEffect(() => {
+    setGlobalTheme(theme);
+  }, [theme, setGlobalTheme]);
+
   const value = {
     theme,
     'setTheme': (theme: Theme) => {
@@ -64,6 +69,7 @@ export function ThemeProvider ({
         window.localStorage.setItem(storageKey, theme);
       }
       setTheme(theme);
+      setGlobalTheme(theme);
     }
   };
 

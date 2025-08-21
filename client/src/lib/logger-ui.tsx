@@ -1,6 +1,7 @@
 // Internal Logging System for HRMS Elite
 import React from 'react';
 import { logger as baseLogger } from './logger';
+import {useAppStore} from '../stores/useAppStore';
 
 
 interface LogLevel {
@@ -106,12 +107,7 @@ class Logger {
 
   private getCurrentUserId(): string | undefined {
     try {
-      // Get user ID from localStorage or context
-      const user = typeof window !== 'undefined' ? window.localStorage.getItem('hrms-user') : null;
-      if (!user) return undefined;
-      
-      const parsedUser = JSON.parse(user) as { id?: string };
-      return parsedUser.id;
+      return useAppStore.getState().user?.id;
     } catch {
       return undefined;
     }

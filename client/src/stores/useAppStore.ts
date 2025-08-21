@@ -118,6 +118,8 @@ interface AppState {
   isInitialized: boolean;
   hydrationComplete: boolean;
   lastSyncTime: number | null;
+  theme: 'light' | 'dark' | 'system';
+  language: string;
 
   // Actions
   setUser: (user: DbUser | null) => void;
@@ -128,6 +130,8 @@ interface AppState {
   setInitialized: (initialized: boolean) => void;
   setHydrationComplete: (complete: boolean) => void;
   setLastSyncTime: (time: number | null) => void;
+  setTheme: (theme: 'light' | 'dark' | 'system') => void;
+  setLanguage: (language: string) => void;
 
   // Computed values
   isAuthenticated: boolean;
@@ -202,6 +206,8 @@ export const useAppStore = create<AppState>()(
       'isInitialized': false,
       'hydrationComplete': false,
       'lastSyncTime': null,
+      'theme': 'system',
+      'language': 'en',
 
       // Actions
       'setUser': (user) => set({user}),
@@ -212,6 +218,8 @@ export const useAppStore = create<AppState>()(
       'setInitialized': (initialized) => set({'isInitialized': initialized}),
       'setHydrationComplete': (complete) => set({'hydrationComplete': complete}),
       'setLastSyncTime': (time) => set({'lastSyncTime': time}),
+      'setTheme': (theme) => set({theme}),
+      'setLanguage': (language) => set({'language': language}),
 
       // Computed values
       get 'isAuthenticated' () {
@@ -694,10 +702,9 @@ export const useAppStore = create<AppState>()(
     {
       'name': 'hrms-app-store', // unique name for localStorage
       'partialize': (state) => ({
-        'user': state.user,
-        'company': state.company,
-        'lastSyncTime': state.lastSyncTime
-      }), // persist user, compunknown, and last sync time
+        'theme': state.theme,
+        'language': state.language
+      }), // persist only non-sensitive UI preferences
       'onRehydrateStorage': () => (state) => {
 
         // Called when hydration starts
@@ -728,6 +735,8 @@ export const useIsInitialized = () => useAppStore((state) => state.isInitialized
 export const useHydrationComplete = () => useAppStore((state) => state.hydrationComplete);
 export const useIsDataStale = () => useAppStore((state) => state.isDataStale());
 export const useLastSyncTime = () => useAppStore((state) => state.lastSyncTime);
+export const useAppTheme = () => useAppStore((state) => state.theme);
+export const useAppLanguage = () => useAppStore((state) => state.language);
 
 // New hooks for simplified API operations
 export const useAPIOperations = () => useAppStore((state) => ({
