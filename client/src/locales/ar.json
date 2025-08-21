@@ -49,6 +49,14 @@
     "aiAnalytics": "التحليلات الذكية",
     "aiChatbot": "المساعد الذكي"
   },
+  "languages": {
+    "english": "English",
+    "arabic": "العربية",
+    "short": {
+      "english": "EN",
+      "arabic": "عربي"
+    }
+  },
   "accessibility": {
     "skipNavigation": "تخطي التنقل",
     "skipToMainContent": "تخطي إلى المحتوى الرئيسي",
@@ -370,6 +378,30 @@
     "noData": "لا توجد بيانات متاحة",
     "loadingData": "جاري تحميل البيانات...",
     "errorLoadingData": "خطأ في تحميل البيانات"
+  },
+  "forms": {
+    "username": "اسم المستخدم",
+    "password": "كلمة المرور",
+    "submit": "إرسال"
+  },
+  "errors": {
+    "details": "تفاصيل الخطأ (للطور)",
+    "errorLabel": "الخطأ:",
+    "additionalInfo": "معلومات إضافية:",
+    "unexpected": "حدث خطأ غير متوقع",
+    "pageLoad": "عذراً، حدث خطأ أثناء تحميل هذه الصفحة",
+    "tryAgainOrHome": "يرجى المحاولة مرة أخرى أو العودة إلى الصفحة الرئيسية. إذا استمرت المشكلة، يمكنك الإبلاغ عن الخطأ للمساعدة في حله.",
+    "retry": "إعادة المحاولة",
+    "home": "الصفحة الرئيسية",
+    "reload": "إعادة تحميل الصفحة",
+    "report": "الإبلاغ عن الخطأ",
+    "sent": "تم إرسال تقرير الخطأ بنجاح",
+    "retryAttempt_zero": "لم تتم أي محاولة",
+    "retryAttempt_one": "محاولة واحدة",
+    "retryAttempt_two": "محاولتان",
+    "retryAttempt_few": "{{count}} محاولات",
+    "retryAttempt_many": "{{count}} محاولة",
+    "retryAttempt_other": "{{count}} محاولة"
   },
   "dateTime": {
     "today": "اليوم",

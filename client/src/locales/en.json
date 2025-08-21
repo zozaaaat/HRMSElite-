@@ -49,6 +49,14 @@
     "aiAnalytics": "AI Analytics",
     "aiChatbot": "AI Chatbot"
   },
+  "languages": {
+    "english": "English",
+    "arabic": "Arabic",
+    "short": {
+      "english": "EN",
+      "arabic": "عربي"
+    }
+  },
   "accessibility": {
     "skipNavigation": "Skip Navigation",
     "skipToMainContent": "Skip to main content",
@@ -370,6 +378,26 @@
     "noData": "No data available",
     "loadingData": "Loading data...",
     "errorLoadingData": "Error loading data"
+  },
+  "forms": {
+    "username": "Username",
+    "password": "Password",
+    "submit": "Submit"
+  },
+  "errors": {
+    "details": "Error details (dev)",
+    "errorLabel": "Error:",
+    "additionalInfo": "Additional Info:",
+    "unexpected": "An unexpected error occurred",
+    "pageLoad": "Sorry, an error occurred while loading this page",
+    "tryAgainOrHome": "Please try again or return to the homepage. If the problem persists, you can report the error to help resolve it.",
+    "retry": "Retry",
+    "home": "Home",
+    "reload": "Reload Page",
+    "report": "Report Error",
+    "sent": "Error report sent successfully",
+    "retryAttempt_one": "Attempt {{count}}",
+    "retryAttempt_other": "Attempt {{count}}"
   },
   "dateTime": {
     "today": "Today",
