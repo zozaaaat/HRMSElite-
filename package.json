@@ -80,6 +80,7 @@
     "db:test-restore": "tsx server/utils/dbBackup.ts --test-restore",
     "db:security-status": "tsx server/utils/dbSecurity.ts --status",
     "db:mask-data": "tsx server/utils/dataMasking.ts --mask",
+    "db:migrate-encryption": "node scripts/migrate-sqlite-encryption.js",
     "quality:check": "node scripts/quality-monitor.js",
     "quality:report": "npm run quality:check && cat quality-report.json",
     "quality:dashboard": "npm run quality:check && echo 'Quality report generated. View at quality-report.json'",
