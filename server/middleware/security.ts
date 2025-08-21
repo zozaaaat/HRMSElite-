@@ -14,17 +14,6 @@ import { log } from '../utils/logger';
 
 // Security configuration
 const SECURITY_CONFIG = {
-  // CSRF Configuration
-  csrf: {
-    enabled: process.env.CSRF_ENABLED !== 'false',
-    cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict' as const,
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
-  },
-
   // Rate Limiting Configuration
   rateLimit: {
     // General API rate limiting
@@ -112,78 +101,6 @@ const SECURITY_CONFIG = {
       includeSubDomains: true,
       preload: true
     }
-  }
-};
-
-/**
- * Enhanced CSRF Protection Middleware
- */
-export const enhancedCsrfProtection = (req: Request, res: Response, next: NextFunction) => {
-  if (!SECURITY_CONFIG.csrf.enabled) {
-    return next();
-  }
-
-  try {
-    // Skip CSRF for GET requests, health checks, and static files
-    if (req.method === 'GET' ||
-        req.path === '/health' ||
-        req.path.startsWith('/static/') ||
-        req.path.startsWith('/assets/') ||
-        req.path.includes('.') ||
-        req.path === '/api/csrf-token') {
-      return next();
-    }
-
-    // Enhanced CSRF token validation
-    const token = req.body._csrf || req.headers['x-csrf-token'] || req.headers['x-xsrf-token'];
-    
-    if (!token) {
-      log.warn('CSRF token missing', {
-        url: req.url,
-        method: req.method,
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
-        timestamp: new Date().toISOString()
-      }, 'SECURITY');
-
-      return res.status(403).json({
-        error: 'رمز الأمان مفقود',
-        message: 'يرجى إعادة تحميل الصفحة',
-        code: 'CSRF_TOKEN_MISSING',
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    // Additional validation for sensitive operations
-    if (req.path.includes('/auth/') || req.path.includes('/admin/')) {
-      // Double-check token for sensitive routes
-      if (typeof token !== 'string' || token.length < 32) {
-        log.warn('Invalid CSRF token format', {
-          url: req.url,
-          method: req.method,
-          ip: req.ip,
-          tokenLength: typeof token === 'string' ? token.length : 0,
-          timestamp: new Date().toISOString()
-        }, 'SECURITY');
-
-        return res.status(403).json({
-          error: 'رمز الأمان غير صالح',
-          message: 'يرجى إعادة تحميل الصفحة',
-          code: 'CSRF_TOKEN_INVALID',
-          timestamp: new Date().toISOString()
-        });
-      }
-    }
-
-    next();
-  } catch (error) {
-    log.error('CSRF protection error:', error as Error, 'SECURITY');
-    return res.status(500).json({
-      error: 'خطأ في حماية الأمان',
-      message: 'يرجى المحاولة مرة أخرى',
-      code: 'CSRF_ERROR',
-      timestamp: new Date().toISOString()
-    });
   }
 };
 
