@@ -25,8 +25,10 @@ export const LanguageSwitcher: React.FC = () => {
     setLanguage(newLang);
   };
 
-  const currentLanguage = i18n.language === 'ar' ? 'العربية' : 'English';
-  const nextLanguage = i18n.language === 'ar' ? 'English' : 'العربية';
+    const currentLanguage = t(`languages.${i18n.language === 'ar' ? 'arabic' : 'english'}`);
+    const nextLanguageKey = i18n.language === 'ar' ? 'english' : 'arabic';
+    const nextLanguage = t(`languages.${nextLanguageKey}`);
+    const nextLanguageShort = t(`languages.short.${nextLanguageKey}`);
 
   return (
     <Button
@@ -37,8 +39,8 @@ export const LanguageSwitcher: React.FC = () => {
       title={`${t('settings.language')}: ${currentLanguage}`}
     >
       <Globe className="h-4 w-4" />
-      <span className="hidden sm:inline">{nextLanguage}</span>
-      <span className="sm:hidden">{i18n.language === 'ar' ? 'EN' : 'عربي'}</span>
-    </Button>
-  );
-};
+        <span className="hidden sm:inline">{nextLanguage}</span>
+        <span className="sm:hidden">{nextLanguageShort}</span>
+      </Button>
+    );
+  };

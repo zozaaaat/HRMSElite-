@@ -5,9 +5,10 @@ import {Card, CardContent, CardHeader, CardTitle} from '../ui/card';
 import {Badge} from '../ui/badge';
 import {Separator} from '../ui/separator';
 import logger from '../../lib/logger';
+import { withTranslation, WithTranslation, useTranslation } from 'react-i18next';
 
 
-interface Props {
+interface Props extends WithTranslation {
   children: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
@@ -24,48 +25,54 @@ interface State {
 }
 
 // Loading fallback component
-const LoadingFallback = () => (
-  <div className="min-h-screen bg-background flex items-center justify-center p-4">
-    <Card className="w-full max-w-md">
-      <CardContent className="flex items-center justify-center p-6">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-        <span className="mr-3 text-muted-foreground">جاري التحميل...</span>
-      </CardContent>
-    </Card>
-  </div>
-);
+const LoadingFallback = () => {
+  const { t } = useTranslation();
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardContent className="flex items-center justify-center p-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          <span className="mr-3 text-muted-foreground">{t('common.loading')}</span>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 // Error details component with React.memo for performance
-const ErrorDetails = React.memo(({error, errorInfo}: { error: Error; errorInfo?: ErrorInfo | undefined }) => (
-  <details className="bg-muted p-4 rounded-lg text-sm space-y-3">
-    <summary className="cursor-pointer font-medium mb-3 flex items-center gap-2">
-      <Bug className="h-4 w-4" />
-      تفاصيل الخطأ (للطور)
-    </summary>
-    <div className="space-y-3">
-      <div>
-        <strong className="text-destructive">الخطأ:</strong>
-        <pre className="mt-2 text-xs bg-background p-3 rounded overflow-auto border">
-          {error.message}
-        </pre>
-      </div>
-      {errorInfo && (
+const ErrorDetails = React.memo(({error, errorInfo}: { error: Error; errorInfo?: ErrorInfo | undefined }) => {
+  const { t } = useTranslation();
+  return (
+    <details className="bg-muted p-4 rounded-lg text-sm space-y-3">
+      <summary className="cursor-pointer font-medium mb-3 flex items-center gap-2">
+        <Bug className="h-4 w-4" />
+        {t('errors.details')}
+      </summary>
+      <div className="space-y-3">
         <div>
-          <strong className="text-destructive">معلومات إضافية:</strong>
+          <strong className="text-destructive">{t('errors.errorLabel')}</strong>
           <pre className="mt-2 text-xs bg-background p-3 rounded overflow-auto border">
-            {errorInfo.componentStack}
+            {error.message}
           </pre>
         </div>
-      )}
-      <div>
-        <strong className="text-destructive">Stack Trace:</strong>
-        <pre className="mt-2 text-xs bg-background p-3 rounded overflow-auto border">
-          {error.stack}
-        </pre>
+        {errorInfo && (
+          <div>
+            <strong className="text-destructive">{t('errors.additionalInfo')}</strong>
+            <pre className="mt-2 text-xs bg-background p-3 rounded overflow-auto border">
+              {errorInfo.componentStack}
+            </pre>
+          </div>
+        )}
+        <div>
+          <strong className="text-destructive">Stack Trace:</strong>
+          <pre className="mt-2 text-xs bg-background p-3 rounded overflow-auto border">
+            {error.stack}
+          </pre>
+        </div>
       </div>
-    </div>
-  </details>
-));
+    </details>
+  );
+});
 
 ErrorDetails.displayName = 'ErrorDetails';
 
@@ -192,7 +199,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
       // In a real application, you would send this to your support system
 
       // Show success message
-      window.alert('تم إرسال تقرير الخطأ بنجاح');
+      window.alert(this.props.t('errors.sent'));
 
     }
 
@@ -211,6 +218,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
       const {error, errorInfo, retryCount} = this.state;
 
+      const { t } = this.props;
       return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4">
           <Card className="w-full max-w-lg">
@@ -219,16 +227,16 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                 <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
               </div>
               <CardTitle className="text-xl text-red-600 dark:text-red-400">
-                حدث خطأ غير متوقع
+                {t('errors.unexpected')}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-2">
-                عذراً، حدث خطأ أثناء تحميل هذه الصفحة
+                {t('errors.pageLoad')}
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-center gap-2">
                 <Badge variant="outline" className="text-xs">
-                  محاولة {retryCount + 1}
+                  {t('errors.retryAttempt', { count: retryCount + 1 })}
                 </Badge>
                 {error && (
                   <Badge variant="destructive" className="text-xs">
@@ -238,8 +246,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
               </div>
 
               <p className="text-muted-foreground text-center text-sm">
-                يرجى المحاولة مرة أخرى أو العودة إلى الصفحة الرئيسية. إذا استمرت المشكلة،
-                يمكنك الإبلاغ عن الخطأ للمساعدة في حلها.
+                {t('errors.tryAgainOrHome')}
               </p>
 
               {/* Error details for development */}
@@ -256,7 +263,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                   variant="default"
                 >
                   <RefreshCw className="h-4 w-4" />
-                  إعادة المحاولة
+                  {t('errors.retry')}
                 </Button>
                 <Button
                   onClick={this.handleGoHome}
@@ -264,7 +271,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                   variant="outline"
                 >
                   <Home className="h-4 w-4" />
-                  الصفحة الرئيسية
+                  {t('errors.home')}
                 </Button>
               </div>
 
@@ -276,7 +283,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                   size="sm"
                 >
                   <RefreshCw className="h-4 w-4" />
-                  إعادة تحميل الصفحة
+                  {t('errors.reload')}
                 </Button>
                 <Button
                   onClick={this.handleReportError}
@@ -285,7 +292,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
                   size="sm"
                 >
                   <Info className="h-4 w-4" />
-                  الإبلاغ عن الخطأ
+                  {t('errors.report')}
                 </Button>
               </div>
             </CardContent>
@@ -307,15 +314,17 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 }
 
 // HOC for wrapping components with error boundary
+const TranslatedErrorBoundary = withTranslation()(EnhancedErrorBoundary);
+
 export const withErrorBoundary = <P extends object>(
   Component: React.ComponentType<P>,
   errorBoundaryProps?: Omit<Props, 'children'>
 ) => {
 
   const WrappedComponent = (props: P) => (
-    <EnhancedErrorBoundary {...errorBoundaryProps}>
+    <TranslatedErrorBoundary {...errorBoundaryProps}>
       <Component {...props} />
-    </EnhancedErrorBoundary>
+    </TranslatedErrorBoundary>
   );
 
   WrappedComponent.displayName = `withErrorBoundary(${Component.displayName ?? Component.name})`;
@@ -323,4 +332,4 @@ export const withErrorBoundary = <P extends object>(
 
 };
 
-export default EnhancedErrorBoundary;
+export default TranslatedErrorBoundary;
