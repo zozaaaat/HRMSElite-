@@ -63,11 +63,13 @@ export function getSession () {
     'store': sessionStore,
     'resave': false,
     'saveUninitialized': false,
+    'name': process.env.NODE_ENV === 'production' ? '__Host-hrms-elite-session' : 'hrms-elite-session',
     'cookie': {
       'httpOnly': true,
       'secure': true,
       'sameSite': 'strict',
-      'maxAge': sessionTtl
+      'maxAge': sessionTtl,
+      'path': '/' 
     }
   });
 
