@@ -10,6 +10,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters long'),
   SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 characters long'),
   DB_ENCRYPTION_KEY: z.string().min(32, 'DB_ENCRYPTION_KEY must be at least 32 characters long'),
+  METRICS_TOKEN: z.string().min(10, 'METRICS_TOKEN must be at least 10 characters long').default('metrics-token'),
   
   // Optional environment variables with defaults
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),

@@ -5,6 +5,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { register, Counter, Histogram, Gauge, collectDefaultMetrics } from 'prom-client';
+import { env } from '../utils/env';
 
 // Enable default metrics collection
 collectDefaultMetrics({ register });
@@ -21,7 +22,7 @@ const httpRequestsTotal = new Counter({
 const httpRequestDuration = new Histogram({
   name: 'http_request_duration_seconds',
   help: 'HTTP request duration in seconds',
-  labelNames: ['method', 'endpoint', 'version'],
+  labelNames: ['route', 'status'],
   buckets: [0.1, 0.3, 0.5, 0.7, 1, 3, 5, 7, 10]
 });
 
@@ -37,6 +38,21 @@ const httpResponseSize = new Histogram({
   help: 'HTTP response size in bytes',
   labelNames: ['method', 'endpoint', 'status'],
   buckets: [100, 500, 1000, 5000, 10000, 50000, 100000]
+});
+
+/**
+ * Additional Counters
+ */
+const httpRequestsErrorsTotal = new Counter({
+  name: 'http_requests_errors_total',
+  help: 'Total number of HTTP requests that resulted in errors',
+  labelNames: ['method', 'route', 'status']
+});
+
+const uploadsTotal = new Counter({
+  name: 'uploads_total',
+  help: 'Total number of uploads',
+  labelNames: ['type', 'status']
 });
 
 /**
@@ -182,8 +198,12 @@ export const metricsUtils = {
     httpRequestsTotal.inc({ method, endpoint, status: status.toString(), version });
   },
 
-  recordHttpDuration: (method: string, endpoint: string, duration: number, version: string = 'v1') => {
-    httpRequestDuration.observe({ method, endpoint, version }, duration);
+  incrementHttpRequestError: (method: string, route: string, status: number) => {
+    httpRequestsErrorsTotal.inc({ method, route, status: status.toString() });
+  },
+
+  recordHttpDuration: (route: string, status: number, duration: number) => {
+    httpRequestDuration.observe({ route, status: status.toString() }, duration);
   },
 
   recordHttpRequestSize: (method: string, endpoint: string, size: number) => {
@@ -245,6 +265,7 @@ export const metricsUtils = {
   // File Upload Metrics
   incrementFileUpload: (type: string, status: string, sizeRange: string) => {
     fileUploadsTotal.inc({ type, status, size_range: sizeRange });
+    uploadsTotal.inc({ type, status });
   },
 
   recordFileUploadSize: (type: string, size: number) => {
@@ -296,10 +317,11 @@ export const prometheusMiddleware = (req: Request, res: Response, next: NextFunc
     const endTime = process.hrtime.bigint();
     const duration = Number(endTime - startTime) / 1000000000; // Convert to seconds
     const responseSize = Buffer.byteLength(data, 'utf8');
+    const route = req.route?.path || req.path;
 
     // Record metrics
     metricsUtils.incrementHttpRequest(req.method, req.url, res.statusCode);
-    metricsUtils.recordHttpDuration(req.method, req.url, duration);
+    metricsUtils.recordHttpDuration(route, res.statusCode, duration);
     metricsUtils.recordHttpResponseSize(req.method, req.url, res.statusCode, responseSize);
 
     // Record errors
@@ -309,9 +331,24 @@ export const prometheusMiddleware = (req: Request, res: Response, next: NextFunc
       metricsUtils.incrementServerError(req.method, req.url, res.statusCode);
     }
 
+    if (res.statusCode >= 400) {
+      metricsUtils.incrementHttpRequestError(req.method, route, res.statusCode);
+    }
+
     return originalSend.call(this, data);
   };
 
+  next();
+};
+
+/**
+ * Metrics endpoint authentication
+ */
+export const metricsAuth = (req: Request, res: Response, next: NextFunction) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (token !== env.METRICS_TOKEN) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
   next();
 };
 
@@ -379,5 +416,6 @@ export default {
   handler: metricsHandler,
   health: healthCheckHandler,
   utils: metricsUtils,
-  initialize: initializeMetrics
+  initialize: initializeMetrics,
+  auth: metricsAuth
 };

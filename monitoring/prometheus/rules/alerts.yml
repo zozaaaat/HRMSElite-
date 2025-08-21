@@ -42,18 +42,18 @@ groups:
           description: "HRMS Elite application has been down for more than 1 minute"
 
       # High Response Time
-      - alert: HighResponseTime
-        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "High response time detected"
-          description: "95th percentile response time is above 2 seconds"
+        - alert: HighResponseTime
+          expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High response time detected"
+            description: "95th percentile response time is above 1 second"
 
       # High Error Rate
       - alert: HighErrorRate
-        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) * 100 > 5
+        expr: rate(http_requests_errors_total[5m]) / rate(http_requests_total[5m]) * 100 > 5
         for: 5m
         labels:
           severity: critical

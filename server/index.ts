@@ -14,7 +14,7 @@ import { randomUUID } from 'crypto';
 
 // Import observability middleware
 import { observability } from './middleware/observability';
-import { prometheusMiddleware, metricsHandler, healthCheckHandler, initializeMetrics } from './middleware/metrics';
+import { prometheusMiddleware, metricsHandler, healthCheckHandler, initializeMetrics, metricsAuth } from './middleware/metrics';
 import { initializeLogShipper } from './utils/log-shipper';
 
 import {
@@ -115,7 +115,7 @@ app.use(requestValidation);
 app.get('/health', healthCheckHandler);
 
 // Metrics endpoint for Prometheus
-app.get('/metrics', metricsHandler);
+app.get('/metrics', metricsAuth, metricsHandler);
 
 // API documentation
 app.get('/api-docs', (req, res) => {
