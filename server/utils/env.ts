@@ -23,6 +23,7 @@ const envSchema = z.object({
   // Database configuration
   DATABASE_URL: z.string().optional(),
   DB_ENCRYPTION_KEY_PREVIOUS: z.string().min(32).optional(),
+  REDIS_URL: z.string().optional(),
   
   // CORS configuration
   CORS_ORIGINS: z.string().optional(),
