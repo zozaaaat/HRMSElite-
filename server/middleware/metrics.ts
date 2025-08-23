@@ -196,6 +196,24 @@ const diskUsage = new Gauge({
 });
 
 /**
+ * Web Vitals Metrics
+ */
+const webVitalsLCP = new Gauge({
+  name: 'web_vitals_lcp',
+  help: 'Largest Contentful Paint (ms)'
+});
+
+const webVitalsCLS = new Gauge({
+  name: 'web_vitals_cls',
+  help: 'Cumulative Layout Shift'
+});
+
+const webVitalsFID = new Gauge({
+  name: 'web_vitals_fid',
+  help: 'First Input Delay (ms)'
+});
+
+/**
  * Metrics utilities
  */
 export const metricsUtils = {
@@ -306,6 +324,19 @@ export const metricsUtils = {
 
   setDiskUsage: (path: string, bytes: number) => {
     diskUsage.set({ path }, bytes);
+  },
+
+  // Web Vitals
+  recordWebVital: (metric: string, value: number) => {
+    const gauges: Record<string, Gauge> = {
+      LCP: webVitalsLCP,
+      CLS: webVitalsCLS,
+      FID: webVitalsFID
+    };
+    const gauge = gauges[metric];
+    if (gauge) {
+      gauge.set(value);
+    }
   }
 };
 

@@ -16,6 +16,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.10.2",
     "@axe-core/react": "4.10.2",
+    "@lhci/cli": "0.14.0",
     "@testing-library/jest-dom": "6.6.4",
     "@testing-library/react": "16.3.0",
     "@testing-library/user-event": "14.6.1",
@@ -28,9 +29,8 @@
     "jest-axe": "10.0.0",
     "puppeteer": "24.16.2",
     "vite": "5.3.4",
-    "vitest": "3.2.4",
-    "@lhci/cli": "0.14.0",
-    "vite-plugin-imagemin": "0.6.1"
+    "vite-plugin-imagemin": "0.6.1",
+    "vitest": "3.2.4"
   },
   "dependencies": {
     "@alloc/quick-lru": "5.2.0",
@@ -43,6 +43,7 @@
     "react-dom": "18.3.1",
     "react-i18next": "15.6.1",
     "react-router-dom": "6.28.0",
-    "tailwindcss": "4.1.11"
+    "tailwindcss": "4.1.11",
+    "web-vitals": "^5.1.0"
   }
 }
