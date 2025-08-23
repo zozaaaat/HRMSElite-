@@ -139,7 +139,7 @@ export const useUserStore = create<UserStore>()(
     },
 
     'initializeFromSession': (userData) => {
-      // ضع تحويل بسيط إن لزم
+      // Apply a simple conversion if needed
       set({ user: (userData || null) as AppUser });
     }
   })
