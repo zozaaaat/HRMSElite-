@@ -42,19 +42,19 @@ groups:
           description: "HRMS Elite application has been down for more than 1 minute"
 
       # High Response Time
-        - alert: HighResponseTime
-          expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
-          for: 5m
-          labels:
-            severity: warning
-          annotations:
-            summary: "High response time detected"
-            description: "95th percentile response time is above 1 second"
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is above 1 second"
 
       # High Error Rate
       - alert: HighErrorRate
         expr: rate(http_requests_errors_total[5m]) / rate(http_requests_total[5m]) * 100 > 5
-        for: 5m
+        for: 0m
         labels:
           severity: critical
         annotations:
@@ -92,31 +92,51 @@ groups:
           description: "Network receive rate is above 1GB/s on {{ $labels.device }}"
 
       # Application Memory Leak
-        - alert: ApplicationMemoryLeak
-          expr: increase(process_resident_memory_bytes[1h]) > 100000000
-          for: 10m
-          labels:
-            severity: warning
-          annotations:
-            summary: "Potential memory leak detected"
-            description: "Application memory usage increased by more than 100MB in the last hour"
+      - alert: ApplicationMemoryLeak
+        expr: increase(process_resident_memory_bytes[1h]) > 100000000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Potential memory leak detected"
+          description: "Application memory usage increased by more than 100MB in the last hour"
 
-        # High Login Failure Rate
-        - alert: HighLoginFailureRate
-          expr: rate(login_failures_total[5m]) > 5
-          for: 5m
-          labels:
-            severity: warning
-          annotations:
-            summary: "High login failure rate detected"
-            description: "Login failure rate is above 5 per minute over the last 5 minutes"
+      # High Login Failure Rate
+      - alert: HighLoginFailureRate
+        expr: rate(login_failures_total[5m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High login failure rate detected"
+          description: "Login failure rate is above 5 per minute over the last 5 minutes"
 
-        # Slow Database Queries
-        - alert: SlowDatabaseQueries
-          expr: histogram_quantile(0.95, rate(db_query_duration_seconds_bucket[5m])) > 1
-          for: 5m
-          labels:
-            severity: warning
-          annotations:
-            summary: "Slow database queries detected"
-            description: "95th percentile database query time is above 1 second"
+      # Login 401/429 Spike
+      - alert: Login401429Spike
+        expr: increase(http_requests_total{endpoint="/api/auth/login",status=~"401|429"}[5m]) > 25
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Spike in login 401/429 responses"
+          description: "Login endpoint is returning 401 or 429 responses more than 5 times per minute"
+
+      # Slow Database Queries
+      - alert: SlowDatabaseQueries
+        expr: histogram_quantile(0.95, rate(db_query_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow database queries detected"
+          description: "95th percentile database query time is above 1 second"
+
+      # Antivirus Scan Failures
+      - alert: AVScanFailure
+        expr: increase(av_scan_failures_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Antivirus scan failure detected"
+          description: "An antivirus scan has failed in the last 5 minutes"
