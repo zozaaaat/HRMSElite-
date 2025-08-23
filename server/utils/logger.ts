@@ -6,6 +6,7 @@
 import type {
   LogData, LogLevel
 } from '../../shared/types/common';
+import { maskPII } from './pii';
 
 // Create enum-like structure for log levels
 const LogLevels = {
@@ -68,7 +69,8 @@ class ServerLogger {
     const timestamp = new Date().toISOString();
     const levelName = logLevelNames[level];
     const sourceInfo = source ? ` [${source}]` : '';
-    const dataInfo = data ? ` | Data: ${JSON.stringify(data, null, 2)}` : '';
+    const masked = data ? maskPII(data) : undefined;
+    const dataInfo = masked ? ` | Data: ${JSON.stringify(masked, null, 2)}` : '';
 
     return `[${timestamp}] ${levelName}${sourceInfo}: ${message}${dataInfo}`;
 

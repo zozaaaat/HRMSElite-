@@ -6,8 +6,10 @@
  */
 
 import crypto from 'node:crypto';
+import cron from 'node-cron';
 import { secureDbManager } from './dbSecurity';
 import { log } from './logger';
+import { PII_CLASSIFICATION, DEFAULT_RETENTION_CONFIG } from './pii';
 import 'dotenv/config';
 
 export interface MaskingConfig {
@@ -64,81 +66,24 @@ export class DataMaskingManager {
    * Get default masking rules for PII fields
    */
   private getDefaultMaskingRules(): MaskingRule[] {
-    return [
-      // User PII
-      { table: 'users', column: 'email', maskingType: 'partial', preserveFormat: true },
-      { table: 'users', column: 'firstName', maskingType: 'fake' },
-      { table: 'users', column: 'lastName', maskingType: 'fake' },
-      { table: 'users', column: 'password', maskingType: 'hash' },
-      { table: 'users', column: 'profileImageUrl', maskingType: 'null' },
-      
-      // Employee PII
-      { table: 'employees', column: 'firstName', maskingType: 'fake' },
-      { table: 'employees', column: 'lastName', maskingType: 'fake' },
-      { table: 'employees', column: 'arabicName', maskingType: 'fake' },
-      { table: 'employees', column: 'englishName', maskingType: 'fake' },
-      { table: 'employees', column: 'passportNumber', maskingType: 'partial', preserveFormat: true },
-      { table: 'employees', column: 'civilId', maskingType: 'partial', preserveFormat: true },
-      { table: 'employees', column: 'dateOfBirth', maskingType: 'partial' },
-      { table: 'employees', column: 'phone', maskingType: 'partial', preserveFormat: true },
-      { table: 'employees', column: 'email', maskingType: 'partial', preserveFormat: true },
-      { table: 'employees', column: 'address', maskingType: 'fake' },
-      { table: 'employees', column: 'emergencyContact', maskingType: 'fake' },
-      { table: 'employees', column: 'emergencyPhone', maskingType: 'partial', preserveFormat: true },
-      { table: 'employees', column: 'photoUrl', maskingType: 'null' },
-      { table: 'employees', column: 'residenceNumber', maskingType: 'partial', preserveFormat: true },
-      { table: 'employees', column: 'bankAccount', maskingType: 'partial', preserveFormat: true },
-      
-      // Company sensitive data
-      { table: 'companies', column: 'email', maskingType: 'partial', preserveFormat: true },
-      { table: 'companies', column: 'phone', maskingType: 'partial', preserveFormat: true },
-      { table: 'companies', column: 'address', maskingType: 'fake' },
-      { table: 'companies', column: 'commercialFileNumber', maskingType: 'partial', preserveFormat: true },
-      { table: 'companies', column: 'commercialRegistrationNumber', maskingType: 'partial', preserveFormat: true },
-      { table: 'companies', column: 'taxNumber', maskingType: 'partial', preserveFormat: true },
-      
-      // Session data
-      { table: 'sessions', column: 'sess', maskingType: 'hash' },
-      
-      // Document sensitive info
-      { table: 'documents', column: 'fileUrl', maskingType: 'fake', conditions: "type IN ('passport', 'civil_id', 'residence')" },
-    ];
+    const rules: MaskingRule[] = [];
+    for (const [table, fields] of Object.entries(PII_CLASSIFICATION)) {
+      for (const [column] of Object.entries(fields)) {
+        const maskingType = column === 'sess' ? 'hash' : 'partial';
+        rules.push({ table, column, maskingType, preserveFormat: true });
+      }
+    }
+    return rules;
   }
 
   /**
    * Get default retention policies
    */
   private getDefaultRetentionPolicies(): RetentionPolicy[] {
-    return [
-      {
-        table: 'sessions',
-        retentionPeriod: 30, // 30 days
-        action: 'delete',
-        piiFields: ['sess'],
-        conditions: "expire < (unixepoch() - 2592000)" // 30 days ago
-      },
-      {
-        table: 'employees',
-        retentionPeriod: 2555, // 7 years for terminated employees
-        action: 'mask',
-        piiFields: ['firstName', 'lastName', 'passportNumber', 'civilId', 'phone', 'email', 'address'],
-        conditions: "status = 'terminated' AND updated_at < (unixepoch() - 220752000)" // 7 years
-      },
-      {
-        table: 'notifications',
-        retentionPeriod: 90, // 90 days
-        action: 'delete',
-        piiFields: ['message', 'data'],
-        conditions: "created_at < (unixepoch() - 7776000)" // 90 days
-      },
-      {
-        table: 'employeeLeaves',
-        retentionPeriod: 1825, // 5 years
-        action: 'archive',
-        piiFields: ['reason'],
-        conditions: "created_at < (unixepoch() - 157680000)" // 5 years
-      }
-    ];
+    return Object.entries(DEFAULT_RETENTION_CONFIG).map(([table, cfg]) => ({
+      table,
+      ...cfg,
+    }));
   }
 
   /**
@@ -471,6 +416,33 @@ export class DataMaskingManager {
       log.error(`Failed to apply retention policy for ${policy.table}:`, error);
       throw error;
     }
+  }
+
+  /**
+   * Run retention policies immediately
+   */
+  public async runRetentionPolicies(): Promise<void> {
+    await secureDbManager.initializeDatabase();
+    this.db = secureDbManager.getRawDatabase();
+    const report: MaskingReport = {
+      tablesProcessed: 0,
+      recordsProcessed: 0,
+      fieldsProcessed: 0,
+      errors: [],
+      startTime: new Date(),
+      endTime: new Date(),
+      environment: this.config.environment
+    };
+    await this.applyRetentionPolicies(report);
+  }
+
+  /**
+   * Schedule automated retention execution
+   */
+  public scheduleRetentionJobs(schedule = '0 3 * * *'): void {
+    cron.schedule(schedule, () => {
+      this.runRetentionPolicies().catch(err => log.error('Retention job failed:', err));
+    });
   }
 
   /**
