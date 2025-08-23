@@ -57,9 +57,7 @@ export default function Dashboard ({role = 'admin'}: DashboardProps) {
       log.apiRequest('GET', `/api/dashboard/${role}`);
       const response = await fetch(`/api/dashboard/${role}`, { 'credentials': 'include' });
       if (!response.ok) {
-
-        throw new Error('Failed to fetch dashboard data');
-
+        throw new Error(t('dashboard.errorMessage'));
       }
       const rawData = await response.json() as unknown;
       const data: DashboardData = rawData as DashboardData;
