@@ -29,6 +29,7 @@ import { csrfProtection, csrfTokenMiddleware, csrfTokenHandler, csrfErrorHandler
 import { isAuthenticated, optionalAuth } from './middleware/auth';
 import { log } from './utils/logger';
 import { env } from './utils/env';
+import { getLocale, t } from './utils/errorMessages';
 
 // Import routes
 import authRoutes from './routes/auth-routes';
@@ -159,6 +160,9 @@ app.use(observability.errorTracking);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  // Determine locale from request
+  const locale = getLocale(req.headers['accept-language']);
+
   // Log error with request context
   req.log?.error('Unhandled error:', {
     error: err,
@@ -172,44 +176,44 @@ app.use((err: any, req: express.Request, res: express.Response, _next: express.N
   // Rate limit errors
   if (err.status === 429) {
     return res.status(429).json({
-      error: 'تم تجاوز حد الطلبات',
-      message: 'يرجى المحاولة مرة أخرى بعد فترة',
       code: 'RATE_LIMIT_EXCEEDED',
-      timestamp: new Date().toISOString(),
-      requestId: req.id
+      message: t(locale, 'RATE_LIMIT_EXCEEDED'),
+      locale,
+      requestId: req.id,
+      details: t(locale, 'RATE_LIMIT_TRY_LATER')
     });
   }
 
   // Validation errors
   if (err.name === 'ValidationError') {
     return res.status(400).json({
-      error: 'بيانات غير صحيحة',
-      message: err.message,
       code: 'VALIDATION_ERROR',
-      timestamp: new Date().toISOString(),
-      requestId: req.id
+      message: t(locale, 'VALIDATION_ERROR'),
+      locale,
+      requestId: req.id,
+      details: err.message
     });
   }
 
   // Default error response
   const isDevelopment = env.NODE_ENV === 'development';
+  const code = err.code || 'INTERNAL_ERROR';
   res.status(err.status || 500).json({
-    error: 'حدث خطأ في الخادم',
-    message: isDevelopment ? err.message : 'خطأ داخلي في الخادم',
-    code: err.code || 'INTERNAL_ERROR',
-    timestamp: new Date().toISOString(),
+    code,
+    message: t(locale, code),
+    locale,
     requestId: req.id,
-    ...(isDevelopment && { stack: err.stack })
+    ...(isDevelopment && { details: err.stack })
   });
 });
 
 // 404 handler
 app.use('*', (req, res) => {
+  const locale = getLocale(req.headers['accept-language']);
   res.status(404).json({
-    error: 'المسار غير موجود',
-    message: 'الرابط المطلوب غير متاح',
     code: 'NOT_FOUND',
-    timestamp: new Date().toISOString(),
+    message: t(locale, 'NOT_FOUND'),
+    locale,
     requestId: req.id
   });
 });
