@@ -8,14 +8,14 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '20.19.4'
   NPM_VERSION: '10'
 
 jobs:
   # 🔍 Lint & Type Check
   lint:
     name: Lint & Type Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 10
     
     steps:
@@ -53,11 +53,11 @@ jobs:
   # 🧪 Test Suite
   test:
     name: Test Suite
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        node-version: [18, 20]
-        os: [ubuntu-latest, windows-latest]
+        node-version: [20.19.4]
+        os: [ubuntu-22.04, windows-2022]
     timeout-minutes: 20
     
     steps:
@@ -105,7 +105,7 @@ jobs:
   # 🔒 Security Audit (npm audit)
   security-audit:
     name: Security Audit
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 15
     
     steps:
@@ -159,7 +159,7 @@ jobs:
   # 🔍 OSV Scanner
   osv-scanner:
     name: OSV Scanner
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 10
     
     steps:
@@ -197,7 +197,7 @@ jobs:
   # 🛡️ Semgrep SAST
   semgrep:
     name: Semgrep SAST
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 15
     
     steps:
@@ -242,7 +242,7 @@ jobs:
   # 📦 SBOM Generation (CycloneDX)
   sbom:
     name: Generate SBOM
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 10
     
     steps:
@@ -292,7 +292,7 @@ jobs:
   # 🏗️ Build & Sign
   build:
     name: Build & Sign Artifacts
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [lint, test, security-audit, osv-scanner, semgrep, sbom]
     timeout-minutes: 25
     
@@ -358,7 +358,7 @@ jobs:
   # 🔄 Security Gate
   security-gate:
     name: Security Gate
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [lint, test, security-audit, osv-scanner, semgrep, build]
     if: always()
     timeout-minutes: 5
@@ -448,7 +448,7 @@ jobs:
   # 📊 Security Report
   security-report:
     name: Generate Security Report
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [security-audit, osv-scanner, semgrep, sbom]
     if: always()
     timeout-minutes: 10

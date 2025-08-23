@@ -8,14 +8,14 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '20.19.4'
   PNPM_VERSION: '8'
 
 jobs:
   # 🔍 Code Quality & Security
   code-quality:
     name: Code Quality & Security
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 10
     
     steps:
@@ -61,11 +61,11 @@ jobs:
   # 🧪 Testing Suite
   test:
     name: Test Suite
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
-        node-version: [18, 20]
-        os: [ubuntu-latest, windows-latest]
+        node-version: [20.19.4]
+        os: [ubuntu-22.04, windows-2022]
     timeout-minutes: 15
     
     steps:
@@ -130,7 +130,7 @@ jobs:
   # 📊 Coverage Report
   coverage:
     name: Coverage Report
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: test
     timeout-minutes: 10
     
@@ -171,7 +171,7 @@ jobs:
   # 🏗️ Build & Package
   build:
     name: Build Application
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [code-quality, test]
     timeout-minutes: 20
     
@@ -248,7 +248,7 @@ jobs:
   # 🐳 Docker Build & Test
   docker:
     name: Docker Build & Test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: build
     timeout-minutes: 15
     
@@ -287,7 +287,7 @@ jobs:
   # 🔄 Post-CI Tasks
   post-ci:
     name: Post-CI Tasks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [build, docker]
     if: always()
     timeout-minutes: 5

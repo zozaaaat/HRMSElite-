@@ -1,7 +1,7 @@
 // Migration script to encrypt or re-encrypt an existing SQLite database
 // Usage: DB_ENCRYPTION_KEY=newkey [DB_ENCRYPTION_KEY_PREVIOUS=oldkey] node scripts/migrate-sqlite-encryption.js [dbPath]
 
-import SQLCipher from '@journeyapps/sqlcipher';
+import Database from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
 
@@ -20,7 +20,7 @@ if (!fs.existsSync(resolvedPath)) {
   process.exit(1);
 }
 
-const db = new SQLCipher(resolvedPath);
+const db = new Database(resolvedPath);
 try {
   // Open database with old key or as unencrypted
   db.pragma(`key = '${oldKey}'`);

@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for HRMS Elite
 # Stage 1: Build frontend
-FROM node:18-alpine AS frontend-builder
+FROM node:20.19.4-alpine AS frontend-builder
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Build backend
-FROM node:18-alpine AS backend-builder
+FROM node:20.19.4-alpine AS backend-builder
 
 WORKDIR /app
 
@@ -36,7 +36,7 @@ COPY . .
 RUN npm run build
 
 # Stage 3: Production runtime
-FROM node:18-alpine AS production
+FROM node:20.19.4-alpine AS production
 
 # Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init

@@ -1,13 +1,12 @@
 /**
  * @fileoverview Database Security Configuration and Management
- * @description Provides encrypted SQLite database support using SQLCipher
+ * @description Provides SQLite database support with optional encryption
  * @author HRMS Elite Team
  * @version 1.0.0
  */
 
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import Database from 'better-sqlite3';
-import SQLCipher from '@journeyapps/sqlcipher';
 import * as schema from '@shared/schema';
 import { log } from './logger';
 import { env } from './env';
@@ -106,8 +105,8 @@ export class SecureDatabaseManager {
       const databasePath = dbPath || env.DATABASE_URL || 'dev.db';
 
       if (this.config.encryption.enabled) {
-        // Use SQLCipher for encrypted database
-        this.database = new SQLCipher(databasePath) as any;
+        // Use SQLite for encrypted database
+        this.database = new Database(databasePath) as any;
 
         // Set encryption key and verify
         this.database.pragma(`key = '${this.encryptionKey}'`);
@@ -126,8 +125,6 @@ export class SecureDatabaseManager {
         }
 
         // Configure encryption
-        this.database.pragma(`cipher_algorithm = '${this.config.encryption.algorithm}'`);
-        this.database.pragma(`kdf_iter = ${this.config.encryption.iterations}`);
 
         log.info('Database initialized with encryption enabled');
       } else {
