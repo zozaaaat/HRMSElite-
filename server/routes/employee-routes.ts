@@ -9,6 +9,7 @@
 import type {Express, Request, Response} from 'express';
 import {storage} from '../models/storage';
 import {log} from '../utils/logger';
+import {generateETag, setETagHeader, matchesIfMatchHeader} from '../utils/etag';
 import {
   insertEmployeeSchema, insertEmployeeLeaveSchema, insertEmployeeDeductionSchema, insertEmployeeViolationSchema, InsertEmployee
 } from '@shared/schema';
@@ -245,11 +246,11 @@ export function registerEmployeeRoutes (app: Express) {
       const employee = await storage.getEmployee(id);
 
       if (!employee) {
-
         return res.status(404).json({'message': 'Employee not found'});
-
       }
 
+      const etag = generateETag(employee);
+      setETagHeader(res, etag);
       res.json(employee);
 
     } catch (error) {
@@ -293,13 +294,27 @@ export function registerEmployeeRoutes (app: Express) {
         return res.status(400).json({'message': 'Employee ID is required'});
       }
 
+      const existing = await storage.getEmployee(id);
+      if (!existing) {
+        return res.status(404).json({'message': 'Employee not found'});
+      }
+
+      const currentEtag = generateETag(existing);
+      const ifMatch = req.headers['if-match'];
+      if (!ifMatch) {
+        return res.status(428).json({'message': 'If-Match header required'});
+      }
+      if (!matchesIfMatchHeader(ifMatch, currentEtag)) {
+        return res.status(412).json({'message': 'Resource has been modified'});
+      }
+
       // For updates, we'll validate the data manually since we need partial updates
       // but want to exclude companyId from being updated
       const updateData = req.body as Record<string, unknown>;
-      
+
       // Remove companyId from update data to prevent changing company
       const { companyId: _companyId, ...safeUpdateData } = updateData;
-      
+
       // Validate the remaining fields using a partial schema
       const partialSchema = insertEmployeeSchema.partial().omit({ companyId: true });
       const result = partialSchema.safeParse(safeUpdateData);
@@ -312,6 +327,8 @@ export function registerEmployeeRoutes (app: Express) {
       }
 
       const employee = await storage.updateEmployee(id, result.data as Partial<InsertEmployee>);
+      const newEtag = generateETag(employee);
+      setETagHeader(res, newEtag);
       res.json(employee);
 
     } catch (error) {
