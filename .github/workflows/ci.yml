@@ -65,6 +65,9 @@ jobs:
             exit 1
           fi
 
+      - name: Scan for Arabic literals
+        run: node scripts/i18n-scan.mjs
+
   # 🧪 Testing Suite
   test:
     name: Test Suite
