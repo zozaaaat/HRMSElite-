@@ -2,7 +2,7 @@
 
 > نظام إدارة موارد بشرية متكامل مع دعم الذكاء الاصطناعي، مصمم للشركات الحديثة
 
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-18-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -99,7 +99,7 @@
 ## 🚀 التثبيت والتشغيل
 
 ### المتطلبات الأساسية
-- Node.js 18 أو أحدث
+- Node.js 20.x
 - npm أو yarn
 - Git
 
