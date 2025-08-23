@@ -60,21 +60,15 @@ async function testCorsConfiguration() {
   console.log('1. Testing Environment Variable Configuration');
   console.log('=============================================');
   
-  // Test with ALLOWED_ORIGINS
-  process.env.ALLOWED_ORIGINS = 'https://app.example.com,https://admin.example.com,http://localhost:3000';
+  // Test with CORS_ORIGINS
+  process.env.CORS_ORIGINS = 'https://app.example.com,https://admin.example.com,http://localhost:3000';
   let app = createTestApp();
-  console.log('✅ ALLOWED_ORIGINS configuration loaded');
-  
-  // Test with CORS_ORIGINS (should take precedence)
-  process.env.CORS_ORIGINS = 'https://new.example.com,https://test.example.com';
-  app = createTestApp();
-  console.log('✅ CORS_ORIGINS configuration loaded (takes precedence)');
-  
-  // Test fallback
+  console.log('✅ CORS_ORIGINS configuration loaded');
+
+  // Test blocking when no origins configured
   delete process.env.CORS_ORIGINS;
-  delete process.env.ALLOWED_ORIGINS;
   app = createTestApp();
-  console.log('✅ Fallback to localhost configuration');
+  console.log('✅ Blocking all origins when none configured');
   
   console.log('\n2. Testing Origin Validation');
   console.log('============================');
@@ -262,7 +256,7 @@ async function testCorsConfiguration() {
   console.log('\n🎉 CORS Security Test Complete!');
   console.log('================================');
   console.log('The CORS configuration meets all acceptance criteria:');
-  console.log('- ✅ Reads ALLOWED_ORIGINS from env (comma-separated)');
+  console.log('- ✅ Reads CORS_ORIGINS from env (comma-separated)');
   console.log('- ✅ Origin callback allows only exact matches');
   console.log('- ✅ Credentials: true enabled');
   console.log('- ✅ Methods: GET, POST, PUT, DELETE, OPTIONS supported');

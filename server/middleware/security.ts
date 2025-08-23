@@ -463,12 +463,11 @@ export const securityMonitoring = (req: Request, res: Response, next: NextFuncti
  * Parse and validate CORS origins from environment
  */
 function parseCorsOrigins(): string[] {
-  // Use CORS_ORIGINS first, fallback to ALLOWED_ORIGINS for legacy support
-  const corsOrigins = process.env.CORS_ORIGINS || process.env.ALLOWED_ORIGINS;
+  const corsOrigins = process.env.CORS_ORIGINS;
 
   if (!corsOrigins) {
-    log.warn('CORS_ORIGINS not set, using default localhost origin', {}, 'SECURITY');
-    return ['http://localhost:3000'];
+    log.warn('CORS_ORIGINS not set, blocking all origins', {}, 'SECURITY');
+    return [];
   }
 
   const origins = corsOrigins
@@ -477,8 +476,8 @@ function parseCorsOrigins(): string[] {
     .filter(origin => origin.length > 0);
 
   if (origins.length === 0) {
-    log.warn('No valid CORS origins found, using default localhost origin', {}, 'SECURITY');
-    return ['http://localhost:3000'];
+    log.warn('No valid CORS origins found, blocking all origins', {}, 'SECURITY');
+    return [];
   }
 
   // Validate origins format
@@ -493,8 +492,8 @@ function parseCorsOrigins(): string[] {
   });
 
   if (validOrigins.length === 0) {
-    log.warn('No valid CORS origins after validation, using default localhost origin', {}, 'SECURITY');
-    return ['http://localhost:3000'];
+    log.warn('No valid CORS origins after validation, blocking all origins', {}, 'SECURITY');
+    return [];
   }
 
   log.info('CORS origins configured', { origins: validOrigins }, 'SECURITY');
@@ -550,6 +549,16 @@ export const corsConfig = (req: Request, callback: (err: Error | null, options?:
   if (!origin) {
     const apiKey = req.header('x-api-key');
     if (apiKey && allowedOriginlessApiKeys.includes(apiKey)) {
+      log.info(
+        'CORS originless request allowed',
+        {
+          apiKey: `${apiKey.substring(0, 4)}***`,
+          requestId: req.id,
+          timestamp: new Date().toISOString()
+        },
+        'SECURITY'
+      );
+
       return callback(null, {
         origin: true,
         credentials: true,
