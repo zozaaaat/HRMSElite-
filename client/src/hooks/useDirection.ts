@@ -10,7 +10,7 @@ export function useDirection(): void {
 
   useEffect(() => {
     const dir = i18n.dir();
-    document.documentElement.setAttribute('dir', dir);
-    document.documentElement.setAttribute('lang', i18n.language);
+    document.documentElement.dir = dir;
+    document.documentElement.lang = i18n.language;
   }, [i18n.language, i18n]);
 }
