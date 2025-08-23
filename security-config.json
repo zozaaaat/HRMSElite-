@@ -17,14 +17,14 @@
     "cookie": {
       "httpOnly": true,
       "secure": true,
-      "sameSite": "lax"
+      "sameSite": "strict"
     }
   },
   "session": {
     "cookie": {
       "httpOnly": true,
       "secure": true,
-      "sameSite": "lax",
+      "sameSite": "strict",
       "path": "/",
       "maxAge": 86400000
     }

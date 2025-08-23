@@ -9,7 +9,9 @@
 import './test-env.js';
 
 import request from 'supertest';
+import express from 'express';
 import { app } from '../server/index';
+import { setAuthCookies } from '../server/middleware/auth';
 
 describe('Cookie Security Tests', () => {
   describe('Session Cookie Security', () => {
@@ -213,6 +215,41 @@ describe('Cookie Security Tests', () => {
       } finally {
         process.env.NODE_ENV = originalEnv;
       }
+    });
+  });
+
+  describe('Auth Cookie Security', () => {
+    it('should set auth cookies with strict security attributes', async () => {
+      const testApp = express();
+      testApp.get('/test-auth-cookies', (_req, res) => {
+        setAuthCookies(res, 'access-token', 'refresh-token');
+        res.status(200).send('ok');
+      });
+
+      const response = await request(testApp)
+        .get('/test-auth-cookies')
+        .expect(200);
+
+      const setCookieHeaders = response.headers['set-cookie'];
+      expect(setCookieHeaders).toBeDefined();
+
+      const accessCookie = setCookieHeaders?.find((cookie: string) =>
+        cookie.includes('__Host-hrms-elite-access')
+      );
+      const refreshCookie = setCookieHeaders?.find((cookie: string) =>
+        cookie.includes('__Host-hrms-elite-refresh')
+      );
+
+      [accessCookie, refreshCookie].forEach((cookie) => {
+        expect(cookie).toBeDefined();
+        if (cookie) {
+          expect(cookie).toMatch(/__Host-/);
+          expect(cookie).toMatch(/HttpOnly/i);
+          expect(cookie).toMatch(/Secure/i);
+          expect(cookie).toMatch(/SameSite=Strict/i);
+          expect(cookie).toMatch(/Path=\//);
+        }
+      });
     });
   });
 

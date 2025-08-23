@@ -45,7 +45,7 @@ const JWT_REFRESH_EXPIRES_IN = env.JWT_REFRESH_EXPIRES_IN;
 const COOKIE_CONFIG = {
   httpOnly: true,
   secure: true, // Always secure for __Host- prefix
-  sameSite: 'lax' as const,
+  sameSite: 'strict' as const,
   path: '/',
   domain: undefined // Let browser set domain for __Host- prefix
 };
