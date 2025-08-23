@@ -289,11 +289,48 @@ jobs:
             sbom.xml
             sbom.json
 
+  # 📄 License Compliance
+  license-check:
+    name: License Check
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        project: ['.', 'client', 'electron', 'hrms-mobile']
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install license-checker
+        run: npm i -g license-checker
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.project }}
+        run: npm ci
+
+      - name: Run license check
+        working-directory: ${{ matrix.project }}
+        run: |
+          license-checker --production --json > license-report.json
+          license-checker --production --onlyAllow 'MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0'
+
+      - name: Upload license report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-report-${{ matrix.project }}
+          path: ${{ matrix.project }}/license-report.json
+
   # 🏗️ Build & Sign
   build:
     name: Build & Sign Artifacts
     runs-on: ubuntu-22.04
-    needs: [lint, test, security-audit, osv-scanner, semgrep, sbom]
+    needs: [lint, test, security-audit, osv-scanner, semgrep, license-check, sbom]
     timeout-minutes: 25
     
     steps:
@@ -359,7 +396,7 @@ jobs:
   security-gate:
     name: Security Gate
     runs-on: ubuntu-22.04
-    needs: [lint, test, security-audit, osv-scanner, semgrep, build]
+    needs: [lint, test, security-audit, osv-scanner, semgrep, license-check, build]
     if: always()
     timeout-minutes: 5
     
@@ -394,7 +431,12 @@ jobs:
             echo "❌ Semgrep failed - Security rule violations found"
             exit 1
           fi
-          
+
+          if [ "${{ needs.license-check.result }}" != "success" ]; then
+            echo "❌ License check failed - Forbidden licenses found"
+            exit 1
+          fi
+
           if [ "${{ needs.build.result }}" != "success" ]; then
             echo "❌ Build failed"
             exit 1
@@ -414,6 +456,7 @@ jobs:
               'security-audit': '${{ needs.security-audit.result }}',
               'osv-scanner': '${{ needs.osv-scanner.result }}',
               'semgrep': '${{ needs.semgrep.result }}',
+              'license-check': '${{ needs.license-check.result }}',
               'build': '${{ needs.build.result }}'
             };
             
@@ -429,6 +472,7 @@ jobs:
             | Security Audit (npm audit) | ${status['security-audit'] === 'success' ? '✅' : '❌'} |
             | OSV Scanner | ${status['osv-scanner'] === 'success' ? '✅' : '❌'} |
             | Semgrep SAST | ${status['semgrep'] === 'success' ? '✅' : '❌'} |
+            | License Check | ${status['license-check'] === 'success' ? '✅' : '❌'} |
             | Build & SBOM | ${status['build'] === 'success' ? '✅' : '❌'} |
             
             ${allPassed ? '🎉 **All security checks passed! PR can be merged.**' : '🚨 **Security checks failed. PR cannot be merged until issues are resolved.**'}
@@ -449,7 +493,7 @@ jobs:
   security-report:
     name: Generate Security Report
     runs-on: ubuntu-22.04
-    needs: [security-audit, osv-scanner, semgrep, sbom]
+    needs: [security-audit, osv-scanner, semgrep, sbom, license-check]
     if: always()
     timeout-minutes: 10
     
@@ -479,6 +523,7 @@ jobs:
           echo "| npm audit | ${{ needs.security-audit.result }} |" >> security-report.md
           echo "| OSV Scanner | ${{ needs.osv-scanner.result }} |" >> security-report.md
           echo "| Semgrep SAST | ${{ needs.semgrep.result }} |" >> security-report.md
+          echo "| License Check | ${{ needs.license-check.result }} |" >> security-report.md
           echo "| SBOM Generation | ${{ needs.sbom.result }} |" >> security-report.md
           echo "" >> security-report.md
           echo "## Artifacts" >> security-report.md
