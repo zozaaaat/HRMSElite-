@@ -466,6 +466,13 @@
     "decimal": "{{value}}",
     "integer": "{{value}}"
   },
+  "demo": {
+    "unreadMessages_zero": "You have no unread messages",
+    "unreadMessages_one": "You have {{count}} unread message",
+    "unreadMessages_other": "You have {{count}} unread messages",
+    "today": "Today is {{value, format}}",
+    "number": "Number: {{value, format}}"
+  },
   "roles": {
     "labels": {
       "super_admin": "System Administrator",

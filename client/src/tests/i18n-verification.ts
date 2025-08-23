@@ -35,15 +35,31 @@ console.log('  - Welcome message:', i18n.t('auth.welcomeMessage', { company: 'Te
 
 // Test 7: Test pluralization
 console.log('\n📊 Pluralization Test:');
-console.log('  - Employee (1):', i18n.t('employees.title', { count: 1 }));
-console.log('  - Employees (5):', i18n.t('employees.title', { count: 5 }));
+i18n.changeLanguage('en');
+console.log('  - EN (1):', i18n.t('demo.unreadMessages', { count: 1 }));
+console.log('  - EN (5):', i18n.t('demo.unreadMessages', { count: 5 }));
+i18n.changeLanguage('ar');
+console.log('  - AR (0):', i18n.t('demo.unreadMessages', { count: 0 }));
+console.log('  - AR (2):', i18n.t('demo.unreadMessages', { count: 2 }));
+console.log('  - AR (7):', i18n.t('demo.unreadMessages', { count: 7 }));
 
-// Test 8: Check RTL support
+// Test 8: Date & Number Formatting
+console.log('\n📅 Date & Number Formatting:');
+const sampleDate = new Date('2025-01-01');
+const sampleNumber = 1234567.89;
+i18n.changeLanguage('en');
+console.log('  - EN date:', i18n.t('demo.today', { value: sampleDate, format: 'date' }));
+console.log('  - EN number:', i18n.t('demo.number', { value: sampleNumber, format: 'number' }));
+i18n.changeLanguage('ar');
+console.log('  - AR date:', i18n.t('demo.today', { value: sampleDate, format: 'date' }));
+console.log('  - AR number:', i18n.t('demo.number', { value: sampleNumber, format: 'number' }));
+
+// Test 9: Check RTL support
 console.log('\n📝 RTL Support:');
 console.log('  - English direction:', i18n.dir('en'));
 console.log('  - Arabic direction:', i18n.dir('ar'));
 
-// Test 9: Test fallback
+// Test 10: Test fallback
 console.log('\n🔄 Fallback Test:');
 console.log('  - Non-existent key:', i18n.t('non.existent.key', 'Fallback text'));
 
