@@ -13,7 +13,7 @@ import { createSessionMiddleware } from './utils/session';
 
 // Import observability middleware
 import { observability } from './middleware/observability';
-import { prometheusMiddleware, metricsHandler, healthCheckHandler, initializeMetrics, metricsAuth } from './middleware/metrics';
+import { prometheusMiddleware, metricsHandler, healthCheckHandler, initializeMetrics, metricsAuth, metricsUtils } from './middleware/metrics';
 import { initializeLogShipper } from './utils/log-shipper';
 
 import {
@@ -22,7 +22,8 @@ import {
   requestValidation,
   securityMonitoring,
   enhancedRateLimiters,
-  corsConfig
+  corsConfig,
+  createRateLimiter
 } from './middleware/security';
 import { csrfProtection, csrfTokenMiddleware, csrfTokenHandler, csrfErrorHandler } from './middleware/csrf';
 import { isAuthenticated, optionalAuth } from './middleware/auth';
@@ -43,6 +44,7 @@ import { registerDocumentRoutes as registerV1DocumentRoutes } from './routes/v1/
 
 export const app = express();
 const PORT = env.PORT;
+const vitalsRateLimiter = createRateLimiter('general');
 
 // Trust proxy for rate limiting
 app.set('trust proxy', 1);
@@ -102,6 +104,14 @@ app.get('/health', healthCheckHandler);
 
 // Metrics endpoint for Prometheus
 app.get('/metrics', metricsAuth, metricsHandler);
+app.post('/metrics/vitals', metricsAuth, vitalsRateLimiter, (req, res) => {
+  const { name, value } = req.body;
+  if (typeof name !== 'string' || typeof value !== 'number') {
+    return res.status(400).json({ error: 'Invalid metric' });
+  }
+  metricsUtils.recordWebVital(name, value);
+  res.status(204).end();
+});
 
 // API documentation
 app.get('/api-docs', (req, res) => {
