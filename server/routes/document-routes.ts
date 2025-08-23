@@ -5,11 +5,9 @@ import { storage} from '../models/storage';
 import {insertDocumentSchema} from '@shared/schema';
 import {log} from '@utils/logger';
 import { isAuthenticated, requireRole } from '../middleware/auth';
-import { antivirusScanner, type ScanResult } from '../utils/antivirus';
 import { secureFileStorage, type StoredFile } from '../utils/secureStorage';
-import { quarantineFile } from '../utils/quarantine';
-import crypto from 'node:crypto';
-import { env } from '../utils/env';
+import { antivirusScanner } from '../utils/antivirus';
+import { createScanFile, verifySignedUrl } from '../../security/files';
 
 // Extend Request interface to include file property
 declare global {
@@ -141,58 +139,7 @@ const validateFile = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-// Antivirus scanning middleware
-const scanFile = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        error: 'No file uploaded',
-        message: 'Please select a file to upload'
-      });
-    }
-
-    const file = req.file;
-    
-    // Perform antivirus scan
-    const scanResult: ScanResult = await antivirusScanner.scanBuffer(file.buffer, file.originalname);
-    
-    if (!scanResult.isClean) {
-      await quarantineFile(file.buffer, file.originalname);
-      log.error('Virus detected in uploaded file', {
-        fileName: file.originalname,
-        threats: scanResult.threats,
-        provider: scanResult.provider,
-        user: req.user?.id,
-        severity: 'high'
-      }, 'SECURITY');
-
-      return res.status(422).json({
-        error: 'Virus detected',
-        message: 'The uploaded file contains malicious content and has been quarantined',
-        threats: scanResult.threats,
-        scanProvider: scanResult.provider
-      });
-    }
-
-    // Add scan result to request for logging
-    (req as any).scanResult = scanResult;
-
-    log.info('File passed antivirus scan', {
-      fileName: file.originalname,
-      scanTime: scanResult.scanTime,
-      provider: scanResult.provider,
-      user: req.user?.id
-    }, 'SECURITY');
-
-    next();
-  } catch (error) {
-    log.error('Antivirus scan failed', error as Error, 'SECURITY');
-    res.status(500).json({
-      error: 'Security scan failed',
-      message: 'Unable to complete security scan - file rejected'
-    });
-  }
-};
+const scanFile = createScanFile();
 
 // Validate file signature (magic bytes)
 async function validateFileSignature(buffer: Buffer, mimeType: string): Promise<boolean> {
@@ -239,93 +186,6 @@ function generateFileId(): string {
   const timestamp = Date.now().toString(36);
   const random = Math.random().toString(36).substring(2, 15);
   return `file_${timestamp}_${random}`;
-}
-
-// Antivirus scanning middleware
-const scanFile = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({
-        error: 'No file uploaded',
-        message: 'Please select a file to upload'
-      });
-    }
-
-    const file = req.file;
-    
-    // Perform antivirus scan
-    const scanResult: ScanResult = await antivirusScanner.scanBuffer(file.buffer, file.originalname);
-    
-    if (!scanResult.isClean) {
-      await quarantineFile(file.buffer, file.originalname);
-      log.error('Virus detected in uploaded file', {
-        fileName: file.originalname,
-        threats: scanResult.threats,
-        provider: scanResult.provider,
-        user: req.user?.id,
-        severity: 'high'
-      }, 'SECURITY');
-
-      return res.status(422).json({
-        error: 'Virus detected',
-        message: 'The uploaded file contains malicious content and has been quarantined',
-        threats: scanResult.threats,
-        scanProvider: scanResult.provider
-      });
-    }
-
-    // Add scan result to request for logging
-    (req as any).scanResult = scanResult;
-
-    log.info('File passed antivirus scan', {
-      fileName: file.originalname,
-      scanTime: scanResult.scanTime,
-      provider: scanResult.provider,
-      user: req.user?.id
-    }, 'SECURITY');
-
-    next();
-  } catch (error) {
-    log.error('Antivirus scan failed', error as Error, 'SECURITY');
-    res.status(500).json({
-      error: 'Security scan failed',
-      message: 'Unable to complete security scan - file rejected'
-    });
-  }
-};
-
-// Verify signed URL signature
-function verifySignedUrl(fileId: string, expires: string, signature: string): boolean {
-  try {
-    const expectedSignature = crypto
-      .createHmac('sha256', env.FILE_SIGNATURE_SECRET)
-      .update(`${fileId}:${expires}`)
-      .digest('hex');
-    
-    return crypto.timingSafeEqual(
-      Buffer.from(signature, 'hex'),
-      Buffer.from(expectedSignature, 'hex')
-    );
-  } catch {
-    return false;
-  }
-}
-
-// Verify signed URL signature
-function verifySignedUrl(fileId: string, expires: string, signature: string): boolean {
-  try {
-    const expectedSignature = crypto
-      .createHmac('sha256', env.FILE_SIGNATURE_SECRET)
-      .update(`${fileId}:${expires}`)
-      .digest('hex');
-    
-    return crypto.timingSafeEqual(
-      Buffer.from(signature, 'hex'),
-      Buffer.from(expectedSignature, 'hex')
-    );
-  } catch {
-    return false;
-  }
 }
 
 export function registerDocumentRoutes (app: Express) {

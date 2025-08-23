@@ -147,7 +147,7 @@ function shouldExcludeFile(filePath) {
 /**
  * Scan file for security issues
  */
-function scanFile(filePath) {
+function scanFileForIssues(filePath) {
   const issues = [];
   
   try {
@@ -204,7 +204,7 @@ function scanDirectory(dirPath) {
       } else if (stat.isFile()) {
         // Check if file should be excluded
         if (!shouldExcludeFile(fullPath)) {
-          const issues = scanFile(fullPath);
+          const issues = scanFileForIssues(fullPath);
           allIssues.push(...issues);
         }
       }
@@ -338,7 +338,7 @@ if (require.main === module) {
 
 module.exports = {
   runSecurityCheck,
-  scanFile,
+  scanFileForIssues,
   scanDirectory,
   generateReport,
   SECURITY_PATTERNS
