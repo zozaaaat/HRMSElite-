@@ -87,6 +87,11 @@ jobs:
           NODE_ENV: test
           DATABASE_URL: ':memory:'
 
+      - name: Run root tests
+        run: npm test
+        env:
+          NODE_ENV: test
+
       - name: Run server tests
         run: npm run test:server:run
         env:
