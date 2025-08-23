@@ -14,6 +14,7 @@
     "import": "استيراد",
     "download": "تحميل",
     "upload": "رفع",
+    "view": "عرض",
     "back": "رجوع",
     "next": "التالي",
     "previous": "السابق",
@@ -37,6 +38,7 @@
     "training": "التدريب",
     "recruitment": "التوظيف",
     "documents": "المستندات",
+    "document": "مستند",
     "companies": "الشركات",
     "leaves": "طلبات الإجازة",
     "licenses": "التراخيص",
@@ -47,7 +49,8 @@
     "accounting": "الأنظمة المحاسبية",
     "advancedSearch": "البحث المتقدم",
     "aiAnalytics": "التحليلات الذكية",
-    "aiChatbot": "المساعد الذكي"
+    "aiChatbot": "المساعد الذكي",
+    "undefined": "غير محدد"
   },
   "languages": {
     "english": "English",
@@ -143,6 +146,13 @@
     "loadingStats": "جاري تحميل الإحصائيات...",
     "loadingCharts": "جاري تحميل الرسوم البيانية...",
     "loadingTable": "جاري تحميل الجدول...",
+    "pendingApprovals": "الموافقات المعلقة",
+    "pendingApprovals_zero": "لا توجد موافقات معلقة",
+    "pendingApprovals_one": "موافقة معلقة واحدة",
+    "pendingApprovals_two": "موافقتان معلقتان",
+    "pendingApprovals_few": "{{count}} موافقات معلقة",
+    "pendingApprovals_many": "{{count}} موافقة معلقة",
+    "pendingApprovals_other": "{{count}} موافقة معلقة",
     "stats": {
       "totalEmployees": "إجمالي الموظفين",
       "activeEmployees": "الموظفون النشطون",
@@ -151,7 +161,6 @@
       "activeCompanies": "الشركات النشطة",
       "attendanceRate": "معدل الحضور",
       "leaveRequests": "طلبات الإجازة",
-      "pendingApprovals": "الموافقات المعلقة",
       "monthlyExpenses": "المصروفات الشهرية",
       "totalLicenses": "إجمالي التراخيص",
       "activeLicenses": "التراخيص النشطة",
@@ -349,7 +358,20 @@
     "status": "الحالة",
     "approved": "موافق عليه",
     "pending": "معلق",
-    "rejected": "مرفوض"
+    "rejected": "مرفوض",
+    "types": {
+      "contract": "عقد",
+      "license": "رخصة",
+      "id": "هوية",
+      "certificate": "شهادة"
+    },
+    "entityTypes": {
+      "employee": "موظف",
+      "company": "شركة",
+      "license": "ترخيص",
+      "unknown": "غير محدد"
+    },
+    "uploadedAt": "تم الرفع: {{date}}"
   },
   "companies": {
     "title": "إدارة الشركات",

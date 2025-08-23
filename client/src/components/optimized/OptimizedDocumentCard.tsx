@@ -18,6 +18,7 @@ import {
   Archive
 } from 'lucide-react';
 import {Document} from '@/types/documents';
+import {useTranslation} from 'react-i18next';
 
 interface OptimizedDocumentCardProps {
   document: Document;
@@ -111,6 +112,8 @@ FileTypeIcon.displayName = 'FileTypeIcon';
 // Document type badge component with memo
 const DocumentTypeBadge = memo(({type}: { type: string }) => {
 
+  const {t} = useTranslation();
+
   const getTypeVariant = (type: string) => {
 
     switch (type) {
@@ -135,15 +138,15 @@ const DocumentTypeBadge = memo(({type}: { type: string }) => {
     switch (type) {
 
     case 'contract':
-      return 'عقد';
+      return t('documents.types.contract');
     case 'license':
-      return 'رخصة';
+      return t('documents.types.license');
     case 'id':
-      return 'هوية';
+      return t('documents.types.id');
     case 'certificate':
-      return 'شهادة';
+      return t('documents.types.certificate');
     default:
-      return 'مستند';
+      return t('common.document');
 
     }
 
@@ -161,22 +164,27 @@ DocumentTypeBadge.displayName = 'DocumentTypeBadge';
 
 // Document info component with memo
 const DocumentInfo = memo(({document}: { document: Document }) => {
+  const {t, i18n} = useTranslation();
   const uploadedAtString = document.uploadDate ?? document.uploadedAt ?? document.modifiedDate;
+  const formatDate = (date: string) => {
+    const locale = i18n.language === 'ar' ? 'ar-SA' : 'en-US';
+    return new Date(date).toLocaleDateString(locale);
+  };
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <User className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm text-muted-foreground">
-          {document.entityType === 'employee' ? 'موظف'
-            : document.entityType === 'company' ? 'شركة'
-              : document.entityType === 'license' ? 'ترخيص' : 'غير محدد'}
+          {document.entityType === 'employee' ? t('documents.entityTypes.employee')
+            : document.entityType === 'company' ? t('documents.entityTypes.company')
+              : document.entityType === 'license' ? t('documents.entityTypes.license') : t('common.undefined')}
         </span>
       </div>
       {uploadedAtString && (
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm text-muted-foreground">
-            تم الرفع: {new Date(uploadedAtString).toLocaleDateString('ar-SA')}
+            {t('documents.uploadedAt', {date: formatDate(uploadedAtString)})}
           </span>
         </div>
       )}
@@ -195,7 +203,7 @@ const DocumentInfo = memo(({document}: { document: Document }) => {
 DocumentInfo.displayName = 'DocumentInfo';
 
 // Action buttons component with memo
-const ActionButtons = memo(({
+const ActionButtons = memo(({ 
   document,
   onView,
   onEdit,
@@ -207,46 +215,49 @@ const ActionButtons = memo(({
   onEdit: (document: Document) => void;
   onDownload: (document: Document) => void;
   onDelete: (documentId: string) => void;
-}) => (
-  <div className="flex gap-2 pt-2">
-    <Button
-      size="sm"
-      variant="outline"
-      onClick={() => onView(document)}
-      className="flex-1"
-    >
-      <Eye className="h-4 w-4 ml-1" />
-      عرض
-    </Button>
-    <Button
-      size="sm"
-      variant="outline"
-      onClick={() => onDownload(document)}
-      className="flex-1"
-    >
-      <Download className="h-4 w-4 ml-1" />
-      تحميل
-    </Button>
-    <Button
-      size="sm"
-      variant="outline"
-      onClick={() => onEdit(document)}
-      className="flex-1"
-    >
-      <Edit className="h-4 w-4 ml-1" />
-      تعديل
-    </Button>
-    <Button
-      size="sm"
-      variant="outline"
-      className="text-red-600 hover:text-red-700 flex-1"
-      onClick={() => onDelete(document.id ?? '')}
-    >
-      <Trash2 className="h-4 w-4 ml-1" />
-      حذف
-    </Button>
-  </div>
-));
+}) => {
+  const {t} = useTranslation();
+  return (
+    <div className="flex gap-2 pt-2">
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => onView(document)}
+        className="flex-1"
+      >
+        <Eye className="h-4 w-4 ml-1" />
+        {t('common.view')}
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => onDownload(document)}
+        className="flex-1"
+      >
+        <Download className="h-4 w-4 ml-1" />
+        {t('common.download')}
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => onEdit(document)}
+        className="flex-1"
+      >
+        <Edit className="h-4 w-4 ml-1" />
+        {t('common.edit')}
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        className="text-red-600 hover:text-red-700 flex-1"
+        onClick={() => onDelete(document.id ?? '')}
+      >
+        <Trash2 className="h-4 w-4 ml-1" />
+        {t('common.delete')}
+      </Button>
+    </div>
+  );
+});
 
 ActionButtons.displayName = 'ActionButtons';
 
@@ -268,7 +279,7 @@ const formatFileSize = (bytes: number): string => {
 };
 
 // Main optimized document card component
-const OptimizedDocumentCard = memo(({
+const OptimizedDocumentCard = memo(({ 
   document,
   onView,
   onEdit,
@@ -279,6 +290,7 @@ const OptimizedDocumentCard = memo(({
 }: OptimizedDocumentCardProps) => {
 
   const [isHovered, setIsHovered] = useState(false);
+  const {t} = useTranslation();
 
   // Memoized callbacks to prevent unnecessary re-renders
   const handleView = useCallback(() => {
@@ -324,10 +336,10 @@ const OptimizedDocumentCard = memo(({
     }
     if (document.fileUrl) {
 
-      return document.fileUrl.split('/').pop() ?? 'مستند';
+      return document.fileUrl.split('/').pop() ?? t('common.document');
 
     }
-    return 'مستند';
+    return t('common.document');
 
   };
 

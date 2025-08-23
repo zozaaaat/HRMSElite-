@@ -4,15 +4,17 @@ import { Router } from 'wouter';
 import React from 'react';
 import OptimizedLicenseCard from '@/components/optimized/OptimizedLicenseCard';
 import OptimizedDocumentCard from '@/components/optimized/OptimizedDocumentCard';
-import SuspenseWrapper, { 
-  DocumentSuspense, 
-  LicenseSuspense, 
-  EmployeeSuspense, 
-  DashboardSuspense 
+import SuspenseWrapper, {
+  DocumentSuspense,
+  LicenseSuspense,
+  EmployeeSuspense,
+  DashboardSuspense
 } from '@/components/optimized/SuspenseWrapper';
 import {
-   EnhancedErrorBoundary, withErrorBoundary 
+   EnhancedErrorBoundary, withErrorBoundary
 } from '@/components/shared/EnhancedErrorBoundary';
+import {I18nextProvider} from 'react-i18next';
+import i18n from '@/lib/i18n';
 
 // Mock useToast hook
 vi.mock('@/hooks/use-toast', () => ({
@@ -27,6 +29,13 @@ vi.mock('@/hooks/use-toast', () => ({
 vi.mock('wouter', () => ({
   Router: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
+
+const renderWithProviders = (ui: React.ReactNode) =>
+  render(
+    <I18nextProvider i18n={i18n}>
+      <Router>{ui}</Router>
+    </I18nextProvider>
+  );
 
 // Mock data
 const mockLicense = {
@@ -70,6 +79,10 @@ const mockDocument = {
 };
 
 describe('Optimized Components', () => {
+  beforeAll(() => {
+    return i18n.changeLanguage('ar');
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -83,13 +96,11 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
-        <Router>
-          <OptimizedLicenseCard
-            license={mockLicense}
-            {...mockHandlers}
-          />
-        </Router>
+      renderWithProviders(
+        <OptimizedLicenseCard
+          license={mockLicense}
+          {...mockHandlers}
+        />
       );
 
       expect(screen.getByText(mockLicense.name)).toBeInTheDocument();
@@ -106,13 +117,11 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
-        <Router>
-          <OptimizedLicenseCard
-            license={mockLicense}
-            {...mockHandlers}
-          />
-        </Router>
+      renderWithProviders(
+        <OptimizedLicenseCard
+          license={mockLicense}
+          {...mockHandlers}
+        />
       );
 
       const viewButton = screen.getByText('عرض');
@@ -129,13 +138,11 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
-        <Router>
-          <OptimizedLicenseCard
-            license={mockLicense}
-            {...mockHandlers}
-          />
-        </Router>
+      renderWithProviders(
+        <OptimizedLicenseCard
+          license={mockLicense}
+          {...mockHandlers}
+        />
       );
 
       const editButton = screen.getByText('تعديل');
@@ -157,13 +164,11 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
-        <Router>
-          <OptimizedLicenseCard
-            license={expiringLicense}
-            {...mockHandlers}
-          />
-        </Router>
+      renderWithProviders(
+        <OptimizedLicenseCard
+          license={expiringLicense}
+          {...mockHandlers}
+        />
       );
 
       expect(screen.getByText('ينتهي هذا الترخيص قريباً')).toBeInTheDocument();
@@ -183,13 +188,11 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
-        <Router>
-          <OptimizedLicenseCard
-            license={expiredLicense}
-            {...mockHandlers}
-          />
-        </Router>
+      renderWithProviders(
+        <OptimizedLicenseCard
+          license={expiredLicense}
+          {...mockHandlers}
+        />
       );
 
       expect(screen.getByText('هذا الترخيص منتهي الصلاحية')).toBeInTheDocument();
@@ -204,14 +207,12 @@ describe('Optimized Components', () => {
         onSelect: vi.fn(),
       };
 
-      render(
-        <Router>
-          <OptimizedLicenseCard
-            license={mockLicense}
-            {...mockHandlers}
-            isSelected={false}
-          />
-        </Router>
+      renderWithProviders(
+        <OptimizedLicenseCard
+          license={mockLicense}
+          {...mockHandlers}
+          isSelected={false}
+        />
       );
 
       const checkbox = screen.getByRole('checkbox');
@@ -230,13 +231,11 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
-        <Router>
-          <OptimizedDocumentCard
-            document={mockDocument}
-            {...mockHandlers}
-          />
-        </Router>
+      renderWithProviders(
+        <OptimizedDocumentCard
+          document={mockDocument}
+          {...mockHandlers}
+        />
       );
 
       expect(screen.getByText(mockDocument.name)).toBeInTheDocument();
@@ -253,13 +252,11 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
-        <Router>
-          <OptimizedDocumentCard
-            document={mockDocument}
-            {...mockHandlers}
-          />
-        </Router>
+      renderWithProviders(
+        <OptimizedDocumentCard
+          document={mockDocument}
+          {...mockHandlers}
+        />
       );
 
       const downloadButton = screen.getByText('تحميل');
@@ -276,13 +273,11 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
-        <Router>
-          <OptimizedDocumentCard
-            document={mockDocument}
-            {...mockHandlers}
-          />
-        </Router>
+      renderWithProviders(
+        <OptimizedDocumentCard
+          document={mockDocument}
+          {...mockHandlers}
+        />
       );
 
       expect(screen.getByText('1000 KB')).toBeInTheDocument();
@@ -296,13 +291,11 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
-        <Router>
-          <OptimizedDocumentCard
-            document={mockDocument}
-            {...mockHandlers}
-          />
-        </Router>
+      renderWithProviders(
+        <OptimizedDocumentCard
+          document={mockDocument}
+          {...mockHandlers}
+        />
       );
 
       expect(screen.getByText('عقد')).toBeInTheDocument();
@@ -318,14 +311,12 @@ describe('Optimized Components', () => {
         onSelect: vi.fn(),
       };
 
-      render(
-        <Router>
-          <OptimizedDocumentCard
-            document={mockDocument}
-            {...mockHandlers}
-            isSelected={false}
-          />
-        </Router>
+      renderWithProviders(
+        <OptimizedDocumentCard
+          document={mockDocument}
+          {...mockHandlers}
+          isSelected={false}
+        />
       );
 
       const checkbox = screen.getByRole('checkbox');
@@ -337,7 +328,7 @@ describe('Optimized Components', () => {
 
   describe('SuspenseWrapper', () => {
     it('should render children when no suspense is needed', () => {
-      render(
+      renderWithProviders(
         <SuspenseWrapper>
           <div data-testid="test-content">Test Content</div>
         </SuspenseWrapper>
@@ -347,7 +338,7 @@ describe('Optimized Components', () => {
     });
 
     it('should render default fallback when type is default', () => {
-      render(
+      renderWithProviders(
         <SuspenseWrapper type="default">
           <div data-testid="test-content">Test Content</div>
         </SuspenseWrapper>
@@ -360,7 +351,7 @@ describe('Optimized Components', () => {
     it('should render custom fallback when provided', () => {
       const customFallback = <div data-testid="custom-fallback">Custom Loading...</div>;
 
-      render(
+      renderWithProviders(
         <SuspenseWrapper fallback={customFallback}>
           <div data-testid="test-content">Test Content</div>
         </SuspenseWrapper>
@@ -372,7 +363,7 @@ describe('Optimized Components', () => {
 
   describe('Specialized Suspense Wrappers', () => {
     it('should render DocumentSuspense with list fallback', () => {
-      render(
+      renderWithProviders(
         <DocumentSuspense>
           <div data-testid="document-content">Document Content</div>
         </DocumentSuspense>
@@ -382,7 +373,7 @@ describe('Optimized Components', () => {
     });
 
     it('should render LicenseSuspense with card fallback', () => {
-      render(
+      renderWithProviders(
         <LicenseSuspense>
           <div data-testid="license-content">License Content</div>
         </LicenseSuspense>
@@ -392,7 +383,7 @@ describe('Optimized Components', () => {
     });
 
     it('should render EmployeeSuspense with table fallback', () => {
-      render(
+      renderWithProviders(
         <EmployeeSuspense>
           <div data-testid="employee-content">Employee Content</div>
         </EmployeeSuspense>
@@ -402,7 +393,7 @@ describe('Optimized Components', () => {
     });
 
     it('should render DashboardSuspense with chart fallback', () => {
-      render(
+      renderWithProviders(
         <DashboardSuspense>
           <div data-testid="dashboard-content">Dashboard Content</div>
         </DashboardSuspense>
@@ -414,7 +405,7 @@ describe('Optimized Components', () => {
 
   describe('EnhancedErrorBoundary', () => {
     it('should render children when no error occurs', () => {
-      render(
+      renderWithProviders(
         <EnhancedErrorBoundary>
           <div data-testid="test-content">Test Content</div>
         </EnhancedErrorBoundary>
@@ -428,7 +419,7 @@ describe('Optimized Components', () => {
         throw new Error('Test error');
       };
 
-      render(
+      renderWithProviders(
         <EnhancedErrorBoundary>
           <ThrowError />
         </EnhancedErrorBoundary>
@@ -449,7 +440,7 @@ describe('Optimized Components', () => {
         return <div data-testid="success-content">Success</div>;
       };
 
-      render(
+      renderWithProviders(
         <EnhancedErrorBoundary>
           <ThrowError />
         </EnhancedErrorBoundary>
@@ -474,7 +465,7 @@ describe('Optimized Components', () => {
         throw new Error('Test error');
       };
 
-      render(
+      renderWithProviders(
         <EnhancedErrorBoundary showDetails>
           <ThrowError />
         </EnhancedErrorBoundary>
@@ -491,7 +482,7 @@ describe('Optimized Components', () => {
         throw new Error('Test error');
       };
 
-      render(
+      renderWithProviders(
         <EnhancedErrorBoundary onError={mockErrorHandler}>
           <ThrowError />
         </EnhancedErrorBoundary>
@@ -519,23 +510,19 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      const { rerender } = render(
-        <Router>
-          <OptimizedLicenseCard
-            license={mockLicense}
-            {...mockHandlers}
-          />
-        </Router>
+      const { rerender } = renderWithProviders(
+        <OptimizedLicenseCard
+          license={mockLicense}
+          {...mockHandlers}
+        />
       );
 
       // Re-render with same props
       rerender(
-        <Router>
-          <OptimizedLicenseCard
-            license={mockLicense}
-            {...mockHandlers}
-          />
-        </Router>
+        <OptimizedLicenseCard
+          license={mockLicense}
+          {...mockHandlers}
+        />
       );
 
       // The component should not re-render unnecessarily due to React.memo
@@ -550,13 +537,11 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
-        <Router>
-          <OptimizedLicenseCard
-            license={mockLicense}
-            {...mockHandlers}
-          />
-        </Router>
+      renderWithProviders(
+        <OptimizedLicenseCard
+          license={mockLicense}
+          {...mockHandlers}
+        />
       );
 
       const card = screen.getByText(mockLicense.name).closest('.transition-all');

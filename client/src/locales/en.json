@@ -14,6 +14,7 @@
     "import": "Import",
     "download": "Download",
     "upload": "Upload",
+    "view": "View",
     "back": "Back",
     "next": "Next",
     "previous": "Previous",
@@ -37,6 +38,7 @@
     "training": "Training",
     "recruitment": "Recruitment",
     "documents": "Documents",
+    "document": "Document",
     "companies": "Companies",
     "leaves": "Leave Requests",
     "licenses": "Licenses",
@@ -47,7 +49,8 @@
     "accounting": "Accounting Systems",
     "advancedSearch": "Advanced Search",
     "aiAnalytics": "AI Analytics",
-    "aiChatbot": "AI Chatbot"
+    "aiChatbot": "AI Chatbot",
+    "undefined": "Undefined"
   },
   "languages": {
     "english": "English",
@@ -143,6 +146,10 @@
     "loadingStats": "Loading statistics...",
     "loadingCharts": "Loading charts...",
     "loadingTable": "Loading table...",
+    "pendingApprovals": "Pending Approvals",
+    "pendingApprovals_zero": "No pending approvals",
+    "pendingApprovals_one": "{{count}} pending approval",
+    "pendingApprovals_other": "{{count}} pending approvals",
     "stats": {
       "totalEmployees": "Total Employees",
       "activeEmployees": "Active Employees",
@@ -151,7 +158,6 @@
       "activeCompanies": "Active Companies",
       "attendanceRate": "Attendance Rate",
       "leaveRequests": "Leave Requests",
-      "pendingApprovals": "Pending Approvals",
       "monthlyExpenses": "Monthly Expenses",
       "totalLicenses": "Total Licenses",
       "activeLicenses": "Active Licenses",
@@ -349,7 +355,20 @@
     "status": "Status",
     "approved": "Approved",
     "pending": "Pending",
-    "rejected": "Rejected"
+    "rejected": "Rejected",
+    "types": {
+      "contract": "Contract",
+      "license": "License",
+      "id": "ID",
+      "certificate": "Certificate"
+    },
+    "entityTypes": {
+      "employee": "Employee",
+      "company": "Company",
+      "license": "License",
+      "unknown": "Unknown"
+    },
+    "uploadedAt": "Uploaded: {{date}}"
   },
   "companies": {
     "title": "Company Management",
