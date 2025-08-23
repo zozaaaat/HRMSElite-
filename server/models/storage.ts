@@ -17,6 +17,7 @@ import {
   documents,
   notifications,
   companyUsers,
+  refreshTokens,
   type User,
   type UpsertUser,
   type InsertUser,
@@ -35,7 +36,9 @@ import {
   type Document,
   type InsertDocument,
   type Notification,
-  type InsertNotification
+  type InsertNotification,
+  type RefreshToken,
+  type InsertRefreshToken
 } from '@shared/schema';
 import {db} from './db';
 import { metricsUtils } from '../middleware/metrics';
@@ -55,7 +58,7 @@ async function withDbMetrics<T>(operation: string, table: string, query: () => P
     throw error;
   }
 }
-import {eq, and, gt} from 'drizzle-orm';
+import {eq, and, gt, isNull} from 'drizzle-orm';
 import {log} from '../utils/logger';
 
 
@@ -2042,6 +2045,85 @@ export class DatabaseStorage {
 
     }
 
+  }
+
+  /**
+   * Create refresh token record
+   * @async
+   * @param {InsertRefreshToken} data - Refresh token data
+   * @returns {Promise<RefreshToken>} Created token record
+   */
+  async createRefreshToken (data: InsertRefreshToken): Promise<RefreshToken> {
+    try {
+      const results = await withDbMetrics('insert', 'refresh_tokens', async () =>
+        db.insert(refreshTokens).values(data).returning()
+      );
+      if (!results[0]) {
+        throw new Error('Failed to create refresh token');
+      }
+      return results[0];
+    } catch (error) {
+      log.error('Error creating refresh token:', error as Error);
+      throw new Error('Failed to create refresh token');
+    }
+  }
+
+  /**
+   * Find refresh token by hash
+   * @async
+   * @param {string} tokenHash - HMAC hash of token
+   * @returns {Promise<RefreshToken | null>} Token record or null
+   */
+  async findRefreshToken (tokenHash: string): Promise<RefreshToken | null> {
+    try {
+      const results = await withDbMetrics('select', 'refresh_tokens', async () =>
+        db.select().from(refreshTokens).where(eq(refreshTokens.tokenHash, tokenHash))
+      );
+      return results[0] ?? null;
+    } catch (error) {
+      log.error('Error finding refresh token:', error as Error);
+      throw new Error('Failed to find refresh token');
+    }
+  }
+
+  /**
+   * Revoke a refresh token
+   * @async
+   * @param {string} id - Token ID
+   * @param {string} [replacedBy] - Replacement token ID
+   */
+  async revokeRefreshToken (id: string, replacedBy?: string): Promise<void> {
+    try {
+      await withDbMetrics('update', 'refresh_tokens', async () =>
+        db.update(refreshTokens)
+          .set({
+            'revokedAt': new Date(),
+            ...(replacedBy ? { 'replacedBy': replacedBy } : {})
+          })
+          .where(eq(refreshTokens.id, id))
+      );
+    } catch (error) {
+      log.error('Error revoking refresh token:', error as Error);
+      throw new Error('Failed to revoke refresh token');
+    }
+  }
+
+  /**
+   * Revoke all tokens in a family
+   * @async
+   * @param {string} familyId - Token family ID
+   */
+  async revokeRefreshTokenFamily (familyId: string): Promise<void> {
+    try {
+      await withDbMetrics('update', 'refresh_tokens', async () =>
+        db.update(refreshTokens)
+          .set({ 'revokedAt': new Date() })
+          .where(and(eq(refreshTokens.familyId, familyId), isNull(refreshTokens.revokedAt)))
+      );
+    } catch (error) {
+      log.error('Error revoking refresh token family:', error as Error);
+      throw new Error('Failed to revoke refresh token family');
+    }
   }
 
   /**

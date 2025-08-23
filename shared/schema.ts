@@ -54,6 +54,24 @@ export const users = sqliteTable('users', {
   index('IDX_users_created_at').on(table.createdAt)
 ]);
 
+// Refresh tokens table
+export const refreshTokens = sqliteTable('refresh_tokens', {
+  'id': text('id').primaryKey().default(sql`(hex(randomblob(16)))`),
+  'userId': text('user_id').notNull().references(() => users.id, {'onDelete': 'cascade'}),
+  'tokenHash': text('token_hash').notNull(),
+  'familyId': text('family_id').notNull(),
+  'createdAt': integer('created_at', {'mode': 'timestamp'}).default(sql`(unixepoch())`).notNull(),
+  'expiresAt': integer('expires_at', {'mode': 'timestamp'}).notNull(),
+  'revokedAt': integer('revoked_at', {'mode': 'timestamp'}),
+  'replacedBy': text('replaced_by'),
+  'userAgent': text('user_agent'),
+  'ip': text('ip')
+}, (table) => [
+  index('IDX_refresh_tokens_user_id').on(table.userId),
+  index('IDX_refresh_tokens_family_id').on(table.familyId),
+  index('IDX_refresh_tokens_token_hash').on(table.tokenHash)
+]);
+
 // Enums - Using text fields instead of pgEnum for SQLite compatibility
 export const userRoleEnum = ['super_admin',
    'company_manager',
@@ -418,6 +436,7 @@ export const insertEmployeeDeductionSchema = createInsertSchema(employeeDeductio
 export const insertEmployeeViolationSchema = createInsertSchema(employeeViolations);
 export const insertDocumentSchema = createInsertSchema(documents);
 export const insertNotificationSchema = createInsertSchema(notifications);
+export const insertRefreshTokenSchema = createInsertSchema(refreshTokens);
 
 export const upsertUserSchema = z.object({
   'id': z.string(),
@@ -505,6 +524,8 @@ export type Document = typeof documents.$inferSelect;
 export type InsertDocument = z.infer<typeof insertDocumentSchema>;
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type RefreshToken = typeof refreshTokens.$inferSelect;
+export type InsertRefreshToken = z.infer<typeof insertRefreshTokenSchema>;
 export type CompanyUser = typeof companyUsers.$inferSelect;
 
 // Extended types
