@@ -239,10 +239,7 @@ router.post('/login', async (req: Request, res: Response) => {
     };
 
     const loginResponse = {
-      user: userData,
-      token,
-      refreshToken,
-      expiresIn: 3600 // 1 hour
+      user: userData
     };
 
     const response = createSuccessResponse(loginResponse, 'Login successful');
@@ -378,14 +375,11 @@ router.post('/register', async (req: Request, res: Response) => {
     };
 
     const registerResponse = {
-      user: userDataResponse,
-      token,
-      refreshToken,
-      expiresIn: 3600
+      user: userDataResponse
     };
 
     const response = createSuccessResponse(registerResponse, 'Registration successful');
-    res.status(201).json(response);
+    res.status(200).json(response);
 
   } catch (error) {
     log.error('Registration error:', error as Error);
@@ -498,9 +492,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
     setAuthCookies(res, newToken, newRefreshToken, false);
 
     const refreshResponse = {
-      token: newToken,
-      refreshToken: newRefreshToken,
-      expiresIn: 3600
+      message: 'Token refreshed successfully'
     };
 
     const response = createSuccessResponse(refreshResponse, 'Token refreshed successfully');

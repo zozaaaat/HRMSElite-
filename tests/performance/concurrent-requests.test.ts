@@ -24,11 +24,6 @@ interface LoginResponse {
     emailVerified: boolean;
     sub: string;
   };
-  tokens: {
-    accessToken: string;
-    refreshToken: string;
-    expiresIn: string;
-  };
 }
 
 // Define error type for better error handling
@@ -39,7 +34,7 @@ interface ApiError {
 
 describe('Performance Tests - Concurrent Requests', () => {
   const testUsers: (typeof users.$inferSelect)[] = [];
-  const authTokens: string[] = [];
+  const authCookies: string[] = [];
 
   beforeAll(async () => {
     // Ensure a clean slate
@@ -60,7 +55,7 @@ describe('Performance Tests - Concurrent Requests', () => {
       testUsers.push(insertedUser);
     }
 
-    // Get auth tokens for all users
+    // Get auth cookies for all users
     for (const user of testUsers) {
       const response = await request(app)
         .post('/api/auth/login')
@@ -69,9 +64,9 @@ describe('Performance Tests - Concurrent Requests', () => {
           password: 'TestPassword123!'
         });
 
-      const responseBody = response.body as LoginResponse;
-      if (responseBody.tokens?.accessToken) {
-        authTokens.push(responseBody.tokens.accessToken);
+      const cookies = response.headers['set-cookie'];
+      if (cookies) {
+        authCookies.push(cookies.join(';'));
       }
     }
   });
@@ -154,7 +149,7 @@ describe('Performance Tests - Concurrent Requests', () => {
           case 1: // Get profile
             return request(app)
               .get('/api/auth/user')
-              .set('Authorization', `Bearer ${authTokens[userIndex]}`)
+              .set('Cookie', authCookies[userIndex])
               .then(response => ({
                 operation: 'profile',
                 status: response.status,
@@ -165,7 +160,7 @@ describe('Performance Tests - Concurrent Requests', () => {
           case 2: // Logout
             return request(app)
               .post('/api/auth/logout')
-              .set('Authorization', `Bearer ${authTokens[userIndex]}`)
+              .set('Cookie', authCookies[userIndex])
               .then(response => ({
                 operation: 'logout',
                 status: response.status,
@@ -221,7 +216,7 @@ describe('Performance Tests - Concurrent Requests', () => {
       const dbPromises = Array.from({ length: concurrentRequests }, (_, i) => 
         request(app)
           .get('/api/auth/user')
-          .set('Authorization', `Bearer ${authTokens[i % 10]}`)
+          .set('Cookie', authCookies[i % 10])
           .then(response => ({
             status: response.status,
             time: Date.now() - startTime,
@@ -426,7 +421,7 @@ describe('Performance Tests - Concurrent Requests', () => {
       for (let i = 0; i < totalRequests; i++) {
         const requestPromise = request(app)
           .get('/api/auth/user')
-          .set('Authorization', `Bearer ${authTokens[i % 10]}`)
+          .set('Cookie', authCookies[i % 10])
           .then(response => ({
             status: response.status,
             time: Date.now() - startTime,
