@@ -222,7 +222,10 @@ router.post('/register', async (req:  Request, res:  Response) => {
     const accessToken = generateJWTToken(tokenPayload);
     const refreshToken = generateRefreshToken(tokenPayload);
 
-    res.status(201).json({
+    // Set authentication cookies instead of returning tokens in the response body
+    setAuthCookies(res, accessToken, refreshToken);
+
+    res.status(200).json({
       'success': true,
       'message': 'تم التسجيل بنجاح. يرجى التحقق من بريدك الإلكتروني',
       'user': {
@@ -232,11 +235,6 @@ router.post('/register', async (req:  Request, res:  Response) => {
         'lastName': newUser.lastName,
         'role': newUser.role,
         'emailVerified': newUser.emailVerified
-      },
-      'tokens': {
-        accessToken,
-        refreshToken,
-        'expiresIn': process.env.JWT_EXPIRES_IN ?? "24h"
       }
     });
 
