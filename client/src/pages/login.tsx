@@ -79,10 +79,9 @@ export default function Login () {
         // تحديث حالة المستخدم في المتجر
         const mockUser = {
           'id': '1',
-          'email': `${formData.username || 'demo'}@example.com`,
+          'email': `${formData.username}@example.com`,
           'firstName': userRole === 'super_admin' ? 'المسؤول' : 'المستخدم',
           'lastName': 'النظام',
-          'password': 'mock-password',
           'profileImageUrl': null,
           'role': userRole,
           'companyId': companyId ?? null,
@@ -197,17 +196,6 @@ export default function Login () {
               )}
             </Button>
           </form>
-
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p className="mb-2">أمثلة على حسابات تجريبية:</p>
-            <div className="space-y-1 text-xs">
-              <p>المسؤول العام: admin | Zeylab@2025</p>
-              <p>مدير شركة: gu_2 | Zeylab@2025</p>
-              <p>موظف إداري: gu_4 | Zeylab@2025</p>
-              <p>مشرف: supervisor | Zeylab@2025</p>
-              <p>عامل: gu_3 | Zeylab@2025</p>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
