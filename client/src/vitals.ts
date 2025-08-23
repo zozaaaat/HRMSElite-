@@ -1,4 +1,4 @@
-import { onCLS, onFID, onLCP, Metric } from 'web-vitals';
+import { onCLS, onINP, onLCP, Metric } from 'web-vitals';
 
 const token = typeof import.meta !== 'undefined' ? (import.meta as any).env?.VITE_METRICS_TOKEN : undefined;
 
@@ -24,7 +24,7 @@ function sendToServer(metric: Metric) {
 
 export function initWebVitals() {
   onCLS(sendToServer);
-  onFID(sendToServer);
+  onINP(sendToServer);
   onLCP(sendToServer);
 }
 

@@ -152,7 +152,10 @@ export const useCurrentUserCompanyId = () => useUserStore((state) => state.compa
 export const useIsUserAuthenticated = () => useUserStore((state) => state.isAuthenticated);
 export const useCurrentUser = () => useUserStore((state) => state.user);
 export const useCurrentUserPermissions = () => useUserStore((state) => state.permissions);
+export const useUserPermissions = useCurrentUserPermissions;
 export const useCurrentCompany = () => useUserStore((state) => state.currentCompany);
+export const useUserLoading = () => useUserStore((state) => state.loading);
+export const useUserError = () => useUserStore((state) => state.error);
 
 // Action hooks
 export const useUserActions = () => useUserStore((state) => ({

@@ -348,6 +348,7 @@ export const metricsUtils = {
       gauge.set(value);
     }
   }
+};
 
 /**
  * Prometheus metrics middleware
