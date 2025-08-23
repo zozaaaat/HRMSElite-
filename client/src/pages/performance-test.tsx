@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -35,10 +36,11 @@ interface PerformanceTest {
 }
 
 const PerformanceTestPage: React.FC = () => {
+  const { t } = useTranslation();
   const [tests, setTests] = useState<PerformanceTest[]>([
     {
       name: 'Bundle Size Test',
-      description: 'اختبار حجم الحزمة المحملة',
+      description: t('performanceTest.tests.bundleSize'),
       icon: <HardDrive className="h-4 w-4" />,
       status: 'idle',
       result: undefined,
@@ -47,7 +49,7 @@ const PerformanceTestPage: React.FC = () => {
     },
     {
       name: 'Load Time Test',
-      description: 'اختبار وقت تحميل الصفحة',
+      description: t('performanceTest.tests.loadTime'),
       icon: <Clock className="h-4 w-4" />,
       status: 'idle',
       result: undefined,
@@ -56,7 +58,7 @@ const PerformanceTestPage: React.FC = () => {
     },
     {
       name: 'Memory Usage Test',
-      description: 'اختبار استخدام الذاكرة',
+      description: t('performanceTest.tests.memoryUsage'),
       icon: <MemoryStick className="h-4 w-4" />,
       status: 'idle',
       result: undefined,
@@ -65,7 +67,7 @@ const PerformanceTestPage: React.FC = () => {
     },
     {
       name: 'Network Requests Test',
-      description: 'اختبار عدد طلبات الشبكة',
+      description: t('performanceTest.tests.networkRequests'),
       icon: <Network className="h-4 w-4" />,
       status: 'idle',
       result: undefined,
@@ -74,7 +76,7 @@ const PerformanceTestPage: React.FC = () => {
     },
     {
       name: 'Render Performance Test',
-      description: 'اختبار أداء التصيير',
+      description: t('performanceTest.tests.render'),
       icon: <Cpu className="h-4 w-4" />,
       status: 'idle',
       result: undefined,
@@ -83,7 +85,7 @@ const PerformanceTestPage: React.FC = () => {
     },
     {
       name: 'FPS Test',
-      description: 'اختبار معدل الإطارات',
+      description: t('performanceTest.tests.fps'),
       icon: <Activity className="h-4 w-4" />,
       status: 'idle',
       result: undefined,
@@ -230,9 +232,9 @@ const PerformanceTestPage: React.FC = () => {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">اختبار الأداء</h1>
+          <h1 className="text-3xl font-bold">{t('performanceTest.title')}</h1>
           <p className="text-muted-foreground">
-            اختبار وتحسين أداء التطبيق
+            {t('performanceTest.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -242,7 +244,7 @@ const PerformanceTestPage: React.FC = () => {
             className="flex items-center gap-2"
           >
             {isRunningAll ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-            {isRunningAll ? 'جاري التشغيل...' : 'تشغيل جميع الاختبارات'}
+            {isRunningAll ? t('performanceTest.running') : t('performanceTest.runAll')}
           </Button>
           <Button
             variant="outline"
@@ -250,16 +252,16 @@ const PerformanceTestPage: React.FC = () => {
             className="flex items-center gap-2"
           >
             <RotateCcw className="h-4 w-4" />
-            إعادة تعيين
+            {t('performanceTest.reset')}
           </Button>
         </div>
       </div>
 
       <Tabs defaultValue="tests" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="tests">اختبارات الأداء</TabsTrigger>
-          <TabsTrigger value="monitor">مراقب الأداء</TabsTrigger>
-          <TabsTrigger value="optimizations">التحسينات</TabsTrigger>
+          <TabsTrigger value="tests">{t('performanceTest.tabs.tests')}</TabsTrigger>
+          <TabsTrigger value="monitor">{t('performanceTest.tabs.monitor')}</TabsTrigger>
+          <TabsTrigger value="optimizations">{t('performanceTest.tabs.optimizations')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tests" className="space-y-6">
@@ -268,7 +270,7 @@ const PerformanceTestPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Zap className="h-5 w-5" />
-                النتيجة الإجمالية
+                {t('performanceTest.overallScore')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -276,24 +278,24 @@ const PerformanceTestPage: React.FC = () => {
                 <div className="text-center">
                   <div className={`text-6xl font-bold ${color}`}>{grade}</div>
                   <div className="text-2xl font-semibold">{overallScore}/100</div>
-                  <div className="text-muted-foreground">نقاط الأداء</div>
+                  <div className="text-muted-foreground">{t('performanceTest.scoreLabel')}</div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span className="text-sm">ممتاز (90-100)</span>
+                    <span className="text-sm">{t('performanceTest.score.excellent')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                    <span className="text-sm">جيد (70-89)</span>
+                    <span className="text-sm">{t('performanceTest.score.good')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                    <span className="text-sm">متوسط (50-69)</span>
+                    <span className="text-sm">{t('performanceTest.score.average')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                    <span className="text-sm">ضعيف (0-49)</span>
+                    <span className="text-sm">{t('performanceTest.score.poor')}</span>
                   </div>
                 </div>
               </div>
@@ -323,13 +325,13 @@ const PerformanceTestPage: React.FC = () => {
                   {test.result !== undefined && (
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm">النتيجة:</span>
+                        <span className="text-sm">{t('performanceTest.result')}</span>
                         <span className="font-semibold">
                           {test.result.toFixed(1)} {test.unit}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm">الحد الأقصى:</span>
+                        <span className="text-sm">{t('performanceTest.max')}</span>
                         <span className="text-muted-foreground">
                           {test.threshold} {test.unit}
                         </span>
@@ -352,7 +354,7 @@ const PerformanceTestPage: React.FC = () => {
                     size="sm"
                     className="w-full mt-4"
                   >
-                    {test.status === 'running' ? 'جاري...' : 'تشغيل الاختبار'}
+                    {test.status === 'running' ? t('performanceTest.runningShort') : t('performanceTest.run')}
                   </Button>
                 </CardContent>
               </Card>
@@ -363,7 +365,7 @@ const PerformanceTestPage: React.FC = () => {
         <TabsContent value="monitor" className="space-y-6">
           <AdvancedLazyLoader
             type="card"
-            message="جاري تحميل مراقب الأداء..."
+            message={t('performanceTest.monitorLoading')}
             priority="high"
           >
             <PerformanceMonitor
@@ -376,13 +378,12 @@ const PerformanceTestPage: React.FC = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Activity className="h-5 w-5" />
-                      مراقب الأداء المباشر
+                      {t('performanceTest.monitorTitle')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground">
-                      يتم مراقبة أداء هذه الصفحة في الوقت الفعلي. 
-                      يمكنك رؤية معلومات الأداء في وحدة تحكم المتصفح.
+                      {t('performanceTest.monitorDescription')}
                     </p>
                   </CardContent>
                 </Card>
@@ -398,28 +399,28 @@ const PerformanceTestPage: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Download className="h-5 w-5" />
-                  تحسين Lazy Loading
+                  {t('performanceTest.lazyLoadingOptimization')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <h4 className="font-semibold">الميزات المحسنة:</h4>
+                  <h4 className="font-semibold">{t('performanceTest.featuresTitle')}</h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
-                    <li>• Preloading ذكي بناءً على الأولوية</li>
-                    <li>• Intersection Observer للتحميل عند الظهور</li>
-                    <li>• Hover-based preloading</li>
-                    <li>• Progress indicators محسنة</li>
-                    <li>• Queue management للتحميل المتسلسل</li>
+                    <li>• {t('performanceTest.bulletPreloading')}</li>
+                    <li>• {t('performanceTest.bulletIntersection')}</li>
+                    <li>• {t('performanceTest.bulletHover')}</li>
+                    <li>• {t('performanceTest.bulletProgress')}</li>
+                    <li>• {t('performanceTest.bulletQueue')}</li>
                   </ul>
                 </div>
                 <Separator />
                 <div className="space-y-2">
-                  <h4 className="font-semibold">الفوائد:</h4>
+                  <h4 className="font-semibold">{t('performanceTest.benefitsTitle')}</h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
-                    <li>• تحسين وقت التحميل الأولي</li>
-                    <li>• تقليل استخدام الذاكرة</li>
-                    <li>• تحسين تجربة المستخدم</li>
-                    <li>• تحسين SEO</li>
+                    <li>• {t('performanceTest.benefitLoadTime')}</li>
+                    <li>• {t('performanceTest.benefitMemory')}</li>
+                    <li>• {t('performanceTest.benefitUX')}</li>
+                    <li>• {t('performanceTest.benefitSEO')}</li>
                   </ul>
                 </div>
               </CardContent>
@@ -430,28 +431,28 @@ const PerformanceTestPage: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Upload className="h-5 w-5" />
-                  تحسين Code Splitting
+                  {t('performanceTest.codeSplitting')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <h4 className="font-semibold">استراتيجيات التقسيم:</h4>
+                  <h4 className="font-semibold">{t('performanceTest.splitStrategies')}</h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
-                    <li>• Vendor chunks للمكتبات</li>
-                    <li>• Feature-based chunks</li>
-                    <li>• Route-based splitting</li>
-                    <li>• Component-level splitting</li>
-                    <li>• Dynamic imports محسنة</li>
+                    <li>• {t('performanceTest.vendorChunks')}</li>
+                    <li>• {t('performanceTest.featureChunks')}</li>
+                    <li>• {t('performanceTest.routeSplitting')}</li>
+                    <li>• {t('performanceTest.componentSplitting')}</li>
+                    <li>• {t('performanceTest.dynamicImports')}</li>
                   </ul>
                 </div>
                 <Separator />
                 <div className="space-y-2">
-                  <h4 className="font-semibold">التحسينات:</h4>
+                  <h4 className="font-semibold">{t('performanceTest.improvementsTitle')}</h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
-                    <li>• تقليل حجم الحزم الأولية</li>
-                    <li>• تحسين caching</li>
-                    <li>• تحسين network utilization</li>
-                    <li>• تحسين loading performance</li>
+                    <li>• {t('performanceTest.reduceInitialBundle')}</li>
+                    <li>• {t('performanceTest.improveCaching')}</li>
+                    <li>• {t('performanceTest.improveNetwork')}</li>
+                    <li>• {t('performanceTest.improveLoading')}</li>
                   </ul>
                 </div>
               </CardContent>
@@ -462,28 +463,28 @@ const PerformanceTestPage: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <HardDrive className="h-5 w-5" />
-                  تحسين Bundle Size
+                  {t('performanceTest.bundleSize')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <h4 className="font-semibold">تقنيات الضغط:</h4>
+                  <h4 className="font-semibold">{t('performanceTest.compressionTechniques')}</h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
-                    <li>• Tree shaking متقدم</li>
-                    <li>• Dead code elimination</li>
-                    <li>• Minification محسنة</li>
-                    <li>• Compression optimization</li>
-                    <li>• Asset optimization</li>
+                    <li>• {t('performanceTest.treeShaking')}</li>
+                    <li>• {t('performanceTest.deadCode')}</li>
+                    <li>• {t('performanceTest.minification')}</li>
+                    <li>• {t('performanceTest.compressionOpt')}</li>
+                    <li>• {t('performanceTest.assetOpt')}</li>
                   </ul>
                 </div>
                 <Separator />
                 <div className="space-y-2">
-                  <h4 className="font-semibold">النتائج المتوقعة:</h4>
+                  <h4 className="font-semibold">{t('performanceTest.expectedResults')}</h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
-                    <li>• تقليل الحجم بنسبة 30-50%</li>
-                    <li>• تحسين وقت التحميل</li>
-                    <li>• تقليل استهلاك البيانات</li>
-                    <li>• تحسين Core Web Vitals</li>
+                    <li>• {t('performanceTest.resultSizeReduction')}</li>
+                    <li>• {t('performanceTest.resultLoadTime')}</li>
+                    <li>• {t('performanceTest.resultDataUsage')}</li>
+                    <li>• {t('performanceTest.resultCoreWebVitals')}</li>
                   </ul>
                 </div>
               </CardContent>
@@ -494,12 +495,12 @@ const PerformanceTestPage: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Activity className="h-5 w-5" />
-                  مراقبة الأداء
+                  {t('performanceTest.performanceMonitoring')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <h4 className="font-semibold">مقاييس الأداء:</h4>
+                  <h4 className="font-semibold">{t('performanceTest.metricsTitle')}</h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
                     <li>• Bundle size monitoring</li>
                     <li>• Load time tracking</li>
@@ -510,7 +511,7 @@ const PerformanceTestPage: React.FC = () => {
                 </div>
                 <Separator />
                 <div className="space-y-2">
-                  <h4 className="font-semibold">الميزات:</h4>
+                  <h4 className="font-semibold">{t('performanceTest.featuresTitleShort')}</h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
                     <li>• Real-time monitoring</li>
                     <li>• Performance alerts</li>

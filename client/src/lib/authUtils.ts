@@ -1,3 +1,5 @@
+import i18n from './i18n';
+
 export function isUnauthorizedError (error: Error): boolean {
 
   return (/^401: .*Unauthorized/).test(error.message);
@@ -480,52 +482,40 @@ export function hasAnyPermission (userPermissions: string[] = [],
 }
 
 export function getRoleDisplayName (role: string): string {
-
-  switch (role) {
-
-  case USER_ROLES.SUPER_ADMIN:
-    return 'مسؤول النظام';
-  case USER_ROLES.COMPANY_MANAGER:
-    return 'مدير الشركة';
-  case USER_ROLES.ADMINISTRATIVE_EMPLOYEE:
-    return 'موظف إداري';
-  case USER_ROLES.SUPERVISOR:
-    return 'مشرف';
-  case USER_ROLES.WORKER:
-    return 'عامل';
-  default:
-    return 'غير محدد';
-
-  }
-
+  const roleKeys: Record<string, string> = {
+    [USER_ROLES.SUPER_ADMIN]: 'roles.labels.super_admin',
+    [USER_ROLES.COMPANY_MANAGER]: 'roles.labels.company_manager',
+    [USER_ROLES.ADMINISTRATIVE_EMPLOYEE]: 'roles.labels.employee',
+    [USER_ROLES.SUPERVISOR]: 'roles.labels.supervisor',
+    [USER_ROLES.WORKER]: 'roles.labels.worker'
+  };
+  return i18n.t(roleKeys[role] ?? 'roles.labels.undefined');
 }
 
 export function getPermissionDisplayName (permission: Permission): string {
-
-  const names: Record<Permission, string> = {
-    [PERMISSIONS.MANAGE_EMPLOYEES]: 'إدارة الموظفين',
-    [PERMISSIONS.VIEW_EMPLOYEES]: 'عرض الموظفين',
-    [PERMISSIONS.MANAGE_LEAVE_REQUESTS]: 'إدارة طلبات الإجازة',
-    [PERMISSIONS.VIEW_LEAVE_REQUESTS]: 'عرض طلبات الإجازة',
-    [PERMISSIONS.MANAGE_PAYROLL]: 'إدارة المرتبات',
-    [PERMISSIONS.VIEW_PAYROLL]: 'عرض المرتبات',
-    [PERMISSIONS.MANAGE_FINANCES]: 'إدارة المالية',
-    [PERMISSIONS.VIEW_FINANCES]: 'عرض المالية',
-    [PERMISSIONS.MANAGE_INVENTORY]: 'إدارة المخزون',
-    [PERMISSIONS.VIEW_INVENTORY]: 'عرض المخزون',
-    [PERMISSIONS.MANAGE_ASSETS]: 'إدارة الأصول',
-    [PERMISSIONS.VIEW_ASSETS]: 'عرض الأصول',
-    [PERMISSIONS.GENERATE_REPORTS]: 'إنشاء التقارير',
-    [PERMISSIONS.VIEW_REPORTS]: 'عرض التقارير',
-    [PERMISSIONS.EXPORT_DATA]: 'تصدير البيانات',
-    [PERMISSIONS.MANAGE_PURCHASES]: 'إدارة المشتريات',
-    [PERMISSIONS.VIEW_PURCHASES]: 'عرض المشتريات',
-    [PERMISSIONS.APPROVE_PURCHASES]: 'اعتماد المشتريات',
-    [PERMISSIONS.MANAGE_COMPANY]: 'إدارة الشركة',
-    [PERMISSIONS.MANAGE_PERMISSIONS]: 'إدارة الصلاحيات',
-    [PERMISSIONS.SYSTEM_ADMIN]: 'إدارة النظام'
+  const permissionKeys: Record<Permission, string> = {
+    [PERMISSIONS.MANAGE_EMPLOYEES]: 'permissions.manage_employees',
+    [PERMISSIONS.VIEW_EMPLOYEES]: 'permissions.view_employees',
+    [PERMISSIONS.MANAGE_LEAVE_REQUESTS]: 'permissions.manage_leave_requests',
+    [PERMISSIONS.VIEW_LEAVE_REQUESTS]: 'permissions.view_leave_requests',
+    [PERMISSIONS.MANAGE_PAYROLL]: 'permissions.manage_payroll',
+    [PERMISSIONS.VIEW_PAYROLL]: 'permissions.view_payroll',
+    [PERMISSIONS.MANAGE_FINANCES]: 'permissions.manage_finances',
+    [PERMISSIONS.VIEW_FINANCES]: 'permissions.view_finances',
+    [PERMISSIONS.MANAGE_INVENTORY]: 'permissions.manage_inventory',
+    [PERMISSIONS.VIEW_INVENTORY]: 'permissions.view_inventory',
+    [PERMISSIONS.MANAGE_ASSETS]: 'permissions.manage_assets',
+    [PERMISSIONS.VIEW_ASSETS]: 'permissions.view_assets',
+    [PERMISSIONS.GENERATE_REPORTS]: 'permissions.generate_reports',
+    [PERMISSIONS.VIEW_REPORTS]: 'permissions.view_reports',
+    [PERMISSIONS.EXPORT_DATA]: 'permissions.export_data',
+    [PERMISSIONS.MANAGE_PURCHASES]: 'permissions.manage_purchases',
+    [PERMISSIONS.VIEW_PURCHASES]: 'permissions.view_purchases',
+    [PERMISSIONS.APPROVE_PURCHASES]: 'permissions.approve_purchases',
+    [PERMISSIONS.MANAGE_COMPANY]: 'permissions.manage_company',
+    [PERMISSIONS.MANAGE_PERMISSIONS]: 'permissions.manage_permissions',
+    [PERMISSIONS.SYSTEM_ADMIN]: 'permissions.system_admin'
   };
 
-  return names[permission] || permission;
-
+  return i18n.t(permissionKeys[permission] ?? permission);
 }

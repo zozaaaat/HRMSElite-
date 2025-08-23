@@ -1,4 +1,5 @@
 import logger from './logger';
+import i18n from './i18n';
 
 /**
  * CSRF Token Management for Frontend
@@ -53,7 +54,7 @@ class CsrfTokenManager {
     } catch (error) {
 
       logger.error('Error fetching CSRF token:', error);
-      throw new Error('فشل في الحصول على رمز الأمان');
+      throw new Error(i18n.t('errors.csrfFetch'));
 
     }
 
@@ -133,7 +134,7 @@ export function handleCsrfError (error: Record<string, unknown>): void {
     logger.error('CSRF token error:', error);
 
     // You can integrate this with your toast notification system
-    // toast.error('خطأ في التحقق من الأمان، يرجى إعادة تحميل الصفحة');
+    // toast.error(i18n.t('errors.csrfValidation'));
 
   }
 
