@@ -28,7 +28,7 @@ describe('Cookie-Based Authentication', () => {
         }
       }),
       headers: new Map([
-        ['set-cookie', '__Host-hrms-elite-access=test-access-token; HttpOnly; Secure; SameSite=Lax; Path=/']
+        ['set-cookie', '__Host-hrms-elite-access=test-access-token; HttpOnly; Secure; SameSite=Strict; Path=/']
       ])
     });
   });
@@ -72,7 +72,7 @@ describe('Cookie-Based Authentication', () => {
           message: 'Tokens refreshed successfully'
         }),
         headers: new Map([
-          ['set-cookie', '__Host-hrms-elite-access=new-access-token; HttpOnly; Secure; SameSite=Lax; Path=/']
+          ['set-cookie', '__Host-hrms-elite-access=new-access-token; HttpOnly; Secure; SameSite=Strict; Path=/']
         ])
       });
 

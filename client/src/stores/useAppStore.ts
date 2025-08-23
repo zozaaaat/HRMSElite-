@@ -39,11 +39,17 @@ const fetchWithRetry = async (url: string,
    options: RequestInit,
    maxRetries = 3): Promise<Record<string, unknown> | null> => {
 
+  // Ensure cookies are always sent with requests for authentication
+  const requestOptions: RequestInit = {
+    'credentials': 'include',
+    ...options
+  };
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
 
     try {
 
-      const response = await fetch(url, options);
+      const response = await fetch(url, requestOptions);
 
       if (response.ok) {
 
