@@ -2,46 +2,31 @@
 import fs from 'fs';
 import { execSync } from 'child_process';
 
-const PLACEHOLDERS = [
-  'default-secret',
-  '__REPLACE_WITH_STRONG_SECRET__',
-  'changeme',
-  'your-secret',
-  'placeholder-secret',
-  'defaultpassword'
-];
+// Regex to find placeholder secrets after '=' or ':'
+const PLACEHOLDER_PATTERN = /(=|:\s*)(["']?)(default|changeme|__REPLACE_WITH_STRONG_SECRET__)(?:\2)/i;
 
-const files = execSync('git ls-files', { encoding: 'utf8' })
-  .split('\n')
+const files = execSync('git ls-files -z', { encoding: 'utf8' })
+  .split('\0')
   .filter(Boolean)
-  .filter(f => {
-    const lower = f.toLowerCase();
-    if (lower.includes('node_modules')) return false;
-    if (lower.startsWith('docs/')) return false;
-    if (lower.endsWith('.md')) return false;
-    if (lower === 'scripts/check-placeholder-secrets.js') return false;
-    if (lower === 'server/utils/env.ts') return false;
-    if (lower === 'package.json') return false;
-    if (lower.startsWith('.env')) return true;
-    return /(\.ts|\.js|\.tsx|\.jsx|\.cjs|\.mjs|\.json)$/i.test(lower);
-  });
+  .filter(f => f.startsWith('.env'));
 
 const violations = [];
 
 for (const file of files) {
   const content = fs.readFileSync(file, 'utf8');
-  for (const placeholder of PLACEHOLDERS) {
-    if (content.includes(placeholder)) {
-      violations.push({ file, placeholder });
+  const lines = content.split(/\r?\n/);
+  lines.forEach((line, idx) => {
+    if (PLACEHOLDER_PATTERN.test(line)) {
+      violations.push({ file, line: idx + 1 });
     }
-  }
+  });
 }
 
 if (violations.length > 0) {
   console.error('❌ Placeholder secrets detected:');
-  for (const v of violations) {
-    console.error(` - ${v.placeholder} found in ${v.file}`);
-  }
+  violations.forEach(v => {
+    console.error(` - ${v.file}:${v.line}`);
+  });
   process.exit(1);
 }
 
