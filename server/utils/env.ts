@@ -12,7 +12,7 @@ const envSchema = z.object({
   SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 characters long'),
   DB_ENCRYPTION_KEY: z.string().min(32, 'DB_ENCRYPTION_KEY must be at least 32 characters long'),
   FILE_SIGNATURE_SECRET: z.string().min(32, 'FILE_SIGNATURE_SECRET must be at least 32 characters long'),
-  METRICS_TOKEN: z.string().min(32, 'METRICS_TOKEN must be at least 32 characters long'),
+  METRICS_TOKEN: z.string().min(32, 'METRICS_TOKEN must be at least 32 characters long').optional(),
   
   // Optional environment variables with defaults
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -115,7 +115,6 @@ export function validateSecrets(): void {
     { name: 'JWT_SECRET', value: env.JWT_SECRET },
     { name: 'SESSION_SECRET', value: env.SESSION_SECRET },
     { name: 'DB_ENCRYPTION_KEY', value: env.DB_ENCRYPTION_KEY },
-    { name: 'METRICS_TOKEN', value: env.METRICS_TOKEN },
     { name: 'FILE_SIGNATURE_SECRET', value: env.FILE_SIGNATURE_SECRET },
   ];
 
@@ -141,7 +140,6 @@ export function validateSecrets(): void {
     jwtSecretLength: env.JWT_SECRET.length,
     sessionSecretLength: env.SESSION_SECRET.length,
     dbEncryptionKeyLength: env.DB_ENCRYPTION_KEY.length,
-    metricsTokenLength: env.METRICS_TOKEN.length,
     fileSignatureSecretLength: env.FILE_SIGNATURE_SECRET.length
   }, 'ENV');
 }
