@@ -9,6 +9,7 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from '../components/ui/tabs';
 import {Badge} from '../components/ui/badge';
 import {Dialog, DialogContent, DialogHeader, DialogTitle} from '../components/ui/dialog';
 import {useToast} from '../hooks/use-toast';
+import {useTranslation} from 'react-i18next';
 import DocumentForm from '../components/document-form';
 import {
   FileText,
@@ -88,6 +89,7 @@ export default function DocumentsPage () {
   const [editingDocument, setEditingDocument] = useState<Document | null>(null);
   const [viewingDocument, setViewingDocument] = useState<Document | null>(null);
   const {toast} = useToast();
+  const {t} = useTranslation();
 
   const filteredDocuments = mockDocuments.filter(doc => {
 
@@ -198,7 +200,7 @@ export default function DocumentsPage () {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">إدارة المستندات</h1>
+        <h1 className="text-3xl font-bold">{t('documents.title')}</h1>
         <div className="flex gap-2">
           <Button variant="outline">
             <Filter className="h-4 w-4 ml-2" />
