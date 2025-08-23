@@ -11,6 +11,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import crypto from 'node:crypto';
 import { log } from '../utils/logger';
+import { deepSanitize } from '../utils/sanitize';
 
 // Security configuration
 const SECURITY_CONFIG = {
@@ -367,30 +368,11 @@ export const requestValidation = (req: Request, res: Response, next: NextFunctio
 
   // Sanitize request body
   if (req.body && typeof req.body === 'object') {
-    sanitizeObject(req.body);
+    req.body = deepSanitize(req.body);
   }
 
   next();
 };
-
-/**
- * Sanitize object recursively
- */
-function sanitizeObject(obj: any): void {
-     for (const key in obj) {
-     if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      if (typeof obj[key] === 'string') {
-        // Basic XSS prevention
-        obj[key] = obj[key]
-          .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-          .replace(/javascript:/gi, '')
-          .replace(/on\w+\s*=/gi, '');
-      } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-        sanitizeObject(obj[key]);
-      }
-    }
-  }
-}
 
 /**
  * IP Whitelist Middleware
