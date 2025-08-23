@@ -163,7 +163,7 @@
     "@types/jsonwebtoken": "9.0.10",
     "@types/memoizee": "0.4.12",
     "ai": "5.0.2",
-    "axios": "1.7.9",
+    "axios": "1.11.0",
     "bcryptjs": "3.0.2",
     "better-sqlite3": "12.2.0",
     "class-variance-authority": "0.7.1",
@@ -183,7 +183,7 @@
     "embla-carousel-react": "8.6.0",
     "express": "4.21.2",
     "express-rate-limit": "8.0.1",
-    "express-session": "1.18.1",
+    "express-session": "1.18.2",
     "framer-motion": "11.13.1",
     "helmet": "8.1.0",
     "input-otp": "1.4.2",
@@ -291,7 +291,13 @@
     "vitest": "3.2.4"
   },
   "overrides": {
-    "cookie": "^0.7.2"
+    "cookie": "^0.7.2",
+    "on-headers": "1.1.0",
+    "@esbuild-kit/core-utils": {
+      "esbuild": "0.25.0"
+    },
+    "sanitize-html": "2.17.0",
+    "moment": "2.30.1"
   },
   "optionalDependencies": {
     "bufferutil": "4.0.8"
