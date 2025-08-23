@@ -116,6 +116,10 @@ export function validateSecrets(): void {
   ];
 
   secrets.forEach(({ name, value }) => {
+    if (!value || value.length < 32) {
+      throw new Error(`${name} is missing or too weak. It must be at least 32 characters long.`);
+    }
+
     if (weakSecrets.some(weak => value.includes(weak) || value === weak)) {
       throw new Error(`${name} contains weak or default values. Please use a strong, unique secret.`);
     }

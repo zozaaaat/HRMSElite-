@@ -19,7 +19,6 @@ const files = execSync('git ls-files', { encoding: 'utf8' })
     if (lower.includes('node_modules')) return false;
     if (lower.startsWith('docs/')) return false;
     if (lower.endsWith('.md')) return false;
-    if (lower === 'env.example') return false;
     if (lower === 'scripts/check-placeholder-secrets.js') return false;
     if (lower === 'server/utils/env.ts') return false;
     if (lower === 'package.json') return false;
