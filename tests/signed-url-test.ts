@@ -6,7 +6,7 @@
  */
 
 import { secureFileStorage } from '../server/utils/secureStorage';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 // Test functions for signed URL functionality
 async function testSignedUrlGeneration() {

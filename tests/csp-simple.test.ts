@@ -5,11 +5,10 @@
  * @version 1.0.0
  */
 
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 // Import the security middleware directly
 import { cspUtils } from '../server/middleware/security';
-import crypto from 'crypto';
 
 // Define generateNonce function locally for testing
 function generateNonce(): string {

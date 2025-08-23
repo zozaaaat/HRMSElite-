@@ -7,7 +7,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import * as tar from 'tar';
 import cron from 'node-cron';
 import { secureDbManager, DatabaseSecurityConfig } from './dbSecurity';

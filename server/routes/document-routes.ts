@@ -8,7 +8,7 @@ import { isAuthenticated, requireRole } from '../middleware/auth';
 import { antivirusScanner, type ScanResult } from '../utils/antivirus';
 import { secureFileStorage, type StoredFile } from '../utils/secureStorage';
 import { quarantineFile } from '../utils/quarantine';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 // Extend Request interface to include file property
 declare global {

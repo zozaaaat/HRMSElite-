@@ -68,7 +68,7 @@ async function testAuth() {
 
     // Test 4: Test token generation
     console.log('\n4. Testing token generation...');
-    const crypto = await import('crypto');
+    const crypto = await import('node:crypto');
     const token = crypto.randomBytes(64).toString('base64url');
     console.log(`Token generation test: ${token.length > 0 ? '✓ Passed' : '✗ Failed'}`);
     console.log(`Token length: ${token.length} characters`);

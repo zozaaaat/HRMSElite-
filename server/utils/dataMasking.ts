@@ -5,7 +5,7 @@
  * @version 1.0.0
  */
 
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { secureDbManager } from './dbSecurity';
 import { log } from './logger';
 import 'dotenv/config';

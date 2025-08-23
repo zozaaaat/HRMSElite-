@@ -1,4 +1,4 @@
-import { createHash } from 'crypto';
+import { createHash } from 'node:crypto';
 import type { Response } from 'express';
 
 type TimestampLike = Date | number | string | null | undefined;

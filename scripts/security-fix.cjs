@@ -22,7 +22,7 @@ function updatePackageJson() {
 
   // Update vulnerable packages
   const updates = {
-    'csurf': '^1.2.2',
+    'csrf': '^3.1.0',
     'drizzle-kit': '^0.31.4',
     'ink-docstrap': '^1.3.2'
   };
@@ -100,7 +100,7 @@ function main() {
   console.log('\n🎉 Security fixes completed!');
   console.log('\n📋 Recommendations:');
   console.log('1. Review the security-config.json file');
-  console.log('2. Consider replacing csurf with a maintained alternative');
+  console.log('2. Ensure CSRF protection uses a maintained library such as csrf');
   console.log('3. Remove unused or deprecated dependencies');
   console.log('4. Regularly run npm audit to check for new vulnerabilities');
   console.log('5. Consider using npm audit --audit-level=moderate for stricter checks');
