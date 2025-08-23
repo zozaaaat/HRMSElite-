@@ -11,61 +11,91 @@ jobs:
   security-check:
     name: Security Check
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Run security check
-      run: node scripts/security-check.js
-      
-    - name: Upload security report
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: security-report
-        path: |
-          security-report.json
-          security-report.html
-        retention-days: 30
-        
-    - name: Comment on PR
-      if: github.event_name == 'pull_request' && failure()
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const issue_number = context.issue.number;
-          const comment = `🚨 **Security Check Failed**
-          
-          Header-based authentication bypasses were detected in the codebase. This is a critical security issue that must be resolved before merging.
-          
-          **What to do:**
-          1. Remove all header-based authentication bypasses from production code
-          2. Use proper authentication middleware with JWT tokens or sessions
-          3. Gate any development authentication behind \`NODE_ENV\` and \`ALLOW_DEV_AUTH\` flags
-          4. Re-run the security check after making changes
-          
-          **Files to review:**
-          - Check the security check output above for specific file locations
-          - Look for patterns like \`x-user-role\`, \`x-user-id\`, \`x-user-email\`
-          
-          **Acceptance Criteria:**
-          - ✅ No route can authenticate via custom headers in production
-          - ✅ Development authentication bypasses are properly gated
-          - ✅ CI check passes without critical security issues`;
-          
-          github.rest.issues.createComment({
-            issue_number: issue_number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: comment
-          });
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run security check
+        run: node scripts/security-check.js
+
+      - name: Run npm audit
+        run: |
+          npm audit --audit-level=high --json > audit-report.json || true
+          if [ -f audit-report.json ]; then
+            HIGH=$(jq '.metadata.vulnerabilities.high + .metadata.vulnerabilities.critical' audit-report.json)
+            if [ "$HIGH" -gt 0 ]; then
+              echo "❌ High vulnerabilities found by npm audit. PR cannot merge."
+              exit 1
+            fi
+          fi
+
+      - name: Install OSV Scanner
+        run: |
+          curl -L https://github.com/google/osv-scanner/releases/latest/download/osv-scanner_1.7.0_linux_amd64.tar.gz | tar -xz
+          sudo mv osv-scanner /usr/local/bin/
+
+      - name: Run OSV Scanner
+        run: |
+          osv-scanner --lockfile=package-lock.json --json > osv-report.json || true
+          HIGH=$(jq '[.results[].vulnerabilities[] | select(.severity == "HIGH" or .severity == "CRITICAL")] | length' osv-report.json)
+          if [ "$HIGH" -gt 0 ]; then
+            echo "❌ High/Critical vulnerabilities found by OSV Scanner. PR cannot merge."
+            exit 1
+          fi
+
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: .semgrep.yml
+          output-format: sarif
+          output-file: semgrep-results.sarif
+        continue-on-error: true
+
+      - name: Fail on Semgrep HIGH/MED
+        run: |
+          if [ -f semgrep-results.sarif ]; then
+            VIOLATIONS=$(jq '[.runs[].results[] | select(.properties.severity == "ERROR" or .properties.severity == "WARNING")] | length' semgrep-results.sarif)
+            if [ "$VIOLATIONS" -gt 0 ]; then
+              echo "❌ Semgrep found $VIOLATIONS high/medium severity issues. PR cannot merge."
+              exit 1
+            fi
+          fi
+
+      - name: Generate SBOM (CycloneDX)
+        run: |
+          npm install -g @cyclonedx/cyclonedx-npm
+          cyclonedx-npm --output-file sbom.json --output-format json
+
+      - name: Upload security artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-artifacts
+          path: |
+            audit-report.json
+            osv-report.json
+            semgrep-results.sarif
+            sbom.json
+          retention-days: 30
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚨 Security checks failed. Please review the workflow artifacts for details.'
+            });
