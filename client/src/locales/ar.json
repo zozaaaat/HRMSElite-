@@ -143,6 +143,12 @@
     "loadingStats": "جاري تحميل الإحصائيات...",
     "loadingCharts": "جاري تحميل الرسوم البيانية...",
     "loadingTable": "جاري تحميل الجدول...",
+    "loadingStates": {
+      "main": "جاري تحميل لوحة التحكم الرئيسية...",
+      "ai": "جاري تحميل لوحة التحكم الذكية...",
+      "roleBased": "جاري تحميل لوحة التحكم حسب الدور...",
+      "superAdmin": "جاري تحميل لوحة تحكم المدير العام..."
+    },
     "stats": {
       "totalEmployees": "إجمالي الموظفين",
       "activeEmployees": "الموظفون النشطون",
@@ -349,7 +355,28 @@
     "status": "الحالة",
     "approved": "موافق عليه",
     "pending": "معلق",
-    "rejected": "مرفوض"
+    "rejected": "مرفوض",
+    "card": {
+      "contract": "عقد",
+      "license": "رخصة",
+      "id": "هوية",
+      "certificate": "شهادة",
+      "document": "مستند",
+      "employee": "موظف",
+      "company": "شركة",
+      "unknown": "غير محدد",
+      "uploadedAt": "تم الرفع:",
+      "view": "عرض",
+      "download": "تحميل",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "size": {
+        "bytes": "بايت",
+        "kb": "كيلوبايت",
+        "mb": "ميغابايت",
+        "gb": "جيجابايت"
+      }
+    }
   },
   "companies": {
     "title": "إدارة الشركات",

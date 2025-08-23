@@ -1,5 +1,6 @@
 import React from 'react';
 import SuspenseWrapper from '@/components/optimized/SuspenseWrapper';
+import {useTranslation} from 'react-i18next';
 
 // Lazy load dashboard components for better performance
 export const LazyDashboardMain = React.lazy(() => import('../dashboard'));
@@ -16,41 +17,53 @@ const CenteredMessage = ({message}: { message: string }) => (
   </div>
 );
 
-export const DashboardMain = (props: DashboardProps) => (
-  <SuspenseWrapper
-    type="chart"
-    message="جاري تحميل لوحة التحكم الرئيسية..."
-  >
-    <LazyDashboardMain {...props} />
-  </SuspenseWrapper>
-);
+export const DashboardMain = (props: DashboardProps) => {
+  const {t} = useTranslation();
+  return (
+    <SuspenseWrapper
+      type="chart"
+      message={t('dashboard.loadingStates.main')}
+    >
+      <LazyDashboardMain {...props} />
+    </SuspenseWrapper>
+  );
+};
 
-export const AIDashboard = (props: DashboardProps) => (
-  <SuspenseWrapper
-    type="chart"
-    message="جاري تحميل لوحة التحكم الذكية..."
-  >
-    <LazyAIDashboard {...props} />
-  </SuspenseWrapper>
-);
+export const AIDashboard = (props: DashboardProps) => {
+  const {t} = useTranslation();
+  return (
+    <SuspenseWrapper
+      type="chart"
+      message={t('dashboard.loadingStates.ai')}
+    >
+      <LazyAIDashboard {...props} />
+    </SuspenseWrapper>
+  );
+};
 
-export const RoleBasedDashboard = (props: DashboardProps) => (
-  <SuspenseWrapper
-    type="chart"
-    message="جاري تحميل لوحة التحكم حسب الدور..."
-  >
-    <LazyRoleBasedDashboard {...props} />
-  </SuspenseWrapper>
-);
+export const RoleBasedDashboard = (props: DashboardProps) => {
+  const {t} = useTranslation();
+  return (
+    <SuspenseWrapper
+      type="chart"
+      message={t('dashboard.loadingStates.roleBased')}
+    >
+      <LazyRoleBasedDashboard {...props} />
+    </SuspenseWrapper>
+  );
+};
 
-export const SuperAdminDashboard = (props: DashboardProps) => (
-  <SuspenseWrapper
-    type="chart"
-    message="جاري تحميل لوحة تحكم المدير العام..."
-  >
-    <LazySuperAdminDashboard {...props} />
-  </SuspenseWrapper>
-);
+export const SuperAdminDashboard = (props: DashboardProps) => {
+  const {t} = useTranslation();
+  return (
+    <SuspenseWrapper
+      type="chart"
+      message={t('dashboard.loadingStates.superAdmin')}
+    >
+      <LazySuperAdminDashboard {...props} />
+    </SuspenseWrapper>
+  );
+};
 
 // Dashboard wrapper with role-based loading
 export const DashboardWrapper = ({role, ...props}: { role?: string } & DashboardProps) => {
@@ -95,8 +108,20 @@ export const preloadDashboardComponents = () => {
 
 // Dashboard loading states for different scenarios
 export const DashboardLoadingStates = {
-  'main': () => <CenteredMessage message="جاري تحميل لوحة التحكم الرئيسية..." />,
-  'ai': () => <CenteredMessage message="جاري تحميل لوحة التحكم الذكية..." />,
-  'roleBased': () => <CenteredMessage message="جاري تحميل لوحة التحكم حسب الدور..." />,
-  'superAdmin': () => <CenteredMessage message="جاري تحميل لوحة تحكم المدير العام..." />
+  'main': () => {
+    const {t} = useTranslation();
+    return <CenteredMessage message={t('dashboard.loadingStates.main')} />;
+  },
+  'ai': () => {
+    const {t} = useTranslation();
+    return <CenteredMessage message={t('dashboard.loadingStates.ai')} />;
+  },
+  'roleBased': () => {
+    const {t} = useTranslation();
+    return <CenteredMessage message={t('dashboard.loadingStates.roleBased')} />;
+  },
+  'superAdmin': () => {
+    const {t} = useTranslation();
+    return <CenteredMessage message={t('dashboard.loadingStates.superAdmin')} />;
+  }
 };

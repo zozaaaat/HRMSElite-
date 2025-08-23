@@ -18,6 +18,7 @@ import {
   Archive
 } from 'lucide-react';
 import {Document} from '@/types/documents';
+import {useTranslation} from 'react-i18next';
 
 interface OptimizedDocumentCardProps {
   document: Document;
@@ -130,23 +131,21 @@ const DocumentTypeBadge = memo(({type}: { type: string }) => {
 
   };
 
+  const {t} = useTranslation();
+
   const getTypeText = (type: string) => {
-
     switch (type) {
-
     case 'contract':
-      return 'عقد';
+      return t('documents.card.contract');
     case 'license':
-      return 'رخصة';
+      return t('documents.card.license');
     case 'id':
-      return 'هوية';
+      return t('documents.card.id');
     case 'certificate':
-      return 'شهادة';
+      return t('documents.card.certificate');
     default:
-      return 'مستند';
-
+      return t('documents.card.document');
     }
-
   };
 
   return (
@@ -161,22 +160,27 @@ DocumentTypeBadge.displayName = 'DocumentTypeBadge';
 
 // Document info component with memo
 const DocumentInfo = memo(({document}: { document: Document }) => {
+  const {t, i18n} = useTranslation();
   const uploadedAtString = document.uploadDate ?? document.uploadedAt ?? document.modifiedDate;
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
         <User className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm text-muted-foreground">
-          {document.entityType === 'employee' ? 'موظف'
-            : document.entityType === 'company' ? 'شركة'
-              : document.entityType === 'license' ? 'ترخيص' : 'غير محدد'}
+          {document.entityType === 'employee'
+            ? t('documents.card.employee')
+            : document.entityType === 'company'
+              ? t('documents.card.company')
+              : document.entityType === 'license'
+                ? t('documents.card.license')
+                : t('documents.card.unknown')}
         </span>
       </div>
       {uploadedAtString && (
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm text-muted-foreground">
-            تم الرفع: {new Date(uploadedAtString).toLocaleDateString('ar-SA')}
+            {t('documents.card.uploadedAt')} {new Date(uploadedAtString).toLocaleDateString(i18n.language === 'ar' ? 'ar-SA' : 'en-US')}
           </span>
         </div>
       )}
@@ -184,7 +188,7 @@ const DocumentInfo = memo(({document}: { document: Document }) => {
         <div className="flex items-center gap-2">
           <File className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm text-muted-foreground">
-            {formatFileSize(document.fileSize)}
+            {formatFileSize(document.fileSize, t)}
           </span>
         </div>
       )}
@@ -195,7 +199,7 @@ const DocumentInfo = memo(({document}: { document: Document }) => {
 DocumentInfo.displayName = 'DocumentInfo';
 
 // Action buttons component with memo
-const ActionButtons = memo(({
+const ActionButtons = memo(({  
   document,
   onView,
   onEdit,
@@ -207,60 +211,68 @@ const ActionButtons = memo(({
   onEdit: (document: Document) => void;
   onDownload: (document: Document) => void;
   onDelete: (documentId: string) => void;
-}) => (
-  <div className="flex gap-2 pt-2">
-    <Button
-      size="sm"
-      variant="outline"
-      onClick={() => onView(document)}
-      className="flex-1"
-    >
-      <Eye className="h-4 w-4 ml-1" />
-      عرض
-    </Button>
-    <Button
-      size="sm"
-      variant="outline"
-      onClick={() => onDownload(document)}
-      className="flex-1"
-    >
-      <Download className="h-4 w-4 ml-1" />
-      تحميل
-    </Button>
-    <Button
-      size="sm"
-      variant="outline"
-      onClick={() => onEdit(document)}
-      className="flex-1"
-    >
-      <Edit className="h-4 w-4 ml-1" />
-      تعديل
-    </Button>
-    <Button
-      size="sm"
-      variant="outline"
-      className="text-red-600 hover:text-red-700 flex-1"
-      onClick={() => onDelete(document.id ?? '')}
-    >
-      <Trash2 className="h-4 w-4 ml-1" />
-      حذف
-    </Button>
-  </div>
-));
+}) => {
+  const {t} = useTranslation();
+  return (
+    <div className="flex gap-2 pt-2">
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => onView(document)}
+        className="flex-1"
+      >
+        <Eye className="h-4 w-4 ml-1" />
+        {t('documents.card.view')}
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => onDownload(document)}
+        className="flex-1"
+      >
+        <Download className="h-4 w-4 ml-1" />
+        {t('documents.card.download')}
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => onEdit(document)}
+        className="flex-1"
+      >
+        <Edit className="h-4 w-4 ml-1" />
+        {t('documents.card.edit')}
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        className="text-red-600 hover:text-red-700 flex-1"
+        onClick={() => onDelete(document.id ?? '')}
+      >
+        <Trash2 className="h-4 w-4 ml-1" />
+        {t('documents.card.delete')}
+      </Button>
+    </div>
+  );
+});
 
 ActionButtons.displayName = 'ActionButtons';
 
 // Helper function to format file size
-const formatFileSize = (bytes: number): string => {
+const formatFileSize = (bytes: number, t: ReturnType<typeof useTranslation>['t']): string => {
 
   if (bytes === 0) {
 
-    return '0 Bytes';
+    return `0 ${t('documents.card.size.bytes')}`;
 
   }
 
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const sizes = [
+    t('documents.card.size.bytes'),
+    t('documents.card.size.kb'),
+    t('documents.card.size.mb'),
+    t('documents.card.size.gb')
+  ];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
@@ -268,7 +280,7 @@ const formatFileSize = (bytes: number): string => {
 };
 
 // Main optimized document card component
-const OptimizedDocumentCard = memo(({
+const OptimizedDocumentCard = memo(({  
   document,
   onView,
   onEdit,
@@ -277,8 +289,8 @@ const OptimizedDocumentCard = memo(({
   isSelected = false,
   onSelect
 }: OptimizedDocumentCardProps) => {
-
   const [isHovered, setIsHovered] = useState(false);
+  const {t} = useTranslation();
 
   // Memoized callbacks to prevent unnecessary re-renders
   const handleView = useCallback(() => {
@@ -324,10 +336,10 @@ const OptimizedDocumentCard = memo(({
     }
     if (document.fileUrl) {
 
-      return document.fileUrl.split('/').pop() ?? 'مستند';
+      return document.fileUrl.split('/').pop() ?? t('documents.card.document');
 
     }
-    return 'مستند';
+    return t('documents.card.document');
 
   };
 

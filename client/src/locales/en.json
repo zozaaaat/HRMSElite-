@@ -143,6 +143,12 @@
     "loadingStats": "Loading statistics...",
     "loadingCharts": "Loading charts...",
     "loadingTable": "Loading table...",
+    "loadingStates": {
+      "main": "Loading main dashboard...",
+      "ai": "Loading AI dashboard...",
+      "roleBased": "Loading role-based dashboard...",
+      "superAdmin": "Loading super admin dashboard..."
+    },
     "stats": {
       "totalEmployees": "Total Employees",
       "activeEmployees": "Active Employees",
@@ -349,7 +355,28 @@
     "status": "Status",
     "approved": "Approved",
     "pending": "Pending",
-    "rejected": "Rejected"
+    "rejected": "Rejected",
+    "card": {
+      "contract": "Contract",
+      "license": "License",
+      "id": "ID",
+      "certificate": "Certificate",
+      "document": "Document",
+      "employee": "Employee",
+      "company": "Company",
+      "unknown": "Unknown",
+      "uploadedAt": "Uploaded:",
+      "view": "View",
+      "download": "Download",
+      "edit": "Edit",
+      "delete": "Delete",
+      "size": {
+        "bytes": "Bytes",
+        "kb": "KB",
+        "mb": "MB",
+        "gb": "GB"
+      }
+    }
   },
   "companies": {
     "title": "Company Management",
