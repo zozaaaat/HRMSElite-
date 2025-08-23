@@ -10,6 +10,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import sharp from 'sharp';
 import { log } from './logger';
 import crypto from 'node:crypto';
+import { env } from './env';
 
 export interface StorageConfig {
   provider: 's3' | 'local' | 'hybrid';
@@ -328,7 +329,7 @@ export class SecureFileStorage {
         // For local storage, return a temporary signed URL
         const expiresAt = Date.now() + this.config.urlExpiration * 1000;
         const signature = crypto
-          .createHmac('sha256', process.env.FILE_SIGNATURE_SECRET || 'default-secret')
+          .createHmac('sha256', env.FILE_SIGNATURE_SECRET)
           .update(`${fileId}:${expiresAt}`)
           .digest('hex');
 

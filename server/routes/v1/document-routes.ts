@@ -8,6 +8,7 @@ import { antivirusScanner, type ScanResult } from '../../utils/antivirus';
 import { secureFileStorage, type StoredFile } from '../../utils/secureStorage';
 import { quarantineFile } from '../../utils/quarantine';
 import crypto from 'node:crypto';
+import { env } from '../../utils/env';
 import { generateETag, setETagHeader, matchesIfMatchHeader } from '../../utils/etag';
 import {
   createErrorResponse,
@@ -268,7 +269,7 @@ function _generateFileId(): string {
 function _verifySignedUrl(fileId: string, expires: string, signature: string): boolean {
   try {
     const expectedSignature = crypto
-      .createHmac('sha256', process.env.FILE_SIGNATURE_SECRET || 'default-secret')
+      .createHmac('sha256', env.FILE_SIGNATURE_SECRET)
       .update(`${fileId}:${expires}`)
       .digest('hex');
     

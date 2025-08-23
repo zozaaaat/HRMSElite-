@@ -11,7 +11,8 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters long'),
   SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 characters long'),
   DB_ENCRYPTION_KEY: z.string().min(32, 'DB_ENCRYPTION_KEY must be at least 32 characters long'),
-  METRICS_TOKEN: z.string().min(10, 'METRICS_TOKEN must be at least 10 characters long').default('metrics-token'),
+  FILE_SIGNATURE_SECRET: z.string().min(32, 'FILE_SIGNATURE_SECRET must be at least 32 characters long'),
+  METRICS_TOKEN: z.string().min(32, 'METRICS_TOKEN must be at least 32 characters long'),
   
   // Optional environment variables with defaults
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -97,6 +98,9 @@ export function validateSecrets(): void {
     'development-secret-key',
     'change-in-production',
     'default-secret',
+    '__REPLACE_WITH_STRONG_SECRET__',
+    'changeme',
+    'your-secret',
     'secret-key',
     'password',
     'admin',
@@ -105,41 +109,34 @@ export function validateSecrets(): void {
     'dev',
   ];
   
-  const jwtSecret = env.JWT_SECRET;
-  const sessionSecret = env.SESSION_SECRET;
-  
-  // Check for weak secrets
-  if (weakSecrets.some(weak => jwtSecret.includes(weak) || jwtSecret === weak)) {
-    throw new Error('JWT_SECRET contains weak or default values. Please use a strong, unique secret.');
-  }
-  
-  if (weakSecrets.some(weak => sessionSecret.includes(weak) || sessionSecret === weak)) {
-    throw new Error('SESSION_SECRET contains weak or default values. Please use a strong, unique secret.');
-  }
-  
-  // Check for entropy (basic check for randomness)
-  const jwtEntropy = calculateEntropy(jwtSecret);
-  const sessionEntropy = calculateEntropy(sessionSecret);
-  
-  if (jwtEntropy < 3.5) {
-    log.warn('JWT_SECRET has low entropy. Consider using a more random secret.', {
-      entropy: jwtEntropy,
-      minRecommended: 3.5
-    }, 'ENV');
-  }
-  
-  if (sessionEntropy < 3.5) {
-    log.warn('SESSION_SECRET has low entropy. Consider using a more random secret.', {
-      entropy: sessionEntropy,
-      minRecommended: 3.5
-    }, 'ENV');
-  }
-  
+  const secrets = [
+    { name: 'JWT_SECRET', value: env.JWT_SECRET },
+    { name: 'SESSION_SECRET', value: env.SESSION_SECRET },
+    { name: 'DB_ENCRYPTION_KEY', value: env.DB_ENCRYPTION_KEY },
+    { name: 'METRICS_TOKEN', value: env.METRICS_TOKEN },
+    { name: 'FILE_SIGNATURE_SECRET', value: env.FILE_SIGNATURE_SECRET },
+  ];
+
+  secrets.forEach(({ name, value }) => {
+    if (weakSecrets.some(weak => value.includes(weak) || value === weak)) {
+      throw new Error(`${name} contains weak or default values. Please use a strong, unique secret.`);
+    }
+
+    const entropy = calculateEntropy(value);
+    if (entropy < 3.5) {
+      log.warn(`${name} has low entropy. Consider using a more random secret.`, {
+        entropy,
+        minRecommended: 3.5
+      }, 'ENV');
+    }
+  });
+
   log.info('Secret validation completed successfully', {
-    jwtSecretLength: jwtSecret.length,
-    sessionSecretLength: sessionSecret.length,
-    jwtEntropy: jwtEntropy.toFixed(2),
-    sessionEntropy: sessionEntropy.toFixed(2)
+    jwtSecretLength: env.JWT_SECRET.length,
+    sessionSecretLength: env.SESSION_SECRET.length,
+    dbEncryptionKeyLength: env.DB_ENCRYPTION_KEY.length,
+    metricsTokenLength: env.METRICS_TOKEN.length,
+    fileSignatureSecretLength: env.FILE_SIGNATURE_SECRET.length
   }, 'ENV');
 }
 
