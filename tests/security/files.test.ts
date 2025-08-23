@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import type { Request, Response } from 'express';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
@@ -9,7 +8,7 @@ vi.mock('../../server/utils/quarantine', () => ({ quarantineFile: vi.fn() }));
 vi.mock('../../server/utils/logger', () => ({ log: { error: vi.fn(), info: vi.fn() } }));
 vi.mock('../../server/utils/env', () => ({ default: { FILE_SIGNATURE_SECRET: 'test-secret' } }));
 
-import { createScanFile, verifySignedUrl } from '../../security/files';
+import { createScanFile } from '../../security/files';
 import { antivirusScanner } from '../../server/utils/antivirus';
 
 const createResponse = () => {
@@ -21,26 +20,6 @@ const createResponse = () => {
 
 afterEach(() => {
   vi.restoreAllMocks();
-});
-
-describe('verifySignedUrl', () => {
-  it('validates correct signature', () => {
-    process.env.FILE_SIGNATURE_SECRET = 'test-secret';
-    const fileId = 'file-1';
-    const expires = Date.now().toString();
-    const signature = crypto
-      .createHmac('sha256', process.env.FILE_SIGNATURE_SECRET!)
-      .update(`${fileId}:${expires}`)
-      .digest('hex');
-    expect(verifySignedUrl(fileId, expires, signature)).toBe(true);
-  });
-
-  it('rejects invalid signature', () => {
-    process.env.FILE_SIGNATURE_SECRET = 'test-secret';
-    const fileId = 'file-1';
-    const expires = Date.now().toString();
-    expect(verifySignedUrl(fileId, expires, 'bad-signature')).toBe(false);
-  });
 });
 
 describe('scanFile middleware', () => {

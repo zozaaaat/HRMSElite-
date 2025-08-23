@@ -1,0 +1,142 @@
+security/files.ts:18 - createScanFile
+shared/schema.ts:13 - sessions
+shared/schema.ts:27 - users (used in module)
+shared/schema.ts:58 - refreshTokens (used in module)
+shared/schema.ts:76 - userRoleEnum
+shared/schema.ts:81 - employeeStatusEnum
+shared/schema.ts:86 - employeeTypeEnum
+shared/schema.ts:87 - licenseStatusEnum
+shared/schema.ts:88 - licenseTypeEnum
+shared/schema.ts:99 - leaveStatusEnum (used in module)
+shared/schema.ts:100 - leaveTypeEnum (used in module)
+shared/schema.ts:101 - deductionTypeEnum (used in module)
+shared/schema.ts:102 - deductionStatusEnum (used in module)
+shared/schema.ts:103 - documentTypeEnum
+shared/schema.ts:120 - companies (used in module)
+shared/schema.ts:164 - companyUsers (used in module)
+shared/schema.ts:180 - employees (used in module)
+shared/schema.ts:237 - licenses (used in module)
+shared/schema.ts:265 - employeeLeaves (used in module)
+shared/schema.ts:294 - employeeDeductions (used in module)
+shared/schema.ts:318 - employeeViolations (used in module)
+shared/schema.ts:340 - documents (used in module)
+shared/schema.ts:368 - notifications (used in module)
+shared/schema.ts:389 - usersRelations
+shared/schema.ts:398 - companiesRelations
+shared/schema.ts:405 - employeesRelations
+shared/schema.ts:420 - licensesRelations
+shared/schema.ts:430 - insertUserSchema (used in module)
+shared/schema.ts:431 - insertCompanySchema (used in module)
+shared/schema.ts:432 - insertEmployeeSchema (used in module)
+shared/schema.ts:433 - insertLicenseSchema (used in module)
+shared/schema.ts:434 - insertEmployeeLeaveSchema (used in module)
+shared/schema.ts:435 - insertEmployeeDeductionSchema (used in module)
+shared/schema.ts:436 - insertEmployeeViolationSchema (used in module)
+shared/schema.ts:437 - insertDocumentSchema (used in module)
+shared/schema.ts:438 - insertNotificationSchema (used in module)
+shared/schema.ts:439 - insertRefreshTokenSchema (used in module)
+shared/schema.ts:441 - upsertUserSchema (used in module)
+shared/schema.ts:462 - registerUserSchema (used in module)
+shared/schema.ts:472 - loginSchema (used in module)
+shared/schema.ts:479 - changePasswordSchema (used in module)
+shared/schema.ts:485 - forgotPasswordSchema (used in module)
+shared/schema.ts:490 - resetPasswordSchema (used in module)
+shared/schema.ts:496 - verifyEmailSchema (used in module)
+shared/schema.ts:501 - UpsertUser
+shared/schema.ts:502 - InsertUser
+shared/schema.ts:503 - RegisterUser
+shared/schema.ts:504 - LoginUser
+shared/schema.ts:505 - ChangePassword
+shared/schema.ts:506 - ForgotPassword
+shared/schema.ts:507 - ResetPassword
+shared/schema.ts:508 - VerifyEmail
+shared/schema.ts:509 - DbUser (used in module)
+shared/schema.ts:510 - User
+shared/schema.ts:511 - Company (used in module)
+shared/schema.ts:512 - InsertCompany
+shared/schema.ts:513 - Employee (used in module)
+shared/schema.ts:514 - InsertEmployee
+shared/schema.ts:515 - License (used in module)
+shared/schema.ts:516 - InsertLicense
+shared/schema.ts:517 - EmployeeLeave (used in module)
+shared/schema.ts:518 - InsertEmployeeLeave
+shared/schema.ts:519 - EmployeeDeduction
+shared/schema.ts:520 - InsertEmployeeDeduction
+shared/schema.ts:521 - EmployeeViolation
+shared/schema.ts:522 - InsertEmployeeViolation
+shared/schema.ts:523 - Document (used in module)
+shared/schema.ts:524 - InsertDocument
+shared/schema.ts:525 - Notification
+shared/schema.ts:526 - InsertNotification
+shared/schema.ts:527 - RefreshToken
+shared/schema.ts:528 - InsertRefreshToken
+shared/schema.ts:529 - CompanyUser
+shared/schema.ts:532 - CompanyWithStats
+shared/schema.ts:539 - EmployeeWithDetails
+shared/schema.ts:547 - LicenseWithDetails
+server/utils/antivirus.ts:15 - AntivirusConfig (used in module)
+server/utils/antivirus.ts:32 - AntivirusScanner (used in module)
+server/utils/antivirus.ts:314 - defaultAntivirusConfig (used in module)
+server/utils/dataMasking.ts:15 - MaskingConfig (used in module)
+server/utils/dataMasking.ts:23 - MaskingRule (used in module)
+server/utils/dataMasking.ts:40 - MaskingReport (used in module)
+server/utils/dataMasking.ts:50 - DataMaskingManager (used in module)
+server/utils/dataMasking.ts:494 - dataMaskingManager (used in module)
+server/utils/dbSecurity.ts:14 - DatabaseSecurityConfig (used in module)
+server/utils/dbSecurity.ts:45 - DatabaseStatus (used in module)
+server/utils/dbSecurity.ts:56 - SecureDatabaseManager (used in module)
+server/utils/dbSecurity.ts:355 - defaultSecurityConfig (used in module)
+server/utils/env.ts:57 - validateEnv (used in module)
+server/utils/env.ts:97 - validateSecrets (used in module)
+server/utils/env.ts:177 - generateSecureSecret
+server/utils/env.ts:51 - EnvConfig (used in module)
+server/utils/logger.ts:40 - LogLevel (used in module)
+server/utils/logger.ts:42 - ServerLogData (used in module)
+server/utils/logger.ts:265 - default
+server/utils/pii.ts:4 - PIIType (used in module)
+shared/types/common.ts:4 - ApiResponse (used in module)
+shared/types/common.ts:13 - ApiErrorResponse
+shared/types/common.ts:23 - ApiSuccessResponse
+shared/types/common.ts:32 - PaginatedResponse
+shared/types/common.ts:48 - AuthResponse (used in module)
+shared/types/common.ts:61 - LoginResponse
+shared/types/common.ts:62 - RegisterResponse
+shared/types/common.ts:64 - RefreshTokenResponse
+shared/types/common.ts:76 - LogoutResponse
+shared/types/common.ts:84 - ApiRequest
+shared/types/common.ts:90 - LoginRequest
+shared/types/common.ts:96 - RegisterRequest
+shared/types/common.ts:106 - RefreshTokenRequest
+shared/types/common.ts:115 - ErrorData (used in module)
+shared/types/common.ts:122 - UserData (used in module)
+shared/types/common.ts:137 - EmployeeData (used in module)
+shared/types/common.ts:161 - CompanyData (used in module)
+shared/types/common.ts:177 - DocumentData (used in module)
+shared/types/common.ts:192 - LicenseData (used in module)
+shared/types/common.ts:208 - AttendanceData (used in module)
+shared/types/common.ts:225 - PayrollData (used in module)
+shared/types/common.ts:240 - SyncData
+shared/types/common.ts:251 - PendingDataItem
+shared/types/common.ts:263 - TestUser
+shared/types/common.ts:271 - TestResult
+shared/types/common.ts:279 - PerformanceMetrics
+shared/types/common.ts:289 - ValidationResult (used in module)
+shared/types/common.ts:297 - SecurityEvent
+shared/types/common.ts:310 - DatabaseOperation
+shared/types/common.ts:320 - AuthEvent
+shared/types/common.ts:330 - MiddlewareEvent
+shared/types/common.ts:340 - ApiMethod (used in module)
+shared/types/common.ts:342 - UserRole (used in module)
+shared/types/common.ts:343 - HttpStatus
+shared/types/common.ts:346 - DeepPartial (used in module)
+shared/types/common.ts:350 - Optional
+shared/types/common.ts:352 - RequiredFields
+shared/types/common.ts:354 - Nullable
+shared/types/common.ts:355 - Undefinable
+shared/types/common.ts:358 - ApiHandler
+shared/types/common.ts:359 - ErrorHandler
+shared/types/common.ts:360 - LogHandler
+shared/types/common.ts:361 - ValidationHandler
+shared/types/common.ts:362 - TransformHandler
+shared/types/common.ts:365 - ApiEndpoint
+shared/types/common.ts:374 - ApiEndpoints

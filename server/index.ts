@@ -34,14 +34,13 @@ import { getLocale, t } from './utils/errorMessages';
 // Import routes
 import authRoutes from './routes/auth-routes';
 import { registerEmployeeRoutes } from './routes/employee-routes';
-import { registerDocumentRoutes } from './routes/document-routes';
 import aiRoutes from './routes/ai';
 import qualityRoutes from './routes/quality-routes';
 
 // Import versioned routes
 import v1AuthRoutes from './routes/v1/auth-routes';
 import { registerEmployeeRoutes as registerV1EmployeeRoutes } from './routes/v1/employee-routes';
-import { registerDocumentRoutes as registerV1DocumentRoutes } from './routes/v1/document-routes';
+import { registerDocumentRoutes } from './routes/v1/document-routes';
 
 export const app = express();
 const PORT = env.PORT;
@@ -140,14 +139,13 @@ app.get('/api-docs', (req, res) => {
 // API routes with authentication
 app.use('/api/auth', isAuthenticated, authRoutes);
 registerEmployeeRoutes(app);
-registerDocumentRoutes(app);
 app.use('/api/ai', isAuthenticated, aiRoutes);
 app.use('/api/quality', isAuthenticated, qualityRoutes);
 
 // Versioned API routes
 app.use('/api/v1/auth', isAuthenticated, v1AuthRoutes);
 registerV1EmployeeRoutes(app);
-registerV1DocumentRoutes(app);
+registerDocumentRoutes(app);
 
 // Optional auth routes (for public endpoints)
 app.use('/api/public', optionalAuth);

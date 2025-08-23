@@ -1,6 +1,4 @@
-import crypto from 'crypto';
 import type { Request, Response, NextFunction } from 'express';
-import env from '../server/utils/env';
 import { antivirusScanner, type ScanResult } from '../server/utils/antivirus';
 import { quarantineFile } from '../server/utils/quarantine';
 import { log } from '../server/utils/logger';
@@ -117,25 +115,5 @@ export function createScanFile(options: ScanFileOptions = {}) {
       });
     }
   };
-}
-
-export function verifySignedUrl(
-  fileId: string,
-  expires: string,
-  signature: string
-): boolean {
-  try {
-    const expectedSignature = crypto
-      .createHmac('sha256', env.FILE_SIGNATURE_SECRET)
-      .update(`${fileId}:${expires}`)
-      .digest('hex');
-
-    return crypto.timingSafeEqual(
-      Buffer.from(signature, 'hex'),
-      Buffer.from(expectedSignature, 'hex')
-    );
-  } catch {
-    return false;
-  }
 }
 

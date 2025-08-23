@@ -196,7 +196,6 @@ export const pagePermissions: Record<string, Permission[]> = {
   'leaves': ['leave_requests:view'],
   'signatures': ['documents:view'],
   'signature-test': ['documents:view'],
-  'notification-test': ['settings:view'],
   'permission-test': ['settings:view'],
   'role-based-dashboard': ['dashboard:view'],
   'super-admin-dashboard': ['dashboard:view'],
