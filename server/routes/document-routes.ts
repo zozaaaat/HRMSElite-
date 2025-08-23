@@ -9,6 +9,7 @@ import { antivirusScanner, type ScanResult } from '../utils/antivirus';
 import { secureFileStorage, type StoredFile } from '../utils/secureStorage';
 import { quarantineFile } from '../utils/quarantine';
 import crypto from 'node:crypto';
+import { env } from '../utils/env';
 
 // Extend Request interface to include file property
 declare global {
@@ -297,7 +298,7 @@ const scanFile = async (req: Request, res: Response, next: NextFunction) => {
 function verifySignedUrl(fileId: string, expires: string, signature: string): boolean {
   try {
     const expectedSignature = crypto
-      .createHmac('sha256', process.env.FILE_SIGNATURE_SECRET || 'default-secret')
+      .createHmac('sha256', env.FILE_SIGNATURE_SECRET)
       .update(`${fileId}:${expires}`)
       .digest('hex');
     
@@ -314,7 +315,7 @@ function verifySignedUrl(fileId: string, expires: string, signature: string): bo
 function verifySignedUrl(fileId: string, expires: string, signature: string): boolean {
   try {
     const expectedSignature = crypto
-      .createHmac('sha256', process.env.FILE_SIGNATURE_SECRET || 'default-secret')
+      .createHmac('sha256', env.FILE_SIGNATURE_SECRET)
       .update(`${fileId}:${expires}`)
       .digest('hex');
     

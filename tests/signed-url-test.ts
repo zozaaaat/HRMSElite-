@@ -5,6 +5,7 @@
  * @version 1.0.0
  */
 
+import './test-env.js';
 import { secureFileStorage } from '../server/utils/secureStorage';
 import crypto from 'node:crypto';
 
@@ -59,7 +60,7 @@ function testSignatureVerification() {
   
   const fileId = 'test-file-456';
   const expires = Date.now() + 300000; // 5 minutes from now
-  const secret = process.env.FILE_SIGNATURE_SECRET || 'default-secret';
+  const secret = process.env.FILE_SIGNATURE_SECRET!;
   
   // Generate signature
   const expectedSignature = crypto
@@ -84,7 +85,7 @@ function testExpiredUrlDetection() {
   
   const fileId = 'test-file-789';
   const expires = Date.now() - 1000; // 1 second ago (expired)
-  const secret = process.env.FILE_SIGNATURE_SECRET || 'default-secret';
+  const secret = process.env.FILE_SIGNATURE_SECRET!;
   
   // Generate signature for expired URL
   const signature = crypto
@@ -107,7 +108,7 @@ function testInvalidSignatureRejection() {
   
   const fileId = 'test-file-abc';
   const expires = Date.now() + 300000; // 5 minutes from now
-  const secret = process.env.FILE_SIGNATURE_SECRET || 'default-secret';
+  const secret = process.env.FILE_SIGNATURE_SECRET!;
   
   // Generate correct signature
   const correctSignature = crypto
