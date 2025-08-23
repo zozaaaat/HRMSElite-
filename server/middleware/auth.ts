@@ -481,40 +481,50 @@ export const optionalAuth = async (req: Request, res: Response, next: NextFuncti
         'updatedAt': sessionUser.updatedAt ? new Date(sessionUser.updatedAt) : new Date()
       };
 
-    } else if (
-      env.NODE_ENV === 'development' && 
-      env.ALLOW_DEV_AUTH === 'true' && 
-      req.headers['x-user-role'] && 
-      req.headers['x-user-id']
-    ) {
+    } else {
+      const token = getTokenFromRequest(req);
 
-      const userRole = req.headers['x-user-role'] as string;
-      const userId = req.headers['x-user-id'] as string;
-      const userEmail = req.headers['x-user-email'] as string;
+      if (token) {
+        const decoded = verifyJWTToken(token);
 
-      log.warn('Development authentication bypass used', {
-        userId,
-        userRole,
-        userEmail,
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
-        timestamp: new Date().toISOString()
-      }, 'AUTH');
+        if (decoded) {
+          const userId = String(decoded.id ?? '');
 
-      req.user = {
-        'id': userId,
-        'sub': userId,
-        'role': userRole,
-        'email': userEmail ?? "user@company.com",
-        'firstName': 'محمد',
-        'lastName': 'أحمد',
-        'permissions': [],
-        'isActive': true,
-        'claims': null,
-        'createdAt': new Date(),
-        'updatedAt': new Date()
-      };
+          try {
+            const user = await storage.getUser(userId);
+            if (user?.isActive) {
+              const permissions = await storage.getUserPermissions(userId);
+              let parsedPermissions: string[] = [];
 
+              if (typeof permissions === 'string') {
+                try {
+                  parsedPermissions = JSON.parse(permissions);
+                } catch {
+                  parsedPermissions = [];
+                }
+              } else if (Array.isArray(permissions)) {
+                parsedPermissions = permissions;
+              }
+
+              req.user = {
+                'id': user.id,
+                'sub': user.id,
+                'role': user.role,
+                'email': user.email,
+                'firstName': user.firstName,
+                'lastName': user.lastName,
+                'permissions': parsedPermissions,
+                'isActive': user.isActive,
+                'claims': user.claims ? JSON.parse(user.claims) : null,
+                'createdAt': user.createdAt,
+                'updatedAt': user.updatedAt
+              };
+            }
+          } catch {
+            // Ignore token errors in optional auth
+          }
+        }
+      }
     }
 
     next();
