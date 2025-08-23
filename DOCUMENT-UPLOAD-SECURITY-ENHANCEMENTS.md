@@ -110,10 +110,11 @@ const validateFile = async (req: Request, res: Response, next: NextFunction) => 
     const file = req.file;
     
     // 1. Size validation
-    if (file.size > MAX_FILE_SIZE) {
+    const maxFileSize = Number(process.env.UPLOAD_MAX_BYTES) || 5 * 1024 * 1024;
+    if (file.size > maxFileSize) {
       return res.status(400).json({
         error: 'File too large',
-        message: `File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`
+        message: `File size must be less than ${maxFileSize / (1024 * 1024)}MB`
       });
     }
 
@@ -204,9 +205,10 @@ function generateFileId(): string {
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {
+      const maxFileSize = Number(process.env.UPLOAD_MAX_BYTES) || 5 * 1024 * 1024;
       return res.status(400).json({
         error: 'File too large',
-        message: `File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`
+        message: `File size must be less than ${maxFileSize / (1024 * 1024)}MB`
       });
     }
     if (error.code === 'LIMIT_FILE_COUNT') {

@@ -431,7 +431,7 @@ export const defaultStorageConfig: StorageConfig = {
   s3SecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   localPath: process.env.LOCAL_FILE_PATH || './uploads',
   urlExpiration: parseInt(process.env.FILE_URL_EXPIRATION || '600'), // 10 minutes
-  maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '10485760'), // 10MB
+  maxFileSize: parseInt(process.env.UPLOAD_MAX_BYTES || process.env.MAX_FILE_SIZE || '5242880'), // 5MB default
   allowedMimeTypes: [
     'application/pdf',
     'image/png',

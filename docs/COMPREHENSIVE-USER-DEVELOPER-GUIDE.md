@@ -186,7 +186,7 @@ CSRF_SECRET=your-csrf-secret
 OPENAI_API_KEY=your-openai-key
 
 # File Upload
-MAX_FILE_SIZE=10485760
+UPLOAD_MAX_BYTES=5242880
 UPLOAD_PATH=./uploads
 ```
 

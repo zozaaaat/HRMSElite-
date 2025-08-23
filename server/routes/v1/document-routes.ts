@@ -27,7 +27,11 @@ declare global {
 }
 
 // File upload configuration with security measures
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const DEFAULT_MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+function getMaxFileSize(): number {
+  const fromEnv = Number(process.env.UPLOAD_MAX_BYTES);
+  return Number.isFinite(fromEnv) && fromEnv > 0 ? fromEnv : DEFAULT_MAX_FILE_SIZE;
+}
 const ALLOWED_MIME_TYPES = [
   'application/pdf',
   'image/png',
@@ -60,7 +64,7 @@ const FILE_SIGNATURES = {
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: MAX_FILE_SIZE,
+    fileSize: getMaxFileSize(),
     files: 1, // Only allow one file at a time
     fieldSize: 1024 * 1024 // 1MB for text fields
   },
@@ -94,16 +98,17 @@ const validateFile = async (req: Request, res: Response, next: NextFunction) => 
     }
 
     const file = req.file;
-    
+
     // Additional size check
-    if (file.size > MAX_FILE_SIZE) {
+    const maxFileSize = getMaxFileSize();
+    if (file.size > maxFileSize) {
       const errorResponse = createErrorResponse(
         'VALIDATION_ERROR',
         'File too large',
-        { 
-          field: 'file', 
-          message: `File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
-          maxSize: MAX_FILE_SIZE,
+        {
+          field: 'file',
+          message: `File size must be less than ${maxFileSize / (1024 * 1024)}MB`,
+          maxSize: maxFileSize,
           actualSize: file.size
         },
         400
@@ -700,7 +705,7 @@ export function registerDocumentRoutes(app: Express) {
           antivirus: antivirusStatus,
           storage: storageStatus,
           uploadLimits: {
-            maxFileSize: MAX_FILE_SIZE,
+            maxFileSize: getMaxFileSize(),
             allowedMimeTypes: ALLOWED_MIME_TYPES,
             allowedExtensions: ALLOWED_EXTENSIONS
           },
@@ -736,10 +741,10 @@ export function registerDocumentRoutes(app: Express) {
         const errorResponse = createErrorResponse(
           'VALIDATION_ERROR',
           'File too large',
-          { 
+          {
             field: 'file',
-            message: `File size must be less than ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
-            maxSize: MAX_FILE_SIZE
+            message: `File size must be less than ${getMaxFileSize() / (1024 * 1024)}MB`,
+            maxSize: getMaxFileSize()
           },
           400
         );
