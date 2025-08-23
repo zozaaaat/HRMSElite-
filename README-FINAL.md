@@ -209,7 +209,7 @@ OPENAI_API_KEY=your-openai-key
 ANTHROPIC_API_KEY=your-anthropic-key
 
 # File Upload
-MAX_FILE_SIZE=10485760
+UPLOAD_MAX_BYTES=5242880
 UPLOAD_PATH=./uploads
 ```
 

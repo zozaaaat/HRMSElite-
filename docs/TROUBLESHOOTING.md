@@ -17,7 +17,7 @@ Database
 - Locked DB: close extra processes writing to the DB; retry; VACUUM off-hours.
 
 File uploads
-- 413 or size errors: increase `MAX_FILE_SIZE` and verify reverse proxy `client_max_body_size` (Nginx) or `request_body` (Caddy) if needed.
+- 413 or size errors: increase `UPLOAD_MAX_BYTES` and verify reverse proxy `client_max_body_size` (Nginx) or `request_body` (Caddy) if needed.
 - S3 errors: set `FILE_STORAGE_PROVIDER=s3`, ensure AWS creds and bucket/region; for local use `local` and ensure `LOCAL_FILE_PATH` exists and writable.
 
 Logging/metrics

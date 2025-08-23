@@ -17,6 +17,9 @@ const envSchema = z.object({
   // Optional environment variables with defaults
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.string().default('3001'),
+
+  // File upload configuration
+  UPLOAD_MAX_BYTES: z.string().default('5242880'),
   
   // JWT configuration
   JWT_EXPIRES_IN: z.string().default('24h'),
@@ -63,6 +66,7 @@ export function validateEnv(): EnvConfig {
       databaseUrl: env.DATABASE_URL ? 'configured' : 'using default',
       corsOrigins: env.CORS_ORIGINS ? 'configured' : 'not set',
       originlessApiKeys: env.CORS_ORIGINLESS_API_KEYS ? 'configured' : 'not set',
+      uploadMaxBytes: env.UPLOAD_MAX_BYTES,
     }, 'ENV');
     
     return env;

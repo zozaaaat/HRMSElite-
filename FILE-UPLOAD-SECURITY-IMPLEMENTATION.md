@@ -176,7 +176,7 @@ FILE_URL_EXPIRATION=600
 FILE_SIGNATURE_SECRET=your-file-signature-secret
 
 # File Upload Limits
-MAX_FILE_SIZE=5242880
+UPLOAD_MAX_BYTES=5242880
 ```
 
 ## Testing
