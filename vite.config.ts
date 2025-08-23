@@ -62,7 +62,12 @@ export default defineConfig({
         'globPatterns': ['**/*.{js,css,html,ico,png,svg,woff2}'],
         'runtimeCaching': [
           {
-            'urlPattern': /^https:\/\/api\./,
+            'urlPattern': ({ url, request }) => {
+              const isApi = url.hostname.startsWith('api.');
+              const isAuth = url.pathname.startsWith('/auth') || url.pathname.startsWith('/session');
+              const hasCredentials = request.headers.has('Authorization') || request.headers.has('Cookie');
+              return isApi && !isAuth && !hasCredentials;
+            },
             'handler': 'NetworkFirst',
             'options': {
               'cacheName': 'api-cache',

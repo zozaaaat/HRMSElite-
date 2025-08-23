@@ -23,21 +23,38 @@ self.addEventListener('install', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
+  const hasCredentials = request.headers.has('Authorization') || request.headers.has('Cookie');
 
-  // Skip caching for auth endpoints
-  if (url.pathname.startsWith('/api/auth/') || url.pathname.startsWith('/auth/')) {
-    // For auth endpoints, always fetch from network and don't cache
+  // Skip caching for auth/session endpoints or credentialed requests
+  if (
+    url.pathname.startsWith('/api/auth/') ||
+    url.pathname.startsWith('/auth/') ||
+    url.pathname.startsWith('/api/session/') ||
+    url.pathname.startsWith('/session/') ||
+    hasCredentials
+  ) {
     event.respondWith(fetch(request));
     return;
   }
 
-  // For other requests, use cache-first strategy
   event.respondWith(
-    caches.match(request)
-      .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(request);
-      })
+    (async () => {
+      const cached = await caches.match(request);
+      if (cached) {
+        return cached;
+      }
+
+      const networkResponse = await fetch(request);
+      const isJson = networkResponse.headers.get('Content-Type')?.includes('application/json');
+
+      // Only cache non-authenticated JSON responses
+      if (!(isJson && hasCredentials)) {
+        const cache = await caches.open(CACHE_NAME);
+        cache.put(request, networkResponse.clone());
+      }
+
+      return networkResponse;
+    })()
   );
 });
 
