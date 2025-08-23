@@ -36,6 +36,7 @@ import authRoutes from './routes/auth-routes';
 import { registerEmployeeRoutes } from './routes/employee-routes';
 import aiRoutes from './routes/ai';
 import qualityRoutes from './routes/quality-routes';
+import { cacheControlGuard } from './middleware/cacheControl';
 
 // Import versioned routes
 import v1AuthRoutes from './routes/v1/auth-routes';
@@ -98,6 +99,8 @@ app.use(enhancedRateLimiters.general);
 
 // Request validation middleware
 app.use(requestValidation);
+// Prevent caching of sensitive responses
+app.use(cacheControlGuard);
 
 // Health check endpoint
 app.get('/health', healthCheckHandler);
