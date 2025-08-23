@@ -7,6 +7,7 @@ import {
   generateJWTToken,
   generateRefreshToken,
   verifyRefreshToken,
+  hashToken,
   setAuthCookies,
   clearAuthCookies,
   getRefreshTokenFromRequest
@@ -33,6 +34,7 @@ import {
 } from '@shared/schema';
 import { enhancedRateLimiters } from '../middleware/security';
 import { metricsUtils } from '../middleware/metrics';
+import crypto from 'node:crypto';
 
 // Define session interface
 interface SessionUser {
@@ -225,6 +227,18 @@ router.post('/register', async (req:  Request, res:  Response) => {
     // Set authentication cookies instead of returning tokens in the response body
     setAuthCookies(res, accessToken, refreshToken);
 
+    const decodedRefresh = verifyRefreshToken(refreshToken);
+    if (decodedRefresh) {
+      await storage.createRefreshToken({
+        userId: newUser.id,
+        tokenHash: hashToken(refreshToken),
+        familyId: crypto.randomUUID(),
+        expiresAt: new Date((decodedRefresh.exp ?? 0) * 1000),
+        userAgent: req.get('User-Agent') ?? '',
+        ip: req.ip
+      });
+    }
+
     res.status(200).json({
       'success': true,
       'message': 'تم التسجيل بنجاح. يرجى التحقق من بريدك الإلكتروني',
@@ -328,6 +342,18 @@ router.post('/login', enhancedRateLimiters.login, async (req:  Request, res:  Re
     // Set authentication cookies
     setAuthCookies(res, accessToken, refreshToken);
 
+    const decodedRefresh = verifyRefreshToken(refreshToken);
+    if (decodedRefresh) {
+      await storage.createRefreshToken({
+        userId: user.id,
+        tokenHash: hashToken(refreshToken),
+        familyId: crypto.randomUUID(),
+        expiresAt: new Date((decodedRefresh.exp ?? 0) * 1000),
+        userAgent: req.get('User-Agent') ?? '',
+        ip: req.ip
+      });
+    }
+
     // Store user session with proper typing (for backward compatibility)
     const sessionUser: SessionUser = {
       id: user.id,
@@ -379,7 +405,7 @@ router.post('/login', enhancedRateLimiters.login, async (req:  Request, res:  Re
 router.post('/refresh', async (req: Request, res: Response) => {
   try {
     const refreshToken = getRefreshTokenFromRequest(req);
-    
+
     if (!refreshToken) {
       return res.status(401).json({
         'message': 'Refresh token not found',
@@ -388,8 +414,10 @@ router.post('/refresh', async (req: Request, res: Response) => {
       });
     }
 
-    const decoded = verifyRefreshToken(refreshToken);
-    if (!decoded) {
+    const tokenHash = hashToken(refreshToken);
+    const storedToken = await storage.findRefreshToken(tokenHash);
+    if (!storedToken) {
+      clearAuthCookies(res);
       return res.status(401).json({
         'message': 'Invalid or expired refresh token',
         'error': 'رمز التحديث غير صالح أو منتهي الصلاحية',
@@ -397,9 +425,33 @@ router.post('/refresh', async (req: Request, res: Response) => {
       });
     }
 
-    const userId = String(decoded?.id ?? '');
-    const user = await storage.getUser(userId);
-    
+    if (storedToken.revokedAt) {
+      await storage.revokeRefreshTokenFamily(storedToken.familyId);
+      log.security('Refresh token replay detected', req.ip, {
+        userId: storedToken.userId,
+        tokenId: storedToken.id,
+        familyId: storedToken.familyId
+      });
+      clearAuthCookies(res);
+      return res.status(401).json({
+        'message': 'Refresh token revoked',
+        'code': 'REFRESH_TOKEN_REVOKED'
+      });
+    }
+
+    const decoded = verifyRefreshToken(refreshToken);
+    if (!decoded || storedToken.expiresAt <= new Date()) {
+      await storage.revokeRefreshToken(storedToken.id);
+      clearAuthCookies(res);
+      return res.status(401).json({
+        'message': 'Invalid or expired refresh token',
+        'error': 'رمز التحديث غير صالح أو منتهي الصلاحية',
+        'code': 'INVALID_REFRESH_TOKEN'
+      });
+    }
+
+    const user = await storage.getUser(storedToken.userId);
+
     if (!user?.isActive) {
       return res.status(401).json({
         'message': 'User not found or inactive',
@@ -408,7 +460,6 @@ router.post('/refresh', async (req: Request, res: Response) => {
       });
     }
 
-    // Generate new tokens
     const tokenPayload = {
       'id': user.id,
       'email': user.email,
@@ -420,8 +471,19 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
     const newAccessToken = generateJWTToken(tokenPayload);
     const newRefreshToken = generateRefreshToken(tokenPayload);
+    const newDecoded = verifyRefreshToken(newRefreshToken);
 
-    // Set new authentication cookies
+    const newTokenRecord = await storage.createRefreshToken({
+      userId: user.id,
+      tokenHash: hashToken(newRefreshToken),
+      familyId: storedToken.familyId,
+      expiresAt: new Date((newDecoded?.exp ?? 0) * 1000),
+      userAgent: req.get('User-Agent') ?? '',
+      ip: req.ip
+    });
+
+    await storage.revokeRefreshToken(storedToken.id, newTokenRecord.id);
+
     setAuthCookies(res, newAccessToken, newRefreshToken);
 
     res.json({
@@ -442,14 +504,46 @@ router.post('/refresh', async (req: Request, res: Response) => {
  * Logout Endpoint
  * POST /api/auth/logout
  */
-router.post('/logout', (req: Request, res: Response) => {
-  // Clear authentication cookies
-  clearAuthCookies(res);
+router.post('/logout', async (req: Request, res: Response) => {
+  try {
+    const refreshToken = getRefreshTokenFromRequest(req);
+    if (refreshToken) {
+      const stored = await storage.findRefreshToken(hashToken(refreshToken));
+      if (stored) {
+        await storage.revokeRefreshToken(stored.id);
+      }
+    }
+  } catch (error) {
+    log.error('Logout error:', error as Error, 'AUTH');
+  } finally {
+    clearAuthCookies(res);
+    req.session?.destroy(() => {
+      res.json({'success': true, 'message': 'تم تسجيل الخروج بنجاح'});
+    });
+  }
+});
 
-  // Clear session (for backward compatibility)
-  req.session?.destroy(() => {
-    res.json({'success': true, 'message': 'تم تسجيل الخروج بنجاح'});
-  });
+/**
+ * Logout All Endpoint
+ * POST /api/auth/logout-all
+ */
+router.post('/logout-all', async (req: Request, res: Response) => {
+  try {
+    const refreshToken = getRefreshTokenFromRequest(req);
+    if (refreshToken) {
+      const stored = await storage.findRefreshToken(hashToken(refreshToken));
+      if (stored) {
+        await storage.revokeRefreshTokenFamily(stored.familyId);
+      }
+    }
+  } catch (error) {
+    log.error('Logout all error:', error as Error, 'AUTH');
+  } finally {
+    clearAuthCookies(res);
+    req.session?.destroy(() => {
+      res.json({'success': true, 'message': 'تم تسجيل الخروج من جميع الجلسات'});
+    });
+  }
 });
 
 /**

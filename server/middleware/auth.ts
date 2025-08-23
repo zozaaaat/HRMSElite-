@@ -3,6 +3,7 @@ import {storage} from '../models/storage';
 import {log} from '../utils/logger';
 import {env} from '../utils/env';
 import * as jwt from 'jsonwebtoken';
+import crypto from 'node:crypto';
 
 // Define a local User interface that matches what we're actually using
 interface AuthUser {
@@ -143,6 +144,15 @@ export const verifyRefreshToken = (token: string): jwt.JwtPayload | null => {
 
   }
 
+};
+
+/**
+ * Hash token using HMAC
+ * @param token - Raw token
+ * @returns HMAC hash
+ */
+export const hashToken = (token: string): string => {
+  return crypto.createHmac('sha256', JWT_SECRET).update(token).digest('hex');
 };
 
 /**
