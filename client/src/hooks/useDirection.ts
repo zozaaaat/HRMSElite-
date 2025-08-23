@@ -9,8 +9,9 @@ export function useDirection(): void {
   const { i18n } = useTranslation();
 
   useEffect(() => {
-    const dir = i18n.dir();
-    document.documentElement.dir = dir;
-    document.documentElement.lang = i18n.language;
+    const dir = i18n.dir(i18n.language);
+    const html = document.documentElement;
+    html.setAttribute('dir', dir === 'rtl' ? 'rtl' : 'ltr');
+    html.setAttribute('lang', i18n.language);
   }, [i18n.language, i18n]);
 }
