@@ -15,12 +15,8 @@ export const LanguageSwitcher: React.FC = () => {
   const toggleLanguage = () => {
     const newLang = i18n.language === 'ar' ? 'en' : 'ar';
     i18n.changeLanguage(newLang);
-    
-    // Update document direction for RTL support
-    document.documentElement.dir = newLang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.dir = i18n.dir(newLang);
     document.documentElement.lang = newLang;
-    
-    // Store language preference in localStorage
     localStorage.setItem('i18nextLng', newLang);
     setLanguage(newLang);
   };

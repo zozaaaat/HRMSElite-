@@ -1,6 +1,7 @@
 import {UserRole} from './routes';
+import i18n from './i18n';
 
-// تعريف الصلاحيات المتاحة
+// Define available permissions
 export type Permission =
   | 'dashboard:view'
   | 'companies:view'
@@ -42,7 +43,7 @@ export type Permission =
   | 'government_forms:view'
   | 'government_forms:submit';
 
-// خريطة الصلاحيات لكل دور
+// Permission map for each role
 export const rolePermissions: Record<UserRole, Permission[]> = {
   'super_admin': [
     'dashboard:view',
@@ -173,7 +174,7 @@ export const rolePermissions: Record<UserRole, Permission[]> = {
   ]
 };
 
-// خريطة الصفحات والصلاحيات المطلوبة
+// Map of pages and required permissions
 export const pagePermissions: Record<string, Permission[]> = {
   'dashboard': ['dashboard:view'],
   'companies': ['companies:view'],
@@ -207,7 +208,7 @@ export const pagePermissions: Record<string, Permission[]> = {
   'mobile-apps': ['settings:view']
 };
 
-// دالة للتحقق من الصلاحيات
+// Helper functions for permission checks
 export const hasPermission = (userRole: UserRole, permission: Permission): boolean => {
 
   const permissions = rolePermissions[userRole] || [];
@@ -215,14 +216,14 @@ export const hasPermission = (userRole: UserRole, permission: Permission): boole
 
 };
 
-// دالة للتحقق من صلاحيات الصفحة
+// Verify page permissions
 export const canAccessPage = (userRole: UserRole, pageId: string): boolean => {
 
   const requiredPermissions = pagePermissions[pageId] ?? [];
 
   if (requiredPermissions.length === 0) {
 
-    // إذا لم يتم تحديد صلاحيات للصفحة، السماح للجميع
+    // If no permissions defined for page, allow all
     return true;
 
   }
@@ -231,28 +232,28 @@ export const canAccessPage = (userRole: UserRole, pageId: string): boolean => {
 
 };
 
-// دالة للحصول على الصلاحيات المتاحة للدور
+// Get available permissions for a role
 export const getRolePermissions = (userRole: UserRole): Permission[] => {
 
   return rolePermissions[userRole] || [];
 
 };
 
-// دالة للتحقق من وجود أي من الصلاحيات المطلوبة
+// Check for any required permissions
 export const hasAnyPermission = (userRole: UserRole, permissions: Permission[]): boolean => {
 
   return permissions.some(permission => hasPermission(userRole, permission));
 
 };
 
-// دالة للتحقق من وجود جميع الصلاحيات المطلوبة
+// Check for all required permissions
 export const hasAllPermissions = (userRole: UserRole, permissions: Permission[]): boolean => {
 
   return permissions.every(permission => hasPermission(userRole, permission));
 
 };
 
-// دالة للحصول على الصفحات المتاحة للدور
+// Get accessible pages for a role
 export const getAccessiblePages = (userRole: UserRole): string[] => {
 
   return Object.entries(pagePermissions)
@@ -270,37 +271,15 @@ export const getAccessiblePages = (userRole: UserRole): string[] => {
 
 };
 
-// دالة للحصول على اسم الدور بالعربية
 export const getRoleLabel = (role: UserRole): string => {
-
-  const roleLabels: Record<UserRole, string> = {
-    'super_admin': 'المسؤول العام',
-    'company_manager': 'مدير الشركة',
-    'employee': 'موظف إداري',
-    'supervisor': 'مشرف',
-    'worker': 'عامل'
-  };
-
-  return roleLabels[role] || 'غير محدد';
-
+  return i18n.t(`roles.labels.${role}`, { defaultValue: i18n.t('roles.labels.undefined') });
 };
 
-// دالة للحصول على وصف الدور
 export const getRoleDescription = (role: UserRole): string => {
-
-  const roleDescriptions: Record<UserRole, string> = {
-    'super_admin': 'لديه صلاحيات كاملة على النظام وجميع الشركات',
-    'company_manager': 'يدير شركة واحدة وموظفيها',
-    'employee': 'موظف إداري مع صلاحيات محدودة',
-    'supervisor': 'يشرف على مجموعة من العمال',
-    'worker': 'عامل عادي مع صلاحيات أساسية'
-  };
-
-  return roleDescriptions[role] || 'دور غير محدد';
-
+  return i18n.t(`roles.descriptions.${role}`, { defaultValue: i18n.t('roles.descriptions.undefined') });
 };
 
-// دالة للحصول على مستوى الدور (للترتيب)
+// Get role level (for sorting)
 export const getRoleLevel = (role: UserRole): number => {
 
   const roleLevels: Record<UserRole, number> = {
@@ -315,14 +294,14 @@ export const getRoleLevel = (role: UserRole): number => {
 
 };
 
-// دالة للتحقق من إمكانية الترقية
+// Check if role can be promoted
 export const canPromote = (currentRole: UserRole, targetRole: UserRole): boolean => {
 
   return getRoleLevel(targetRole) > getRoleLevel(currentRole);
 
 };
 
-// دالة للتحقق من إمكانية التنزيل
+// Check if role can be demoted
 export const canDemote = (currentRole: UserRole, targetRole: UserRole): boolean => {
 
   return getRoleLevel(targetRole) < getRoleLevel(currentRole);
