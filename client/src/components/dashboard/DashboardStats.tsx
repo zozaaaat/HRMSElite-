@@ -1,6 +1,7 @@
 import React from 'react';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Skeleton} from '@/components/ui/skeleton';
+import {useTranslation} from 'react-i18next';
 import type {DashboardStats as DashboardStatsData} from '@/types/component-props';
 
 interface DashboardStatsProps {
@@ -9,15 +10,16 @@ interface DashboardStatsProps {
 
 export default function DashboardStats ({data}: DashboardStatsProps) {
   const isLoading = !data;
+  const {t} = useTranslation();
 
   const statItems = [
-    {label: 'عدد الشركات', value: data?.totalCompanies},
-    {label: 'الشركات النشطة', value: data?.activeCompanies},
-    {label: 'عدد الموظفين', value: data?.totalEmployees},
-    {label: 'الموظفون النشطون', value: data?.activeEmployees},
-    {label: 'عدد الرخص', value: data?.totalLicenses},
-    {label: 'الرخص النشطة', value: data?.activeLicenses},
-    {label: 'استخدام النظام (%)', value: data?.systemUsage}
+    {label: t('dashboard.stats.totalCompanies'), value: data?.totalCompanies},
+    {label: t('dashboard.stats.activeCompanies'), value: data?.activeCompanies},
+    {label: t('dashboard.stats.totalEmployees'), value: data?.totalEmployees},
+    {label: t('dashboard.stats.activeEmployees'), value: data?.activeEmployees},
+    {label: t('dashboard.stats.totalLicenses'), value: data?.totalLicenses},
+    {label: t('dashboard.stats.activeLicenses'), value: data?.activeLicenses},
+    {label: t('dashboard.stats.systemUsage'), value: data?.systemUsage}
   ];
 
   return (

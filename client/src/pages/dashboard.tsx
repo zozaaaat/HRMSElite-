@@ -4,6 +4,7 @@ import {LoadingFallback} from '@/components/shared/LoadingFallback';
 import {useLogger} from '../lib/logger';
 import {useQuery} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
+import {useDirection} from '@/hooks/useDirection';
 import type {DashboardStats as DashboardStatsData} from '@/types/component-props';
 
 // Lazy load dashboard components
@@ -38,6 +39,7 @@ export default function Dashboard ({role = 'admin'}: DashboardProps) {
 
   const log = useLogger('Dashboard');
   const {t} = useTranslation();
+  useDirection();
 
   // Log component mount
   React.useEffect(() => {
@@ -108,35 +110,33 @@ export default function Dashboard ({role = 'admin'}: DashboardProps) {
   return (
     <>
       <PageHelmet
-        title="لوحة التحكم"
-        description="لوحة التحكم الرئيسية لنظام إدارة الموارد البشرية"
-        keywords="لوحة التحكم, إحصائيات, تقارير, HRMS"
+        title={t('dashboard.pageTitle')}
+        description={t('dashboard.pageDescription')}
+        keywords={t('dashboard.pageKeywords')}
       />
 
       <div className="container mx-auto p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">لوحة التحكم</h1>
-            <p className="text-muted-foreground">مرحباً بك في نظام إدارة الموارد البشرية</p>
+            <h1 className="text-3xl font-bold text-foreground">{t('dashboard.heading')}</h1>
+            <p className="text-muted-foreground">{t('dashboard.welcome')}</p>
           </div>
           <div className="text-sm text-muted-foreground">
-            الدور: {role}
+            {t('dashboard.role')}: {role}
           </div>
         </div>
 
         {/* Dashboard Content with Suspense */}
-        <Suspense fallback={<LoadingFallback type="card" message="جاري تحميل الإحصائيات..." />}>
+        <Suspense fallback={<LoadingFallback type="card" message={t('dashboard.loadingStats')} />}>
           <DashboardStats data={dashboardData?.stats ?? null} />
         </Suspense>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Suspense fallback={
-  <LoadingFallback type="card" message="جاري تحميل الرسوم البيانية..." />
-}>
+          <Suspense fallback={<LoadingFallback type="card" message={t('dashboard.loadingCharts')} />}>
             <DashboardCharts data={dashboardData?.charts ?? null} />
           </Suspense>
 
-          <Suspense fallback={<LoadingFallback type="table" message="جاري تحميل الجدول..." />}>
+          <Suspense fallback={<LoadingFallback type="table" message={t('dashboard.loadingTable')} />}>
             <DashboardTable data={dashboardData?.table ?? null} />
           </Suspense>
         </div>
