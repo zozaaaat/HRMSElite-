@@ -28,7 +28,7 @@ describe('CORS Security Configuration', () => {
   beforeEach(() => {
     // Reset environment variables
     delete process.env.CORS_ORIGINS;
-    delete process.env.ALLOWED_ORIGINS;
+    delete process.env.CORS_ORIGINLESS_API_KEYS;
     
     // Clear mock calls
     vi.clearAllMocks();
@@ -44,52 +44,33 @@ describe('CORS Security Configuration', () => {
   });
 
   describe('Environment Variable Configuration', () => {
-    it('should read ALLOWED_ORIGINS from environment (comma-separated)', () => {
-      process.env.ALLOWED_ORIGINS = 'https://app.example.com,https://admin.example.com,http://localhost:3000';
-      
-      const testApp = express();
-      testApp.use(cors(corsConfig));
-      
-      // The configuration should be loaded without errors
-      expect(() => {
-        testApp.get('/api/test', (req, res) => res.json({ success: true }));
-      }).not.toThrow();
-    });
-
     it('should read CORS_ORIGINS from environment (comma-separated)', () => {
       process.env.CORS_ORIGINS = 'https://app.example.com,https://admin.example.com,http://localhost:3000';
-      
+
       const testApp = express();
       testApp.use(cors(corsConfig));
-      
+
       // The configuration should be loaded without errors
       expect(() => {
         testApp.get('/api/test', (req, res) => res.json({ success: true }));
       }).not.toThrow();
     });
 
-    it('should prefer CORS_ORIGINS over ALLOWED_ORIGINS', () => {
-      process.env.ALLOWED_ORIGINS = 'https://legacy.example.com';
-      process.env.CORS_ORIGINS = 'https://new.example.com';
-      
-      const testApp = express();
-      testApp.use(cors(corsConfig));
-      
-      // The configuration should use CORS_ORIGINS
-      expect(() => {
-        testApp.get('/api/test', (req, res) => res.json({ success: true }));
-      }).not.toThrow();
-    });
-
-    it('should fallback to localhost when no origins configured', () => {
+    it('should block all origins when no origins configured', async () => {
       // No environment variables set
-      
+
       const testApp = express();
       testApp.use(cors(corsConfig));
-      
-      // Should log warning and use localhost
+
+      // Should log warning and reject request
+      const response = await request(testApp)
+        .get('/api/test')
+        .set('Origin', 'http://localhost:3000')
+        .expect(403);
+
+      expect(response.body).toHaveProperty('error');
       expect(mockLog.warn).toHaveBeenCalledWith(
-        'CORS_ORIGINS not set, using default localhost origin',
+        'CORS_ORIGINS not set, blocking all origins',
         {},
         'SECURITY'
       );
