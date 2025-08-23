@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "engines": {
-    "node": "20.x",
+    "node": "20.19.4",
     "npm": ">=10.0.0"
   },
   "scripts": {
@@ -41,7 +41,7 @@
     "type-check:strict": "tsc --noEmit --strict",
     "check-all": "npm run type-check && npm run lint",
     "fix-typescript": "node scripts/fix-typescript-errors.js",
-    "test": "node --loader tsx test/**/*.ts",
+    "test": "node --import tsx --test test/basic.test.ts",
     "test:all": "cd client && tsx tests/test-runner.ts",
     "test:unit": "cd client && tsx tests/test-runner.ts unit",
     "test:integration": "cd client && tsx tests/test-runner.ts integration",
@@ -126,7 +126,6 @@
     "@aws-sdk/client-s3": "3.540.0",
     "@aws-sdk/s3-request-presigner": "3.540.0",
     "@hookform/resolvers": "3.10.0",
-    "@journeyapps/sqlcipher": "5.3.0",
     "@jridgewell/trace-mapping": "0.3.25",
     "@neondatabase/serverless": "0.10.4",
     "@radix-ui/react-accordion": "1.2.4",
@@ -231,7 +230,7 @@
     "workbox-window": "7.3.0",
     "wouter": "3.3.5",
     "ws": "8.18.0",
-    "zod": "3.24.2",
+    "zod": "3.25.76",
     "zod-validation-error": "3.4.0",
     "zustand": "5.0.7"
   },
@@ -267,7 +266,7 @@
     "@types/ws": "8.5.13",
     "@typescript-eslint/eslint-plugin": "8.39.1",
     "@typescript-eslint/parser": "8.39.1",
-    "@vitejs/plugin-react": "4.3.2",
+    "@vitejs/plugin-react": "5.0.1",
     "@vitest/ui": "3.2.4",
     "autoprefixer": "10.4.20",
     "chalk": "5.3.0",
