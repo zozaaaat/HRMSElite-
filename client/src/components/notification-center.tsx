@@ -29,6 +29,7 @@ import {notificationService} from '../services/notifications';
 import type {Notification} from '../../../shared/schema';
 import {useToast} from '../hooks/use-toast';
 import logger from '../lib/logger';
+import {useTranslation} from 'react-i18next';
 
 
 interface NotificationCenterProps {
@@ -43,8 +44,9 @@ export function NotificationCenter ({userId, className: _className}: Notificatio
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const {toast} = useToast();
+  const {t} = useTranslation();
 
-  // تحميل الإشعارات
+  // Load notifications
   const loadNotifications = async () => {
 
     try {
@@ -56,25 +58,20 @@ export function NotificationCenter ({userId, className: _className}: Notificatio
       ]);
       setNotifications(notificationsData);
       setUnreadCount(unreadCountData);
-
     } catch (error) {
-
-      logger.error('خطأ في تحميل الإشعارات:', error as Error);
+      logger.error('Error loading notifications:', error as Error);
       toast({
-        'title': 'خطأ',
-        'description': 'فشل في تحميل الإشعارات',
+        'title': t('dashboard.notifications.error'),
+        'description': t('dashboard.notifications.loadError'),
         'variant': 'destructive'
       });
-
     } finally {
-
       setIsLoading(false);
-
     }
 
   };
 
-  // تحديث الإشعارات عند فتح المركز
+  // Reload notifications when the popover is opened
   useEffect(() => {
 
     if (isOpen) {
@@ -85,14 +82,12 @@ export function NotificationCenter ({userId, className: _className}: Notificatio
 
   }, [isOpen, userId]);
 
-  // تحميل الإشعارات عند بدء التطبيق
+  // Load notifications on mount
   useEffect(() => {
-
     loadNotifications();
-
   }, [userId]);
 
-  // تحديث حالة الإشعار إلى مقروء
+  // Mark single notification as read
   const handleMarkAsRead = async (notificationId: string) => {
 
     try {
@@ -108,19 +103,17 @@ export function NotificationCenter ({userId, className: _className}: Notificatio
       setUnreadCount(prev => Math.max(0, prev - 1));
 
     } catch (error) {
-
-      logger.error('خطأ في تحديث حالة الإشعار:', error as Error);
+      logger.error('Error updating notification:', error as Error);
       toast({
-        'title': 'خطأ',
-        'description': 'فشل في تحديث حالة الإشعار',
+        'title': t('dashboard.notifications.error'),
+        'description': t('dashboard.notifications.updateError'),
         'variant': 'destructive'
       });
-
     }
 
   };
 
-  // تحديث جميع الإشعارات إلى مقروءة
+  // Mark all notifications as read
   const handleMarkAllAsRead = async () => {
 
     try {
@@ -131,24 +124,21 @@ export function NotificationCenter ({userId, className: _className}: Notificatio
       );
       setUnreadCount(0);
       toast({
-        'title': 'تم',
-        'description': 'تم تحديث جميع الإشعارات'
+        'title': t('dashboard.notifications.success'),
+        'description': t('dashboard.notifications.updateAllSuccess')
       });
-
     } catch (error) {
-
-      logger.error('خطأ في تحديث جميع الإشعارات:', error as Error);
+      logger.error('Error updating all notifications:', error as Error);
       toast({
-        'title': 'خطأ',
-        'description': 'فشل في تحديث الإشعارات',
+        'title': t('dashboard.notifications.error'),
+        'description': t('dashboard.notifications.updateAllError'),
         'variant': 'destructive'
       });
-
     }
 
   };
 
-  // حذف إشعار
+  // Delete notification
   const handleDeleteNotification = async (notificationId: string) => {
 
     try {
@@ -157,29 +147,24 @@ export function NotificationCenter ({userId, className: _className}: Notificatio
       const notification = notifications.find(n => n.id === notificationId);
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
       if (notification && !notification.isRead) {
-
         setUnreadCount(prev => Math.max(0, prev - 1));
-
       }
       toast({
-        'title': 'تم',
-        'description': 'تم حذف الإشعار'
+        'title': t('dashboard.notifications.success'),
+        'description': t('dashboard.notifications.deleteSuccess')
       });
-
     } catch (error) {
-
-      logger.error('خطأ في حذف الإشعار:', error as Error);
+      logger.error('Error deleting notification:', error as Error);
       toast({
-        'title': 'خطأ',
-        'description': 'فشل في حذف الإشعار',
+        'title': t('dashboard.notifications.error'),
+        'description': t('dashboard.notifications.deleteError'),
         'variant': 'destructive'
       });
-
     }
 
   };
 
-  // الحصول على أيقونة الإشعار
+  // Get icon for notification type
   const getNotificationIcon = (type: string) => {
 
     const iconMap: Record<string, React.ReactNode> = {
@@ -192,7 +177,7 @@ export function NotificationCenter ({userId, className: _className}: Notificatio
 
   };
 
-  // الحصول على لون الإشعار
+  // Get color for notification type
   const getNotificationColor = (type: string) => {
 
     const colorMap: Record<string, string> = {
@@ -205,31 +190,23 @@ export function NotificationCenter ({userId, className: _className}: Notificatio
 
   };
 
-  // تنسيق التاريخ
+  // Format dates
   const formatDate = (dateString: string) => {
-
     const date = new Date(dateString);
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
 
     if (diffInHours < 1) {
-
-      return 'الآن';
-
+      return t('dashboard.notifications.now');
     } else if (diffInHours < 24) {
-
-      return `منذ ${diffInHours} ساعة`;
-
+      return t('dashboard.notifications.hoursAgo', {count: diffInHours});
     } else {
-
       const diffInDays = Math.floor(diffInHours / 24);
-      return `منذ ${diffInDays} يوم`;
-
+      return t('dashboard.notifications.daysAgo', {count: diffInDays});
     }
-
   };
 
-  // تصفية الإشعارات غير المقروءة
+  // Filter unread notifications
   const unreadNotifications = notifications.filter(n => !n.isRead);
   const readNotifications = notifications.filter(n => n.isRead);
 
@@ -252,7 +229,7 @@ export function NotificationCenter ({userId, className: _className}: Notificatio
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
         <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="font-semibold">الإشعارات</h3>
+          <h3 className="font-semibold">{t('dashboard.notifications.title')}</h3>
           <div className="flex items-center gap-2">
             {unreadCount > 0 && (
               <Button
@@ -261,7 +238,7 @@ export function NotificationCenter ({userId, className: _className}: Notificatio
                 onClick={handleMarkAllAsRead}
                 className="text-xs"
               >
-                تحديد الكل كمقروء
+                {t('dashboard.notifications.markAllAsRead')}
               </Button>
             )}
             <Button
@@ -282,16 +259,16 @@ export function NotificationCenter ({userId, className: _className}: Notificatio
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center">
               <Bell className="h-8 w-8 text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">لا توجد إشعارات</p>
+              <p className="text-sm text-muted-foreground">{t('dashboard.notifications.none')}</p>
             </div>
           ) : (
             <div className="p-2">
-              {/* الإشعارات غير المقروءة */}
+              {/* Unread notifications */}
               {unreadNotifications.length > 0 && (
                 <>
                   <div className="mb-2">
                     <h4 className="text-xs font-medium text-muted-foreground px-2 py-1">
-                      غير مقروءة ({unreadNotifications.length})
+                      {t('dashboard.notifications.unread', {count: unreadNotifications.length})}
                     </h4>
                   </div>
                   {unreadNotifications.map((notification) => (
@@ -309,12 +286,12 @@ export function NotificationCenter ({userId, className: _className}: Notificatio
                 </>
               )}
 
-              {/* الإشعارات المقروءة */}
+              {/* Read notifications */}
               {readNotifications.length > 0 && (
                 <>
                   <div className="mb-2">
                     <h4 className="text-xs font-medium text-muted-foreground px-2 py-1">
-                      مقروءة
+                      {t('dashboard.notifications.read')}
                     </h4>
                   </div>
                   {readNotifications.map((notification) => (
@@ -339,7 +316,7 @@ export function NotificationCenter ({userId, className: _className}: Notificatio
 
 }
 
-// مكون عنصر الإشعار الفردي
+// Notification item component
 interface NotificationItemProps {
   notification: Notification;
   onMarkAsRead: (id: string) => void;
@@ -357,7 +334,7 @@ function NotificationItem ({
   getNotificationColor,
   formatDate
 }: NotificationItemProps) {
-
+  const {t} = useTranslation();
   return (
     <div className={`p-3 rounded-lg transition-colors ${
       notification.isRead ? 'bg-transparent' : 'bg-muted/50'
@@ -391,15 +368,15 @@ function NotificationItem ({
                 {!notification.isRead && (
                   <DropdownMenuItem onClick={() => onMarkAsRead(notification.id)}>
                     <Check className="mr-2 h-3 w-3" />
-                    تحديد كمقروء
+                    {t('dashboard.notifications.markAsRead')}
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem
+                  <DropdownMenuItem
                   onClick={() => onDelete(notification.id)}
                   className="text-red-600"
                 >
                   <Trash2 className="mr-2 h-3 w-3" />
-                  حذف
+                  {t('dashboard.notifications.delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

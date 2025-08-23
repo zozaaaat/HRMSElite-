@@ -2,6 +2,7 @@ import React from 'react';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
 import {Skeleton} from '@/components/ui/skeleton';
+import {useTranslation} from 'react-i18next';
 
 type Row = Record<string, string | number | boolean | null | undefined>;
 
@@ -15,13 +16,14 @@ interface DashboardTableProps {
 
 export default function DashboardTable ({data}: DashboardTableProps) {
   const isLoading = !data;
+  const {t} = useTranslation();
 
-  const columns = data?.columns ?? ['العمود 1', 'العمود 2', 'العمود 3'];
+  const columns = data?.columns ?? [t('dashboard.table.column1'), t('dashboard.table.column2'), t('dashboard.table.column3')];
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{data?.title ?? 'جدول البيانات'}</CardTitle>
+        <CardTitle>{data?.title ?? t('dashboard.table.defaultTitle')}</CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -43,7 +45,7 @@ export default function DashboardTable ({data}: DashboardTableProps) {
                 <TableRow key={idx}>
                   {columns.map((c) => (
                     <TableCell key={`${idx}-${c}`}>
-                      {formatCellValue(row[c])}
+                      {formatCellValue(row[c], t)}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -56,9 +58,9 @@ export default function DashboardTable ({data}: DashboardTableProps) {
   );
 }
 
-function formatCellValue (value: Row[string]) {
+function formatCellValue (value: Row[string], t?: ReturnType<typeof useTranslation>['t']) {
   if (value === null || value === undefined) return '-';
-  if (typeof value === 'boolean') return value ? 'نعم' : 'لا';
+  if (typeof value === 'boolean' && t) return value ? t('dashboard.table.yes') : t('dashboard.table.no');
   return String(value);
 }
 
