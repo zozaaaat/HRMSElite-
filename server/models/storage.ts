@@ -460,7 +460,12 @@ export class DatabaseStorage {
 
     try {
 
-      const results = await db.update(employees).set(data).where(eq(employees.id, id)).returning();
+      const results = await db.update(employees)
+        .set({
+          ...data,
+          'updatedAt': new Date()
+        })
+        .where(eq(employees.id, id)).returning();
       if (!results[0]) {
         throw new Error('Failed to update employee');
       }

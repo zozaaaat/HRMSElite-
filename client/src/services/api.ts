@@ -27,7 +27,11 @@ export class ApiService {
   }
 
   static async patch<T> (url: string, data?: unknown): Promise<T> {
-    return apiPatch<T>(url, data ?? {});
+    const payload = (data ?? {}) as Record<string, unknown> & { __etag?: string };
+    const { __etag, ...rest } = payload;
+    const cached = __etag || getCachedEtag(url);
+    const headers = withIfMatch(cached ?? undefined);
+    return apiPatch<T>(url, rest, headers);
   }
 
   private static createUrlWithParams (
