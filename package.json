@@ -4,8 +4,8 @@
   "type": "module",
   "license": "MIT",
   "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=8.0.0"
+    "node": "20.x",
+    "npm": ">=10.0.0"
   },
   "scripts": {
     "dev": "cross-env NODE_ENV=development tsx server/index.ts",
