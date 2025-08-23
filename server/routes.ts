@@ -11,7 +11,6 @@ import {
   insertLicenseSchema, insertEmployeeLeaveSchema, type InsertCompany
 } from '../shared/schema';
 import {registerEmployeeRoutes} from './routes/employee-routes';
-import {registerDocumentRoutes} from './routes/document-routes';
 import {registerPayrollRoutes} from './routes/payroll-routes';
 import {registerLicenseRoutes} from './routes/license-routes';
 import aiRoutes from './routes/ai';
@@ -37,7 +36,6 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
   // Register additional routes
   registerEmployeeRoutes(app);
-  registerDocumentRoutes(app);
   registerPayrollRoutes(app);
   registerLicenseRoutes(app);
 

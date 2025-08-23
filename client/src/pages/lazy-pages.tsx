@@ -32,7 +32,6 @@ export const LazyLicenses = React.lazy(() => import('./licenses'));
 export const LazyLeaves = React.lazy(() => import('./leaves'));
 export const LazySignatures = React.lazy(() => import('./signatures'));
 export const LazySignatureTest = React.lazy(() => import('./signature-test'));
-export const LazyNotificationTest = React.lazy(() => import('./notification-test'));
 export const LazyPermissionTest = React.lazy(() => import('./permission-test'));
 export const LazyRoleBasedDashboard = React.lazy(() => import('./role-based-dashboard'));
 export const LazySuperAdminDashboard = React.lazy(() => import('./super-admin-dashboard'));
@@ -201,12 +200,6 @@ export const Signatures = (props: PageProps) => (
 export const SignatureTest = (props: PageProps) => (
   <SuspenseWrapper type="card" message="جاري تحميل اختبار التوقيع...">
     <LazySignatureTest {...props} />
-  </SuspenseWrapper>
-);
-
-export const NotificationTest = (props: PageProps) => (
-  <SuspenseWrapper type="card" message="جاري تحميل اختبار الإشعارات...">
-    <LazyNotificationTest {...props} />
   </SuspenseWrapper>
 );
 

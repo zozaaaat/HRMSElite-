@@ -63,8 +63,7 @@ console.log('\n3. Checking Routes for Header-Based Authentication...');
 
 const routesDir = path.join(__dirname, '../server/routes');
 const routeFiles = [
-  'payroll-routes.ts',
-  'document-routes.ts'
+  'payroll-routes.ts'
 ];
 
 let routeIssues = 0;

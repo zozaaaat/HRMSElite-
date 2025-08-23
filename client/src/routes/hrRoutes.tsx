@@ -1,7 +1,7 @@
 import { Route, useParams } from 'wouter';
 import { ProtectedRoute } from '../components/shared';
 import { routes, UserRole } from '../lib/routes';
-import {Dashboard,Employees,Attendance,LeaveRequests,Payroll,Documents,Training,Recruitment,Performance,AdvancedSearch,AIChatbotDemo,AIAnalytics,Licenses,Leaves,Signatures,SignatureTest,NotificationTest,PermissionTest,RoleBasedDashboard,SuperAdminDashboard,EmployeeManagement,LayoutExample,I18nTest} from '../pages/lazy-pages';
+import {Dashboard,Employees,Attendance,LeaveRequests,Payroll,Documents,Training,Recruitment,Performance,AdvancedSearch,AIChatbotDemo,AIAnalytics,Licenses,Leaves,Signatures,SignatureTest,PermissionTest,RoleBasedDashboard,SuperAdminDashboard,EmployeeManagement,LayoutExample,I18nTest} from '../pages/lazy-pages';
 
 const DashboardWrapper = () => {
   const { role } = useParams<{ role?: string }>();
@@ -38,7 +38,6 @@ const functionalRoutes = [
   { path: routes.functional.leaves, pageId: 'leaves', element: <Leaves /> },
   { path: routes.functional.signatures, pageId: 'signatures', element: <Signatures /> },
   { path: routes.functional.signature_test, pageId: 'signature-test', element: <SignatureTest /> },
-  { path: routes.functional.notification_test, pageId: 'notification-test', element: <NotificationTest /> },
   { path: routes.functional.permission_test, pageId: 'permission-test', element: <PermissionTest /> },
   { path: routes.functional.role_based_dashboard, pageId: 'role-based-dashboard', element: <RoleBasedDashboard /> },
   { path: routes.functional.super_admin_dashboard, pageId: 'super-admin-dashboard', element: <SuperAdminDashboard />, requiredRole: 'super_admin' },

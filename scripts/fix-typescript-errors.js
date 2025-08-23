@@ -52,7 +52,6 @@ const commonFixes = [
 // الملفات التي تحتاج إصلاح
 const filesToFix = [
   'server/routes/auth-routes.ts',
-  'server/routes/document-routes.ts',
   'server/routes/employee-routes.ts',
   'server/routes/license-routes.ts',
   'server/routes/payroll-routes.ts',

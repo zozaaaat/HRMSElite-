@@ -37,7 +37,6 @@ export const routes = {
     'leaves': '/leaves',
     'signatures': '/signatures',
     'signature_test': '/signature-test',
-    'notification_test': '/notification-test',
     'permission_test': '/permission-test',
     'role_based_dashboard': '/role-based-dashboard',
     'super_admin_dashboard': '/super-admin-dashboard',
