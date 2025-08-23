@@ -24,9 +24,24 @@ const resources = {
     resources,
     fallbackLng: 'en',
     debug: process.env.NODE_ENV === 'development',
-    
+    initImmediate: false,
+
     interpolation: {
       escapeValue: false, // React already escapes values
+      format: (value, format, lng, options) => {
+        const resolvedFormat = format === 'format' && typeof options?.format === 'string'
+          ? options.format
+          : format;
+        const locale = lng === 'ar' ? 'ar-SA' : 'en-US';
+        if (resolvedFormat === 'number') {
+          return new Intl.NumberFormat(locale).format(value as number);
+        }
+        if (resolvedFormat === 'date') {
+          const date = value instanceof Date ? value : new Date(value);
+          return new Intl.DateTimeFormat(locale).format(date);
+        }
+        return value as string;
+      }
     },
     
     detection: {
@@ -43,23 +58,5 @@ const resources = {
       return lng === 'ar' ? 'rtl' : 'ltr';
       }
     });
-
-// Custom pluralization rules for English and Arabic
-i18n.services.pluralResolver.addRule('en', {
-  numbers: [1, 2],
-  plurals: n => Number(n !== 1)
-});
-
-i18n.services.pluralResolver.addRule('ar', {
-  numbers: [0, 1, 2, 3, 11, 100],
-  plurals: n => {
-    if (n === 0) return 0;
-    if (n === 1) return 1;
-    if (n === 2) return 2;
-    if (n % 100 >= 3 && n % 100 <= 10) return 3;
-    if (n % 100 >= 11 && n % 100 <= 99) return 4;
-    return 5;
-  }
-});
 
 export default i18n;

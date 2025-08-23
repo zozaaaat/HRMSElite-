@@ -470,6 +470,16 @@
     "decimal": "{{value}}",
     "integer": "{{value}}"
   },
+  "demo": {
+    "unreadMessages_zero": "ليس لديك رسائل جديدة",
+    "unreadMessages_one": "لديك رسالة جديدة واحدة",
+    "unreadMessages_two": "لديك رسالتان جديدتان",
+    "unreadMessages_few": "لديك {{count}} رسائل جديدة",
+    "unreadMessages_many": "لديك {{count}} رسالة جديدة",
+    "unreadMessages_other": "لديك {{count}} رسالة جديدة",
+    "today": "اليوم هو {{value, format}}",
+    "number": "الرقم: {{value, format}}"
+  },
   "roles": {
     "labels": {
       "super_admin": "مسؤول النظام",
