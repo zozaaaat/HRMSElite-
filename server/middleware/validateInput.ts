@@ -1,6 +1,7 @@
 import {Request, Response, NextFunction} from 'express';
 import {ZodSchema} from 'zod';
 import {log} from '../utils/logger';
+import {deepSanitize} from '../utils/sanitize';
 
 // Enhanced validation middleware with proper TypeScript support
 export function validate (schema: ZodSchema) {
@@ -272,40 +273,9 @@ export function validateMultiple (validations: {
 
 // Input sanitization middleware
 export function sanitizeInput (req: Request, res: Response, next: NextFunction) {
-
-  const sanitizeString = (str: string): string => {
-    return str
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/javascript:/gi, '')
-      .replace(/on\w+\s*=/gi, '')
-      .replace(/data:text\/html/gi, '')
-      .replace(/vbscript:/gi, '')
-      .replace(/expression\s*\(/gi, '')
-      .replace(/eval\s*\(/gi, '');
-  };
-
-  const sanitizeObject = (obj: unknown): unknown => {
-    if (typeof obj === 'string') {
-      return sanitizeString(obj);
-    }
-    if (Array.isArray(obj)) {
-      return obj.map(sanitizeObject);
-    }
-    if (obj && typeof obj === 'object') {
-      const sanitized: Record<string, unknown> = {};
-      for (const [key, value] of Object.entries(obj)) {
-        sanitized[key] = sanitizeObject(value);
-      }
-      return sanitized;
-    }
-    return obj;
-  };
-
-  // Sanitize request body, query, and params
-  req.body = sanitizeObject(req.body) as typeof req.body;
-  req.query = sanitizeObject(req.query) as typeof req.query;
-  req.params = sanitizeObject(req.params) as typeof req.params;
-
+  req.body = deepSanitize(req.body) as typeof req.body;
+  req.query = deepSanitize(req.query) as typeof req.query;
+  req.params = deepSanitize(req.params) as typeof req.params;
   next();
 }
 

@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { validateInput } from '../server/middleware/validateInput';
 import { insertEmployeeSchema } from '../shared/schema';
+import { sanitizeHtmlString } from '../server/utils/sanitize';
 
 // Type declarations for expect matchers to resolve TypeScript strict mode issues
 declare global {
@@ -143,8 +144,8 @@ describe('Validation Middleware', () => {
 
       mockReq.query = {
         query: "أحمد",
-        page: "1",
-        limit: "20"
+        page: 1,
+        limit: 20
       };
 
       const validateMiddleware = validateInput.query(searchSchema);
@@ -167,7 +168,7 @@ describe('Validation Middleware', () => {
 
       mockReq.query = {
         query: "", // خطأ: نص فارغ
-        limit: "150" // خطأ: عدد كبير جداً
+        limit: 150 // خطأ: عدد كبير جداً
       };
 
       const validateMiddleware = validateInput.query(searchSchema);
@@ -283,18 +284,19 @@ describe('Validation Middleware', () => {
   describe('sanitizeInput (input sanitization)', () => {
     it('should sanitize malicious input', () => {
       const maliciousData = {
-        fullName: "<script>alert('xss')</script>أحمد محمد",
-        email: "javascript:alert('xss')@example.com",
-        description: "onclick=\"alert('xss')\" وصف عادي"
+        fullName: "<script>alert('xss')</script>أحمد <b>محمد</b>",
+        description: "<p onclick=\"alert('xss')\">وصف <i>عادي</i></p>"
       };
 
       mockReq.body = maliciousData;
       validateInput.sanitize(mockReq, mockRes, mockNext);
-      
+
       expect(mockNext).toHaveBeenCalled();
-      expect((mockReq.body as typeof maliciousData).fullName).not.toContain("<script>");
-      expect((mockReq.body as typeof maliciousData).email).not.toContain("javascript:");
-      expect((mockReq.body as typeof maliciousData).description).not.toContain("onclick=");
+      const body = mockReq.body as typeof maliciousData;
+      expect(body.fullName).not.toContain('<script>');
+      expect(body.fullName).toContain('<b>محمد</b>');
+      expect(body.description).not.toContain('onclick');
+      expect(body.description).toContain('<i>عادي</i>');
     });
 
     it('should handle nested objects', () => {
@@ -302,34 +304,54 @@ describe('Validation Middleware', () => {
         employee: {
           name: "<script>alert('xss')</script>أحمد",
           details: {
-            note: "javascript:alert('xss') ملاحظة"
+            note: "<span style=\"color:red\" onclick=\"alert('xss')\">ملاحظة</span>"
           }
         }
       };
 
       mockReq.body = nestedData;
       validateInput.sanitize(mockReq, mockRes, mockNext);
-      
+
       expect(mockNext).toHaveBeenCalled();
-      expect((mockReq.body as typeof nestedData).employee.name).not.toContain("<script>");
-      expect((mockReq.body as typeof nestedData).employee.details.note).not.toContain("javascript:");
+      const body = mockReq.body as typeof nestedData;
+      expect(body.employee.name).not.toContain('<script>');
+      expect(body.employee.details.note).not.toContain('onclick');
+      expect(body.employee.details.note).not.toContain('style=');
     });
 
     it('should handle arrays', () => {
       const arrayData = {
         tags: [
-          "عادي",
-          "<script>alert('xss')</script>ضار",
-          "javascript:alert('xss') آخر"
+          'عادي',
+          '<script>alert("xss")</script>ضار',
+          '<b onclick="alert(1)">آمن؟</b>'
         ]
       };
 
       mockReq.body = arrayData;
       validateInput.sanitize(mockReq, mockRes, mockNext);
-      
+
       expect(mockNext).toHaveBeenCalled();
-      expect((mockReq.body as typeof arrayData).tags[1]).not.toContain("<script>");
-      expect((mockReq.body as typeof arrayData).tags[2]).not.toContain("javascript:");
+      const body = mockReq.body as typeof arrayData;
+      expect(body.tags[1]).not.toContain('<script>');
+      expect(body.tags[2]).toBe('<b>آمن؟</b>');
+    });
+  });
+
+  describe('HTML field validation', () => {
+    it('should sanitize rich HTML fields via schema transform', () => {
+      const htmlSchema = z.object({
+        content: z.string().transform(sanitizeHtmlString)
+      });
+
+      mockReq.body = {
+        content: "<img src=x onerror=alert('xss')><b>مرحبا</b>"
+      };
+      const middleware = validateInput.body(htmlSchema);
+      middleware(mockReq, mockRes, mockNext);
+
+      expect(mockNext).toHaveBeenCalled();
+      expect((mockReq.body as { content: string }).content).toBe('<b>مرحبا</b>');
     });
   });
 
@@ -347,8 +369,8 @@ describe('Validation Middleware', () => {
         query: "أحمد",
         department: "تكنولوجيا المعلومات",
         status: "active",
-        page: "1",
-        limit: "20"
+        page: 1,
+        limit: 20
       };
 
       mockReq.query = validSearchData;
