@@ -7,6 +7,7 @@
 
 import axios from 'axios';
 import { log } from './logger';
+import { metricsUtils } from '../middleware/metrics';
 
 // EICAR test file signature (standard antivirus test file)
 const EICAR_SIGNATURE = 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*';
@@ -90,6 +91,7 @@ export class AntivirusScanner {
       }
     } catch (error) {
       log.error('Antivirus scan failed', error as Error, 'SECURITY');
+      metricsUtils.incrementAvScanFailure(this.config.provider);
       return {
         isClean: false,
         threats: ['Scan failed - file rejected for security'],
@@ -155,6 +157,7 @@ export class AntivirusScanner {
       };
     } catch (error) {
       log.error('ClamAV scan failed', error as Error, 'SECURITY');
+      metricsUtils.incrementAvScanFailure('clamav');
       return {
         isClean: false,
         threats: ['ClamAV scan failed'],
@@ -212,6 +215,7 @@ export class AntivirusScanner {
       };
     } catch (error) {
       log.error('External antivirus scan failed', error as Error, 'SECURITY');
+      metricsUtils.incrementAvScanFailure('external-api');
       return {
         isClean: false,
         threats: ['External scan failed'],
@@ -274,6 +278,7 @@ export class AntivirusScanner {
       };
     } catch (error) {
       log.error('Dual antivirus scan failed', error as Error, 'SECURITY');
+      metricsUtils.incrementAvScanFailure('dual-scan');
       return {
         isClean: false,
         threats: ['Dual scan failed'],

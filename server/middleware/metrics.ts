@@ -116,6 +116,12 @@ const suspiciousRequestsTotal = new Counter({
   help: 'Total number of suspicious requests',
   labelNames: ['type', 'pattern']
 });
+const avScanFailuresTotal = new Counter({
+  name: 'av_scan_failures_total',
+  help: 'Total number of antivirus scan failures',
+  labelNames: ['provider'],
+});
+
 
 /**
  * Database Metrics
@@ -277,6 +283,10 @@ export const metricsUtils = {
     suspiciousRequestsTotal.inc({ type, pattern });
   },
 
+  incrementAvScanFailure: (provider: string) => {
+    avScanFailuresTotal.inc({ provider });
+  },
+
   // Database Metrics
   incrementDbQuery: (operation: string, table: string, status: string) => {
     dbQueriesTotal.inc({ operation, table, status });
@@ -338,7 +348,6 @@ export const metricsUtils = {
       gauge.set(value);
     }
   }
-};
 
 /**
  * Prometheus metrics middleware

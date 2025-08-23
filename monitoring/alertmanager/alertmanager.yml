@@ -36,6 +36,10 @@ receivers:
           <p><strong>Time:</strong> {{ .StartsAt }}</p>
           <hr>
           <p><small>This is an automated alert from HRMS Elite monitoring system.</small></p>
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/your/webhook/url'
+        channel: '#hrms-alerts'
+        send_resolved: true
 
   - name: 'hrms-critical'
     email_configs:
@@ -53,6 +57,10 @@ receivers:
           <hr>
           <p><strong>IMMEDIATE ACTION REQUIRED</strong></p>
           <p><small>This is a critical alert from HRMS Elite monitoring system.</small></p>
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/your/webhook/url'
+        channel: '#hrms-critical'
+        send_resolved: true
 
   - name: 'hrms-warning'
     email_configs:
@@ -69,6 +77,10 @@ receivers:
           <p><strong>Time:</strong> {{ .StartsAt }}</p>
           <hr>
           <p><small>This is a warning alert from HRMS Elite monitoring system.</small></p>
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/your/webhook/url'
+        channel: '#hrms-alerts'
+        send_resolved: true
 
 inhibit_rules:
   - source_match:
