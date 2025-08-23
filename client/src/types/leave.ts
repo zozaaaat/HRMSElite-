@@ -16,11 +16,11 @@ export interface Leave {
   rejectionReason?: string;
   createdAt?: string;
   updatedAt?: string;
-  employeeSignature?: SignatureData; // توقيع الموظف
-  managerSignature?: SignatureData; // توقيع المدير
+  employeeSignature?: SignatureData; // Employee signature
+  managerSignature?: SignatureData; // Manager signature
 }
 
-// استيراد نوع التوقيع من ملف المستندات
+// Import signature type from documents file
 import {SignatureData} from './documents';
 
 export interface CreateLeaveRequest {

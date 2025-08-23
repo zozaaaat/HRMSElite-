@@ -29,7 +29,7 @@ export interface SignatureResponse {
   status: 'active' | 'inactive';
 }
 
-// إنشاء توقيع جديد
+// Create a new signature
 export const createSignature = async (data: CreateSignatureRequest): Promise<SignatureResponse> => {
 
   return apiRequest('/api/signatures', {
@@ -39,7 +39,7 @@ export const createSignature = async (data: CreateSignatureRequest): Promise<Sig
 
 };
 
-// تحديث توقيع موجود
+// Update an existing signature
 export const updateSignature = async (id: string,
    data: UpdateSignatureRequest): Promise<SignatureResponse> => {
 
@@ -50,7 +50,7 @@ export const updateSignature = async (id: string,
 
 };
 
-// حذف توقيع
+// Delete a signature
 export const deleteSignature = async (id: string): Promise<void> => {
 
   return apiRequest(`/api/signatures/${id}`, {
@@ -59,14 +59,14 @@ export const deleteSignature = async (id: string): Promise<void> => {
 
 };
 
-// الحصول على توقيع بواسطة المعرف
+// Get a signature by ID
 export const getSignature = async (id: string): Promise<SignatureResponse> => {
 
   return apiRequest(`/api/signatures/${id}`);
 
 };
 
-// الحصول على توقيعات كيان معين
+// Get signatures for a specific entity
 export const getSignaturesByEntity = async (
   entityId: string,
   entityType: 'employee' | 'company' | 'license' | 'leave' | 'document'
@@ -76,27 +76,27 @@ export const getSignaturesByEntity = async (
 
 };
 
-// الحصول على جميع التوقيعات
+// Get all signatures
 export const getAllSignatures = async (): Promise<SignatureResponse[]> => {
 
   return apiRequest('/api/signatures');
 
 };
 
-// رفع التوقيع إلى cloud storage (مثال لـ AWS S3)
+// Upload signature to cloud storage (e.g., AWS S3)
 export const uploadSignatureToCloud = async (imageData: string,
    fileName: string): Promise<string> => {
 
-  // تحويل base64 إلى blob
+  // Convert base64 to blob
   const base64Response = await fetch(imageData);
   const blob = await base64Response.blob();
 
-  // إنشاء FormData
+  // Create FormData
   const formData = new globalThis.FormData();
   formData.append('file', blob, fileName);
   formData.append('type', 'signature');
 
-  // رفع الملف
+  // Upload the file
   const response = await apiRequest<{url: string}>('/api/upload/signature', {
     'method': 'POST',
     'body': formData
@@ -106,7 +106,7 @@ export const uploadSignatureToCloud = async (imageData: string,
 
 };
 
-// تحويل التوقيع إلى PDF
+// Convert signature to PDF
 export const convertSignatureToPDF = async (signatureId: string): Promise<globalThis.Blob> => {
 
   const response = await apiRequest<globalThis.Blob>(`/api/signatures/${signatureId}/pdf`, {
@@ -118,7 +118,7 @@ export const convertSignatureToPDF = async (signatureId: string): Promise<global
 
 };
 
-// التحقق من صحة التوقيع
+// Verify the signature
 export const verifySignature = async (signatureId: string): Promise<{
   isValid: boolean;
   verifiedAt: string;
@@ -131,7 +131,7 @@ export const verifySignature = async (signatureId: string): Promise<{
 
 };
 
-// إحصائيات التوقيعات
+// Signature statistics
 export const getSignatureStats = async (): Promise<{
   total: number;
   active: number;

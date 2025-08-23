@@ -17,10 +17,10 @@ export interface Document {
   modifiedDate?: string;
   size?: string; // For backward compatibility
   uploadedAt?: string; // For backward compatibility
-  signature?: SignatureData; // إضافة التوقيع للمستند
+  signature?: SignatureData; // Add signature to document
 }
 
-// نوع بيانات التوقيع
+// Signature data type
 export interface SignatureData {
   id?: string;
   imageData: string; // base64 data

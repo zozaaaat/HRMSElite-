@@ -47,7 +47,8 @@
     "accounting": "الأنظمة المحاسبية",
     "advancedSearch": "البحث المتقدم",
     "aiAnalytics": "التحليلات الذكية",
-    "aiChatbot": "المساعد الذكي"
+    "aiChatbot": "المساعد الذكي",
+    "user": "مستخدم"
   },
   "languages": {
     "english": "English",
@@ -478,7 +479,13 @@
     "retryAttempt_many": "{{count}} محاولة",
     "retryAttempt_other": "{{count}} محاولة"
     ,"csrfFetch": "فشل في الحصول على رمز الأمان",
-    "csrfValidation": "خطأ في التحقق من الأمان، يرجى إعادة تحميل الصفحة"
+    "csrfValidation": "خطأ في التحقق من الأمان، يرجى إعادة تحميل الصفحة",
+    "serverConnection": "خطأ في الاتصال بالخادم",
+    "employeeUpdateFailed": "فشل في تحديث بيانات الموظف",
+    "employeeArchiveFailed": "فشل في أرشفة الموظف",
+    "companyStatsLoadFailed": "فشل في تحميل إحصائيات الشركة",
+    "dataSyncFailed": "فشل في مزامنة البيانات",
+    "appInitFailed": "فشل في تهيئة التطبيق"
   },
   "dateTime": {
     "today": "اليوم",

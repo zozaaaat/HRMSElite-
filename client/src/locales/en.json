@@ -47,7 +47,8 @@
     "accounting": "Accounting Systems",
     "advancedSearch": "Advanced Search",
     "aiAnalytics": "AI Analytics",
-    "aiChatbot": "AI Chatbot"
+    "aiChatbot": "AI Chatbot",
+    "user": "User"
   },
   "languages": {
     "english": "English",
@@ -474,7 +475,13 @@
     "retryAttempt_one": "Attempt {{count}}",
     "retryAttempt_other": "Attempt {{count}}"
     ,"csrfFetch": "Failed to obtain security token",
-    "csrfValidation": "Security validation error, please reload the page"
+    "csrfValidation": "Security validation error, please reload the page",
+    "serverConnection": "Server connection error",
+    "employeeUpdateFailed": "Failed to update employee data",
+    "employeeArchiveFailed": "Failed to archive employee",
+    "companyStatsLoadFailed": "Failed to load company statistics",
+    "dataSyncFailed": "Failed to sync data",
+    "appInitFailed": "Failed to initialize application"
   },
   "dateTime": {
     "today": "Today",

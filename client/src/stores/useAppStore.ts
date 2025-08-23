@@ -10,6 +10,7 @@ import {log} from '../lib/logger';
 type CompanyStats = CompanyWithStats;
 import {UserRole} from '../../../shared/types/user';
 import logger from '../lib/logger';
+import i18n from '../lib/i18n';
 
 // Import RequestInit type for TypeScript compatibility
 type RequestInit = globalThis.RequestInit;
@@ -250,7 +251,7 @@ export const useAppStore = create<AppState>()(
           return '';
 
         }
-        return `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'مستخدم';
+        return `${user.firstName || ''} ${user.lastName || ''}`.trim() || i18n.t('common.user');
 
       },
 
@@ -329,7 +330,7 @@ export const useAppStore = create<AppState>()(
           } else {
 
             const errorData = await response.json().catch(() => ({})) as APIErrorResponse;
-            const errorMessage = getErrorMessage(errorData, "فشل في تحديث بيانات الموظف");
+            const errorMessage = getErrorMessage(errorData, i18n.t('errors.employeeUpdateFailed'));
             set({
               'error': errorMessage,
               'isLoading': false
@@ -342,7 +343,7 @@ export const useAppStore = create<AppState>()(
 
           logger.error('Error updating employee:', error as Error);
           set({
-            'error': 'خطأ في الاتصال بالخادم',
+            'error': i18n.t('errors.serverConnection'),
             'isLoading': false
           });
           throw error;
@@ -379,7 +380,7 @@ export const useAppStore = create<AppState>()(
           } else {
 
             const errorData = await response.json().catch(() => ({})) as APIErrorResponse;
-            const errorMessage = getErrorMessage(errorData, "فشل في أرشفة الموظف");
+            const errorMessage = getErrorMessage(errorData, i18n.t('errors.employeeArchiveFailed'));
             set({
               'error': errorMessage,
               'isLoading': false
@@ -392,7 +393,7 @@ export const useAppStore = create<AppState>()(
 
           logger.error('Error archiving employee:', error as Error);
           set({
-            'error': 'خطأ في الاتصال بالخادم',
+            'error': i18n.t('errors.serverConnection'),
             'isLoading': false
           });
           throw error;
@@ -425,7 +426,7 @@ export const useAppStore = create<AppState>()(
           } else {
 
             const errorData = await response.json().catch(() => ({})) as APIErrorResponse;
-            const errorMessage = getErrorMessage(errorData, "فشل في تحميل إحصائيات الشركة");
+            const errorMessage = getErrorMessage(errorData, i18n.t('errors.companyStatsLoadFailed'));
             set({
               'error': errorMessage,
               'isLoading': false
@@ -438,7 +439,7 @@ export const useAppStore = create<AppState>()(
 
           logger.error('Error loading company stats:', error as Error);
           set({
-            'error': 'خطأ في الاتصال بالخادم',
+            'error': i18n.t('errors.serverConnection'),
             'isLoading': false
           });
           throw error;
@@ -519,7 +520,7 @@ export const useAppStore = create<AppState>()(
 
           logger.error('Data sync failed:', error as Error);
           set({
-            'error': 'فشل في مزامنة البيانات',
+            'error': i18n.t('errors.dataSyncFailed'),
             'isLoading': false
           });
           return false;
@@ -625,7 +626,7 @@ export const useAppStore = create<AppState>()(
 
           log.error('❌ Error during app initialization:', error, 'STORE');
           set({
-            'error': 'فشل في تهيئة التطبيق',
+            'error': i18n.t('errors.appInitFailed'),
             'isLoading': false,
             'isInitialized': true,
             'hydrationComplete': true
