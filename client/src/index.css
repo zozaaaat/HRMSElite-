@@ -93,7 +93,6 @@
 
   html {
     font-family: 'Noto Sans Arabic', 'Roboto', sans-serif;
-    direction: rtl;
   }
 
   body {
@@ -151,9 +150,9 @@
     font-weight: 600;
   }
 
-  /* Input and form elements RTL styling */
+  /* Input and form elements alignment */
   input, textarea, select {
-    text-align: right;
+    text-align: start;
   }
 
   input[type="email"], input[type="url"], input[type="tel"] {
@@ -161,10 +160,7 @@
     text-align: left;
   }
 
-  /* Table RTL alignment */
-  table {
-    direction: rtl;
-  }
+  /* Table alignment inherits the document direction */
 
   /* Button spacing for RTL */
   .space-x-reverse > :not([hidden]) ~ :not([hidden]) {
@@ -562,7 +558,7 @@
   .table-head {
     height: 3rem;
     padding: 0 1rem;
-    text-align: right;
+    text-align: start;
     vertical-align: middle;
     font-weight: 500;
     color: hsl(var(--muted-foreground));
