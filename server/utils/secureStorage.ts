@@ -9,7 +9,7 @@ import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, Head
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import sharp from 'sharp';
 import { log } from './logger';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 export interface StorageConfig {
   provider: 's3' | 'local' | 'hybrid';

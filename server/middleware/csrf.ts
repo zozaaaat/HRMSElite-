@@ -1,21 +1,40 @@
-import csurf from 'csurf';
+import Tokens from 'csrf';
 import { Request, Response, NextFunction } from 'express';
 
-// Stateful CSRF protection using session-backed tokens
-export const csrfProtection = csurf({
-  cookie: false,
-  ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
-});
+// Initialize token generator
+const tokens = new Tokens();
+
+// CSRF protection middleware verifying token for state-changing requests
+export const csrfProtection = (req: Request, res: Response, next: NextFunction) => {
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+    return next();
+  }
+
+  const secret = (req.session as any)?.csrfSecret as string | undefined;
+  const token =
+    req.get('x-csrf-token') ||
+    (req.body && (req.body as any)._csrf) ||
+    (req.cookies && req.cookies._csrf);
+
+  if (!secret || !token || !tokens.verify(secret, token)) {
+    const err: Error & { code?: string } = new Error('Invalid CSRF token');
+    err.code = 'EBADCSRFTOKEN';
+    return next(err);
+  }
+
+  next();
+};
 
 // Issue a CSRF token per session and expose it via cookie and locals
 export const csrfTokenMiddleware = (req: Request, res: Response, next: NextFunction) => {
   try {
-    const token = req.csrfToken();
+    let secret = (req.session as any)?.csrfSecret as string | undefined;
+    if (!secret) {
+      secret = tokens.secretSync();
+      (req.session as any).csrfSecret = secret;
+    }
 
-    // Persist token with the user's session
-    // This allows cryptographic validation on each request
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    (req.session as any).csrfToken = token;
+    const token = tokens.create(secret);
 
     res.cookie('_csrf', token, {
       httpOnly: true,
@@ -27,7 +46,7 @@ export const csrfTokenMiddleware = (req: Request, res: Response, next: NextFunct
     res.locals.csrfToken = token;
     next();
   } catch (err) {
-    next(err);
+    next(err as Error);
   }
 };
 
@@ -41,7 +60,12 @@ export const csrfTokenHandler = (_req: Request, res: Response) => {
 };
 
 // Error handler for CSRF validation failures
-export const csrfErrorHandler = (err: Error & { code?: string }, req: Request, res: Response, next: NextFunction) => {
+export const csrfErrorHandler = (
+  err: Error & { code?: string },
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   if (err.code !== 'EBADCSRFTOKEN') {
     return next(err);
   }
@@ -52,3 +76,4 @@ export const csrfErrorHandler = (err: Error & { code?: string }, req: Request, r
     requestId: req.id
   });
 };
+
