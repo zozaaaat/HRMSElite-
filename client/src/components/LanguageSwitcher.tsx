@@ -33,6 +33,7 @@ export const LanguageSwitcher: React.FC = () => {
       onClick={toggleLanguage}
       className="flex items-center gap-2"
       title={`${t('settings.language')}: ${currentLanguage}`}
+      aria-label={`${t('settings.language')}: ${nextLanguage}`}
     >
       <Globe className="h-4 w-4" />
         <span className="hidden sm:inline">{nextLanguage}</span>

@@ -432,6 +432,8 @@
     "notifications": "Notifications",
     "language": "Language",
     "theme": "Theme",
+    "lightMode": "Switch to light mode",
+    "darkMode": "Switch to dark mode",
     "profile": "Profile",
     "password": "Password",
     "email": "Email",

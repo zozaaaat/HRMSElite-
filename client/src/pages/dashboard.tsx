@@ -113,37 +113,39 @@ export default function Dashboard ({role = 'admin'}: DashboardProps) {
         keywords={t('dashboard.pageKeywords')}
       />
 
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">{t('dashboard.heading')}</h1>
-            <p className="text-muted-foreground">{t('dashboard.welcome')}</p>
+      <main role="main">
+        <div className="container mx-auto p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">{t('dashboard.heading')}</h1>
+              <p className="text-muted-foreground">{t('dashboard.welcome')}</p>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {t('dashboard.role')}: {role}
+            </div>
           </div>
-          <div className="text-sm text-muted-foreground">
-            {t('dashboard.role')}: {role}
+
+          {/* Dashboard Content with Suspense */}
+          <Suspense fallback={<LoadingFallback type="card" message={t('dashboard.loadingStats')} />}>
+            <DashboardStats data={dashboardData?.stats ?? null} />
+          </Suspense>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Suspense fallback={<LoadingFallback type="card" message={t('dashboard.loadingCharts')} />}>
+              <DashboardCharts data={dashboardData?.charts ?? null} />
+            </Suspense>
+
+            <Suspense fallback={<LoadingFallback type="table" message={t('dashboard.loadingTable')} />}>
+              <DashboardTable data={dashboardData?.table ?? null} />
+            </Suspense>
           </div>
         </div>
 
-        {/* Dashboard Content with Suspense */}
-        <Suspense fallback={<LoadingFallback type="card" message={t('dashboard.loadingStats')} />}>
-          <DashboardStats data={dashboardData?.stats ?? null} />
+        {/* AI Chatbot */}
+        <Suspense fallback={null}>
+          <Chatbot />
         </Suspense>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Suspense fallback={<LoadingFallback type="card" message={t('dashboard.loadingCharts')} />}>
-            <DashboardCharts data={dashboardData?.charts ?? null} />
-          </Suspense>
-
-          <Suspense fallback={<LoadingFallback type="table" message={t('dashboard.loadingTable')} />}>
-            <DashboardTable data={dashboardData?.table ?? null} />
-          </Suspense>
-        </div>
-      </div>
-
-      {/* AI Chatbot */}
-      <Suspense fallback={null}>
-        <Chatbot />
-      </Suspense>
+      </main>
     </>
   );
 

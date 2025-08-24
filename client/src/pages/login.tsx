@@ -3,7 +3,7 @@ import {useLocation} from 'wouter';
 import {Button} from '../components/ui/button';
 import {Input} from '../components/ui/input';
 import {Label} from '../components/ui/label';
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '../components/ui/card';
+import {Card, CardContent, CardDescription, CardHeader} from '../components/ui/card';
 import {Alert, AlertDescription} from '../components/ui/alert';
 import {Loader2, User, Lock, AlertCircle} from 'lucide-react';
 import {useToast} from '../hooks/use-toast';
@@ -126,13 +126,13 @@ export default function Login () {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5 p-4">
+    <main role="main" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
             <User className="h-10 w-10 text-primary" />
           </div>
-          <CardTitle className="text-2xl">{t('auth.login')}</CardTitle>
+          <h1 className="text-2xl font-semibold">{t('auth.login')}</h1>
           <CardDescription>
             {t('auth.loginDescription')}
             {companyName && (
@@ -198,7 +198,7 @@ export default function Login () {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 
 }
