@@ -291,6 +291,8 @@
     "postcss": "8.4.47",
     "prettier": "^3.6.2",
     "tailwindcss": "4.1.11",
+    "ts-morph": "^26.0.0",
+    "ts-node": "^10.9.2",
     "ts-prune": "0.10.3",
     "tsx": "4.20.3",
     "typescript": "5.5.x",
