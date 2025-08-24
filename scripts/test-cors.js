@@ -6,11 +6,10 @@
  */
 
 const express = require('express');
-const cors = require('cors');
 const request = require('supertest');
 
-// Import the CORS configuration
-const { corsConfig } = require('../server/middleware/security');
+// Import the strict CORS middleware
+const { strictCors } = require('../server/middleware/cors');
 
 // Mock logger
 const mockLogger = {
@@ -32,7 +31,7 @@ jest.doMock('../server/utils/logger', () => ({
 
 function createTestApp() {
   const app = express();
-  app.use(cors(corsConfig));
+  app.use(strictCors);
   
   app.get('/api/test', (req, res) => {
     res.json({ success: true, message: 'CORS test endpoint' });

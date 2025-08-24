@@ -32,7 +32,6 @@ const envSchema = z.object({
   
   // CORS configuration
   CORS_ORIGINS: z.string().optional(),
-  CORS_ORIGINLESS_API_KEYS: z.string().optional(),
   API_KEYS: z.string().optional(),
   INTERNAL_CIDR_ALLOWLIST: z.string().optional(),
   
@@ -67,7 +66,6 @@ export function validateEnv(): EnvConfig {
       jwtRefreshExpiresIn: env.JWT_REFRESH_EXPIRES_IN,
       databaseUrl: env.DATABASE_URL ? 'configured' : 'using default',
       corsOrigins: env.CORS_ORIGINS ? 'configured' : 'not set',
-      originlessApiKeys: env.CORS_ORIGINLESS_API_KEYS ? 'configured' : 'not set',
       apiKeys: env.API_KEYS ? 'configured' : 'not set',
       internalCidrs: env.INTERNAL_CIDR_ALLOWLIST ? 'configured' : 'not set',
       uploadMaxBytes: env.UPLOAD_MAX_BYTES,
