@@ -22,7 +22,7 @@ on:
         type: boolean
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '20.12.2'
 
 jobs:
   # 🔍 Pre-deployment Checks

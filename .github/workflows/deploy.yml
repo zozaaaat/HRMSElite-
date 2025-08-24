@@ -22,7 +22,7 @@ on:
         type: boolean
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '20.12.2'
   PNPM_VERSION: '8'
 
 jobs:
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [18, 20.12.2]
         os: [ubuntu-latest, windows-latest]
     timeout-minutes: 15
     
