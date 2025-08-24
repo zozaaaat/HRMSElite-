@@ -8,6 +8,7 @@ import { secureFileStorage, type StoredFile } from '../../utils/secureStorage';
 import { antivirusScanner } from '../../utils/antivirus';
 import { createScanFile } from '../../../security/files';
 import { generateETag, setETagHeader, matchesIfMatchHeader } from '../../utils/etag';
+import { fileTypeFromBuffer } from 'file-type';
 import {
   createErrorResponse,
   createSuccessResponse,
@@ -32,33 +33,17 @@ function getMaxFileSize(): number {
   const fromEnv = Number(process.env.UPLOAD_MAX_BYTES);
   return Number.isFinite(fromEnv) && fromEnv > 0 ? fromEnv : DEFAULT_MAX_FILE_SIZE;
 }
-const ALLOWED_MIME_TYPES = [
-  'application/pdf',
-  'image/png',
-  'image/jpeg',
-  'image/jpg',
-  'image/webp',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document' // docx
-];
-
-const ALLOWED_EXTENSIONS = [
-  'pdf',
-  'png',
-  'jpg',
-  'jpeg',
-  'webp',
-  'docx'
-];
-
-// File signature validation for security
-const FILE_SIGNATURES = {
-  'application/pdf': [0x25, 0x50, 0x44, 0x46], // %PDF
-  'image/png': [0x89, 0x50, 0x4E, 0x47], // PNG
-  'image/jpeg': [0xFF, 0xD8, 0xFF], // JPEG
-  'image/jpg': [0xFF, 0xD8, 0xFF], // JPG
-  'image/webp': [0x52, 0x49, 0x46, 0x46], // RIFF
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [0x50, 0x4B, 0x03, 0x04] // ZIP (DOCX is a ZIP file)
+const EXTENSION_TO_MIME: Record<string, string> = {
+  pdf: 'application/pdf',
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  webp: 'image/webp',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 };
+
+const ALLOWED_EXTENSIONS = Object.keys(EXTENSION_TO_MIME);
+const ALLOWED_MIME_TYPES = new Set(Object.values(EXTENSION_TO_MIME));
 
 // Configure multer with memory storage for security
 const upload = multer({
@@ -76,8 +61,8 @@ const upload = multer({
     }
 
     // Check MIME type
-    if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-      return cb(new Error(`MIME type not allowed. Allowed types: ${ALLOWED_MIME_TYPES.join(', ')}`));
+    if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
+      return cb(new Error(`MIME type not allowed. Allowed types: ${Array.from(ALLOWED_MIME_TYPES).join(', ')}`));
     }
 
     cb(null, true);
@@ -116,29 +101,37 @@ const validateFile = async (req: Request, res: Response, next: NextFunction) => 
       return res.status(errorResponse.statusCode).json(errorResponse.body);
     }
 
-    // Validate file signature (magic bytes) for security
-    const isValidSignature = await validateFileSignature(file.buffer, file.mimetype);
-    if (!isValidSignature) {
-      log.warn('Invalid file signature detected', {
+    // Verify actual MIME type using magic bytes
+    const detectedType = await fileTypeFromBuffer(file.buffer);
+    const fileExtension = file.originalname.split('.').pop()?.toLowerCase();
+    if (
+      !detectedType ||
+      !fileExtension ||
+      !ALLOWED_MIME_TYPES.has(detectedType.mime) ||
+      EXTENSION_TO_MIME[fileExtension] !== detectedType.mime
+    ) {
+      log.warn('Invalid MIME type detected', {
         fileName: file.originalname,
-        mimeType: file.mimetype,
+        declaredMime: file.mimetype,
+        detectedMime: detectedType?.mime,
         size: file.size,
         user: req.user?.id
       }, 'SECURITY');
-      
+
       const errorResponse = createErrorResponse(
         'VALIDATION_ERROR',
         'Invalid file format',
-        { 
-          field: 'file', 
-          message: 'File content does not match the declared format' 
+        {
+          field: 'file',
+          message: 'File content does not match the declared format'
         },
         400
       );
       return res.status(errorResponse.statusCode).json(errorResponse.body);
     }
 
-    // Additional MIME check skipped to avoid dependency mismatch; signature validation above suffices
+    // Use detected MIME type for further processing
+    file.mimetype = detectedType.mime;
 
     // Sanitize filename
     const sanitizedFilename = sanitizeFilename(file.originalname);
@@ -159,28 +152,6 @@ const validateFile = async (req: Request, res: Response, next: NextFunction) => 
 
 // Antivirus scanning middleware
 const scanFile = createScanFile({ createErrorResponse });
-
-// Validate file signature (magic bytes)
-async function validateFileSignature(buffer: Buffer, mimeType: string): Promise<boolean> {
-  try {
-    const expectedSignature = FILE_SIGNATURES[mimeType as keyof typeof FILE_SIGNATURES];
-    if (!expectedSignature) {
-      return false;
-    }
-
-    // Check if buffer starts with expected signature
-    for (let i = 0; i < expectedSignature.length; i++) {
-      if (buffer[i] !== expectedSignature[i]) {
-        return false;
-      }
-    }
-
-    return true;
-  } catch (error) {
-    log.error('Error validating file signature:', error as Error, 'SECURITY');
-    return false;
-  }
-}
 
 // Sanitize filename for security
 function sanitizeFilename(filename: string): string {
