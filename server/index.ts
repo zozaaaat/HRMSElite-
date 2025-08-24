@@ -7,7 +7,6 @@
  */
 
 import express from 'express';
-import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { createSessionMiddleware } from './utils/session';
 
@@ -22,9 +21,9 @@ import {
   requestValidation,
   securityMonitoring,
   enhancedRateLimiters,
-  corsConfig,
   createRateLimiter
 } from './middleware/security';
+import { strictCors } from './middleware/cors';
 import { csrfProtection, csrfTokenMiddleware, csrfTokenHandler, csrfErrorHandler } from './middleware/csrf';
 import { isAuthenticated, optionalAuth } from './middleware/auth';
 import { log } from './utils/logger';
@@ -84,7 +83,7 @@ app.use(additionalSecurityHeaders);
 app.use(securityMonitoring);
 
 // CORS configuration
-app.use(cors(corsConfig));
+app.use(strictCors);
 
 // Cookie parsing middleware
 app.use(cookieParser());
