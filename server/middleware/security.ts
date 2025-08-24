@@ -488,27 +488,71 @@ const allowedCorsOrigins = parseCorsOrigins();
 /**
  * Parse API keys that are allowed to bypass origin checks
  */
-function parseOriginlessApiKeys(): string[] {
-  const apiKeys = process.env.CORS_ORIGINLESS_API_KEYS;
-
-  if (!apiKeys) {
-    return [];
-  }
-
-  const keys = apiKeys
-    .split(',')
-    .map(key => key.trim())
-    .filter(key => key.length > 0);
-
-  if (keys.length > 0) {
-    log.info('CORS originless API keys configured', { count: keys.length }, 'SECURITY');
-  }
-
-  return keys;
+interface ApiKeyConfig {
+  secret: string;
+  scopes: string[];
+  routes: string[];
 }
 
-// Parse API keys once at startup
+function parseApiKeys(): Record<string, ApiKeyConfig> {
+  const raw = process.env.API_KEYS;
+  if (!raw) return {};
+  try {
+    const parsed = JSON.parse(raw) as Record<string, ApiKeyConfig>;
+    log.info('API keys configured', { count: Object.keys(parsed).length }, 'SECURITY');
+    return parsed;
+  } catch {
+    log.warn('Invalid API_KEYS format, ignoring', {}, 'SECURITY');
+    return {};
+  }
+}
+
+const apiKeys = parseApiKeys();
+
+function parseOriginlessApiKeys(): string[] {
+  const keys = process.env.CORS_ORIGINLESS_API_KEYS;
+  if (!keys) return [];
+  const list = keys
+    .split(',')
+    .map(k => k.trim())
+    .filter(k => k.length > 0);
+  if (list.length > 0) {
+    log.info('CORS originless API keys configured', { count: list.length }, 'SECURITY');
+  }
+  return list;
+}
+
 const allowedOriginlessApiKeys = parseOriginlessApiKeys();
+
+function parseInternalCidrs(): string[] {
+  const cidrs = process.env.INTERNAL_CIDR_ALLOWLIST;
+  if (!cidrs) return [];
+  return cidrs
+    .split(',')
+    .map(c => c.trim())
+    .filter(c => c.length > 0);
+}
+
+const internalCidrs = parseInternalCidrs();
+
+function ipToLong(ip: string): number {
+  return ip.split('.').reduce((acc, oct) => (acc << 8) + parseInt(oct, 10), 0) >>> 0;
+}
+
+function cidrMatch(ip: string, cidr: string): boolean {
+  const [range, bitsStr] = cidr.split('/');
+  const bits = parseInt(bitsStr, 10);
+  if (!range || Number.isNaN(bits)) return false;
+  const mask = bits === 0 ? 0 : (~0 << (32 - bits)) >>> 0;
+  return (ipToLong(ip) & mask) === (ipToLong(range) & mask);
+}
+
+function isInternalRequest(req: Request): boolean {
+  const ip = req.ip || (req.connection as any).remoteAddress || '';
+  const cidrAllowed = internalCidrs.some(cidr => cidrMatch(ip, cidr));
+  const mtls = (req.socket as any).authorized || (req.client as any)?.authorized;
+  return cidrAllowed || mtls;
+}
 
 /**
  * CORS configuration with strict origin validation and detailed logging
@@ -527,10 +571,40 @@ export const corsConfig = (req: Request, callback: (err: Error | null, options?:
     });
   }
 
-  // Handle requests with no origin using API key authentication
+  // Handle requests with no origin
   if (!origin) {
+    const userAgent = req.get('User-Agent') || '';
+    const isBrowser = /mozilla|chrome|safari|edge/i.test(userAgent);
+    const internal = isInternalRequest(req);
+
+    if (isBrowser && !internal) {
+      log.warn(
+        'Originless browser request rejected',
+        {
+          requestId: req.id,
+          ip: req.ip,
+          userAgent,
+          timestamp: new Date().toISOString()
+        },
+        'SECURITY'
+      );
+      const error: Error & { status?: number } = new Error('CORS origin required');
+      error.status = 403;
+      return callback(error);
+    }
+
+    if (internal) {
+      return callback(null, {
+        origin: true,
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Requested-With', 'X-API-Key'],
+        exposedHeaders: ['X-CSRF-Token', 'X-Request-ID', 'X-Response-Time']
+      });
+    }
+
     const apiKey = req.header('x-api-key');
-    if (apiKey && allowedOriginlessApiKeys.includes(apiKey)) {
+    if (apiKey && allowedOriginlessApiKeys.includes(apiKey) && apiKeys[apiKey]) {
       log.info(
         'CORS originless request allowed',
         {
@@ -554,6 +628,8 @@ export const corsConfig = (req: Request, callback: (err: Error | null, options?:
       'CORS origin missing or API key invalid',
       {
         requestId: req.id,
+        ip: req.ip,
+        userAgent,
         timestamp: new Date().toISOString()
       },
       'SECURITY'
@@ -579,6 +655,87 @@ export const corsConfig = (req: Request, callback: (err: Error | null, options?:
   const error: Error & { status?: number } = new Error('CORS origin not allowed');
   error.status = 403;
   return callback(error);
+};
+
+/**
+ * API key authentication middleware with optional HMAC verification
+ */
+export const apiKeyAuth = (requiredScope?: string) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const apiKey = req.header('x-api-key');
+    if (!apiKey || !apiKeys[apiKey]) {
+      return res.status(401).json({
+        error: 'مفتاح API غير صالح',
+        message: 'Authentication required',
+        code: 'API_KEY_INVALID',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const config = apiKeys[apiKey];
+
+    if (!config.routes.some(route => req.path.startsWith(route))) {
+      return res.status(403).json({
+        error: 'غير مصرح بالوصول',
+        message: 'Route not allowed for this API key',
+        code: 'API_KEY_ROUTE_FORBIDDEN',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    if (requiredScope && !config.scopes.includes(requiredScope)) {
+      return res.status(403).json({
+        error: 'غير مصرح بالوصول',
+        message: 'Scope not allowed for this API key',
+        code: 'API_KEY_SCOPE_FORBIDDEN',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const signature = req.header('x-signature');
+    if (signature) {
+      const timestamp = req.header('x-timestamp');
+      if (!timestamp) {
+        return res.status(401).json({
+          error: 'Signature timestamp missing',
+          code: 'SIGNATURE_MISSING_TIMESTAMP',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      const tsNum = parseInt(timestamp, 10);
+      if (Number.isNaN(tsNum) || Math.abs(Date.now() - tsNum) > 5 * 60 * 1000) {
+        return res.status(401).json({
+          error: 'Signature expired',
+          code: 'SIGNATURE_EXPIRED',
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      const body = req.body && Object.keys(req.body).length > 0 ? JSON.stringify(req.body) : '';
+      const expected = crypto.createHmac('sha256', config.secret).update(body + timestamp).digest('hex');
+      try {
+        const valid = crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(signature, 'hex'));
+        if (!valid) {
+          return res.status(401).json({
+            error: 'Invalid signature',
+            code: 'SIGNATURE_INVALID',
+            timestamp: new Date().toISOString()
+          });
+        }
+      } catch {
+        return res.status(401).json({
+          error: 'Invalid signature',
+          code: 'SIGNATURE_INVALID',
+          timestamp: new Date().toISOString()
+        });
+      }
+    }
+
+    (req as any).apiKey = apiKey;
+    (req as any).apiKeyScopes = config.scopes;
+    next();
+  };
 };
 
 /**
