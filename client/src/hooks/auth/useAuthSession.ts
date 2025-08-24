@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { AuthService } from '../../services/auth';
 import { AuthUtils } from '../../lib/authUtils';
+import { t } from "i18next";
 
 /**
  * Authentication Session Hook - Single Responsibility Principle

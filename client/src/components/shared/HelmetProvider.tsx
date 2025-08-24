@@ -1,5 +1,6 @@
 import React from 'react';
 import {HelmetProvider as ReactHelmetProvider} from 'react-helmet-async';
+import { t } from "i18next";
 
 interface HelmetProviderProps {
   children: React.ReactNode;

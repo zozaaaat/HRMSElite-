@@ -1,4 +1,5 @@
 import {ReactQueryDevtools} from '@tanstack/react-query-devtools';
+import { t } from "i18next";
 
 type ReactQueryDevToolsProps = {
   initialIsOpen?: boolean;

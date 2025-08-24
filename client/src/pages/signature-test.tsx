@@ -13,6 +13,7 @@ import {
   Eye,
   Download
 } from 'lucide-react';
+import { t } from "i18next";
 
 export default function SignatureTestPage () {
 
@@ -121,8 +122,8 @@ export default function SignatureTestPage () {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">اختبار مكون التقاط التوقيع</h1>
-        <p className="text-gray-600">اختبار وظائف التقاط التوقيع للمستندات والإجازات</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('auto.signature-test.1')}</h1>
+        <p className="text-gray-600">{t('auto.signature-test.2')}</p>
       </div>
 
       {/* قائمة الكيانات */}
@@ -130,8 +131,7 @@ export default function SignatureTestPage () {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            الكيانات المتاحة للتوقيع
-          </CardTitle>
+            {t('auto.signature-test.3')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -161,8 +161,7 @@ export default function SignatureTestPage () {
                       className="w-full"
                     >
                       <FileText className="h-4 w-4 mr-1" />
-                      إضافة توقيع
-                    </Button>
+                      {t('auto.signature-test.4')}</Button>
                   </CardContent>
                 </Card>
               );
@@ -178,7 +177,7 @@ export default function SignatureTestPage () {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Eye className="h-5 w-5" />
-              التوقيعات المحفوظة ({signatures.length})
+              {t('auto.signature-test.5')}{signatures.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -215,7 +214,7 @@ export default function SignatureTestPage () {
                       <div className="mb-3">
                         <img
                           src={signature.imageData}
-                          alt="التوقيع"
+                          alt={t('auto.signature-test.13')}
                           className="w-full h-20 object-contain border rounded bg-white"
                           loading="lazy"
                           decoding="async"
@@ -232,19 +231,9 @@ export default function SignatureTestPage () {
                           className="flex-1"
                         >
                           <Download className="h-3 w-3 mr-1" />
-                          تحميل
-                        </Button>
+                          {t('auto.signature-test.6')}</Button>
                         <Button
-                          onClick={() => {
-
-                            setCurrentEntity({
-                              'id': signature.entityId ?? '',
-                              'type': signature.entityType ?? "document",
-                              'title': signature.fileName ?? "التوقيع"
-                            });
-                            setShowSignatureCapture(true);
-
-                          }}
+                          onClick={t('auto.signature-test.14')}
                           size="sm"
                           variant="outline"
                         >
@@ -275,8 +264,8 @@ export default function SignatureTestPage () {
                 setCurrentEntity(null);
 
               }}
-              title={`توقيع ${currentEntity.title}`}
-              description={`قم بالتوقيع على ${currentEntity.title}`}
+              title={t('auto.signature-test.15')}
+              description={t('auto.signature-test.16')}
             />
           </div>
         </div>
@@ -285,14 +274,14 @@ export default function SignatureTestPage () {
       {/* معلومات إضافية */}
       <Card>
         <CardHeader>
-          <CardTitle>معلومات تقنية</CardTitle>
+          <CardTitle>{t('auto.signature-test.7')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-gray-600">
-          <p>• يتم حفظ التوقيعات كـ base64 في الذاكرة المحلية</p>
-          <p>• يمكن تحميل التوقيعات كملفات PNG</p>
-          <p>• يدعم الرسم بالماوس واللمس</p>
-          <p>• يمكن تغيير لون وسمك القلم</p>
-          <p>• يدعم رفع ملفات الصور كتوقيعات</p>
+          <p>{t('auto.signature-test.8')}</p>
+          <p>{t('auto.signature-test.9')}</p>
+          <p>{t('auto.signature-test.10')}</p>
+          <p>{t('auto.signature-test.11')}</p>
+          <p>{t('auto.signature-test.12')}</p>
         </CardContent>
       </Card>
     </div>

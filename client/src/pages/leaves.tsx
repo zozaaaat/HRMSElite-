@@ -10,7 +10,7 @@ export default function LeavesPage () {
       companyName={t('company.blueNileJewelry')}
     >
       <div className="p-4">
-        <h1 className="text-3xl font-bold">{t('leaves.pageTitle')}</h1>
+        <h1 className="text-3xl font-bold">{t('leaves.title')}</h1>
       </div>
     </SharedLayout>
   );

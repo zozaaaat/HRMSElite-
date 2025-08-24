@@ -2,6 +2,7 @@
 /* global FormData, URLSearchParams */
 import {apiRequest} from '../lib/apiRequest';
 import {Document} from '../types/documents';
+import { t } from "i18next";
 
 export interface DocumentFilters {
   companyId?: string;

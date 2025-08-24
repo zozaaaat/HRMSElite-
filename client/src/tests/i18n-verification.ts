@@ -1,4 +1,5 @@
 import i18n from '../lib/i18n';
+import { t } from "i18next";
 
 // Test i18n configuration
 console.log('🧪 Testing i18n Configuration...\n');

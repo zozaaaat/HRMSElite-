@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { logger } from '../lib/logger';
 import { UserRole } from '../lib/routes';
+import { t } from "i18next";
 
 // Define AppUser type locally since it's not in common types
 type AppUser = {

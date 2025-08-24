@@ -1,5 +1,6 @@
 import {apiRequest} from '../lib/apiRequest';
 import type {Notification, InsertNotification} from '../../../shared/schema';
+import { t } from "i18next";
 
 export interface NotificationFilters {
   isRead?: boolean;

@@ -8,6 +8,7 @@ import {
   FormSkeleton,
   DashboardSkeleton
 } from '@/components/ui/skeleton';
+import { t } from "i18next";
 
 interface LoadingFallbackProps {
   type?: 'default' | 'card' | 'table' | 'list' | 'form' | 'dashboard' | 'skeleton';
@@ -92,7 +93,7 @@ export function PageLoadingFallback () {
           <div className="w-12 h-12 border-4 border-gray-200 border-t-primary rounded-full animate-spin mx-auto" />
         </div>
         <div className="space-y-2">
-          <p className="text-lg font-medium text-foreground">جاري تحميل الصفحة...</p>
+          <p className="text-lg font-medium text-foreground">{t('auto.LoadingFallback.1')}</p>
           <div className="flex justify-center space-x-1">
             <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={
   {

@@ -11,6 +11,7 @@ type CompanyStats = CompanyWithStats;
 import {UserRole} from '../../../shared/types/user';
 import logger from '../lib/logger';
 import i18n from '../lib/i18n';
+import { t } from "i18next";
 
 // Import RequestInit type for TypeScript compatibility
 type RequestInit = globalThis.RequestInit;

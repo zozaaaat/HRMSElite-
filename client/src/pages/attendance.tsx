@@ -6,8 +6,8 @@ export default function AttendancePage() {
   return (
     <SharedLayout
       userRole="employee"
-      userName={t('attendance.userName')}
-      companyName={t('attendance.companyName')}
+      userName={t('user.ahmed')}
+      companyName={t('company.blueNileJewelry')}
     >
       <div className="p-4">
         <h1 className="text-3xl font-bold mb-4">{t('attendance.title')}</h1>

@@ -1,5 +1,6 @@
 import React from 'react';
 import SuspenseWrapper from '../components/optimized/SuspenseWrapper';
+import { t } from "i18next";
 
 // Define a generic props type for page components
 type PageProps = Record<string, unknown>;
@@ -42,205 +43,205 @@ export const LazyI18nTest = React.lazy(() => import('../tests/i18n-test'));
 
 // Wrapped components with appropriate Suspense fallbacks
 export const CompanySelection = (props: PageProps) => (
-  <SuspenseWrapper type="card" message="جاري تحميل صفحة اختيار الشركة...">
+  <SuspenseWrapper type="card" message={t('auto.lazy-pages.1')}>
     <LazyCompanySelection {...props} />
   </SuspenseWrapper>
 );
 
 export const Login = (props: PageProps) => (
-  <SuspenseWrapper type="card" message="جاري تحميل صفحة تسجيل الدخول...">
+  <SuspenseWrapper type="card" message={t('auto.lazy-pages.2')}>
     <LazyLogin {...props} />
   </SuspenseWrapper>
 );
 
 export const NotFound = (props: PageProps) => (
-  <SuspenseWrapper type="default" message="جاري تحميل الصفحة...">
+  <SuspenseWrapper type="default" message={t('auto.lazy-pages.3')}>
     <LazyNotFound {...props} />
   </SuspenseWrapper>
 );
 
 export const Dashboard = (props: PageProps) => (
-  <SuspenseWrapper type="chart" message="جاري تحميل لوحة التحكم...">
+  <SuspenseWrapper type="chart" message={t('auto.lazy-pages.4')}>
     <LazyDashboard {...props} />
   </SuspenseWrapper>
 );
 
 export const Companies = (props: PageProps) => (
-  <SuspenseWrapper type="table" message="جاري تحميل قائمة الشركات...">
+  <SuspenseWrapper type="table" message={t('auto.lazy-pages.5')}>
     <LazyCompanies {...props} />
   </SuspenseWrapper>
 );
 
 export const CompanyDetails = (props: PageProps) => (
-  <SuspenseWrapper type="card" message="جاري تحميل تفاصيل الشركة...">
+  <SuspenseWrapper type="card" message={t('auto.lazy-pages.6')}>
     <LazyCompanyDetails {...props} />
   </SuspenseWrapper>
 );
 
 export const Employees = (props: PageProps) => (
-  <SuspenseWrapper type="table" message="جاري تحميل قائمة الموظفين...">
+  <SuspenseWrapper type="table" message={t('auto.lazy-pages.7')}>
     <LazyEmployees {...props} />
   </SuspenseWrapper>
 );
 
 export const EmployeesEnhanced = (props: PageProps) => (
-  <SuspenseWrapper type="table" message="جاري تحميل قائمة الموظفين المحسنة...">
+  <SuspenseWrapper type="table" message={t('auto.lazy-pages.8')}>
     <LazyEmployeesEnhanced {...props} />
   </SuspenseWrapper>
 );
 
 export const Reports = (props: PageProps) => (
-  <SuspenseWrapper type="chart" message="جاري تحميل التقارير...">
+  <SuspenseWrapper type="chart" message={t('auto.lazy-pages.9')}>
     <LazyReports {...props} />
   </SuspenseWrapper>
 );
 
 export const Settings = (props: PageProps) => (
-  <SuspenseWrapper type="card" message="جاري تحميل الإعدادات...">
+  <SuspenseWrapper type="card" message={t('auto.lazy-pages.10')}>
     <LazySettings {...props} />
   </SuspenseWrapper>
 );
 
 export const Attendance = (props: PageProps) => (
-  <SuspenseWrapper type="table" message="جاري تحميل صفحة الحضور...">
+  <SuspenseWrapper type="table" message={t('auto.lazy-pages.11')}>
     <LazyAttendance {...props} />
   </SuspenseWrapper>
 );
 
 export const LeaveRequests = (props: PageProps) => (
-  <SuspenseWrapper type="list" message="جاري تحميل طلبات الإجازة...">
+  <SuspenseWrapper type="list" message={t('auto.lazy-pages.12')}>
     <LazyLeaveRequests {...props} />
   </SuspenseWrapper>
 );
 
 export const Payroll = (props: PageProps) => (
-  <SuspenseWrapper type="table" message="جاري تحميل كشف الرواتب...">
+  <SuspenseWrapper type="table" message={t('auto.lazy-pages.13')}>
     <LazyPayroll {...props} />
   </SuspenseWrapper>
 );
 
 export const Documents = (props: PageProps) => (
-  <SuspenseWrapper type="list" message="جاري تحميل المستندات...">
+  <SuspenseWrapper type="list" message={t('auto.lazy-pages.14')}>
     <LazyDocuments {...props} />
   </SuspenseWrapper>
 );
 
 export const Training = (props: PageProps) => (
-  <SuspenseWrapper type="list" message="جاري تحميل صفحة التدريب...">
+  <SuspenseWrapper type="list" message={t('auto.lazy-pages.15')}>
     <LazyTraining {...props} />
   </SuspenseWrapper>
 );
 
 export const Recruitment = (props: PageProps) => (
-  <SuspenseWrapper type="list" message="جاري تحميل صفحة التوظيف...">
+  <SuspenseWrapper type="list" message={t('auto.lazy-pages.16')}>
     <LazyRecruitment {...props} />
   </SuspenseWrapper>
 );
 
 export const Performance = (props: PageProps) => (
-  <SuspenseWrapper type="chart" message="جاري تحميل تقييم الأداء...">
+  <SuspenseWrapper type="chart" message={t('auto.lazy-pages.17')}>
     <LazyPerformance {...props} />
   </SuspenseWrapper>
 );
 
 export const AdvancedSearch = (props: PageProps) => (
-  <SuspenseWrapper type="card" message="جاري تحميل البحث المتقدم...">
+  <SuspenseWrapper type="card" message={t('auto.lazy-pages.18')}>
     <LazyAdvancedSearch {...props} />
   </SuspenseWrapper>
 );
 
 export const AIDashboard = (props: PageProps) => (
-  <SuspenseWrapper type="chart" message="جاري تحميل لوحة التحكم الذكية...">
+  <SuspenseWrapper type="chart" message={t('auto.lazy-pages.19')}>
     <LazyAIDashboard {...props} />
   </SuspenseWrapper>
 );
 
 export const AIChatbotDemo = (props: PageProps) => (
-  <SuspenseWrapper type="card" message="جاري تحميل المحادثة الذكية...">
+  <SuspenseWrapper type="card" message={t('auto.lazy-pages.20')}>
     <LazyAIChatbotDemo {...props} />
   </SuspenseWrapper>
 );
 
 export const AIAnalytics = (props: PageProps) => (
-  <SuspenseWrapper type="chart" message="جاري تحميل التحليلات الذكية...">
+  <SuspenseWrapper type="chart" message={t('auto.lazy-pages.21')}>
     <LazyAIAnalytics {...props} />
   </SuspenseWrapper>
 );
 
 export const AccountingSystems = (props: PageProps) => (
-  <SuspenseWrapper type="table" message="جاري تحميل أنظمة المحاسبة...">
+  <SuspenseWrapper type="table" message={t('auto.lazy-pages.22')}>
     <LazyAccountingSystems {...props} />
   </SuspenseWrapper>
 );
 
 export const GovernmentForms = (props: PageProps) => (
-  <SuspenseWrapper type="list" message="جاري تحميل النماذج الحكومية...">
+  <SuspenseWrapper type="list" message={t('auto.lazy-pages.23')}>
     <LazyGovernmentForms {...props} />
   </SuspenseWrapper>
 );
 
 export const Licenses = (props: PageProps) => (
-  <SuspenseWrapper type="card" message="جاري تحميل التراخيص...">
+  <SuspenseWrapper type="card" message={t('auto.lazy-pages.24')}>
     <LazyLicenses {...props} />
   </SuspenseWrapper>
 );
 
 export const Leaves = (props: PageProps) => (
-  <SuspenseWrapper type="list" message="جاري تحميل الإجازات...">
+  <SuspenseWrapper type="list" message={t('auto.lazy-pages.25')}>
     <LazyLeaves {...props} />
   </SuspenseWrapper>
 );
 
 export const Signatures = (props: PageProps) => (
-  <SuspenseWrapper type="card" message="جاري تحميل التوقيعات...">
+  <SuspenseWrapper type="card" message={t('auto.lazy-pages.26')}>
     <LazySignatures {...props} />
   </SuspenseWrapper>
 );
 
 export const SignatureTest = (props: PageProps) => (
-  <SuspenseWrapper type="card" message="جاري تحميل اختبار التوقيع...">
+  <SuspenseWrapper type="card" message={t('auto.lazy-pages.27')}>
     <LazySignatureTest {...props} />
   </SuspenseWrapper>
 );
 
 export const PermissionTest = (props: PageProps) => (
-  <SuspenseWrapper type="card" message="جاري تحميل اختبار الصلاحيات...">
+  <SuspenseWrapper type="card" message={t('auto.lazy-pages.28')}>
     <LazyPermissionTest {...props} />
   </SuspenseWrapper>
 );
 
 export const RoleBasedDashboard = (props: PageProps) => (
-  <SuspenseWrapper type="chart" message="جاري تحميل لوحة التحكم حسب الدور...">
+  <SuspenseWrapper type="chart" message={t('auto.lazy-pages.29')}>
     <LazyRoleBasedDashboard {...props} />
   </SuspenseWrapper>
 );
 
 export const SuperAdminDashboard = (props: PageProps) => (
-  <SuspenseWrapper type="chart" message="جاري تحميل لوحة تحكم المدير العام...">
+  <SuspenseWrapper type="chart" message={t('auto.lazy-pages.30')}>
     <LazySuperAdminDashboard {...props} />
   </SuspenseWrapper>
 );
 
 export const EmployeeManagement = (props: PageProps) => (
-  <SuspenseWrapper type="table" message="جاري تحميل إدارة الموظفين...">
+  <SuspenseWrapper type="table" message={t('auto.lazy-pages.31')}>
     <LazyEmployeeManagement {...props} />
   </SuspenseWrapper>
 );
 
 export const LayoutExample = (props: PageProps) => (
-  <SuspenseWrapper type="card" message="جاري تحميل مثال التخطيط...">
+  <SuspenseWrapper type="card" message={t('auto.lazy-pages.32')}>
     <LazyLayoutExample {...props} />
   </SuspenseWrapper>
 );
 
 export const PerformanceTest = (props: PageProps) => (
-  <SuspenseWrapper type="chart" message="جاري تحميل صفحة اختبار الأداء...">
+  <SuspenseWrapper type="chart" message={t('auto.lazy-pages.33')}>
     <LazyPerformanceTest {...props} />
   </SuspenseWrapper>
 );
 
 export const I18nTest = (props: PageProps) => (
-  <SuspenseWrapper type="card" message="جاري تحميل اختبار الترجمة...">
+  <SuspenseWrapper type="card" message={t('auto.lazy-pages.34')}>
     <LazyI18nTest {...props} />
   </SuspenseWrapper>
 );

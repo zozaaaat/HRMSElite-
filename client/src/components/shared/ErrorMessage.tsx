@@ -2,6 +2,7 @@ import {AlertCircle, RefreshCw} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {Alert, AlertDescription, AlertTitle} from '@/components/ui/alert';
 import {cn} from '@/lib/utils';
+import { t } from "i18next";
 
 interface ErrorMessageProps {
   error: Error | string | null;
@@ -45,8 +46,7 @@ export function ErrorMessage ({
             className="border-red-300 text-red-700 hover:bg-red-100 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900/20"
           >
             <RefreshCw className="h-4 w-4 ml-2" />
-            إعادة المحاولة
-          </Button>
+            {t('auto.ErrorMessage.1')}</Button>
         </div>
       )}
     </Alert>
@@ -69,7 +69,7 @@ export function FullScreenError ({
         <ErrorMessage
           error={error}
           onRetry={onRetry}
-          title="خطأ في تحميل البيانات"
+          title={t('auto.ErrorMessage.2')}
         />
       </div>
     </div>
@@ -92,7 +92,7 @@ export function SectionError ({
         <ErrorMessage
           error={error}
           onRetry={onRetry}
-          title="خطأ في تحميل البيانات"
+          title={t('auto.ErrorMessage.3')}
         />
       </div>
     </div>
@@ -115,7 +115,7 @@ export function TableError ({
         <ErrorMessage
           error={error}
           onRetry={onRetry}
-          title="خطأ في تحميل الجدول"
+          title={t('auto.ErrorMessage.4')}
         />
       </div>
     </div>

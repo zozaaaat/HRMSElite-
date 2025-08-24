@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import {cn} from '../../lib/utils';
+import { t } from "i18next";
 
 const Card = React.forwardRef<
   globalThis.HTMLDivElement,

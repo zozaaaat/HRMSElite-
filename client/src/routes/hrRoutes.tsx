@@ -2,6 +2,7 @@ import { Route, useParams } from 'wouter';
 import { ProtectedRoute } from '../components/shared';
 import { routes, UserRole } from '../lib/routes';
 import {Dashboard,Employees,Attendance,LeaveRequests,Payroll,Documents,Training,Recruitment,Performance,AdvancedSearch,AIChatbotDemo,AIAnalytics,Licenses,Leaves,Signatures,SignatureTest,PermissionTest,RoleBasedDashboard,SuperAdminDashboard,EmployeeManagement,LayoutExample,I18nTest} from '../pages/lazy-pages';
+import { t } from "i18next";
 
 const DashboardWrapper = () => {
   const { role } = useParams<{ role?: string }>();

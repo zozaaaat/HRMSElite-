@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 
 import {License, Company} from '../types/documents';
+import { t } from "i18next";
 
 // Shared helpers and types
 const getStatusColor = (status: string) => {
@@ -392,19 +393,17 @@ export default function LicensesPage () {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">إدارة التراخيص</h1>
+        <h1 className="text-3xl font-bold">{t('auto.licenses.1')}</h1>
         <div className="flex gap-2">
           <Button variant="outline">
             <Filter className="h-4 w-4 ml-2" />
-            فلترة
-          </Button>
+            {t('auto.licenses.2')}</Button>
           <Button
             className="bg-blue-600 hover:bg-blue-700"
             onClick={() => setShowForm(true)}
           >
             <Plus className="h-4 w-4 ml-2" />
-            إضافة ترخيص
-          </Button>
+            {t('auto.licenses.3')}</Button>
         </div>
       </div>
 
@@ -422,8 +421,7 @@ export default function LicensesPage () {
   stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
 }`
 }>
-                    {stat.change} من الشهر الماضي
-                  </p>
+                    {stat.change} {t('auto.licenses.4')}</p>
                 </div>
                 <div className={`p-3 rounded-full bg-${stat.color}-100`}>
                   <stat.icon className={`h-6 w-6 text-${stat.color}-600`} />
@@ -439,7 +437,7 @@ export default function LicensesPage () {
         <div className="relative">
           <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="البحث في التراخيص..."
+            placeholder={t('auto.licenses.48')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pr-10"
@@ -447,10 +445,10 @@ export default function LicensesPage () {
         </div>
         <Select value={selectedCompany} onValueChange={setSelectedCompany}>
           <SelectTrigger>
-            <SelectValue placeholder="جميع الشركات" />
+            <SelectValue placeholder={t('auto.licenses.49')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">جميع الشركات</SelectItem>
+            <SelectItem value="all">{t('auto.licenses.5')}</SelectItem>
             {companies.map(company => (
               <SelectItem key={company.id} value={company.id}>
                 {company.name}
@@ -460,21 +458,21 @@ export default function LicensesPage () {
         </Select>
         <Select value={selectedStatus} onValueChange={setSelectedStatus}>
           <SelectTrigger>
-            <SelectValue placeholder="جميع الحالات" />
+            <SelectValue placeholder={t('auto.licenses.50')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">جميع الحالات</SelectItem>
-            <SelectItem value="active">نشط</SelectItem>
-            <SelectItem value="expired">منتهي الصلاحية</SelectItem>
-            <SelectItem value="pending">قيد المراجعة</SelectItem>
+            <SelectItem value="all">{t('auto.licenses.6')}</SelectItem>
+            <SelectItem value="active">{t('auto.licenses.7')}</SelectItem>
+            <SelectItem value="expired">{t('auto.licenses.8')}</SelectItem>
+            <SelectItem value="pending">{t('auto.licenses.9')}</SelectItem>
           </SelectContent>
         </Select>
         <Select value={selectedType} onValueChange={setSelectedType}>
           <SelectTrigger>
-            <SelectValue placeholder="جميع الأنواع" />
+            <SelectValue placeholder={t('auto.licenses.51')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">جميع الأنواع</SelectItem>
+            <SelectItem value="all">{t('auto.licenses.10')}</SelectItem>
             {licenseTypes.map(type => (
               <SelectItem key={type.value} value={type.value}>
                 {type.label}
@@ -489,10 +487,9 @@ export default function LicensesPage () {
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            هناك {
+            {t('auto.licenses.11')}{
   licenses.filter(l => isExpiringSoon(l.expiryDate)).length
-} ترخيص سينتهي خلال 30 يوم
-          </AlertDescription>
+} {t('auto.licenses.12')}</AlertDescription>
         </Alert>
       )}
 
@@ -537,13 +534,13 @@ export default function LicensesPage () {
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-gray-500" />
-                    <span>ينتهي في: {
+                    <span>{t('auto.licenses.13')}{
   new Date(license.expiryDate).toLocaleDateString('ar-SA')
 }</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-gray-500" />
-                    <span>{license.employees?.length ?? 0} موظف</span>
+                    <span>{license.employees?.length ?? 0} {t('auto.licenses.14')}</span>
                   </div>
                 </div>
 
@@ -560,24 +557,21 @@ export default function LicensesPage () {
                     onClick={() => handleViewLicense(license)}
                   >
                     <Eye className="h-4 w-4 ml-1" />
-                    عرض
-                  </Button>
+                    {t('auto.licenses.15')}</Button>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleEditLicense(license)}
                   >
                     <Edit className="h-4 w-4 ml-1" />
-                    تعديل
-                  </Button>
+                    {t('auto.licenses.16')}</Button>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleAddDocument(license)}
                   >
                     <FileText className="h-4 w-4 ml-1" />
-                    مستندات
-                  </Button>
+                    {t('auto.licenses.17')}</Button>
                   <Button
                     size="sm"
                     variant="outline"
@@ -585,8 +579,7 @@ export default function LicensesPage () {
                     onClick={() => handleDeleteLicense(license.id)}
                   >
                     <Trash2 className="h-4 w-4 ml-1" />
-                    حذف
-                  </Button>
+                    {t('auto.licenses.18')}</Button>
                 </div>
               </CardContent>
             </Card>
@@ -599,11 +592,9 @@ export default function LicensesPage () {
         <div className="text-center py-12">
           <Award className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-600 mb-2">
-            لا توجد تراخيص
-          </h3>
+            {t('auto.licenses.19')}</h3>
           <p className="text-gray-500">
-            لم يتم العثور على تراخيص تطابق معايير البحث
-          </p>
+            {t('auto.licenses.20')}</p>
         </div>
       )}
 
@@ -633,7 +624,7 @@ export default function LicensesPage () {
       <Dialog open={!!viewingLicense} onOpenChange={() => setViewingLicense(null)}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>تفاصيل الترخيص</DialogTitle>
+            <DialogTitle>{t('auto.licenses.21')}</DialogTitle>
           </DialogHeader>
           {viewingLicense && (
             <LicenseView license={viewingLicense} />
@@ -645,7 +636,7 @@ export default function LicensesPage () {
       <Dialog open={showDocumentForm} onOpenChange={setShowDocumentForm}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>إضافة مستند للترخيص</DialogTitle>
+            <DialogTitle>{t('auto.licenses.22')}</DialogTitle>
           </DialogHeader>
           {selectedLicenseForDocuments && (
             <DocumentForm
@@ -719,22 +710,22 @@ function LicenseForm ({license, companies, onSave, onCancel}: LicenseFormProps) 
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="name">اسم الترخيص *</Label>
+          <Label htmlFor="name">{t('auto.licenses.23')}</Label>
           <Input
             id="name"
             value={formData.name}
             onChange={(e) => setFormData(prev => ({...prev, 'name': e.target.value}))}
-            placeholder="أدخل اسم الترخيص"
+            placeholder={t('auto.licenses.52')}
             required
           />
         </div>
         <div>
-          <Label htmlFor="number">رقم الترخيص *</Label>
+          <Label htmlFor="number">{t('auto.licenses.24')}</Label>
           <Input
             id="number"
             value={formData.number}
             onChange={(e) => setFormData(prev => ({...prev, 'number': e.target.value}))}
-            placeholder="أدخل رقم الترخيص"
+            placeholder={t('auto.licenses.53')}
             required
           />
         </div>
@@ -742,7 +733,7 @@ function LicenseForm ({license, companies, onSave, onCancel}: LicenseFormProps) 
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="companyId">الشركة *</Label>
+          <Label htmlFor="companyId">{t('auto.licenses.25')}</Label>
           <Select value={
   formData.companyId
 } onValueChange={
@@ -751,7 +742,7 @@ function LicenseForm ({license, companies, onSave, onCancel}: LicenseFormProps) 
 }))
 }>
             <SelectTrigger>
-              <SelectValue placeholder="اختر الشركة" />
+              <SelectValue placeholder={t('auto.licenses.54')} />
             </SelectTrigger>
             <SelectContent>
               {companies.map(company => (
@@ -763,7 +754,7 @@ function LicenseForm ({license, companies, onSave, onCancel}: LicenseFormProps) 
           </Select>
         </div>
         <div>
-          <Label htmlFor="type">نوع الترخيص *</Label>
+          <Label htmlFor="type">{t('auto.licenses.26')}</Label>
           <Select value={
   formData.type
 } onValueChange={
@@ -772,7 +763,7 @@ function LicenseForm ({license, companies, onSave, onCancel}: LicenseFormProps) 
 }))
 }>
             <SelectTrigger>
-              <SelectValue placeholder="اختر نوع الترخيص" />
+              <SelectValue placeholder={t('auto.licenses.55')} />
             </SelectTrigger>
             <SelectContent>
               {licenseTypes.map(type => (
@@ -787,7 +778,7 @@ function LicenseForm ({license, companies, onSave, onCancel}: LicenseFormProps) 
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="issueDate">تاريخ الإصدار *</Label>
+          <Label htmlFor="issueDate">{t('auto.licenses.27')}</Label>
           <Input
             id="issueDate"
             type="date"
@@ -797,7 +788,7 @@ function LicenseForm ({license, companies, onSave, onCancel}: LicenseFormProps) 
           />
         </div>
         <div>
-          <Label htmlFor="expiryDate">تاريخ انتهاء الصلاحية *</Label>
+          <Label htmlFor="expiryDate">{t('auto.licenses.28')}</Label>
           <Input
             id="expiryDate"
             type="date"
@@ -810,40 +801,40 @@ function LicenseForm ({license, companies, onSave, onCancel}: LicenseFormProps) 
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="issuingAuthority">جهة الإصدار *</Label>
+          <Label htmlFor="issuingAuthority">{t('auto.licenses.29')}</Label>
           <Input
             id="issuingAuthority"
             value={formData.issuingAuthority}
             onChange={(e) => setFormData(prev => ({...prev, 'issuingAuthority': e.target.value}))}
-            placeholder="أدخل جهة الإصدار"
+            placeholder={t('auto.licenses.56')}
             required
           />
         </div>
         <div>
-          <Label htmlFor="location">الموقع *</Label>
+          <Label htmlFor="location">{t('auto.licenses.30')}</Label>
           <Input
             id="location"
             value={formData.location}
             onChange={(e) => setFormData(prev => ({...prev, 'location': e.target.value}))}
-            placeholder="أدخل الموقع"
+            placeholder={t('auto.licenses.57')}
             required
           />
         </div>
       </div>
 
       <div>
-        <Label htmlFor="description">الوصف</Label>
+        <Label htmlFor="description">{t('auto.licenses.31')}</Label>
         <Textarea
           id="description"
           value={formData.description}
           onChange={(e) => setFormData(prev => ({...prev, 'description': e.target.value}))}
-          placeholder="أدخل وصف الترخيص (اختياري)"
+          placeholder={t('auto.licenses.58')}
           rows={3}
         />
       </div>
 
       <div>
-        <Label htmlFor="status">الحالة</Label>
+        <Label htmlFor="status">{t('auto.licenses.32')}</Label>
         <Select value={
   formData.status
 } onValueChange={
@@ -855,17 +846,16 @@ function LicenseForm ({license, companies, onSave, onCancel}: LicenseFormProps) 
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="active">نشط</SelectItem>
-            <SelectItem value="expired">منتهي الصلاحية</SelectItem>
-            <SelectItem value="pending">قيد المراجعة</SelectItem>
+            <SelectItem value="active">{t('auto.licenses.33')}</SelectItem>
+            <SelectItem value="expired">{t('auto.licenses.34')}</SelectItem>
+            <SelectItem value="pending">{t('auto.licenses.35')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="flex gap-2 pt-4">
         <Button type="button" onClick={onCancel} variant="outline">
-          إلغاء
-        </Button>
+          {t('auto.licenses.36')}</Button>
         <Button type="submit">
           {license ? 'حفظ التغييرات' : 'إنشاء الترخيص'}
         </Button>
@@ -906,37 +896,37 @@ function LicenseView ({license}: LicenseViewProps) {
       <div className="grid grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <Label className="text-sm font-medium text-gray-700">الشركة</Label>
+            <Label className="text-sm font-medium text-gray-700">{t('auto.licenses.37')}</Label>
             <p className="mt-1">{license.company?.name}</p>
           </div>
           <div>
-            <Label className="text-sm font-medium text-gray-700">نوع الترخيص</Label>
+            <Label className="text-sm font-medium text-gray-700">{t('auto.licenses.38')}</Label>
             <p className="mt-1">{licenseTypes.find(t => t.value === license.type)?.label}</p>
           </div>
           <div>
-            <Label className="text-sm font-medium text-gray-700">جهة الإصدار</Label>
+            <Label className="text-sm font-medium text-gray-700">{t('auto.licenses.39')}</Label>
             <p className="mt-1">{license.issuingAuthority}</p>
           </div>
           <div>
-            <Label className="text-sm font-medium text-gray-700">الموقع</Label>
+            <Label className="text-sm font-medium text-gray-700">{t('auto.licenses.40')}</Label>
             <p className="mt-1">{license.location}</p>
           </div>
         </div>
         <div className="space-y-4">
           <div>
-            <Label className="text-sm font-medium text-gray-700">تاريخ الإصدار</Label>
+            <Label className="text-sm font-medium text-gray-700">{t('auto.licenses.41')}</Label>
             <p className="mt-1">{new Date(license.issueDate).toLocaleDateString('ar-SA')}</p>
           </div>
           <div>
-            <Label className="text-sm font-medium text-gray-700">تاريخ انتهاء الصلاحية</Label>
+            <Label className="text-sm font-medium text-gray-700">{t('auto.licenses.42')}</Label>
             <p className="mt-1">{new Date(license.expiryDate).toLocaleDateString('ar-SA')}</p>
           </div>
           <div>
-            <Label className="text-sm font-medium text-gray-700">عدد الموظفين</Label>
-            <p className="mt-1">{license.employees?.length ?? 0} موظف</p>
+            <Label className="text-sm font-medium text-gray-700">{t('auto.licenses.43')}</Label>
+            <p className="mt-1">{license.employees?.length ?? 0} {t('auto.licenses.44')}</p>
           </div>
           <div>
-            <Label className="text-sm font-medium text-gray-700">تاريخ الإنشاء</Label>
+            <Label className="text-sm font-medium text-gray-700">{t('auto.licenses.45')}</Label>
             <p className="mt-1">{new Date(license.createdAt).toLocaleDateString('ar-SA')}</p>
           </div>
         </div>
@@ -944,14 +934,14 @@ function LicenseView ({license}: LicenseViewProps) {
 
       {license.description && (
         <div>
-          <Label className="text-sm font-medium text-gray-700">الوصف</Label>
+          <Label className="text-sm font-medium text-gray-700">{t('auto.licenses.46')}</Label>
           <p className="mt-1 text-gray-600">{license.description}</p>
         </div>
       )}
 
       {license.employees && license.employees.length > 0 && (
         <div>
-          <Label className="text-sm font-medium text-gray-700">الموظفون المرتبطون</Label>
+          <Label className="text-sm font-medium text-gray-700">{t('auto.licenses.47')}</Label>
           <div className="mt-2 space-y-2">
             {license.employees.map((employee) => (
               <div key={employee.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">

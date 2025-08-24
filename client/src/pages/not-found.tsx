@@ -1,5 +1,6 @@
 import {Card, CardContent} from '../components/ui/card';
 import {AlertCircle} from 'lucide-react';
+import { t } from "i18next";
 
 export default function NotFound () {
 

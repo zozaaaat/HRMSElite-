@@ -5,6 +5,7 @@ import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Download, FileText, BarChart3, Settings} from 'lucide-react';
+import { t } from "i18next";
 
 export default function QualityMonitorPage () {
 

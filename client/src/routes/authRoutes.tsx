@@ -1,6 +1,7 @@
 import { Route } from 'wouter';
 import { routes } from '../lib/routes';
 import { CompanySelection, Login } from '../pages/lazy-pages';
+import { t } from "i18next";
 
 const AuthRoutes = () => (
   <>

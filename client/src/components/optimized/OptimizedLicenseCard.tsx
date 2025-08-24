@@ -18,6 +18,7 @@ import {
   XCircle
 } from 'lucide-react';
 import {License} from '@/types/documents';
+import { t } from "i18next";
 
 interface OptimizedLicenseCardProps {
   license: License;
@@ -127,7 +128,7 @@ const LicenseInfo = memo(({license}: { license: License }) => (
     <div className="flex items-center gap-2">
       <Calendar className="h-4 w-4 text-muted-foreground" />
       <span className="text-sm text-muted-foreground">
-        ينتهي في: {new Date(license.expiryDate).toLocaleDateString('ar-SA')}
+        {t('auto.OptimizedLicenseCard.1')}{new Date(license.expiryDate).toLocaleDateString('ar-SA')}
       </span>
     </div>
   </div>
@@ -157,8 +158,7 @@ const ActionButtons = memo(({
       className="flex-1"
     >
       <Eye className="h-4 w-4 ml-1" />
-      عرض
-    </Button>
+      {t('auto.OptimizedLicenseCard.2')}</Button>
     <Button
       size="sm"
       variant="outline"
@@ -166,8 +166,7 @@ const ActionButtons = memo(({
       className="flex-1"
     >
       <Edit className="h-4 w-4 ml-1" />
-      تعديل
-    </Button>
+      {t('auto.OptimizedLicenseCard.3')}</Button>
     <Button
       size="sm"
       variant="outline"
@@ -175,8 +174,7 @@ const ActionButtons = memo(({
       className="flex-1"
     >
       <FileText className="h-4 w-4 ml-1" />
-      مستندات
-    </Button>
+      {t('auto.OptimizedLicenseCard.4')}</Button>
     <Button
       size="sm"
       variant="outline"
@@ -184,8 +182,7 @@ const ActionButtons = memo(({
       onClick={() => onDelete(license.id)}
     >
       <Trash2 className="h-4 w-4 ml-1" />
-      حذف
-    </Button>
+      {t('auto.OptimizedLicenseCard.5')}</Button>
   </div>
 ));
 
@@ -310,8 +307,7 @@ const OptimizedLicenseCard = memo(({
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-yellow-600" />
               <span className="text-sm text-yellow-800 dark:text-yellow-200">
-                ينتهي هذا الترخيص قريباً
-              </span>
+                {t('auto.OptimizedLicenseCard.6')}</span>
             </div>
           </div>
         )}
@@ -322,8 +318,7 @@ const OptimizedLicenseCard = memo(({
             <div className="flex items-center gap-2">
               <XCircle className="h-4 w-4 text-red-600" />
               <span className="text-sm text-red-800 dark:text-red-200">
-                هذا الترخيص منتهي الصلاحية
-              </span>
+                {t('auto.OptimizedLicenseCard.7')}</span>
             </div>
           </div>
         )}

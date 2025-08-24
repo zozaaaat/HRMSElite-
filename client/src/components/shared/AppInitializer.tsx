@@ -2,6 +2,7 @@ import React from 'react';
 import {useAppInitialization} from '../../hooks/useAppInitialization';
 import {Card, CardContent} from '../ui/card';
 import {Loader2} from 'lucide-react';
+import { t } from "i18next";
 
 interface AppInitializerProps {
   children: React.ReactNode;
@@ -24,8 +25,7 @@ export const AppInitializer: React.FC<AppInitializerProps> = ({
             <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
             <div className="space-y-2">
               <h2 className="text-xl font-semibold text-gray-900">
-                جاري تحميل التطبيق...
-              </h2>
+                {t('auto.AppInitializer.1')}</h2>
               <p className="text-sm text-gray-600">
                 {!hydrationComplete && 'جاري استعادة البيانات المحفوظة...'}
                 {hydrationComplete && !isInitialized && 'جاري التحقق من صحة البيانات...'}

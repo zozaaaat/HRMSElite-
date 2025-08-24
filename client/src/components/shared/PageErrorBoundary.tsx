@@ -3,7 +3,7 @@ import {AlertTriangle, RefreshCw} from 'lucide-react';
 import {Button} from '../ui/button';
 import {Card, CardContent, CardHeader, CardTitle} from '../ui/card';
 import logger from '../../lib/logger';
-
+import { t } from "i18next";
 
 interface Props {
   children: ReactNode;
@@ -59,8 +59,7 @@ export class PageErrorBoundary extends Component<Props, State> {
                 <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
               <CardTitle className="text-lg text-red-600 dark:text-red-400">
-                خطأ في تحميل الصفحة
-              </CardTitle>
+                {t('auto.PageErrorBoundary.1')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground text-center text-sm">
@@ -76,8 +75,7 @@ export class PageErrorBoundary extends Component<Props, State> {
                 variant="default"
               >
                 <RefreshCw className="h-4 w-4" />
-                إعادة تحميل الصفحة
-              </Button>
+                {t('auto.PageErrorBoundary.2')}</Button>
             </CardContent>
           </Card>
         </div>

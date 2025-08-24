@@ -1,3 +1,5 @@
+import { t } from "i18next";
+
 /// <reference lib="dom" />
 
 // Ensure DOM types are available

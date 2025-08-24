@@ -1,3 +1,5 @@
+import { t } from "i18next";
+
 export type DeductionType = 'late' | 'absence' | 'loan' | 'insurance' | 'other';
 
 export type DeductionStatus = 'active' | 'completed' | 'cancelled';

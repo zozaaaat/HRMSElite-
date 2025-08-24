@@ -1,5 +1,6 @@
 import {PermissionTest} from '../components/shared/PermissionTest';
 import {ProtectedRoute} from '../components/shared/ProtectedRoute';
+import { t } from "i18next";
 
 export default function PermissionTestPage () {
 
@@ -7,10 +8,9 @@ export default function PermissionTestPage () {
     <ProtectedRoute pageId="dashboard">
       <div className="container mx-auto py-6">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold">اختبار نظام الصلاحيات</h1>
+          <h1 className="text-3xl font-bold">{t('auto.permission-test.1')}</h1>
           <p className="text-muted-foreground mt-2">
-            عرض واختبار نظام الأدوار والصلاحيات في التطبيق
-          </p>
+            {t('auto.permission-test.2')}</p>
         </div>
 
         <PermissionTest />

@@ -1,3 +1,5 @@
+import { t } from "i18next";
+
 export { useAuthCore } from './useAuthCore';
 export { useAuthPermissions } from './useAuthPermissions';
 export { useAuthProfile } from './useAuthProfile';

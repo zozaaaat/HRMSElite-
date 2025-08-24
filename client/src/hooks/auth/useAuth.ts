@@ -3,6 +3,7 @@ import { useAuthCore } from './useAuthCore';
 import { useAuthPermissions } from './useAuthPermissions';
 import { useAuthProfile } from './useAuthProfile';
 import { useAuthSession } from './useAuthSession';
+import { t } from "i18next";
 
 /**
  * Unified Authentication Hook - Composition Pattern

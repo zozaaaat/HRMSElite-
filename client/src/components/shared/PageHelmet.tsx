@@ -1,5 +1,6 @@
 import React from 'react';
 import {Helmet} from 'react-helmet-async';
+import { t } from "i18next";
 
 interface PageHelmetProps {
   title?: string;
@@ -86,51 +87,51 @@ export function PageHelmet ({
 export const PageHelmets = {
   'Dashboard': () => (
     <PageHelmet
-      title="لوحة التحكم"
-      description="لوحة التحكم الرئيسية لنظام إدارة الموارد البشرية"
-      keywords="لوحة التحكم, إحصائيات, تقارير, HRMS"
+      title={t('auto.PageHelmet.1')}
+      description={t('auto.PageHelmet.2')}
+      keywords={t('auto.PageHelmet.3')}
     />
   ),
   'Companies': () => (
     <PageHelmet
-      title="إدارة الشركات"
-      description="إدارة الشركات والمؤسسات في النظام"
-      keywords="شركات, مؤسسات, إدارة, HRMS"
+      title={t('auto.PageHelmet.4')}
+      description={t('auto.PageHelmet.5')}
+      keywords={t('auto.PageHelmet.6')}
     />
   ),
   'Employees': () => (
     <PageHelmet
-      title="إدارة الموظفين"
-      description="إدارة بيانات الموظفين والموارد البشرية"
-      keywords="موظفين, موارد بشرية, إدارة, HRMS"
+      title={t('auto.PageHelmet.7')}
+      description={t('auto.PageHelmet.8')}
+      keywords={t('auto.PageHelmet.9')}
     />
   ),
   'Documents': () => (
     <PageHelmet
-      title="إدارة المستندات"
-      description="إدارة المستندات والتراخيص والملفات"
-      keywords="مستندات, تراخيص, ملفات, HRMS"
+      title={t('auto.PageHelmet.10')}
+      description={t('auto.PageHelmet.11')}
+      keywords={t('auto.PageHelmet.12')}
     />
   ),
   'Reports': () => (
     <PageHelmet
-      title="التقارير"
-      description="تقارير شاملة عن الموارد البشرية والشركات"
-      keywords="تقارير, إحصائيات, تحليلات, HRMS"
+      title={t('auto.PageHelmet.13')}
+      description={t('auto.PageHelmet.14')}
+      keywords={t('auto.PageHelmet.15')}
     />
   ),
   'Settings': () => (
     <PageHelmet
-      title="الإعدادات"
-      description="إعدادات النظام والتكوين"
-      keywords="إعدادات, تكوين, النظام, HRMS"
+      title={t('auto.PageHelmet.16')}
+      description={t('auto.PageHelmet.17')}
+      keywords={t('auto.PageHelmet.18')}
     />
   ),
   'Login': () => (
     <PageHelmet
-      title="تسجيل الدخول"
-      description="تسجيل الدخول إلى نظام إدارة الموارد البشرية"
-      keywords="تسجيل دخول, مصادقة, أمان, HRMS"
+      title={t('auto.PageHelmet.19')}
+      description={t('auto.PageHelmet.20')}
+      keywords={t('auto.PageHelmet.21')}
       noIndex={true}
     />
   )

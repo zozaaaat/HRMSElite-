@@ -2,6 +2,7 @@
 /* global URLSearchParams */
 import {apiRequest} from '../lib/apiRequest';
 import {License, Company} from '../types/documents';
+import { t } from "i18next";
 
 export interface LicenseFilters {
   companyId?: string;

@@ -1,5 +1,6 @@
 /* eslint-env browser */
 import {apiRequest} from '../lib/apiRequest';
+import { t } from "i18next";
 
 export interface CreateSignatureRequest {
   imageData: string;

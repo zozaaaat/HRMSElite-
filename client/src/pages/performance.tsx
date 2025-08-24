@@ -21,14 +21,15 @@ import {
 } from 'lucide-react';
 import {SharedLayout} from '../components/shared-layout';
 import {LoadingSpinner, ErrorMessage} from '../components/shared';
+import { t } from "i18next";
 
 export default function Performance () {
 
   return (
     <SharedLayout
       userRole="company_manager"
-      userName="مدير الشركة"
-      companyName="شركة النيل الأزرق للمجوهرات"
+      userName={t('auto.performance.43')}
+      companyName={t('auto.performance.44')}
     >
       <PerformanceContent />
     </SharedLayout>
@@ -179,20 +180,17 @@ function PerformanceContent () {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">تقييم الأداء</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('auto.performance.1')}</h1>
             <p className="text-gray-600 dark:text-gray-300 mt-1">
-              مراقبة وتقييم أداء الموظفين والفرق
-            </p>
+              {t('auto.performance.2')}</p>
           </div>
           <div className="flex gap-3">
             <Button variant="outline">
               <Search className="h-4 w-4 ml-2" />
-              البحث في التقييمات
-            </Button>
+              {t('auto.performance.3')}</Button>
             <Button className="bg-indigo-600 hover:bg-indigo-700">
               <Plus className="h-4 w-4 ml-2" />
-              تقييم جديد
-            </Button>
+              {t('auto.performance.4')}</Button>
           </div>
         </div>
 
@@ -201,27 +199,23 @@ function PerformanceContent () {
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
-              نظرة عامة
-            </TabsTrigger>
+              {t('auto.performance.5')}</TabsTrigger>
             <TabsTrigger value="individual" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              الأداء الفردي
-            </TabsTrigger>
+              {t('auto.performance.6')}</TabsTrigger>
             <TabsTrigger value="teams" className="flex items-center gap-2">
               <Target className="h-4 w-4" />
-              أداء الفرق
-            </TabsTrigger>
+              {t('auto.performance.7')}</TabsTrigger>
             <TabsTrigger value="reviews" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              مراجعات الأداء
-            </TabsTrigger>
+              {t('auto.performance.8')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
             {/* Loading and Error States */}
             {isLoading && (
               <div className="flex items-center justify-center py-12">
-                <LoadingSpinner text="جاري تحميل بيانات الأداء..." />
+                <LoadingSpinner text={t('auto.performance.45')} />
               </div>
             )}
 
@@ -229,7 +223,7 @@ function PerformanceContent () {
               <div className="py-8">
                 <ErrorMessage
                   error={error}
-                  title="خطأ في تحميل بيانات الأداء"
+                  title={t('auto.performance.46')}
                   onRetry={() => window.location.reload()}
                 />
               </div>
@@ -243,7 +237,7 @@ function PerformanceContent () {
                     <div className="flex items-center gap-3">
                       <Star className="h-8 w-8 text-yellow-500" />
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">متوسط التقييم</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{t('auto.performance.9')}</p>
                         <p className="text-2xl font-bold">4.3</p>
                       </div>
                     </div>
@@ -255,7 +249,7 @@ function PerformanceContent () {
                     <div className="flex items-center gap-3">
                       <Target className="h-8 w-8 text-blue-500" />
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">الأهداف المكتملة</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{t('auto.performance.10')}</p>
                         <p className="text-2xl font-bold">78%</p>
                       </div>
                     </div>
@@ -267,7 +261,7 @@ function PerformanceContent () {
                     <div className="flex items-center gap-3">
                       <Award className="h-8 w-8 text-purple-500" />
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">أفضل الأداءات</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{t('auto.performance.11')}</p>
                         <p className="text-2xl font-bold">24</p>
                       </div>
                     </div>
@@ -279,7 +273,7 @@ function PerformanceContent () {
                     <div className="flex items-center gap-3">
                       <TrendingUp className="h-8 w-8 text-green-500" />
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">تحسن الأداء</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{t('auto.performance.12')}</p>
                         <p className="text-2xl font-bold">+12%</p>
                       </div>
                     </div>
@@ -292,14 +286,14 @@ function PerformanceContent () {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>توزيع الأداء حسب الدرجات</CardTitle>
+                  <CardTitle>{t('auto.performance.13')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-4 h-4 bg-green-500 rounded" />
-                        <span>ممتاز (4.5-5.0)</span>
+                        <span>{t('auto.performance.14')}</span>
                       </div>
                       <span className="font-bold">45%</span>
                     </div>
@@ -308,7 +302,7 @@ function PerformanceContent () {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-4 h-4 bg-blue-500 rounded" />
-                        <span>جيد جداً (4.0-4.4)</span>
+                        <span>{t('auto.performance.15')}</span>
                       </div>
                       <span className="font-bold">35%</span>
                     </div>
@@ -317,7 +311,7 @@ function PerformanceContent () {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-4 h-4 bg-yellow-500 rounded" />
-                        <span>جيد (3.5-3.9)</span>
+                        <span>{t('auto.performance.16')}</span>
                       </div>
                       <span className="font-bold">15%</span>
                     </div>
@@ -326,7 +320,7 @@ function PerformanceContent () {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-4 h-4 bg-red-500 rounded" />
-                        <span>يحتاج تحسين (&lt; 3.5)</span>
+                        <span>{t('auto.performance.17')}</span>
                       </div>
                       <span className="font-bold">5%</span>
                     </div>
@@ -337,7 +331,7 @@ function PerformanceContent () {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>أداء الأقسام</CardTitle>
+                  <CardTitle>{t('auto.performance.18')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -352,13 +346,13 @@ function PerformanceContent () {
 } className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                         <div>
                           <div className="font-medium">{dept.department}</div>
-                          <div className="text-sm text-gray-600">{dept.employees} موظف</div>
+                          <div className="text-sm text-gray-600">{dept.employees} {t('auto.performance.19')}</div>
                         </div>
                         <div className="text-right">
                           <div className={`font-bold text-lg ${getScoreColor(dept.score)}`}>
                             {dept.score}
                           </div>
-                          <div className="text-sm text-gray-600">متوسط النقاط</div>
+                          <div className="text-sm text-gray-600">{t('auto.performance.20')}</div>
                         </div>
                       </div>
                     ))}
@@ -378,22 +372,20 @@ function PerformanceContent () {
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="text-xl font-bold">{employee.name}</h3>
                           <Badge className={getScoreBadgeColor(employee.overallScore)}>
-                            {employee.overallScore} نقطة
-                          </Badge>
+                            {employee.overallScore} {t('auto.performance.21')}</Badge>
                           {getTrendIcon(employee.trend)}
                         </div>
                         <p className="text-gray-600">{employee.position} - {employee.department}</p>
-                        <p className="text-sm text-gray-500">آخر مراجعة: {employee.lastReview}</p>
+                        <p className="text-sm text-gray-500">{t('auto.performance.22')}{employee.lastReview}</p>
                       </div>
                       <Button size="sm" variant="outline">
                         <Eye className="h-4 w-4 ml-1" />
-                        التفاصيل
-                      </Button>
+                        {t('auto.performance.23')}</Button>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <h4 className="font-semibold mb-3">تقييم المهارات</h4>
+                        <h4 className="font-semibold mb-3">{t('auto.performance.24')}</h4>
                         <div className="space-y-3">
                           {Object.entries(employee.categories).map(([category, score]) => (
                             <div key={category} className="space-y-1">
@@ -413,10 +405,10 @@ function PerformanceContent () {
                       </div>
 
                       <div>
-                        <h4 className="font-semibold mb-3">إنجاز الأهداف</h4>
+                        <h4 className="font-semibold mb-3">{t('auto.performance.25')}</h4>
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm">الأهداف المكتملة</span>
+                            <span className="text-sm">{t('auto.performance.26')}</span>
                             <span className="font-bold">
                               {employee.goals.completed}/{employee.goals.total}
                             </span>
@@ -426,7 +418,7 @@ function PerformanceContent () {
                             className="h-2"
                           />
                           <div className="text-sm text-gray-600">
-                            معدل الإنجاز: {
+                            {t('auto.performance.27')}{
   Math.round((employee.goals.completed / employee.goals.total) * 100)
 }%
                           </div>
@@ -435,11 +427,10 @@ function PerformanceContent () {
                         <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                           <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
                             <CheckCircle className="h-4 w-4" />
-                            <span className="text-sm font-medium">نقاط القوة</span>
+                            <span className="text-sm font-medium">{t('auto.performance.28')}</span>
                           </div>
                           <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
-                            أداء متميز في الجودة والإنتاجية
-                          </p>
+                            {t('auto.performance.29')}</p>
                         </div>
                       </div>
                     </div>
@@ -458,7 +449,7 @@ function PerformanceContent () {
                       <CardTitle className="text-lg">{team.team}</CardTitle>
                       {getTrendIcon(team.trend)}
                     </div>
-                    <CardDescription>المدير: {team.manager}</CardDescription>
+                    <CardDescription>{t('auto.performance.30')}{team.manager}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
@@ -467,36 +458,35 @@ function PerformanceContent () {
                           <div className={`text-2xl font-bold ${getScoreColor(team.avgScore)}`}>
                             {team.avgScore}
                           </div>
-                          <div className="text-sm text-gray-600">متوسط الأداء</div>
+                          <div className="text-sm text-gray-600">{t('auto.performance.31')}</div>
                         </div>
                         <div className="text-center">
                           <div className="text-2xl font-bold text-blue-600">
                             {team.members}
                           </div>
-                          <div className="text-sm text-gray-600">عدد الأعضاء</div>
+                          <div className="text-sm text-gray-600">{t('auto.performance.32')}</div>
                         </div>
                       </div>
 
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span>معدل إنجاز الأهداف</span>
+                          <span>{t('auto.performance.33')}</span>
                           <span className="font-medium">{team.goalsCompleted}%</span>
                         </div>
                         <Progress value={team.goalsCompleted} className="h-2" />
                       </div>
 
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">المتميزون:</span>
+                        <span className="text-gray-600">{t('auto.performance.34')}</span>
                         <div className="flex items-center gap-1">
                           <Award className="h-4 w-4 text-yellow-500" />
-                          <span className="font-medium">{team.topPerformers} موظف</span>
+                          <span className="font-medium">{team.topPerformers} {t('auto.performance.35')}</span>
                         </div>
                       </div>
 
                       <Button size="sm" variant="outline" className="w-full">
                         <Eye className="h-4 w-4 ml-1" />
-                        عرض تفاصيل الفريق
-                      </Button>
+                        {t('auto.performance.36')}</Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -550,36 +540,34 @@ function PerformanceContent () {
                           </Badge>
                           {review.score && (
                             <Badge className={getScoreBadgeColor(review.score)}>
-                              {review.score} نقطة
-                            </Badge>
+                              {review.score} {t('auto.performance.37')}</Badge>
                           )}
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                           <div>
-                            <span className="text-gray-600">المراجع:</span>
+                            <span className="text-gray-600">{t('auto.performance.38')}</span>
                             <p className="font-medium">{review.reviewer}</p>
                           </div>
                           <div>
-                            <span className="text-gray-600">الفترة:</span>
+                            <span className="text-gray-600">{t('auto.performance.39')}</span>
                             <p className="font-medium">{review.period}</p>
                           </div>
                           <div>
-                            <span className="text-gray-600">تاريخ المراجعة:</span>
+                            <span className="text-gray-600">{t('auto.performance.40')}</span>
                             <p className="font-medium">{review.date}</p>
                           </div>
                         </div>
 
                         <div className="mt-3 text-sm">
-                          <span className="text-gray-600">المراجعة القادمة:</span>
+                          <span className="text-gray-600">{t('auto.performance.41')}</span>
                           <span className="font-medium mr-2">{review.nextReview}</span>
                         </div>
                       </div>
 
                       <Button size="sm" variant="outline">
                         <Eye className="h-4 w-4 ml-1" />
-                        عرض التقييم
-                      </Button>
+                        {t('auto.performance.42')}</Button>
                     </div>
                   </CardContent>
                 </Card>

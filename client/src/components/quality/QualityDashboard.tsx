@@ -7,7 +7,7 @@ import {Button} from '@/components/ui/button';
 import {RefreshCw, CheckCircle, XCircle, AlertTriangle, Info} from 'lucide-react';
 import {useToast} from '@/hooks/use-toast';
 import logger from '../../lib/logger';
-
+import { t } from "i18next";
 
 interface QualityMetrics {
   eslint: {

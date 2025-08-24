@@ -1,4 +1,5 @@
 import {cn} from '@/lib/utils';
+import { t } from "i18next";
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg' | undefined;
@@ -69,7 +70,7 @@ export function TableLoader () {
 
   return (
     <div className="flex items-center justify-center py-8">
-      <LoadingSpinner size="sm" text="جاري تحميل البيانات..." />
+      <LoadingSpinner size="sm" text={t('auto.LoadingSpinner.1')} />
     </div>
   );
 

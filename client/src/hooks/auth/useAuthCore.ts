@@ -10,6 +10,7 @@ import {
   useUserLoading,
   useUserError
 } from '../../stores/useUserStore';
+import { t } from "i18next";
 
 // Type conversion function to convert User to AppUser
 const convertUserToAppUser = (user: User) => {

@@ -40,6 +40,7 @@ import {
   FileDown,
   Shield
 } from 'lucide-react';
+import { t } from "i18next";
 
 type SignatureStats = {
   total: number;
@@ -317,13 +318,12 @@ export default function SignaturesPage () {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">إدارة التوقيعات</h1>
-          <p className="text-gray-600">إدارة وتنظيم جميع التوقيعات في النظام</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('auto.signatures.1')}</h1>
+          <p className="text-gray-600">{t('auto.signatures.2')}</p>
         </div>
         <Button onClick={() => setShowSignatureCapture(true)}>
           <Plus className="h-4 w-4 mr-1" />
-          إضافة توقيع جديد
-        </Button>
+          {t('auto.signatures.3')}</Button>
       </div>
 
       {/* الإحصائيات */}
@@ -333,7 +333,7 @@ export default function SignaturesPage () {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">إجمالي التوقيعات</p>
+                  <p className="text-sm text-gray-600">{t('auto.signatures.4')}</p>
                   <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
                 <BarChart3 className="h-8 w-8 text-blue-600" />
@@ -344,7 +344,7 @@ export default function SignaturesPage () {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">التوقيعات النشطة</p>
+                  <p className="text-sm text-gray-600">{t('auto.signatures.5')}</p>
                   <p className="text-2xl font-bold text-green-600">{stats.active}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-600" />
@@ -355,7 +355,7 @@ export default function SignaturesPage () {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">التوقيعات غير النشطة</p>
+                  <p className="text-sm text-gray-600">{t('auto.signatures.6')}</p>
                   <p className="text-2xl font-bold text-red-600">{stats.inactive}</p>
                 </div>
                 <XCircle className="h-8 w-8 text-red-600" />
@@ -366,7 +366,7 @@ export default function SignaturesPage () {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">الرفوعات الحديثة</p>
+                  <p className="text-sm text-gray-600">{t('auto.signatures.7')}</p>
                   <p className="text-2xl font-bold text-orange-600">{stats.recentUploads}</p>
                 </div>
                 <Upload className="h-8 w-8 text-orange-600" />
@@ -381,12 +381,12 @@ export default function SignaturesPage () {
         <CardContent className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
-              <Label htmlFor="search">البحث</Label>
+              <Label htmlFor="search">{t('auto.signatures.8')}</Label>
               <div className="relative mt-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   id="search"
-                  placeholder="البحث في التوقيعات..."
+                  placeholder={t('auto.signatures.28')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -394,31 +394,31 @@ export default function SignaturesPage () {
               </div>
             </div>
             <div>
-              <Label htmlFor="type-filter">نوع الكيان</Label>
+              <Label htmlFor="type-filter">{t('auto.signatures.9')}</Label>
               <Select value={filterType} onValueChange={setFilterType}>
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">جميع الأنواع</SelectItem>
-                  <SelectItem value="employee">موظف</SelectItem>
-                  <SelectItem value="company">شركة</SelectItem>
-                  <SelectItem value="license">ترخيص</SelectItem>
-                  <SelectItem value="leave">إجازة</SelectItem>
-                  <SelectItem value="document">مستند</SelectItem>
+                  <SelectItem value="all">{t('auto.signatures.10')}</SelectItem>
+                  <SelectItem value="employee">{t('auto.signatures.11')}</SelectItem>
+                  <SelectItem value="company">{t('auto.signatures.12')}</SelectItem>
+                  <SelectItem value="license">{t('auto.signatures.13')}</SelectItem>
+                  <SelectItem value="leave">{t('auto.signatures.14')}</SelectItem>
+                  <SelectItem value="document">{t('auto.signatures.15')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label htmlFor="status-filter">الحالة</Label>
+              <Label htmlFor="status-filter">{t('auto.signatures.16')}</Label>
               <Select value={filterStatus} onValueChange={setFilterStatus}>
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">جميع الحالات</SelectItem>
-                  <SelectItem value="active">نشط</SelectItem>
-                  <SelectItem value="inactive">غير نشط</SelectItem>
+                  <SelectItem value="all">{t('auto.signatures.17')}</SelectItem>
+                  <SelectItem value="active">{t('auto.signatures.18')}</SelectItem>
+                  <SelectItem value="inactive">{t('auto.signatures.19')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -435,8 +435,7 @@ export default function SignaturesPage () {
                 className="w-full"
               >
                 <Filter className="h-4 w-4 mr-1" />
-                إعادة تعيين
-              </Button>
+                {t('auto.signatures.20')}</Button>
             </div>
           </div>
         </CardContent>
@@ -447,14 +446,14 @@ export default function SignaturesPage () {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileImage className="h-5 w-5" />
-            التوقيعات ({filteredSignatures.length})
+            {t('auto.signatures.21')}{filteredSignatures.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           {filteredSignatures.length === 0 ? (
             <div className="text-center py-8">
               <FileImage className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">لا توجد توقيعات</p>
+              <p className="text-gray-600">{t('auto.signatures.22')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -495,7 +494,7 @@ export default function SignaturesPage () {
                       <div className="mb-3">
                         <img
                           src={signature.imageData}
-                          alt="التوقيع"
+                          alt={t('auto.signatures.29')}
                           className="w-full h-24 object-contain border rounded bg-white"
                           loading="lazy"
                           decoding="async"
@@ -511,16 +510,14 @@ export default function SignaturesPage () {
                           variant="outline"
                         >
                           <Download className="h-3 w-3 mr-1" />
-                          تحميل
-                        </Button>
+                          {t('auto.signatures.23')}</Button>
                         <Button
                           onClick={() => handleUploadToCloud(signature)}
                           size="sm"
                           variant="outline"
                         >
                           <Upload className="h-3 w-3 mr-1" />
-                          رفع
-                        </Button>
+                          {t('auto.signatures.24')}</Button>
                         <Button
                           onClick={() => handleConvertToPDF(signature)}
                           size="sm"
@@ -535,8 +532,7 @@ export default function SignaturesPage () {
                           variant="outline"
                         >
                           <Shield className="h-3 w-3 mr-1" />
-                          تحقق
-                        </Button>
+                          {t('auto.signatures.25')}</Button>
                         <Button
                           onClick={() => setSelectedSignature(signature)}
                           size="sm"
@@ -544,8 +540,7 @@ export default function SignaturesPage () {
                           className="col-span-2"
                         >
                           <Edit className="h-3 w-3 mr-1" />
-                          تعديل
-                        </Button>
+                          {t('auto.signatures.26')}</Button>
                         <Button
                           onClick={() => handleDeleteSignature(signature.id)}
                           size="sm"
@@ -553,8 +548,7 @@ export default function SignaturesPage () {
                           className="col-span-2"
                         >
                           <Trash2 className="h-3 w-3 mr-1" />
-                          حذف
-                        </Button>
+                          {t('auto.signatures.27')}</Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -571,16 +565,10 @@ export default function SignaturesPage () {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <SignatureCapture
-              onSave={(_signatureData: SignatureData) => {
-
-                // هنا يمكن إضافة منطق حفظ التوقيع
-                setShowSignatureCapture(false);
-                loadSignatures(); // إعادة تحميل القائمة
-
-              }}
+              onSave={t('auto.signatures.30')}
               onCancel={() => setShowSignatureCapture(false)}
-              title="إضافة توقيع جديد"
-              description="قم بالتوقيع في المساحة أدناه"
+              title={t('auto.signatures.31')}
+              description={t('auto.signatures.32')}
             />
           </div>
         </div>
@@ -593,15 +581,10 @@ export default function SignaturesPage () {
             <SignatureCapture
               mode="edit"
               existingSignature={selectedSignature}
-              onSave={(_signatureData: SignatureData) => {
-
-                setSelectedSignature(null);
-                loadSignatures(); // إعادة تحميل القائمة
-
-              }}
+              onSave={t('auto.signatures.33')}
               onCancel={() => setSelectedSignature(null)}
-              title="تعديل التوقيع"
-              description="قم بتعديل التوقيع"
+              title={t('auto.signatures.34')}
+              description={t('auto.signatures.35')}
             />
           </div>
         </div>

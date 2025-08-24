@@ -1,6 +1,7 @@
 import React, {Suspense, ReactNode} from 'react';
 import {Card, CardContent} from '../ui/card';
 import {Skeleton} from '../ui/skeleton';
+import { t } from "i18next";
 
 interface SuspenseWrapperProps {
   children: ReactNode;

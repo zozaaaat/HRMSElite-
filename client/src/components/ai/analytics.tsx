@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import {useToast} from '@/hooks/use-toast';
 import logger from '../../lib/logger';
-
+import { t } from "i18next";
 
 interface AnalyticsData {
   usageStats: {
@@ -538,7 +538,7 @@ export default function Analytics ({className}: AnalyticsProps) {
       <div className={`flex items-center justify-center p-8 ${className}`}>
         <div className="flex items-center space-x-2">
           <Loader2 className="h-6 w-6 animate-spin" />
-          <span>جاري تحميل بيانات التحليلات...</span>
+          <span>{t('auto.analytics.1')}</span>
         </div>
       </div>
     );
@@ -551,8 +551,8 @@ export default function Analytics ({className}: AnalyticsProps) {
       <div className={`flex items-center justify-center p-8 ${className}`}>
         <div className="text-center">
           <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">لا توجد بيانات</h3>
-          <p className="text-gray-500">لم يتم العثور على بيانات التحليلات.</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('auto.analytics.2')}</h3>
+          <p className="text-gray-500">{t('auto.analytics.3')}</p>
         </div>
       </div>
     );
@@ -564,8 +564,8 @@ export default function Analytics ({className}: AnalyticsProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">التحليلات الذكية</h2>
-          <p className="text-gray-600">تحليل شامل لاستخدام النظام والأداء</p>
+          <h2 className="text-2xl font-bold text-gray-900">{t('auto.analytics.4')}</h2>
+          <p className="text-gray-600">{t('auto.analytics.5')}</p>
         </div>
         <div className="flex items-center space-x-2">
           <Button
@@ -573,16 +573,14 @@ export default function Analytics ({className}: AnalyticsProps) {
             size="sm"
             onClick={() => setShowAdvancedMetrics(!showAdvancedMetrics)}
           >
-            {showAdvancedMetrics ? 'إخفاء' : 'إظهار'} المقاييس المتقدمة
-          </Button>
+            {showAdvancedMetrics ? 'إخفاء' : 'إظهار'} {t('auto.analytics.6')}</Button>
           <Button
             variant="outline"
             size="sm"
             onClick={handleExport}
           >
             <Download className="h-4 w-4 mr-2" />
-            تصدير
-          </Button>
+            {t('auto.analytics.7')}</Button>
           <Button
             variant="outline"
             size="sm"
@@ -590,37 +588,36 @@ export default function Analytics ({className}: AnalyticsProps) {
             disabled={refreshing}
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            تحديث
-          </Button>
+            {t('auto.analytics.8')}</Button>
         </div>
       </div>
 
       {/* Filters */}
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium">الفترة:</span>
+          <span className="text-sm font-medium">{t('auto.analytics.9')}</span>
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value as 'day' | 'week' | 'month')}
             className="border rounded px-3 py-1 text-sm"
           >
-            <option value="day">اليوم</option>
-            <option value="week">الأسبوع</option>
-            <option value="month">الشهر</option>
+            <option value="day">{t('auto.analytics.10')}</option>
+            <option value="week">{t('auto.analytics.11')}</option>
+            <option value="month">{t('auto.analytics.12')}</option>
           </select>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium">الفئة:</span>
+          <span className="text-sm font-medium">{t('auto.analytics.13')}</span>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
             className="border rounded px-3 py-1 text-sm"
           >
-            <option value="all">الكل</option>
-            <option value="performance">الأداء</option>
-            <option value="usage">الاستخدام</option>
-            <option value="ai">الذكاء الاصطناعي</option>
-            <option value="user">المستخدمين</option>
+            <option value="all">{t('auto.analytics.14')}</option>
+            <option value="performance">{t('auto.analytics.15')}</option>
+            <option value="usage">{t('auto.analytics.16')}</option>
+            <option value="ai">{t('auto.analytics.17')}</option>
+            <option value="user">{t('auto.analytics.18')}</option>
           </select>
         </div>
         <div className="flex items-center space-x-2">
@@ -631,7 +628,7 @@ export default function Analytics ({className}: AnalyticsProps) {
             onChange={(e) => setRealTimeMode(e.target.checked)}
             className="rounded"
           />
-          <label htmlFor="realtime" className="text-sm">الوقت الفعلي</label>
+          <label htmlFor="realtime" className="text-sm">{t('auto.analytics.19')}</label>
         </div>
       </div>
 
@@ -641,7 +638,7 @@ export default function Analytics ({className}: AnalyticsProps) {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Activity className="h-5 w-5" />
-              <span>المقاييس في الوقت الفعلي</span>
+              <span>{t('auto.analytics.20')}</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -650,25 +647,25 @@ export default function Analytics ({className}: AnalyticsProps) {
                 <div className="text-2xl font-bold text-blue-600">{
   data.realTimeMetrics.activeUsers
 }</div>
-                <div className="text-sm text-gray-600">المستخدمين النشطين</div>
+                <div className="text-sm text-gray-600">{t('auto.analytics.21')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">{
   data.realTimeMetrics.currentRequests
 }</div>
-                <div className="text-sm text-gray-600">الطلبات الحالية</div>
+                <div className="text-sm text-gray-600">{t('auto.analytics.22')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">{
   data.realTimeMetrics.peakUsage
 }</div>
-                <div className="text-sm text-gray-600">الاستخدام الأقصى</div>
+                <div className="text-sm text-gray-600">{t('auto.analytics.23')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-orange-600">{
   data.realTimeMetrics.averageSessionTime
-} د</div>
-                <div className="text-sm text-gray-600">متوسط الجلسة</div>
+} {t('auto.analytics.24')}</div>
+                <div className="text-sm text-gray-600">{t('auto.analytics.25')}</div>
               </div>
             </div>
           </CardContent>
@@ -680,7 +677,7 @@ export default function Analytics ({className}: AnalyticsProps) {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <BarChart3 className="h-5 w-5" />
-            <span>إحصائيات الاستخدام</span>
+            <span>{t('auto.analytics.26')}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -689,24 +686,24 @@ export default function Analytics ({className}: AnalyticsProps) {
               <div className="text-3xl font-bold text-blue-600">{
   data.usageStats.totalRequests.toLocaleString()
 }</div>
-              <div className="text-sm text-gray-600">إجمالي الطلبات</div>
+              <div className="text-sm text-gray-600">{t('auto.analytics.27')}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-green-600">{
   data.usageStats.averageResponseTime
 }s</div>
-              <div className="text-sm text-gray-600">متوسط وقت الاستجابة</div>
+              <div className="text-sm text-gray-600">{t('auto.analytics.28')}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-purple-600">{
   data.usageStats.successRate
 }%</div>
-              <div className="text-sm text-gray-600">معدل النجاح</div>
+              <div className="text-sm text-gray-600">{t('auto.analytics.29')}</div>
             </div>
           </div>
 
           <div className="mt-6">
-            <h4 className="text-lg font-medium mb-4">الميزات الأكثر استخداماً</h4>
+            <h4 className="text-lg font-medium mb-4">{t('auto.analytics.30')}</h4>
             <div className="space-y-3">
               {data.usageStats.popularFeatures.map((feature, index) => (
                 <div key={index} className="flex items-center justify-between">
@@ -747,7 +744,7 @@ export default function Analytics ({className}: AnalyticsProps) {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Brain className="h-5 w-5" />
-              <span>أداء الذكاء الاصطناعي</span>
+              <span>{t('auto.analytics.31')}</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -756,31 +753,31 @@ export default function Analytics ({className}: AnalyticsProps) {
                 <div className="text-2xl font-bold text-blue-600">{
   data.aiPerformance.modelAccuracy
 }%</div>
-                <div className="text-sm text-gray-600">دقة النموذج</div>
+                <div className="text-sm text-gray-600">{t('auto.analytics.32')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">{
   data.aiPerformance.responseQuality
 }/5</div>
-                <div className="text-sm text-gray-600">جودة الاستجابة</div>
+                <div className="text-sm text-gray-600">{t('auto.analytics.33')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">{
   data.aiPerformance.userSatisfaction
 }/5</div>
-                <div className="text-sm text-gray-600">رضا المستخدمين</div>
+                <div className="text-sm text-gray-600">{t('auto.analytics.34')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-orange-600">{
   data.aiPerformance.learningRate
 }</div>
-                <div className="text-sm text-gray-600">معدل التعلم</div>
+                <div className="text-sm text-gray-600">{t('auto.analytics.35')}</div>
               </div>
             </div>
 
             {data.aiPerformance.improvementAreas.length > 0 && (
               <div className="mt-6">
-                <h4 className="text-lg font-medium mb-4">مجالات التحسين</h4>
+                <h4 className="text-lg font-medium mb-4">{t('auto.analytics.36')}</h4>
                 <div className="space-y-2">
                   {data.aiPerformance.improvementAreas.map((area, index) => (
                     <div key={index} className="flex items-center space-x-2">
@@ -800,7 +797,7 @@ export default function Analytics ({className}: AnalyticsProps) {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Lightbulb className="h-5 w-5" />
-            <span>الرؤى والتوصيات</span>
+            <span>{t('auto.analytics.37')}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -835,7 +832,7 @@ export default function Analytics ({className}: AnalyticsProps) {
                         {insight.category}
                       </Badge>
                       <span className="text-xs text-gray-500">
-                        الثقة: {Math.round(insight.confidence * 100)}%
+                        {t('auto.analytics.38')}{Math.round(insight.confidence * 100)}%
                       </span>
                     </div>
                   </div>
@@ -851,7 +848,7 @@ export default function Analytics ({className}: AnalyticsProps) {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Target className="h-5 w-5" />
-            <span>التوصيات</span>
+            <span>{t('auto.analytics.39')}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -871,19 +868,19 @@ export default function Analytics ({className}: AnalyticsProps) {
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-500">التأثير المتوقع:</span>
+                    <span className="text-gray-500">{t('auto.analytics.40')}</span>
                     <div className="font-medium">{recommendation.estimatedImpact}</div>
                   </div>
                   <div>
-                    <span className="text-gray-500">وقت التنفيذ:</span>
+                    <span className="text-gray-500">{t('auto.analytics.41')}</span>
                     <div className="font-medium">{recommendation.implementationTime}</div>
                   </div>
                   <div>
-                    <span className="text-gray-500">التكلفة:</span>
+                    <span className="text-gray-500">{t('auto.analytics.42')}</span>
                     <div className="font-medium">{recommendation.cost}</div>
                   </div>
                   <div>
-                    <span className="text-gray-500">الفئة:</span>
+                    <span className="text-gray-500">{t('auto.analytics.43')}</span>
                     <div className="font-medium">{recommendation.category}</div>
                   </div>
                 </div>
@@ -901,7 +898,7 @@ export default function Analytics ({className}: AnalyticsProps) {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Users className="h-5 w-5" />
-                <span>تفاعلات المستخدمين</span>
+                <span>{t('auto.analytics.44')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -909,25 +906,25 @@ export default function Analytics ({className}: AnalyticsProps) {
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-600">{
   data.userInteractions.sessionDuration
-} د</div>
-                  <div className="text-sm text-gray-600">متوسط مدة الجلسة</div>
+} {t('auto.analytics.45')}</div>
+                  <div className="text-sm text-gray-600">{t('auto.analytics.46')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-600">{
   data.userInteractions.clicksPerSession
 }</div>
-                  <div className="text-sm text-gray-600">النقرات لكل جلسة</div>
+                  <div className="text-sm text-gray-600">{t('auto.analytics.47')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-purple-600">{
   data.userInteractions.efficiencyScore
 }%</div>
-                  <div className="text-sm text-gray-600">معدل الكفاءة</div>
+                  <div className="text-sm text-gray-600">{t('auto.analytics.48')}</div>
                 </div>
               </div>
 
               <div className="mt-6">
-                <h4 className="text-lg font-medium mb-4">أجهزة المستخدمين</h4>
+                <h4 className="text-lg font-medium mb-4">{t('auto.analytics.49')}</h4>
                 <div className="space-y-3">
                   {data.userInteractions.deviceTypes.map((device, index) => (
                     <div key={index} className="flex items-center justify-between">
@@ -961,7 +958,7 @@ export default function Analytics ({className}: AnalyticsProps) {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <TrendingUp className="h-5 w-5" />
-                <span>اتجاهات الأداء</span>
+                <span>{t('auto.analytics.50')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -970,25 +967,25 @@ export default function Analytics ({className}: AnalyticsProps) {
                   <div className="text-2xl font-bold text-blue-600">{
   data.trends.performanceMetrics.responseTime
 }s</div>
-                  <div className="text-sm text-gray-600">وقت الاستجابة</div>
+                  <div className="text-sm text-gray-600">{t('auto.analytics.51')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-600">{
   data.trends.performanceMetrics.accuracy
 }%</div>
-                  <div className="text-sm text-gray-600">الدقة</div>
+                  <div className="text-sm text-gray-600">{t('auto.analytics.52')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-purple-600">{
   data.trends.performanceMetrics.userSatisfaction
 }/5</div>
-                  <div className="text-sm text-gray-600">رضا المستخدمين</div>
+                  <div className="text-sm text-gray-600">{t('auto.analytics.53')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-orange-600">
                     {getSystemHealthIcon(data.trends.performanceMetrics.systemHealth)}
                   </div>
-                  <div className="text-sm text-gray-600">صحة النظام</div>
+                  <div className="text-sm text-gray-600">{t('auto.analytics.54')}</div>
                 </div>
               </div>
             </CardContent>

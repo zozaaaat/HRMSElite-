@@ -21,14 +21,15 @@ import {
 } from 'lucide-react';
 import {SharedLayout} from '../components/shared-layout';
 import {LoadingSpinner, ErrorMessage} from '../components/shared';
+import { t } from "i18next";
 
 export default function Recruitment () {
 
   return (
     <SharedLayout
       userRole="company_manager"
-      userName="مدير الشركة"
-      companyName="شركة النيل الأزرق للمجوهرات"
+      userName={t('auto.recruitment.38')}
+      companyName={t('auto.recruitment.39')}
     >
       <RecruitmentContent />
     </SharedLayout>
@@ -169,20 +170,17 @@ function RecruitmentContent () {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">التوظيف والاستقطاب</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('auto.recruitment.1')}</h1>
             <p className="text-gray-600 dark:text-gray-300 mt-1">
-              إدارة الوظائف الشاغرة والمتقدمين وعمليات التوظيف
-            </p>
+              {t('auto.recruitment.2')}</p>
           </div>
           <div className="flex gap-3">
             <Button variant="outline">
               <Search className="h-4 w-4 ml-2" />
-              البحث
-            </Button>
+              {t('auto.recruitment.3')}</Button>
             <Button className="bg-orange-600 hover:bg-orange-700">
               <Plus className="h-4 w-4 ml-2" />
-              إضافة وظيفة جديدة
-            </Button>
+              {t('auto.recruitment.4')}</Button>
           </div>
         </div>
 
@@ -191,20 +189,16 @@ function RecruitmentContent () {
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="jobs" className="flex items-center gap-2">
               <Briefcase className="h-4 w-4" />
-              الوظائف الشاغرة
-            </TabsTrigger>
+              {t('auto.recruitment.5')}</TabsTrigger>
             <TabsTrigger value="applicants" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              المتقدمون
-            </TabsTrigger>
+              {t('auto.recruitment.6')}</TabsTrigger>
             <TabsTrigger value="interviews" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              المقابلات
-            </TabsTrigger>
+              {t('auto.recruitment.7')}</TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
-              التحليلات
-            </TabsTrigger>
+              {t('auto.recruitment.8')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="jobs" className="space-y-6">
@@ -215,7 +209,7 @@ function RecruitmentContent () {
                   <div className="flex items-center gap-3">
                     <Briefcase className="h-8 w-8 text-orange-500" />
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">الوظائف النشطة</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{t('auto.recruitment.9')}</p>
                       <p className="text-2xl font-bold">12</p>
                     </div>
                   </div>
@@ -227,7 +221,7 @@ function RecruitmentContent () {
                   <div className="flex items-center gap-3">
                     <Users className="h-8 w-8 text-blue-500" />
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">إجمالي المتقدمين</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{t('auto.recruitment.10')}</p>
                       <p className="text-2xl font-bold">187</p>
                     </div>
                   </div>
@@ -239,7 +233,7 @@ function RecruitmentContent () {
                   <div className="flex items-center gap-3">
                     <Calendar className="h-8 w-8 text-purple-500" />
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">المقابلات المجدولة</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{t('auto.recruitment.11')}</p>
                       <p className="text-2xl font-bold">23</p>
                     </div>
                   </div>
@@ -251,7 +245,7 @@ function RecruitmentContent () {
                   <div className="flex items-center gap-3">
                     <UserCheck className="h-8 w-8 text-green-500" />
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">تم توظيفهم هذا الشهر</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{t('auto.recruitment.12')}</p>
                       <p className="text-2xl font-bold">8</p>
                     </div>
                   </div>
@@ -261,11 +255,11 @@ function RecruitmentContent () {
 
             {/* Jobs Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {jobsLoading && <LoadingSpinner text="جاري تحميل الوظائف..." />}
+              {jobsLoading && <LoadingSpinner text={t('auto.recruitment.40')} />}
               {
   jobsError && <ErrorMessage error={
   jobsError
-} title="خطأ في تحميل الوظائف" onRetry={
+} title={t('auto.recruitment.41')} onRetry={
   () => window.location.reload()
 } />
 }
@@ -297,8 +291,7 @@ function RecruitmentContent () {
                       </div>
                       <div className="flex items-center gap-2">
                         <Users className="h-4 w-4" />
-                        {job.applicants} متقدم
-                      </div>
+                        {job.applicants} {t('auto.recruitment.13')}</div>
                     </div>
                   </CardHeader>
 
@@ -306,22 +299,22 @@ function RecruitmentContent () {
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-600">القسم:</span>
+                          <span className="text-gray-600">{t('auto.recruitment.14')}</span>
                           <p className="font-medium">{job.department}</p>
                         </div>
                         <div>
-                          <span className="text-gray-600">الخبرة:</span>
+                          <span className="text-gray-600">{t('auto.recruitment.15')}</span>
                           <p className="font-medium">{job.experience}</p>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-600">الراتب:</span>
+                          <span className="text-gray-600">{t('auto.recruitment.16')}</span>
                           <p className="font-medium">{job.salary}</p>
                         </div>
                         <div>
-                          <span className="text-gray-600">آخر موعد:</span>
+                          <span className="text-gray-600">{t('auto.recruitment.17')}</span>
                           <p className="font-medium">{job.deadline}</p>
                         </div>
                       </div>
@@ -329,12 +322,10 @@ function RecruitmentContent () {
                       <div className="flex gap-2 pt-2">
                         <Button size="sm" variant="outline" className="flex-1">
                           <Eye className="h-4 w-4 ml-1" />
-                          عرض
-                        </Button>
+                          {t('auto.recruitment.18')}</Button>
                         <Button size="sm" className="flex-1 bg-orange-600 hover:bg-orange-700">
                           <Users className="h-4 w-4 ml-1" />
-                          المتقدمون
-                        </Button>
+                          {t('auto.recruitment.19')}</Button>
                       </div>
                     </div>
                   </CardContent>
@@ -345,11 +336,11 @@ function RecruitmentContent () {
 
           <TabsContent value="applicants" className="space-y-6">
             <div className="grid grid-cols-1 gap-6">
-              {applicantsLoading && <LoadingSpinner text="جاري تحميل المتقدمين..." />}
+              {applicantsLoading && <LoadingSpinner text={t('auto.recruitment.42')} />}
               {
   applicantsError && <ErrorMessage error={
   applicantsError
-} title="خطأ في تحميل المتقدمين" onRetry={
+} title={t('auto.recruitment.43')} onRetry={
   () => window.location.reload()
 } />
 }
@@ -370,15 +361,15 @@ function RecruitmentContent () {
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                           <div>
-                            <span className="text-gray-600">البريد الإلكتروني:</span>
+                            <span className="text-gray-600">{t('auto.recruitment.20')}</span>
                             <p className="font-medium">{applicant.email}</p>
                           </div>
                           <div>
-                            <span className="text-gray-600">الهاتف:</span>
+                            <span className="text-gray-600">{t('auto.recruitment.21')}</span>
                             <p className="font-medium">{applicant.phone}</p>
                           </div>
                           <div>
-                            <span className="text-gray-600">الخبرة:</span>
+                            <span className="text-gray-600">{t('auto.recruitment.22')}</span>
                             <p className="font-medium">{applicant.experience}</p>
                           </div>
                         </div>
@@ -389,7 +380,7 @@ function RecruitmentContent () {
                             <span className="font-medium">{applicant.rating}</span>
                           </div>
                           <div className="text-sm text-gray-600">
-                            تاريخ التقديم: {applicant.appliedDate}
+                            {t('auto.recruitment.23')}{applicant.appliedDate}
                           </div>
                         </div>
                       </div>
@@ -397,16 +388,13 @@ function RecruitmentContent () {
                       <div className="flex gap-2">
                         <Button size="sm" variant="outline">
                           <Eye className="h-4 w-4 ml-1" />
-                          عرض السيرة
-                        </Button>
+                          {t('auto.recruitment.24')}</Button>
                         <Button size="sm" className="bg-green-600 hover:bg-green-700">
                           <CheckCircle className="h-4 w-4 ml-1" />
-                          قبول
-                        </Button>
+                          {t('auto.recruitment.25')}</Button>
                         <Button size="sm" variant="destructive">
                           <X className="h-4 w-4 ml-1" />
-                          رفض
-                        </Button>
+                          {t('auto.recruitment.26')}</Button>
                       </div>
                     </div>
                   </CardContent>
@@ -457,27 +445,25 @@ function RecruitmentContent () {
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-600">التاريخ:</span>
+                          <span className="text-gray-600">{t('auto.recruitment.27')}</span>
                           <p className="font-medium">{interview.date}</p>
                         </div>
                         <div>
-                          <span className="text-gray-600">الوقت:</span>
+                          <span className="text-gray-600">{t('auto.recruitment.28')}</span>
                           <p className="font-medium">{interview.time}</p>
                         </div>
                       </div>
                       <div>
-                        <span className="text-gray-600">المقابل:</span>
+                        <span className="text-gray-600">{t('auto.recruitment.29')}</span>
                         <p className="font-medium">{interview.interviewer}</p>
                       </div>
                       <div className="flex gap-2 pt-2">
                         <Button size="sm" variant="outline" className="flex-1">
                           <Calendar className="h-4 w-4 ml-1" />
-                          إعادة جدولة
-                        </Button>
+                          {t('auto.recruitment.30')}</Button>
                         <Button size="sm" className="flex-1">
                           <Eye className="h-4 w-4 ml-1" />
-                          التفاصيل
-                        </Button>
+                          {t('auto.recruitment.31')}</Button>
                       </div>
                     </div>
                   </CardContent>
@@ -490,18 +476,18 @@ function RecruitmentContent () {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>معدل التوظيف الشهري</CardTitle>
+                  <CardTitle>{t('auto.recruitment.32')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="text-center">
                       <div className="text-3xl font-bold text-green-600">65%</div>
-                      <div className="text-sm text-gray-600">معدل نجاح التوظيف</div>
+                      <div className="text-sm text-gray-600">{t('auto.recruitment.33')}</div>
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span>المتقدمون المقبولون</span>
-                        <span className="font-medium">24 من 37</span>
+                        <span>{t('auto.recruitment.34')}</span>
+                        <span className="font-medium">{t('auto.recruitment.35')}</span>
                       </div>
                     </div>
                   </div>
@@ -510,7 +496,7 @@ function RecruitmentContent () {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>أكثر الوظائف طلباً</CardTitle>
+                  <CardTitle>{t('auto.recruitment.36')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -522,7 +508,7 @@ function RecruitmentContent () {
                     ].map((job, index) => (
                       <div key={index} className="flex justify-between items-center">
                         <span className="text-sm">{job.position}</span>
-                        <span className="font-medium">{job.applications} طلب</span>
+                        <span className="font-medium">{job.applications} {t('auto.recruitment.37')}</span>
                       </div>
                     ))}
                   </div>

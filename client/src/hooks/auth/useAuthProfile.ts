@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { AuthService } from '../../services/auth';
 import { AuthUtils, type User } from '../../lib/authUtils';
 import { useCurrentUser } from '../../stores/useUserStore';
+import { t } from "i18next";
 
 /**
  * Authentication Profile Hook - Single Responsibility Principle

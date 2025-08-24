@@ -1,4 +1,5 @@
 import {ApiService} from './api';
+import { t } from "i18next";
 
 export interface Company {
   id: string;

@@ -3,6 +3,7 @@ import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import {Check} from 'lucide-react';
 
 import {cn} from '@/lib/utils';
+import { t } from "i18next";
 
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,

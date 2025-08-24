@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { AuthService } from '../../services/auth';
 import { AuthUtils } from '../../lib/authUtils';
 import { useUserPermissions, useCurrentUser } from '../../stores/useUserStore';
+import { t } from "i18next";
 
 /**
  * Authentication Permissions Hook - Single Responsibility Principle

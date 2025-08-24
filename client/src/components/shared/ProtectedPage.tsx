@@ -1,6 +1,7 @@
 import {ReactNode} from 'react';
 import {ProtectedRoute} from './ProtectedRoute';
 import type {UserRole} from '../../lib/routes';
+import { t } from "i18next";
 
 interface ProtectedPageProps {
   children: ReactNode;

@@ -1,5 +1,6 @@
 import {apiDelete, apiGet, apiPatch, apiPost, apiPut, withIfMatch} from '../lib/apiRequest';
 import { getCachedEtag } from '../lib/apiRequest';
+import { t } from "i18next";
 
 // Base API service with common HTTP methods
 export class ApiService {

@@ -1,3 +1,5 @@
+import { t } from "i18next";
+
 // Core Components
 export {
   ErrorBoundary, withErrorBoundary, SimpleErrorFallback, NetworkErrorFallback

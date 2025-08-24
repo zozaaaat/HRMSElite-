@@ -1,6 +1,7 @@
 import type {Company, Employee, License, DbUser, EmployeeLeave, Document} from '../../../shared/schema';
 export type { Company };
 import type { ReactNode } from 'react';
+import { t } from "i18next";
 
 // Route Props Types
 export interface RoleBasedDashboardProps {

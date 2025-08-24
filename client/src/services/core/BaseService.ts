@@ -1,4 +1,5 @@
 import { apiRequest } from '../../lib/apiRequest';
+import { t } from "i18next";
 
 /**
  * Base Service Class - DRY Principle

@@ -7,6 +7,7 @@ import {
   ToastViewport
 } from './toast';
 import {useToast} from '@/hooks/use-toast';
+import { t } from "i18next";
 
 export function Toaster () {
 

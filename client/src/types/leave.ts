@@ -22,6 +22,7 @@ export interface Leave {
 
 // Import signature type from documents file
 import {SignatureData} from './documents';
+import { t } from "i18next";
 
 export interface CreateLeaveRequest {
   employeeId: string;

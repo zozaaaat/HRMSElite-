@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import {StatsCard} from '@/components/stats-card';
 import {CompanyCard} from '../components/company-card';
+import { t } from "i18next";
 
 export default function SuperAdminDashboard () {
 
@@ -80,14 +81,13 @@ function SuperAdminContent () {
               />
               <div>
                 <h1 className="text-2xl font-bold text-foreground">Zeylab HRMS</h1>
-                <p className="text-sm text-muted-foreground">لوحة تحكم المسؤول العام</p>
+                <p className="text-sm text-muted-foreground">{t('auto.super-admin-dashboard.1')}</p>
               </div>
             </div>
 
             <div className="flex items-center space-x-reverse space-x-2">
               <Button variant="outline" size="sm" onClick={handleLogout}>
-                تسجيل الخروج
-              </Button>
+                {t('auto.super-admin-dashboard.2')}</Button>
             </div>
           </div>
         </div>
@@ -103,8 +103,7 @@ function SuperAdminContent () {
               className="gap-2 hover:bg-blue-50 hover:border-blue-300"
             >
               <Building2 className="h-4 w-4" />
-              إدارة الشركات
-            </Button>
+              {t('auto.super-admin-dashboard.3')}</Button>
             <Button
               variant="outline"
               size="sm"
@@ -112,8 +111,7 @@ function SuperAdminContent () {
               className="gap-2 hover:bg-green-50 hover:border-green-300"
             >
               <Users className="h-4 w-4" />
-              إدارة الموظفين
-            </Button>
+              {t('auto.super-admin-dashboard.4')}</Button>
             <Button
               variant="outline"
               size="sm"
@@ -121,8 +119,7 @@ function SuperAdminContent () {
               className="gap-2 hover:bg-yellow-50 hover:border-yellow-300"
             >
               <BarChart3 className="h-4 w-4" />
-              التقارير
-            </Button>
+              {t('auto.super-admin-dashboard.5')}</Button>
             <Button
               variant="outline"
               size="sm"
@@ -130,8 +127,7 @@ function SuperAdminContent () {
               className="gap-2 hover:bg-gray-50 hover:border-gray-300"
             >
               <Settings className="h-4 w-4" />
-              الإعدادات
-            </Button>
+              {t('auto.super-admin-dashboard.6')}</Button>
           </div>
         </div>
       </div>
@@ -139,33 +135,33 @@ function SuperAdminContent () {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
-            <TabsTrigger value="companies">الشركات</TabsTrigger>
-            <TabsTrigger value="system">النظام</TabsTrigger>
+            <TabsTrigger value="overview">{t('auto.super-admin-dashboard.7')}</TabsTrigger>
+            <TabsTrigger value="companies">{t('auto.super-admin-dashboard.8')}</TabsTrigger>
+            <TabsTrigger value="system">{t('auto.super-admin-dashboard.9')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <StatsCard
-                title="إجمالي الشركات"
+                title={t('auto.super-admin-dashboard.19')}
                 value={companies.length}
                 icon="building"
                 color="blue"
               />
               <StatsCard
-                title="إجمالي الموظفين"
+                title={t('auto.super-admin-dashboard.20')}
                 value={stats?.totalEmployees ?? 0}
                 icon="users"
                 color="green"
               />
               <StatsCard
-                title="المستخدمين النشطين"
+                title={t('auto.super-admin-dashboard.21')}
                 value={stats?.activeUsers ?? 0}
                 icon="users"
                 color="orange"
               />
               <StatsCard
-                title="حالة النظام"
+                title={t('auto.super-admin-dashboard.22')}
                 value={1}
                 icon="check"
                 color="purple"
@@ -175,12 +171,12 @@ function SuperAdminContent () {
 
           <TabsContent value="companies" className="space-y-6">
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-              <h2 className="text-2xl font-bold">إدارة الشركات</h2>
+              <h2 className="text-2xl font-bold">{t('auto.super-admin-dashboard.10')}</h2>
               <div className="flex items-center gap-2">
                 <div className="relative">
                   <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <Input
-                    placeholder="البحث في الشركات..."
+                    placeholder={t('auto.super-admin-dashboard.23')}
                     className="pl-4 pr-10 w-64"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -188,8 +184,7 @@ function SuperAdminContent () {
                 </div>
                 <Button onClick={() => setLocation('/companies')} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  شركة جديدة
-                </Button>
+                  {t('auto.super-admin-dashboard.11')}</Button>
               </div>
             </div>
 
@@ -206,32 +201,32 @@ function SuperAdminContent () {
           <TabsContent value="system" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
               <StatsCard
-                title="حالة النظام"
+                title={t('auto.super-admin-dashboard.24')}
                 value={1}
                 icon="check"
                 color="green"
               />
               <StatsCard
-                title="استخدام الخادم"
+                title={t('auto.super-admin-dashboard.25')}
                 value={78}
                 icon="users"
                 color="blue"
               />
               <StatsCard
-                title="قاعدة البيانات"
+                title={t('auto.super-admin-dashboard.26')}
                 value={1}
                 icon="check"
                 color="green"
               />
               <StatsCard
-                title="التحديث الأخير"
+                title={t('auto.super-admin-dashboard.27')}
                 value={29}
                 icon="certificate"
                 color="purple"
               />
             </div>
 
-            <h2 className="text-2xl font-bold">إدارة النظام</h2>
+            <h2 className="text-2xl font-bold">{t('auto.super-admin-dashboard.12')}</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={
@@ -239,8 +234,8 @@ function SuperAdminContent () {
 }>
                 <CardContent className="p-6 text-center">
                   <Settings className="h-12 w-12 text-gray-500 mx-auto mb-4" />
-                  <h3 className="font-semibold mb-2">إعدادات النظام</h3>
-                  <p className="text-sm text-muted-foreground">تكوين النظام العام</p>
+                  <h3 className="font-semibold mb-2">{t('auto.super-admin-dashboard.13')}</h3>
+                  <p className="text-sm text-muted-foreground">{t('auto.super-admin-dashboard.14')}</p>
                 </CardContent>
               </Card>
 
@@ -249,8 +244,8 @@ function SuperAdminContent () {
 }>
                 <CardContent className="p-6 text-center">
                   <Users className="h-12 w-12 text-blue-500 mx-auto mb-4" />
-                  <h3 className="font-semibold mb-2">إدارة المستخدمين</h3>
-                  <p className="text-sm text-muted-foreground">صلاحيات وأدوار المستخدمين</p>
+                  <h3 className="font-semibold mb-2">{t('auto.super-admin-dashboard.15')}</h3>
+                  <p className="text-sm text-muted-foreground">{t('auto.super-admin-dashboard.16')}</p>
                 </CardContent>
               </Card>
 
@@ -259,8 +254,8 @@ function SuperAdminContent () {
 }>
                 <CardContent className="p-6 text-center">
                   <FileText className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                  <h3 className="font-semibold mb-2">سجلات النظام</h3>
-                  <p className="text-sm text-muted-foreground">مراقبة نشاط النظام</p>
+                  <h3 className="font-semibold mb-2">{t('auto.super-admin-dashboard.17')}</h3>
+                  <p className="text-sm text-muted-foreground">{t('auto.super-admin-dashboard.18')}</p>
                 </CardContent>
               </Card>
             </div>

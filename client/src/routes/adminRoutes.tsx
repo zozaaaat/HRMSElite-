@@ -8,6 +8,7 @@ import {
   AccountingSystems,
   GovernmentForms,
 } from '../pages/lazy-pages';
+import { t } from "i18next";
 
 const AdminRoutes = () => (
   <>

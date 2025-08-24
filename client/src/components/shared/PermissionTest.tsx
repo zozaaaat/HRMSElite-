@@ -16,6 +16,7 @@ import {
   Bot
 } from 'lucide-react';
 import type {LucideIcon} from 'lucide-react';
+import { t } from "i18next";
 
 export function PermissionTest () {
 
@@ -65,34 +66,32 @@ export function PermissionTest () {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
-            معلومات الدور الحالي
-          </CardTitle>
+            {t('auto.PermissionTest.1')}</CardTitle>
           <CardDescription>
-            عرض تفاصيل الدور والصلاحيات المتاحة
-          </CardDescription>
+            {t('auto.PermissionTest.2')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h4 className="font-semibold mb-2">معلومات الدور</h4>
+              <h4 className="font-semibold mb-2">{t('auto.PermissionTest.3')}</h4>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">الدور:</span>
+                  <span className="text-muted-foreground">{t('auto.PermissionTest.4')}</span>
                   <Badge variant="secondary">{roleLabel}</Badge>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">المستوى:</span>
+                  <span className="text-muted-foreground">{t('auto.PermissionTest.5')}</span>
                   <Badge variant="outline">{roleLevel}</Badge>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">الرمز:</span>
+                  <span className="text-muted-foreground">{t('auto.PermissionTest.6')}</span>
                   <code className="text-sm bg-muted px-2 py-1 rounded">{currentRole}</code>
                 </div>
               </div>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-2">الوصف</h4>
+              <h4 className="font-semibold mb-2">{t('auto.PermissionTest.7')}</h4>
               <p className="text-sm text-muted-foreground">{roleDescription}</p>
             </div>
           </div>
@@ -100,17 +99,17 @@ export function PermissionTest () {
           <Separator />
 
           <div>
-            <h4 className="font-semibold mb-3">نوع الصلاحيات</h4>
+            <h4 className="font-semibold mb-3">{t('auto.PermissionTest.8')}</h4>
             <div className="flex flex-wrap gap-2">
-              {isSuperAdmin() && <Badge variant="destructive">مسؤول عام</Badge>}
-              {isCompanyManager() && <Badge variant="default">مدير شركة</Badge>}
-              {isEmployee() && <Badge variant="secondary">موظف إداري</Badge>}
-              {isSupervisor() && <Badge variant="outline">مشرف</Badge>}
-              {isWorker() && <Badge variant="outline">عامل</Badge>}
+              {isSuperAdmin() && <Badge variant="destructive">{t('auto.PermissionTest.9')}</Badge>}
+              {isCompanyManager() && <Badge variant="default">{t('auto.PermissionTest.10')}</Badge>}
+              {isEmployee() && <Badge variant="secondary">{t('auto.PermissionTest.11')}</Badge>}
+              {isSupervisor() && <Badge variant="outline">{t('auto.PermissionTest.12')}</Badge>}
+              {isWorker() && <Badge variant="outline">{t('auto.PermissionTest.13')}</Badge>}
 
-              {hasAdminPermissions() && <Badge variant="destructive">صلاحيات إدارية</Badge>}
-              {hasManagerPermissions() && <Badge variant="default">صلاحيات إدارية متوسطة</Badge>}
-              {hasSupervisorPermissions() && <Badge variant="secondary">صلاحيات مشرف</Badge>}
+              {hasAdminPermissions() && <Badge variant="destructive">{t('auto.PermissionTest.14')}</Badge>}
+              {hasManagerPermissions() && <Badge variant="default">{t('auto.PermissionTest.15')}</Badge>}
+              {hasSupervisorPermissions() && <Badge variant="secondary">{t('auto.PermissionTest.16')}</Badge>}
             </div>
           </div>
         </CardContent>
@@ -118,10 +117,9 @@ export function PermissionTest () {
 
       <Card>
         <CardHeader>
-          <CardTitle>الصلاحيات المتاحة</CardTitle>
+          <CardTitle>{t('auto.PermissionTest.17')}</CardTitle>
           <CardDescription>
-            جميع الصلاحيات الممنوحة للدور الحالي ({permissions.length} صلاحية)
-          </CardDescription>
+            {t('auto.PermissionTest.18')}{permissions.length} {t('auto.PermissionTest.19')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -150,10 +148,9 @@ export function PermissionTest () {
 
       <Card>
         <CardHeader>
-          <CardTitle>الصفحات المتاحة</CardTitle>
+          <CardTitle>{t('auto.PermissionTest.20')}</CardTitle>
           <CardDescription>
-            الصفحات التي يمكن الوصول إليها ({accessiblePages.length} صفحة)
-          </CardDescription>
+            {t('auto.PermissionTest.21')}{accessiblePages.length} {t('auto.PermissionTest.22')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -169,7 +166,7 @@ export function PermissionTest () {
                   <Icon className="h-4 w-4 text-primary" />
                   <div className="flex-1">
                     <div className="font-medium text-sm">{page}</div>
-                    <div className="text-xs text-muted-foreground">صفحة متاحة</div>
+                    <div className="text-xs text-muted-foreground">{t('auto.PermissionTest.23')}</div>
                   </div>
                 </div>
               );
@@ -181,10 +178,9 @@ export function PermissionTest () {
 
       <Card>
         <CardHeader>
-          <CardTitle>اختبار الصلاحيات</CardTitle>
+          <CardTitle>{t('auto.PermissionTest.24')}</CardTitle>
           <CardDescription>
-            اختبار الوصول للصفحات المختلفة
-          </CardDescription>
+            {t('auto.PermissionTest.25')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

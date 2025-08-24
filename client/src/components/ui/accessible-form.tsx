@@ -1,6 +1,7 @@
 import React, { forwardRef, useId, useState, useEffect } from 'react';
 import { cn } from '../../lib/utils';
 import { useAccessibility } from '../shared/AccessibilityProvider';
+import { t } from "i18next";
 
 export interface AccessibleFormFieldProps {
   label: string;

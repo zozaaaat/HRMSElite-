@@ -1,5 +1,6 @@
 import React from 'react';
 import logger from '../../lib/logger';
+import { t } from "i18next";
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -95,22 +96,20 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
             {/* Error Message */}
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold text-foreground">حدث خطأ غير متوقع</h1>
+              <h1 className="text-2xl font-bold text-foreground">{t('auto.ErrorBoundary.1')}</h1>
               <p className="text-muted-foreground">
-                عذراً، حدث خطأ أثناء تحميل هذه الصفحة. يرجى المحاولة مرة أخرى.
-              </p>
+                {t('auto.ErrorBoundary.2')}</p>
             </div>
 
             {/* Error Details (only in development) */}
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <details className="text-left max-w-md mx-auto">
                 <summary className="cursor-pointer text-sm font-medium text-muted-foreground hover:text-foreground">
-                  تفاصيل الخطأ (للأغراض التطويرية)
-                </summary>
+                  {t('auto.ErrorBoundary.3')}</summary>
                 <div className="mt-2 p-4 bg-muted rounded-lg text-xs font-mono text-muted-foreground overflow-auto">
                   <div className="space-y-2">
                     <div>
-                      <strong>الخطأ:</strong> {this.state.error.message}
+                      <strong>{t('auto.ErrorBoundary.4')}</strong> {this.state.error.message}
                     </div>
                     {this.state.error.stack && (
                       <div>
@@ -137,20 +136,17 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                 onClick={() => window.location.reload()}
                 className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
               >
-                تحديث الصفحة
-              </button>
+                {t('auto.ErrorBoundary.5')}</button>
               <button
                 onClick={() => window.history.back()}
                 className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 transition-colors"
               >
-                العودة للصفحة السابقة
-              </button>
+                {t('auto.ErrorBoundary.6')}</button>
             </div>
 
             {/* Contact Support */}
             <div className="text-sm text-muted-foreground">
-              إذا استمرت المشكلة، يرجى التواصل مع فريق الدعم الفني
-            </div>
+              {t('auto.ErrorBoundary.7')}</div>
           </div>
         </div>
       );
@@ -186,14 +182,13 @@ export function SimpleErrorFallback ({error}: { error: Error }) {
 
   return (
     <div className="p-4 text-center">
-      <h2 className="text-lg font-semibold text-red-600">حدث خطأ</h2>
+      <h2 className="text-lg font-semibold text-red-600">{t('auto.ErrorBoundary.8')}</h2>
       <p className="text-sm text-gray-600 mb-4">{error.message}</p>
       <button
         onClick={() => window.location.reload()}
         className="px-3 py-1 bg-primary text-primary-foreground rounded text-sm hover:bg-primary/90"
       >
-        تحديث
-      </button>
+        {t('auto.ErrorBoundary.9')}</button>
     </div>
   );
 
@@ -204,16 +199,14 @@ export function NetworkErrorFallback () {
 
   return (
     <div className="p-4 text-center">
-      <h2 className="text-lg font-semibold text-orange-600">مشكلة في الاتصال</h2>
+      <h2 className="text-lg font-semibold text-orange-600">{t('auto.ErrorBoundary.10')}</h2>
       <p className="text-sm text-gray-600 mb-4">
-        يبدو أن هناك مشكلة في الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.
-      </p>
+        {t('auto.ErrorBoundary.11')}</p>
       <button
         onClick={() => window.location.reload()}
         className="px-3 py-1 bg-primary text-primary-foreground rounded text-sm hover:bg-primary/90"
       >
-        إعادة المحاولة
-      </button>
+        {t('auto.ErrorBoundary.12')}</button>
     </div>
   );
 

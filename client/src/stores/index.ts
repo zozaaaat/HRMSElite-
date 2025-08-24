@@ -1,3 +1,5 @@
+import { t } from "i18next";
+
 // Export all stores
 export * from './useAppStore';
 export * from './useUserStore';

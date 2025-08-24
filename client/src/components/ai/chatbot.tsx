@@ -8,6 +8,7 @@ import {ScrollArea} from '@/components/ui/scroll-area';
 import { Brain, Send, Bot, User, Calendar, AlertTriangle, Target, Lightbulb, FileText, Activity, X, Minimize2, Maximize2, Loader2, BookOpen, Search, BarChart3, PieChart, Building, CreditCard, Shield } from 'lucide-react';
 import {useToast} from '@/hooks/use-toast';
 import logger from '../../lib/logger';
+import { t } from "i18next";
 
 // Type definitions for API responses
 interface ChatApiResponse {
@@ -611,7 +612,7 @@ export default function Chatbot ({className}: ChatbotProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Brain className="h-5 w-5 text-blue-600" />
-                <CardTitle className="text-sm">المساعد الذكي</CardTitle>
+                <CardTitle className="text-sm">{t('auto.chatbot.1')}</CardTitle>
               </div>
               <div className="flex items-center space-x-1">
                 <Button
@@ -637,11 +638,10 @@ export default function Chatbot ({className}: ChatbotProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Brain className="h-5 w-5 text-blue-600" />
-              <CardTitle className="text-sm">المساعد الذكي</CardTitle>
+              <CardTitle className="text-sm">{t('auto.chatbot.2')}</CardTitle>
               {systemData && (
                 <Badge variant="outline" className="text-xs">
-                  {systemData.activeUsers} نشط
-                </Badge>
+                  {systemData.activeUsers} {t('auto.chatbot.3')}</Badge>
               )}
             </div>
             <div className="flex items-center space-x-1">
@@ -649,7 +649,7 @@ export default function Chatbot ({className}: ChatbotProps) {
                 variant="ghost"
                 size="sm"
                 onClick={clearChat}
-                title="مسح المحادثة"
+                title={t('auto.chatbot.10')}
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -669,7 +669,7 @@ export default function Chatbot ({className}: ChatbotProps) {
           <div className="p-3 border-b">
             <div className="flex space-x-2">
               <Input
-                placeholder="ابحث في قاعدة المعرفة..."
+                placeholder={t('auto.chatbot.11')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1"
@@ -688,7 +688,7 @@ export default function Chatbot ({className}: ChatbotProps) {
           {showKnowledgeSearch && knowledgeSearchResults.length > 0 && (
             <div className="p-3 border-b bg-gray-50">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-medium">نتائج البحث في المعرفة</h4>
+                <h4 className="text-sm font-medium">{t('auto.chatbot.4')}</h4>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -718,8 +718,7 @@ export default function Chatbot ({className}: ChatbotProps) {
                         ))}
                       </div>
                       <span className="text-xs text-gray-500">
-                        {item.usageCount} استخدام
-                      </span>
+                        {item.usageCount} {t('auto.chatbot.5')}</span>
                     </div>
                   </div>
                 ))}
@@ -730,10 +729,9 @@ export default function Chatbot ({className}: ChatbotProps) {
           {/* الإجراءات السريعة */}
           <div className="p-3 border-b">
             <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium">الإجراءات السريعة</h4>
+              <h4 className="text-sm font-medium">{t('auto.chatbot.6')}</h4>
               <Badge variant="outline" className="text-xs">
-                {filteredActions.length} إجراء
-              </Badge>
+                {filteredActions.length} {t('auto.chatbot.7')}</Badge>
             </div>
             <ScrollArea className="h-32">
               <div className="grid grid-cols-2 gap-2">
@@ -750,8 +748,7 @@ export default function Chatbot ({className}: ChatbotProps) {
                       <span className="text-xs font-medium">{action.title}</span>
                     </div>
                     <span className="text-xs text-gray-500 text-right w-full">
-                      {action.usageCount} استخدام
-                    </span>
+                      {action.usageCount} {t('auto.chatbot.8')}</span>
                   </Button>
                 ))}
               </div>
@@ -793,7 +790,7 @@ export default function Chatbot ({className}: ChatbotProps) {
                     <div className="bg-gray-100 rounded-lg p-3">
                       <div className="flex items-center space-x-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        <span className="text-sm">جاري الكتابة...</span>
+                        <span className="text-sm">{t('auto.chatbot.9')}</span>
                       </div>
                     </div>
                   </div>
@@ -808,7 +805,7 @@ export default function Chatbot ({className}: ChatbotProps) {
                 value={input}
                 onChange={handleInputChange}
                 onKeyPress={handleKeyPress}
-                placeholder="اكتب رسالتك هنا..."
+                placeholder={t('auto.chatbot.12')}
                 className="flex-1"
                 disabled={isLoading}
               />

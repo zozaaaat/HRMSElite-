@@ -24,6 +24,7 @@ import {
   Users,
   Activity
 } from 'lucide-react';
+import { t } from "i18next";
 
 // Types for AI data
 type InsightImpact = 'positive' | 'negative';
@@ -78,11 +79,10 @@ interface AISummaryResponse {
 const PDFReports = ({ companyId: _companyId }: { companyId: string }) => (
   <div className="space-y-6">
     <div className="flex items-center justify-between">
-      <h2 className="text-2xl font-bold">تقارير PDF</h2>
+      <h2 className="text-2xl font-bold">{t('auto.reports.1')}</h2>
       <Button>
         <Plus className="h-4 w-4 mr-2" />
-        إنشاء تقرير جديد
-      </Button>
+        {t('auto.reports.2')}</Button>
     </div>
 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -101,17 +101,15 @@ const PDFReports = ({ companyId: _companyId }: { companyId: string }) => (
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-4">
-              تم إنشاؤه في {report.date}
+              {t('auto.reports.3')}{report.date}
             </p>
             <div className="flex gap-2">
               <Button size="sm" variant="outline">
                 <Download className="h-4 w-4 mr-1" />
-                تحميل
-              </Button>
+                {t('auto.reports.4')}</Button>
               <Button size="sm" variant="ghost">
                 <Eye className="h-4 w-4 mr-1" />
-                معاينة
-              </Button>
+                {t('auto.reports.5')}</Button>
             </div>
           </CardContent>
         </Card>
@@ -124,11 +122,10 @@ const PDFReports = ({ companyId: _companyId }: { companyId: string }) => (
 const DocumentManagement = ({ companyId: _companyId }: { companyId: string }) => (
   <div className="space-y-6">
     <div className="flex items-center justify-between">
-      <h2 className="text-2xl font-bold">إدارة المستندات</h2>
+      <h2 className="text-2xl font-bold">{t('auto.reports.6')}</h2>
       <Button>
         <Upload className="h-4 w-4 mr-2" />
-        رفع مستند جديد
-      </Button>
+        {t('auto.reports.7')}</Button>
     </div>
 
     <div className="flex gap-4 mb-6">
@@ -136,14 +133,13 @@ const DocumentManagement = ({ companyId: _companyId }: { companyId: string }) =>
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <input
           type="text"
-          placeholder="البحث في المستندات..."
+          placeholder={t('auto.reports.40')}
           className="w-full pl-10 pr-4 py-2 border rounded-md"
         />
       </div>
       <Button variant="outline">
         <Filter className="h-4 w-4 mr-2" />
-        تصفية
-      </Button>
+        {t('auto.reports.8')}</Button>
     </div>
 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -166,20 +162,18 @@ const DocumentManagement = ({ companyId: _companyId }: { companyId: string }) =>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-2">
-              الحجم: {doc.size}
+              {t('auto.reports.9')}{doc.size}
             </p>
             <p className="text-sm text-muted-foreground mb-4">
-              تم الرفع في {doc.date}
+              {t('auto.reports.10')}{doc.date}
             </p>
             <div className="flex gap-2">
               <Button size="sm" variant="outline">
                 <Download className="h-4 w-4 mr-1" />
-                تحميل
-              </Button>
+                {t('auto.reports.11')}</Button>
               <Button size="sm" variant="ghost">
                 <Eye className="h-4 w-4 mr-1" />
-                معاينة
-              </Button>
+                {t('auto.reports.12')}</Button>
             </div>
           </CardContent>
         </Card>
@@ -203,7 +197,7 @@ const AISummary = ({companyId}: { companyId: string }) => {
         <CardContent className="p-6">
           <div className="flex items-center justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-            <span className="mr-3">جاري تحليل البيانات...</span>
+            <span className="mr-3">{t('auto.reports.13')}</span>
           </div>
         </CardContent>
       </Card>
@@ -217,8 +211,7 @@ const AISummary = ({companyId}: { companyId: string }) => {
       <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
-          حدث خطأ في تحميل التحليل الذكي. يرجى المحاولة مرة أخرى.
-        </AlertDescription>
+          {t('auto.reports.14')}</AlertDescription>
       </Alert>
     );
 
@@ -229,12 +222,10 @@ const AISummary = ({companyId}: { companyId: string }) => {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold flex items-center gap-2">
           <Brain className="h-6 w-6 text-primary" />
-          التحليل الذكي الشامل
-        </h2>
+          {t('auto.reports.15')}</h2>
         <Badge variant="secondary" className="flex items-center gap-1">
           <Clock className="h-3 w-3" />
-          محدث الآن
-        </Badge>
+          {t('auto.reports.16')}</Badge>
       </div>
 
       {/* Overview Card */}
@@ -242,8 +233,7 @@ const AISummary = ({companyId}: { companyId: string }) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Eye className="h-5 w-5" />
-            نظرة عامة
-          </CardTitle>
+            {t('auto.reports.17')}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-4">
@@ -255,25 +245,25 @@ const AISummary = ({companyId}: { companyId: string }) => {
               <div className="text-2xl font-bold text-blue-600">{
   aiSummary?.metrics?.totalEmployees
 }</div>
-              <div className="text-sm text-muted-foreground">إجمالي الموظفين</div>
+              <div className="text-sm text-muted-foreground">{t('auto.reports.18')}</div>
             </div>
             <div className="text-center p-3 bg-green-50 rounded-lg">
               <div className="text-2xl font-bold text-green-600">{
   aiSummary?.metrics?.satisfactionScore
 }%</div>
-              <div className="text-sm text-muted-foreground">رضا الموظفين</div>
+              <div className="text-sm text-muted-foreground">{t('auto.reports.19')}</div>
             </div>
             <div className="text-center p-3 bg-orange-50 rounded-lg">
               <div className="text-2xl font-bold text-orange-600">{
   aiSummary?.metrics?.turnoverRate
 }%</div>
-              <div className="text-sm text-muted-foreground">معدل الدوران</div>
+              <div className="text-sm text-muted-foreground">{t('auto.reports.20')}</div>
             </div>
             <div className="text-center p-3 bg-purple-50 rounded-lg">
               <div className="text-2xl font-bold text-purple-600">{
   aiSummary?.metrics?.avgSalary
 }</div>
-              <div className="text-sm text-muted-foreground">متوسط الراتب</div>
+              <div className="text-sm text-muted-foreground">{t('auto.reports.21')}</div>
             </div>
           </div>
         </CardContent>
@@ -284,8 +274,7 @@ const AISummary = ({companyId}: { companyId: string }) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lightbulb className="h-5 w-5" />
-            الرؤى الرئيسية
-          </CardTitle>
+            {t('auto.reports.22')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -304,8 +293,7 @@ const AISummary = ({companyId}: { companyId: string }) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="h-5 w-5" />
-            التوصيات الذكية
-          </CardTitle>
+            {t('auto.reports.23')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -338,8 +326,7 @@ const AIInsights = ({companyId}: { companyId: string }) => {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold flex items-center gap-2">
           <Brain className="h-6 w-6 text-primary" />
-          الرؤى الذكية
-        </h2>
+          {t('auto.reports.24')}</h2>
         <div className="flex gap-2">
           {['employee', 'financial', 'operational'].map((type) => (
             <Button
@@ -361,7 +348,7 @@ const AIInsights = ({companyId}: { companyId: string }) => {
           <CardContent className="p-6">
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-              <span className="mr-3">جاري تحليل الرؤى...</span>
+              <span className="mr-3">{t('auto.reports.25')}</span>
             </div>
           </CardContent>
         </Card>
@@ -417,8 +404,7 @@ const AIPredictions = ({companyId}: { companyId: string }) => {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold flex items-center gap-2">
           <Target className="h-6 w-6 text-primary" />
-          التوقعات الذكية
-        </h2>
+          {t('auto.reports.26')}</h2>
         <div className="flex gap-2">
           {[
             {'key': 'shortTerm', 'label': 'قصيرة المدى'},
@@ -442,7 +428,7 @@ const AIPredictions = ({companyId}: { companyId: string }) => {
           <CardContent className="p-6">
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-              <span className="mr-3">جاري تحليل التوقعات...</span>
+              <span className="mr-3">{t('auto.reports.27')}</span>
             </div>
           </CardContent>
         </Card>
@@ -481,7 +467,7 @@ const AIPredictions = ({companyId}: { companyId: string }) => {
                 </div>
                 {prediction.factors && (
                   <div className="mt-3 pt-3 border-t">
-                    <p className="text-sm font-medium mb-2">العوامل المؤثرة:</p>
+                    <p className="text-sm font-medium mb-2">{t('auto.reports.28')}</p>
                     <div className="space-y-1">
                       {prediction.factors.map((factor: string, index: number) => (
                         <div key={index} className="flex items-center gap-2">
@@ -517,8 +503,7 @@ const AITrends = ({companyId}: { companyId: string }) => {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold flex items-center gap-2">
           <TrendingUp className="h-6 w-6 text-primary" />
-          تحليل الاتجاهات
-        </h2>
+          {t('auto.reports.29')}</h2>
         <div className="flex gap-2">
           {[
             {'key': 'employee', 'label': 'الموظفين', 'icon': Users},
@@ -544,14 +529,14 @@ const AITrends = ({companyId}: { companyId: string }) => {
           <CardContent className="p-6">
             <div className="flex items-center justify-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-              <span className="mr-3">جاري تحليل الاتجاهات...</span>
+              <span className="mr-3">{t('auto.reports.30')}</span>
             </div>
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>اتجاه {
+            <CardTitle>{t('auto.reports.31')}{
   selectedMetric === 'employee' ? 'الموظفين' : selectedMetric === 'satisfaction' ? 'الرضا' : 'الحضور'
 }</CardTitle>
           </CardHeader>
@@ -598,38 +583,31 @@ export default function ReportsPage () {
     <div className="container mx-auto px-4 py-8 space-y-8">
       {/* العنوان */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground">التقارير والمستندات</h1>
+        <h1 className="text-3xl font-bold text-foreground">{t('auto.reports.32')}</h1>
         <p className="text-muted-foreground mt-2">
-          إدارة شاملة للتقارير والمستندات ولوحات التحكم المتخصصة مع الذكاء الاصطناعي
-        </p>
+          {t('auto.reports.33')}</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="ai-summary" className="flex items-center gap-2">
             <Brain className="h-4 w-4" />
-            التحليل الذكي
-          </TabsTrigger>
+            {t('auto.reports.34')}</TabsTrigger>
           <TabsTrigger value="ai-insights" className="flex items-center gap-2">
             <Lightbulb className="h-4 w-4" />
-            الرؤى الذكية
-          </TabsTrigger>
+            {t('auto.reports.35')}</TabsTrigger>
           <TabsTrigger value="ai-predictions" className="flex items-center gap-2">
             <Target className="h-4 w-4" />
-            التوقعات
-          </TabsTrigger>
+            {t('auto.reports.36')}</TabsTrigger>
           <TabsTrigger value="ai-trends" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
-            الاتجاهات
-          </TabsTrigger>
+            {t('auto.reports.37')}</TabsTrigger>
           <TabsTrigger value="reports" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
-            تقارير PDF
-          </TabsTrigger>
+            {t('auto.reports.38')}</TabsTrigger>
           <TabsTrigger value="documents" className="flex items-center gap-2">
             <FolderOpen className="h-4 w-4" />
-            المستندات
-          </TabsTrigger>
+            {t('auto.reports.39')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="ai-summary" className="space-y-6">

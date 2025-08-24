@@ -4,6 +4,7 @@ import {useEffect} from 'react';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Badge} from '@/components/ui/badge';
 import {Calendar, Users, FileText, TrendingUp, Building2} from 'lucide-react';
+import { t } from "i18next";
 
 interface RoleBasedDashboardProps {
   role?: string;
@@ -16,41 +17,41 @@ interface RoleBasedDashboardProps {
 const SuperAdminDashboard = () => (
   <div className="p-6 space-y-6">
     <div className="flex items-center justify-between">
-      <h1 className="text-3xl font-bold">لوحة تحكم المدير العام</h1>
-      <Badge variant="secondary">مدير عام</Badge>
+      <h1 className="text-3xl font-bold">{t('auto.role-based-dashboard.1')}</h1>
+      <Badge variant="secondary">{t('auto.role-based-dashboard.2')}</Badge>
     </div>
 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">إجمالي الشركات</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('auto.role-based-dashboard.3')}</CardTitle>
           <Building2 className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">24</div>
-          <p className="text-xs text-muted-foreground">+2 من الشهر الماضي</p>
+          <p className="text-xs text-muted-foreground">{t('auto.role-based-dashboard.4')}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">إجمالي الموظفين</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('auto.role-based-dashboard.5')}</CardTitle>
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">1,234</div>
-          <p className="text-xs text-muted-foreground">+12 من الشهر الماضي</p>
+          <p className="text-xs text-muted-foreground">{t('auto.role-based-dashboard.6')}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">التقارير النشطة</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('auto.role-based-dashboard.7')}</CardTitle>
           <FileText className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">89</div>
-          <p className="text-xs text-muted-foreground">+5 من الشهر الماضي</p>
+          <p className="text-xs text-muted-foreground">{t('auto.role-based-dashboard.8')}</p>
         </CardContent>
       </Card>
     </div>
@@ -60,41 +61,41 @@ const SuperAdminDashboard = () => (
 const CompanyManagerDashboard = () => (
   <div className="p-6 space-y-6">
     <div className="flex items-center justify-between">
-      <h1 className="text-3xl font-bold">لوحة تحكم مدير الشركة</h1>
-      <Badge variant="secondary">مدير شركة</Badge>
+      <h1 className="text-3xl font-bold">{t('auto.role-based-dashboard.9')}</h1>
+      <Badge variant="secondary">{t('auto.role-based-dashboard.10')}</Badge>
     </div>
 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">الموظفين النشطين</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('auto.role-based-dashboard.11')}</CardTitle>
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">156</div>
-          <p className="text-xs text-muted-foreground">+3 من الشهر الماضي</p>
+          <p className="text-xs text-muted-foreground">{t('auto.role-based-dashboard.12')}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">الحضور اليوم</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('auto.role-based-dashboard.13')}</CardTitle>
           <Calendar className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">142</div>
-          <p className="text-xs text-muted-foreground">91% نسبة الحضور</p>
+          <p className="text-xs text-muted-foreground">{t('auto.role-based-dashboard.14')}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">إجمالي الرواتب</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('auto.role-based-dashboard.15')}</CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">45,000 د.ك</div>
-          <p className="text-xs text-muted-foreground">+2.5% من الشهر الماضي</p>
+          <div className="text-2xl font-bold">{t('auto.role-based-dashboard.16')}</div>
+          <p className="text-xs text-muted-foreground">{t('auto.role-based-dashboard.17')}</p>
         </CardContent>
       </Card>
     </div>
@@ -104,41 +105,41 @@ const CompanyManagerDashboard = () => (
 const EmployeeDashboard = () => (
   <div className="p-6 space-y-6">
     <div className="flex items-center justify-between">
-      <h1 className="text-3xl font-bold">لوحة تحكم الموظف</h1>
-      <Badge variant="secondary">موظف</Badge>
+      <h1 className="text-3xl font-bold">{t('auto.role-based-dashboard.18')}</h1>
+      <Badge variant="secondary">{t('auto.role-based-dashboard.19')}</Badge>
     </div>
 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">أيام الإجازة المتبقية</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('auto.role-based-dashboard.20')}</CardTitle>
           <Calendar className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">18</div>
-          <p className="text-xs text-muted-foreground">من أصل 30 يوم</p>
+          <p className="text-xs text-muted-foreground">{t('auto.role-based-dashboard.21')}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">ساعات العمل</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('auto.role-based-dashboard.22')}</CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">168</div>
-          <p className="text-xs text-muted-foreground">هذا الشهر</p>
+          <p className="text-xs text-muted-foreground">{t('auto.role-based-dashboard.23')}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">الراتب الشهري</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('auto.role-based-dashboard.24')}</CardTitle>
           <FileText className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">850 د.ك</div>
-          <p className="text-xs text-muted-foreground">+50 د.ك من الشهر الماضي</p>
+          <div className="text-2xl font-bold">{t('auto.role-based-dashboard.25')}</div>
+          <p className="text-xs text-muted-foreground">{t('auto.role-based-dashboard.26')}</p>
         </CardContent>
       </Card>
     </div>
@@ -148,41 +149,41 @@ const EmployeeDashboard = () => (
 const SupervisorDashboard = () => (
   <div className="p-6 space-y-6">
     <div className="flex items-center justify-between">
-      <h1 className="text-3xl font-bold">لوحة تحكم المشرف</h1>
-      <Badge variant="secondary">مشرف</Badge>
+      <h1 className="text-3xl font-bold">{t('auto.role-based-dashboard.27')}</h1>
+      <Badge variant="secondary">{t('auto.role-based-dashboard.28')}</Badge>
     </div>
 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">الفريق المباشر</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('auto.role-based-dashboard.29')}</CardTitle>
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">12</div>
-          <p className="text-xs text-muted-foreground">جميعهم نشطين</p>
+          <p className="text-xs text-muted-foreground">{t('auto.role-based-dashboard.30')}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">طلبات الإجازات</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('auto.role-based-dashboard.31')}</CardTitle>
           <Calendar className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">5</div>
-          <p className="text-xs text-muted-foreground">في انتظار الموافقة</p>
+          <p className="text-xs text-muted-foreground">{t('auto.role-based-dashboard.32')}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">معدل الأداء</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('auto.role-based-dashboard.33')}</CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">94%</div>
-          <p className="text-xs text-muted-foreground">+2% من الشهر الماضي</p>
+          <p className="text-xs text-muted-foreground">{t('auto.role-based-dashboard.34')}</p>
         </CardContent>
       </Card>
     </div>
@@ -192,41 +193,41 @@ const SupervisorDashboard = () => (
 const WorkerDashboard = () => (
   <div className="p-6 space-y-6">
     <div className="flex items-center justify-between">
-      <h1 className="text-3xl font-bold">لوحة تحكم العامل</h1>
-      <Badge variant="secondary">عامل</Badge>
+      <h1 className="text-3xl font-bold">{t('auto.role-based-dashboard.35')}</h1>
+      <Badge variant="secondary">{t('auto.role-based-dashboard.36')}</Badge>
     </div>
 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">ساعات العمل</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('auto.role-based-dashboard.37')}</CardTitle>
           <Calendar className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">8.5</div>
-          <p className="text-xs text-muted-foreground">اليوم</p>
+          <p className="text-xs text-muted-foreground">{t('auto.role-based-dashboard.38')}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">المهام المكتملة</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('auto.role-based-dashboard.39')}</CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">15</div>
-          <p className="text-xs text-muted-foreground">من أصل 18 مهمة</p>
+          <p className="text-xs text-muted-foreground">{t('auto.role-based-dashboard.40')}</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">الراتب الشهري</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('auto.role-based-dashboard.41')}</CardTitle>
           <FileText className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">650 د.ك</div>
-          <p className="text-xs text-muted-foreground">+25 د.ك من الشهر الماضي</p>
+          <div className="text-2xl font-bold">{t('auto.role-based-dashboard.42')}</div>
+          <p className="text-xs text-muted-foreground">{t('auto.role-based-dashboard.43')}</p>
         </CardContent>
       </Card>
     </div>

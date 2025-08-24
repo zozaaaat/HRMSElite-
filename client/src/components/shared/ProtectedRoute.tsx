@@ -4,6 +4,7 @@ import {useAuth} from '../../hooks/useAuth';
 import {canAccessPage} from '../../lib/roles';
 import {getDashboardRoute, UserRole as RoutesUserRole} from '../../lib/routes';
 import {UserRole as AuthUserRole} from '../../lib/authUtils';
+import { t } from "i18next";
 
 // محول لتوحيد نوع الدور بين `authUtils` و `routes`
 const toRoutesUserRole = (role: AuthUserRole): RoutesUserRole => {
@@ -81,7 +82,7 @@ export function ProtectedRoute ({
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto" />
-          <p className="text-muted-foreground">جاري التحقق من الصلاحيات...</p>
+          <p className="text-muted-foreground">{t('auto.ProtectedRoute.1')}</p>
         </div>
       </div>
     );
@@ -101,14 +102,13 @@ export function ProtectedRoute ({
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
-          <h2 className="text-xl font-semibold text-red-600">غير مصرح بالوصول</h2>
-          <p className="text-muted-foreground">ليس لديك صلاحية للوصول إلى هذه الصفحة</p>
+          <h2 className="text-xl font-semibold text-red-600">{t('auto.ProtectedRoute.2')}</h2>
+          <p className="text-muted-foreground">{t('auto.ProtectedRoute.3')}</p>
           <button
             onClick={() => setLocation(getDashboardRoute(toRoutesUserRole(user.role as AuthUserRole)))}
             className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
           >
-            العودة للوحة التحكم
-          </button>
+            {t('auto.ProtectedRoute.4')}</button>
         </div>
       </div>
     );
@@ -121,14 +121,13 @@ export function ProtectedRoute ({
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
-          <h2 className="text-xl font-semibold text-red-600">دور غير صحيح</h2>
-          <p className="text-muted-foreground">هذه الصفحة مخصصة لدور آخر</p>
+          <h2 className="text-xl font-semibold text-red-600">{t('auto.ProtectedRoute.5')}</h2>
+          <p className="text-muted-foreground">{t('auto.ProtectedRoute.6')}</p>
           <button
             onClick={() => setLocation(getDashboardRoute(toRoutesUserRole(user.role as AuthUserRole)))}
             className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
           >
-            العودة للوحة التحكم
-          </button>
+            {t('auto.ProtectedRoute.7')}</button>
         </div>
       </div>
     );

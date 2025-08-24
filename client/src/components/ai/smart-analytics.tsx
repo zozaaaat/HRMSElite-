@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import {useToast} from '@/hooks/use-toast';
 import logger from '../../lib/logger';
-
+import { t } from "i18next";
 
 interface UserInteraction {
   type: 'click' | 'keypress' | 'pageview' | 'hover' | 'scroll';
@@ -799,8 +799,8 @@ export default function SmartAnalytics ({className}: SmartAnalyticsProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">التحليلات الذكية</h2>
-          <p className="text-gray-600">تحليل ذكي لسلوك المستخدمين وأداء النظام</p>
+          <h2 className="text-2xl font-bold text-gray-900">{t('auto.smart-analytics.1')}</h2>
+          <p className="text-gray-600">{t('auto.smart-analytics.2')}</p>
         </div>
         <div className="flex items-center space-x-2">
           <Button
@@ -808,22 +808,19 @@ export default function SmartAnalytics ({className}: SmartAnalyticsProps) {
             size="sm"
             onClick={() => setShowAdvancedMetrics(!showAdvancedMetrics)}
           >
-            {showAdvancedMetrics ? 'إخفاء' : 'إظهار'} المقاييس المتقدمة
-          </Button>
+            {showAdvancedMetrics ? 'إخفاء' : 'إظهار'} {t('auto.smart-analytics.3')}</Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setLearningMode(!learningMode)}
           >
-            {learningMode ? 'إيقاف' : 'تشغيل'} وضع التعلم
-          </Button>
+            {learningMode ? 'إيقاف' : 'تشغيل'} {t('auto.smart-analytics.4')}</Button>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setIsMonitoring(!isMonitoring)}
           >
-            {isMonitoring ? 'إيقاف' : 'تشغيل'} المراقبة
-          </Button>
+            {isMonitoring ? 'إيقاف' : 'تشغيل'} {t('auto.smart-analytics.5')}</Button>
           <Button
             variant="outline"
             size="sm"
@@ -835,8 +832,7 @@ export default function SmartAnalytics ({className}: SmartAnalyticsProps) {
             ) : (
               <Brain className="h-4 w-4" />
             )}
-            تحليل
-          </Button>
+            {t('auto.smart-analytics.6')}</Button>
         </div>
       </div>
 
@@ -846,30 +842,30 @@ export default function SmartAnalytics ({className}: SmartAnalyticsProps) {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Activity className="h-5 w-5" />
-              <span>مقاييس النظام</span>
+              <span>{t('auto.smart-analytics.7')}</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">{systemMetrics.activeUsers}</div>
-                <div className="text-sm text-gray-600">المستخدمين النشطين</div>
+                <div className="text-sm text-gray-600">{t('auto.smart-analytics.8')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">{
   systemMetrics.currentRequests
 }</div>
-                <div className="text-sm text-gray-600">الطلبات الحالية</div>
+                <div className="text-sm text-gray-600">{t('auto.smart-analytics.9')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">{systemMetrics.peakUsage}</div>
-                <div className="text-sm text-gray-600">الاستخدام الأقصى</div>
+                <div className="text-sm text-gray-600">{t('auto.smart-analytics.10')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-orange-600">{
   systemMetrics.averageSessionTime
-} د</div>
-                <div className="text-sm text-gray-600">متوسط الجلسة</div>
+} {t('auto.smart-analytics.11')}</div>
+                <div className="text-sm text-gray-600">{t('auto.smart-analytics.12')}</div>
               </div>
             </div>
           </CardContent>
@@ -882,7 +878,7 @@ export default function SmartAnalytics ({className}: SmartAnalyticsProps) {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Brain className="h-5 w-5" />
-              <span>أداء الذكاء الاصطناعي</span>
+              <span>{t('auto.smart-analytics.13')}</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -891,31 +887,31 @@ export default function SmartAnalytics ({className}: SmartAnalyticsProps) {
                 <div className="text-2xl font-bold text-blue-600">{
   aiPerformance.modelAccuracy
 }%</div>
-                <div className="text-sm text-gray-600">دقة النموذج</div>
+                <div className="text-sm text-gray-600">{t('auto.smart-analytics.14')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">{
   aiPerformance.responseQuality
 }/5</div>
-                <div className="text-sm text-gray-600">جودة الاستجابة</div>
+                <div className="text-sm text-gray-600">{t('auto.smart-analytics.15')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">{
   aiPerformance.userSatisfaction
 }/5</div>
-                <div className="text-sm text-gray-600">رضا المستخدمين</div>
+                <div className="text-sm text-gray-600">{t('auto.smart-analytics.16')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-orange-600">{
   aiPerformance.learningRate
 }</div>
-                <div className="text-sm text-gray-600">معدل التعلم</div>
+                <div className="text-sm text-gray-600">{t('auto.smart-analytics.17')}</div>
               </div>
             </div>
 
             {aiPerformance.improvementAreas.length > 0 && (
               <div className="mt-6">
-                <h4 className="text-lg font-medium mb-4">مجالات التحسين</h4>
+                <h4 className="text-lg font-medium mb-4">{t('auto.smart-analytics.18')}</h4>
                 <div className="space-y-2">
                   {aiPerformance.improvementAreas.map((area, index) => (
                     <div key={index} className="flex items-center space-x-2">
@@ -936,7 +932,7 @@ export default function SmartAnalytics ({className}: SmartAnalyticsProps) {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Users className="h-5 w-5" />
-              <span>سلوك المستخدم</span>
+              <span>{t('auto.smart-analytics.19')}</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -944,25 +940,25 @@ export default function SmartAnalytics ({className}: SmartAnalyticsProps) {
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-600">{
   userBehavior.sessionDuration
-} د</div>
-                <div className="text-sm text-gray-600">متوسط مدة الجلسة</div>
+} {t('auto.smart-analytics.20')}</div>
+                <div className="text-sm text-gray-600">{t('auto.smart-analytics.21')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">{
   userBehavior.clicksPerSession
 }</div>
-                <div className="text-sm text-gray-600">النقرات لكل جلسة</div>
+                <div className="text-sm text-gray-600">{t('auto.smart-analytics.22')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">{
   userBehavior.efficiencyScore
 }%</div>
-                <div className="text-sm text-gray-600">معدل الكفاءة</div>
+                <div className="text-sm text-gray-600">{t('auto.smart-analytics.23')}</div>
               </div>
             </div>
 
             <div className="mt-6">
-              <h4 className="text-lg font-medium mb-4">الميزات المستخدمة</h4>
+              <h4 className="text-lg font-medium mb-4">{t('auto.smart-analytics.24')}</h4>
               <div className="flex flex-wrap gap-2">
                 {userBehavior.featuresUsed.map((feature, index) => (
                   <Badge key={index} variant="outline">
@@ -974,7 +970,7 @@ export default function SmartAnalytics ({className}: SmartAnalyticsProps) {
 
             {showAdvancedMetrics && (
               <div className="mt-6">
-                <h4 className="text-lg font-medium mb-4">أجهزة المستخدمين</h4>
+                <h4 className="text-lg font-medium mb-4">{t('auto.smart-analytics.25')}</h4>
                 <div className="space-y-3">
                   {userBehavior.deviceTypes.map((device, index) => (
                     <div key={index} className="flex items-center justify-between">
@@ -1011,10 +1007,9 @@ export default function SmartAnalytics ({className}: SmartAnalyticsProps) {
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Lightbulb className="h-5 w-5" />
-              <span>الاقتراحات الذكية</span>
+              <span>{t('auto.smart-analytics.26')}</span>
               <Badge variant="outline" className="text-xs">
-                {suggestions.length} اقتراح
-              </Badge>
+                {suggestions.length} {t('auto.smart-analytics.27')}</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -1050,7 +1045,7 @@ export default function SmartAnalytics ({className}: SmartAnalyticsProps) {
                         {suggestion.category}
                       </Badge>
                       <span className="text-xs text-gray-500">
-                        الثقة: {Math.round(suggestion.confidence * 100)}%
+                        {t('auto.smart-analytics.28')}{Math.round(suggestion.confidence * 100)}%
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -1079,10 +1074,9 @@ export default function SmartAnalytics ({className}: SmartAnalyticsProps) {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <MousePointer className="h-5 w-5" />
-            <span>إحصائيات التفاعل</span>
+            <span>{t('auto.smart-analytics.29')}</span>
             <Badge variant="outline" className="text-xs">
-              {interactions.length} تفاعل
-            </Badge>
+              {interactions.length} {t('auto.smart-analytics.30')}</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -1091,25 +1085,25 @@ export default function SmartAnalytics ({className}: SmartAnalyticsProps) {
               <div className="text-2xl font-bold text-blue-600">
                 {interactions.filter(i => i.type === 'click').length}
               </div>
-              <div className="text-sm text-gray-600">النقرات</div>
+              <div className="text-sm text-gray-600">{t('auto.smart-analytics.31')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">
                 {interactions.filter(i => i.type === 'keypress').length}
               </div>
-              <div className="text-sm text-gray-600">المفاتيح</div>
+              <div className="text-sm text-gray-600">{t('auto.smart-analytics.32')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">
                 {interactions.filter(i => i.type === 'pageview').length}
               </div>
-              <div className="text-sm text-gray-600">الصفحات</div>
+              <div className="text-sm text-gray-600">{t('auto.smart-analytics.33')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-orange-600">
                 {new Set(interactions.map(i => i.path)).size}
               </div>
-              <div className="text-sm text-gray-600">المسارات</div>
+              <div className="text-sm text-gray-600">{t('auto.smart-analytics.34')}</div>
             </div>
           </div>
         </CardContent>

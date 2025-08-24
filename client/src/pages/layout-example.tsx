@@ -292,16 +292,13 @@ function LayoutExample () {
                 {t('auto.layout-example.20')}</Button>
               <Button className="w-full justify-start" variant="outline">
                 <Calendar className="mr-2 h-4 w-4" />
-                إدارة الإجازات
-              </Button>
+                {t('auto.layout-example.1')}</Button>
               <Button className="w-full justify-start" variant="outline">
                 <DollarSign className="mr-2 h-4 w-4" />
-                الرواتب والمكافآت
-              </Button>
+                {t('auto.layout-example.2')}</Button>
               <Button className="w-full justify-start" variant="outline">
                 <TrendingUp className="mr-2 h-4 w-4" />
-                التقارير والإحصائيات
-              </Button>
+                {t('auto.layout-example.3')}</Button>
             </CardContent>
           </Card>
         </div>

@@ -1,3 +1,5 @@
+import { t } from "i18next";
+
 export interface Document {
   id?: string;
   name: string;

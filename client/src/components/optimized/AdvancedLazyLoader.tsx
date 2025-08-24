@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Card, CardContent } from '../ui/card';
 import { Skeleton } from '../ui/skeleton';
 import { Progress } from '../ui/progress';
+import { t } from "i18next";
 
 interface AdvancedLazyLoaderProps {
   children: React.ReactNode;

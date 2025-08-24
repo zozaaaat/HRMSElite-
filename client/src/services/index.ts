@@ -1,3 +1,5 @@
+import { t } from "i18next";
+
 // Services index file
 // Export all service functions from this central location
 

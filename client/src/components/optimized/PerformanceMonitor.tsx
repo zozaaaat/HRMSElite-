@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback, memo } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import { t } from "i18next";
 
 // Declare performance API for TypeScript
 declare global {
