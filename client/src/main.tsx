@@ -11,6 +11,14 @@ if (rootElement) {
   unsafeCreateRoot(rootElement).render(<App />);
 }
 
-if (typeof window !== 'undefined') {
-  initWebVitals();
-}
+  if (typeof window !== 'undefined') {
+    initWebVitals();
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        const swUrl = `/sw.js?build=${__BUILD_HASH__}`;
+        navigator.serviceWorker.register(swUrl).catch((err) => {
+          console.error('Service worker registration failed:', err);
+        });
+      });
+    }
+  }

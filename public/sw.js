@@ -1,5 +1,6 @@
 // Service Worker for HRMS Elite PWA
-const CACHE_NAME = 'hrms-elite-v1.0.0';
+const BUILD_HASH = new URL(self.location.href).searchParams.get('build') || 'dev';
+const CACHE_NAME = `hrms-elite-${BUILD_HASH}`;
 const urlsToCache = [
   '/',
   '/index.html',
@@ -20,43 +21,51 @@ self.addEventListener('install', (event) => {
 });
 
 // Fetch event - serve from cache if available
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-  const hasCredentials = request.headers.has('Authorization') || request.headers.has('Cookie');
+  self.addEventListener('fetch', (event) => {
+    const { request } = event;
+    if (request.method !== 'GET') {
+      return;
+    }
 
-  // Skip caching for auth/session endpoints or credentialed requests
-  if (
-    url.pathname.startsWith('/api/auth/') ||
-    url.pathname.startsWith('/auth/') ||
-    url.pathname.startsWith('/api/session/') ||
-    url.pathname.startsWith('/session/') ||
-    hasCredentials
-  ) {
-    event.respondWith(fetch(request));
-    return;
-  }
+    const url = new URL(request.url);
+    const hasCredentials = request.headers.has('Authorization') || request.headers.has('Cookie');
+    const acceptsJson = request.headers.get('Accept')?.includes('application/json');
 
-  event.respondWith(
-    (async () => {
-      const cached = await caches.match(request);
-      if (cached) {
-        return cached;
-      }
+    // Bypass caching for API/JSON requests or credentialed requests
+    if (
+      url.pathname.startsWith('/api/') ||
+      acceptsJson ||
+      hasCredentials
+    ) {
+      event.respondWith(fetch(request));
+      return;
+    }
 
-      const networkResponse = await fetch(request);
-      const isJson = networkResponse.headers.get('Content-Type')?.includes('application/json');
+    event.respondWith(
+      (async () => {
+        const cached = await caches.match(request);
+        if (cached) {
+          return cached;
+        }
 
-      // Only cache non-authenticated JSON responses
-      if (!(isJson && hasCredentials)) {
-        const cache = await caches.open(CACHE_NAME);
-        cache.put(request, networkResponse.clone());
-      }
+        const networkResponse = await fetch(request);
+        const contentType = networkResponse.headers.get('Content-Type') || '';
+        const cacheControl = networkResponse.headers.get('Cache-Control') || '';
+        const isJson = contentType.includes('application/json');
+        const shouldCache =
+          !isJson &&
+          !cacheControl.includes('no-store') &&
+          !cacheControl.includes('no-cache');
 
-      return networkResponse;
-    })()
-  );
-});
+        if (shouldCache) {
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(request, networkResponse.clone());
+        }
+
+        return networkResponse;
+      })()
+    );
+  });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {

@@ -1,6 +1,7 @@
-const CACHE_NAME = 'hrms-elite-v1.0.0';
-const STATIC_CACHE = 'hrms-static-v1.0.0';
-const DYNAMIC_CACHE = 'hrms-dynamic-v1.0.0';
+const BUILD_HASH = new URL(self.location.href).searchParams.get('build') || 'dev';
+const CACHE_NAME = `hrms-elite-${BUILD_HASH}`;
+const STATIC_CACHE = `hrms-static-${BUILD_HASH}`;
+const DYNAMIC_CACHE = `hrms-dynamic-${BUILD_HASH}`;
 
 const STATIC_ASSETS = [
   '/',
@@ -73,7 +74,7 @@ self.addEventListener('fetch', (event) => {
 
   // Handle API requests
   if (API_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname))) {
-    event.respondWith(handleApiRequest(request));
+    event.respondWith(fetch(request));
     return;
   }
 
@@ -87,58 +88,20 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(handleOtherRequest(request));
 });
 
-// Handle API requests with cache-first strategy
-async function handleApiRequest(request) {
-  try {
-    // Try network first
-    const networkResponse = await fetch(request);
-    
-    if (networkResponse.ok) {
-      // Cache the successful response
-      const cache = await caches.open(DYNAMIC_CACHE);
-      cache.put(request, networkResponse.clone());
-      return networkResponse;
-    }
-    
-    // If network fails, try cache
-    const cachedResponse = await caches.match(request);
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-    
-    // If no cache, return network response (even if failed)
-    return networkResponse;
-  } catch (error) {
-    console.error('Service Worker: API request failed', error);
-    
-    // Try cache as fallback
-    const cachedResponse = await caches.match(request);
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-    
-    // Return offline page or error response
-    return new Response(
-      JSON.stringify({ error: 'Network error', offline: true }),
-      { 
-        status: 503,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
-}
+// API requests are fetched directly without caching
 
 // Handle static requests with cache-first strategy
 async function handleStaticRequest(request) {
   const cachedResponse = await caches.match(request);
-  
+
   if (cachedResponse) {
     return cachedResponse;
   }
-  
+
   try {
     const networkResponse = await fetch(request);
-    if (networkResponse.ok) {
+    const cacheControl = networkResponse.headers.get('Cache-Control') || '';
+    if (networkResponse.ok && !cacheControl.includes('no-store') && !cacheControl.includes('no-cache')) {
       const cache = await caches.open(STATIC_CACHE);
       cache.put(request, networkResponse.clone());
     }
@@ -153,17 +116,19 @@ async function handleStaticRequest(request) {
 async function handleOtherRequest(request) {
   try {
     const networkResponse = await fetch(request);
-    
-    if (networkResponse.ok) {
-      // Cache successful responses
+    const contentType = networkResponse.headers.get('Content-Type') || '';
+    const cacheControl = networkResponse.headers.get('Cache-Control') || '';
+    const isJson = contentType.includes('application/json');
+
+    if (networkResponse.ok && !isJson && !cacheControl.includes('no-store') && !cacheControl.includes('no-cache')) {
       const cache = await caches.open(DYNAMIC_CACHE);
       cache.put(request, networkResponse.clone());
     }
-    
+
     return networkResponse;
   } catch (error) {
     console.error('Service Worker: Other request failed', error);
-    
+
     // Try cache as fallback
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
