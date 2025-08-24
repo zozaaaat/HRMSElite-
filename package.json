@@ -22,6 +22,7 @@
     "dist:electron": "npm run build:electron && cd electron && npm run dist",
     "check": "tsc",
     "db:push": "drizzle-kit push",
+    "db:check": "drizzle-kit check",
     "clean": "rimraf dist node_modules/.cache",
     "clean:electron": "rimraf electron/dist electron/dist-electron",
     "lint": "npx -y eslint@8 . --ext .ts,.tsx --max-warnings=0 --config .eslintrc.cjs",

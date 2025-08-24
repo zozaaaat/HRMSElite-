@@ -47,6 +47,13 @@ export const app = express();
 const PORT = env.PORT;
 const vitalsRateLimiter = createRateLimiter('general');
 
+if (
+  env.NODE_ENV === 'production' &&
+  (!process.env.DB_ENCRYPTION_KEY || process.env.DB_ENCRYPTION_KEY.length < 32)
+) {
+  throw new Error('DB_ENCRYPTION_KEY is required and must be at least 32 characters');
+}
+
 // Trust proxy for rate limiting
 app.set('trust proxy', 1);
 
