@@ -10,6 +10,7 @@ import {NotificationCenter} from './notification-center';
 import {LanguageSwitcher} from './LanguageSwitcher';
 import type {User} from '../lib/authUtils';
 import type {Company} from '../../../shared/schema';
+import {useTranslation} from 'react-i18next';
 
 interface HeaderProps {
   user?: User;
@@ -63,6 +64,8 @@ export function Header ({
 
   };
 
+  const {t} = useTranslation();
+
   return (
     <header className="bg-card border-b border-border px-6 py-4">
       <div className="flex items-center justify-between">
@@ -111,6 +114,7 @@ export function Header ({
             size="sm"
             onClick={onThemeToggle}
             className="text-muted-foreground hover:text-foreground"
+            aria-label={isDarkMode ? t('settings.lightMode') : t('settings.darkMode')}
           >
             {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
