@@ -112,12 +112,12 @@ export default function Analytics ({className}: AnalyticsProps) {
   const [realTimeMode, setRealTimeMode] = useState(false);
   const [showAdvancedMetrics, setShowAdvancedMetrics] = useState(false);
 
-  // مراقبة التفاعلات في الوقت الفعلي
+  // Monitor real-time interactions
   useEffect(() => {
 
     const handleClick = (e: globalThis.MouseEvent) => {
 
-      // تسجيل النقرات للتحليل
+      // Log clicks for analytics
       const target = e.target as globalThis.HTMLElement;
       if (target) {
 
@@ -134,7 +134,7 @@ export default function Analytics ({className}: AnalyticsProps) {
 
     const handleKeyPress = (e: globalThis.KeyboardEvent) => {
 
-      // تسجيل استخدام لوحة المفاتيح
+      // Log keyboard usage
       logger.info('User keypress:', {
         'key': e.key,
         'path': window.location.pathname,
@@ -145,7 +145,7 @@ export default function Analytics ({className}: AnalyticsProps) {
 
     const handlePageView = () => {
 
-      // تسجيل عرض الصفحة
+      // Log page views
       logger.info('Page view:', {
         'path': window.location.pathname,
         'timestamp': new Date().toISOString()
@@ -153,7 +153,7 @@ export default function Analytics ({className}: AnalyticsProps) {
 
     };
 
-    // إضافة مستمعي الأحداث (بيئة المتصفح فقط)
+    // Add event listeners (browser environment only)
     const doc = typeof window !== 'undefined' ? window.document : undefined;
     if (doc) {
       doc.addEventListener('click', handleClick);
@@ -163,7 +163,7 @@ export default function Analytics ({className}: AnalyticsProps) {
       window.addEventListener('popstate', handlePageView);
     }
 
-    // تسجيل عرض الصفحة الأولي
+    // Log initial page view
     handlePageView();
 
     return () => {

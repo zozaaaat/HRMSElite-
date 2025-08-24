@@ -263,7 +263,7 @@
     }
   },
   "attendance": {
-    "title": "Attendance Management",
+    "title": "Attendance",
     "checkIn": "Check In",
     "checkOut": "Check Out",
     "timeTracking": "Time Tracking",
@@ -276,7 +276,10 @@
     "date": "Date",
     "time": "Time",
     "duration": "Duration",
-    "status": "Status"
+    "status": "Status",
+    "userName": "Ahmed Mohamed Ali",
+    "companyName": "Blue Nile Jewelry",
+    "description": "Track and manage daily employee attendance"
   },
   "payroll": {
     "title": "Payroll Management",
