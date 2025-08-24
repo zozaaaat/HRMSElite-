@@ -105,6 +105,9 @@ export class SecureDatabaseManager {
       const databasePath = dbPath || env.DATABASE_URL || 'dev.db';
 
       if (this.config.encryption.enabled) {
+        if (!this.encryptionKey || this.encryptionKey.length < 32) {
+          throw new Error('DB_ENCRYPTION_KEY is required and must be at least 32 characters');
+        }
         // Use SQLite for encrypted database
         this.database = new Database(databasePath) as any;
 
