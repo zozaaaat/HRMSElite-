@@ -1,4 +1,5 @@
 import i18n from './i18n';
+import { t } from "i18next";
 
 export function isUnauthorizedError (error: Error): boolean {
 

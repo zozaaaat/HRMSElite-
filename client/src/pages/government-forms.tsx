@@ -36,6 +36,7 @@ import {
 import type {LucideIcon} from 'lucide-react';
 import {SharedLayout} from '../components/shared-layout';
 import {LoadingSpinner, ErrorMessage} from '../components/shared';
+import { t } from "i18next";
 
 // Type definitions for API responses
 interface FormRequestResponse {
@@ -54,8 +55,8 @@ export default function GovernmentForms () {
   return (
     <SharedLayout
       userRole="company_manager"
-      userName="مدير الشركة"
-      companyName="شركة النيل الأزرق للمجوهرات"
+      userName={t('auto.government-forms.45')}
+      companyName={t('auto.government-forms.46')}
     >
       <GovernmentFormsContent />
     </SharedLayout>
@@ -231,23 +232,21 @@ function GovernmentFormsContent () {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold mb-2">النماذج الحكومية</h1>
+          <h1 className="text-3xl font-bold mb-2">{t('auto.government-forms.1')}</h1>
           <p className="text-muted-foreground">
-            إدارة وتعبئة النماذج الحكومية بسهولة مع الملء التلقائي للبيانات
-          </p>
+            {t('auto.government-forms.2')}</p>
         </div>
         <Link href="/dashboard">
           <Button variant="outline" className="gap-2">
             <ChevronRight className="h-4 w-4" />
-            العودة للوحة التحكم
-          </Button>
+            {t('auto.government-forms.3')}</Button>
         </Link>
       </div>
 
       {/* Loading and Error States */}
       {(formsLoading || requestsLoading || companiesLoading) && (
         <div className="flex items-center justify-center py-12">
-          <LoadingSpinner text="جاري تحميل النماذج الحكومية..." />
+          <LoadingSpinner text={t('auto.government-forms.47')} />
         </div>
       )}
 
@@ -255,7 +254,7 @@ function GovernmentFormsContent () {
         <div className="py-8">
           <ErrorMessage
             error={formsError ?? requestsError ?? companiesError}
-            title="خطأ في تحميل النماذج الحكومية"
+            title={t('auto.government-forms.48')}
             onRetry={() => window.location.reload()}
           />
         </div>
@@ -268,7 +267,7 @@ function GovernmentFormsContent () {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">إجمالي النماذج</p>
+                  <p className="text-sm text-muted-foreground">{t('auto.government-forms.4')}</p>
                   <p className="text-2xl font-bold">{Array.isArray(governmentForms) ? governmentForms.length : 0}</p>
                 </div>
                 <FileText className="h-8 w-8 text-primary opacity-20" />
@@ -279,7 +278,7 @@ function GovernmentFormsContent () {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">طلبات مقدمة</p>
+                  <p className="text-sm text-muted-foreground">{t('auto.government-forms.5')}</p>
                   <p className="text-2xl font-bold">{
   filteredRequests.filter((r: GovernmentFormRequest) => r.status === 'submitted').length
 }</p>
@@ -292,7 +291,7 @@ function GovernmentFormsContent () {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">قيد المعالجة</p>
+                  <p className="text-sm text-muted-foreground">{t('auto.government-forms.6')}</p>
                   <p className="text-2xl font-bold">{
   filteredRequests.filter((r: GovernmentFormRequest) => r.status === 'processing').length
 }</p>
@@ -305,7 +304,7 @@ function GovernmentFormsContent () {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">مكتملة</p>
+                  <p className="text-sm text-muted-foreground">{t('auto.government-forms.7')}</p>
                   <p className="text-2xl font-bold">{
   filteredRequests.filter((r: GovernmentFormRequest) => r.status === 'completed').length
 }</p>
@@ -323,16 +322,13 @@ function GovernmentFormsContent () {
           <TabsList className="grid grid-cols-3 w-full md:w-[500px]">
             <TabsTrigger value="forms" className="gap-2">
               <FileText className="h-4 w-4" />
-            النماذج المتاحة
-            </TabsTrigger>
+            {t('auto.government-forms.8')}</TabsTrigger>
             <TabsTrigger value="requests" className="gap-2">
               <Send className="h-4 w-4" />
-            الطلبات المقدمة
-            </TabsTrigger>
+            {t('auto.government-forms.9')}</TabsTrigger>
             <TabsTrigger value="templates" className="gap-2">
               <Download className="h-4 w-4" />
-            القوالب
-            </TabsTrigger>
+            {t('auto.government-forms.10')}</TabsTrigger>
           </TabsList>
 
           {/* Forms Tab */}
@@ -343,7 +339,7 @@ function GovernmentFormsContent () {
                 <div className="relative">
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="البحث في النماذج..."
+                    placeholder={t('auto.government-forms.49')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pr-10"
@@ -352,14 +348,14 @@ function GovernmentFormsContent () {
               </div>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger className="w-full md:w-[200px]">
-                  <SelectValue placeholder="فئة النموذج" />
+                  <SelectValue placeholder={t('auto.government-forms.50')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">جميع الفئات</SelectItem>
-                  <SelectItem value="وثائق شخصية">وثائق شخصية</SelectItem>
-                  <SelectItem value="شئون العمل">شئون العمل</SelectItem>
-                  <SelectItem value="إجراءات قانونية">إجراءات قانونية</SelectItem>
-                  <SelectItem value="تراخيص تجارية">تراخيص تجارية</SelectItem>
+                  <SelectItem value="all">{t('auto.government-forms.11')}</SelectItem>
+                  <SelectItem value={t('auto.government-forms.51')}>{t('auto.government-forms.12')}</SelectItem>
+                  <SelectItem value={t('auto.government-forms.52')}>{t('auto.government-forms.13')}</SelectItem>
+                  <SelectItem value={t('auto.government-forms.53')}>{t('auto.government-forms.14')}</SelectItem>
+                  <SelectItem value={t('auto.government-forms.54')}>{t('auto.government-forms.15')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -374,30 +370,30 @@ function GovernmentFormsContent () {
                         {getCategoryIcon(form.category ?? '')}
                         <CardTitle className="text-lg">{form.formType ?? ''}</CardTitle>
                       </div>
-                      <Badge variant={form.status === 'متاح' ? 'outline' : 'secondary'}>
+                      <Badge variant={t('auto.government-forms.55')}>
                         {form.status ?? ''}
                       </Badge>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-1">الاسم بالعربية</p>
+                      <p className="text-sm font-medium text-muted-foreground mb-1">{t('auto.government-forms.16')}</p>
                       <p className="text-sm">{form.formNameArabic ?? ''}</p>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-1">الجهة المصدرة</p>
+                      <p className="text-sm font-medium text-muted-foreground mb-1">{t('auto.government-forms.17')}</p>
                       <p className="text-sm">{form.issuingAuthority ?? ''}</p>
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="text-muted-foreground mb-1">الرسوم</p>
+                        <p className="text-muted-foreground mb-1">{t('auto.government-forms.18')}</p>
                         <div className="flex items-center gap-1">
                           <DollarSign className="h-3 w-3" />
                           <p className="font-medium">{form.fees ?? ''}</p>
                         </div>
                       </div>
                       <div>
-                        <p className="text-muted-foreground mb-1">مدة الإنجاز</p>
+                        <p className="text-muted-foreground mb-1">{t('auto.government-forms.19')}</p>
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           <p className="font-medium">{form.processingTime ?? ''}</p>
@@ -414,8 +410,7 @@ function GovernmentFormsContent () {
                             onClick={() => setSelectedForm(form)}
                           >
                             <Info className="h-4 w-4" />
-                          التفاصيل
-                          </Button>
+                          {t('auto.government-forms.20')}</Button>
                         </DialogTrigger>
                         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                           <DialogHeader>
@@ -425,7 +420,7 @@ function GovernmentFormsContent () {
                           </DialogHeader>
                           <div className="space-y-6 mt-4">
                             <div>
-                              <h3 className="font-semibold mb-2">المستندات المطلوبة</h3>
+                              <h3 className="font-semibold mb-2">{t('auto.government-forms.21')}</h3>
                               <ul className="list-disc list-inside space-y-1">
                                 {(form.requiredDocuments ?? []).map((doc: string,
    index: number) => (
@@ -439,11 +434,11 @@ function GovernmentFormsContent () {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                               <div>
-                                <p className="text-sm font-medium text-muted-foreground">مدة الصلاحية</p>
+                                <p className="text-sm font-medium text-muted-foreground">{t('auto.government-forms.22')}</p>
                                 <p className="text-sm mt-1">{form.validityPeriod ?? ''}</p>
                               </div>
                               <div>
-                                <p className="text-sm font-medium text-muted-foreground">آخر تحديث</p>
+                                <p className="text-sm font-medium text-muted-foreground">{t('auto.government-forms.23')}</p>
                                 <p className="text-sm mt-1">{form.lastUpdated ? new Date(form.lastUpdated).toLocaleDateString('ar-SA') : ''}</p>
                               </div>
                             </div>
@@ -461,8 +456,7 @@ function GovernmentFormsContent () {
                         }}
                       >
                         <Plus className="h-4 w-4" />
-                      تقديم طلب
-                      </Button>
+                      {t('auto.government-forms.24')}</Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -474,13 +468,13 @@ function GovernmentFormsContent () {
           <TabsContent value="requests" className="space-y-6">
             {/* Company Filter */}
             <div className="flex items-center gap-4 mb-6">
-              <Label>الشركة:</Label>
+              <Label>{t('auto.government-forms.25')}</Label>
               <Select value={selectedCompany} onValueChange={setSelectedCompany}>
                 <SelectTrigger className="w-[300px]">
-                  <SelectValue placeholder="اختر الشركة" />
+                  <SelectValue placeholder={t('auto.government-forms.56')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">جميع الشركات</SelectItem>
+                  <SelectItem value="all">{t('auto.government-forms.26')}</SelectItem>
                   {(companies as Company[]).map((company) => (
                     <SelectItem key={company.id ?? ''} value={company.id ?? ''}>
                       {company.name ?? ''}
@@ -496,12 +490,12 @@ function GovernmentFormsContent () {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b bg-muted/50">
-                      <th className="text-right p-4 font-medium">رقم الطلب</th>
-                      <th className="text-right p-4 font-medium">النموذج</th>
-                      <th className="text-right p-4 font-medium">الشركة</th>
-                      <th className="text-right p-4 font-medium">تاريخ التقديم</th>
-                      <th className="text-right p-4 font-medium">الحالة</th>
-                      <th className="text-right p-4 font-medium">الإجراءات</th>
+                      <th className="text-right p-4 font-medium">{t('auto.government-forms.27')}</th>
+                      <th className="text-right p-4 font-medium">{t('auto.government-forms.28')}</th>
+                      <th className="text-right p-4 font-medium">{t('auto.government-forms.29')}</th>
+                      <th className="text-right p-4 font-medium">{t('auto.government-forms.30')}</th>
+                      <th className="text-right p-4 font-medium">{t('auto.government-forms.31')}</th>
+                      <th className="text-right p-4 font-medium">{t('auto.government-forms.32')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -548,8 +542,7 @@ function GovernmentFormsContent () {
                 </table>
                 {filteredRequests.length === 0 && (
                   <div className="p-8 text-center text-muted-foreground">
-                  لا توجد طلبات مقدمة
-                  </div>
+                  {t('auto.government-forms.33')}</div>
                 )}
               </div>
             </div>
@@ -559,14 +552,12 @@ function GovernmentFormsContent () {
           <TabsContent value="templates" className="space-y-6">
             <div className="text-center py-12">
               <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">قوالب النماذج</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('auto.government-forms.34')}</h3>
               <p className="text-muted-foreground mb-4">
-              قم بتحميل قوالب النماذج الحكومية للاطلاع عليها قبل التقديم
-              </p>
+              {t('auto.government-forms.35')}</p>
               <Button>
                 <Download className="h-4 w-4 ml-2" />
-              تحميل جميع القوالب
-              </Button>
+              {t('auto.government-forms.36')}</Button>
             </div>
           </TabsContent>
         </Tabs>
@@ -580,7 +571,7 @@ function GovernmentFormsContent () {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>تقديم طلب نموذج</DialogTitle>
+            <DialogTitle>{t('auto.government-forms.37')}</DialogTitle>
           </DialogHeader>
           {selectedForm && (
             <form onSubmit={(e) => {
@@ -596,14 +587,14 @@ function GovernmentFormsContent () {
 
             }} className="space-y-4">
               <div>
-                <Label>النموذج</Label>
+                <Label>{t('auto.government-forms.38')}</Label>
                 <Input value={selectedForm.formNameArabic ?? ''} disabled />
               </div>
               <div>
-                <Label>الشركة</Label>
+                <Label>{t('auto.government-forms.39')}</Label>
                 <Select value={companyIdInput} onValueChange={setCompanyIdInput} required>
                   <SelectTrigger>
-                    <SelectValue placeholder="اختر الشركة" />
+                    <SelectValue placeholder={t('auto.government-forms.57')} />
                   </SelectTrigger>
                   <SelectContent>
                     {(companies as Company[]).map((company: Company) => (
@@ -615,17 +606,17 @@ function GovernmentFormsContent () {
                 </Select>
               </div>
               <div>
-                <Label>رقم الموظف (اختياري)</Label>
+                <Label>{t('auto.government-forms.40')}</Label>
                 <Input
-                  placeholder="أدخل رقم الموظف إذا كان النموذج خاص بموظف"
+                  placeholder={t('auto.government-forms.58')}
                   value={employeeIdInput}
                   onChange={(e) => setEmployeeIdInput(e.target.value)}
                 />
               </div>
               <div>
-                <Label>ملاحظات</Label>
+                <Label>{t('auto.government-forms.41')}</Label>
                 <Textarea
-                  placeholder="أي ملاحظات إضافية..."
+                  placeholder={t('auto.government-forms.59')}
                   rows={3}
                   value={notesInput}
                   onChange={(e) => setNotesInput(e.target.value)}
@@ -634,19 +625,16 @@ function GovernmentFormsContent () {
               <div className="flex items-center gap-2 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
                 <Info className="h-4 w-4 text-blue-600" />
                 <p className="text-sm text-blue-600 dark:text-blue-400">
-                  سيتم ملء النموذج تلقائياً بالبيانات المتاحة من النظام
-                </p>
+                  {t('auto.government-forms.42')}</p>
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                  إلغاء
-                </Button>
+                  {t('auto.government-forms.43')}</Button>
                 <Button type="button" variant="secondary" onClick={
   () => autoFillMutation.mutate(selectedForm.id ?? '')
 }>
                   <RefreshCw className="h-4 w-4 ml-2" />
-                  ملء تلقائي فقط
-                </Button>
+                  {t('auto.government-forms.44')}</Button>
                 <Button type="submit" disabled={submitFormMutation.isPending}>
                   <Send className="h-4 w-4 ml-2" />
                   {submitFormMutation.isPending ? 'جاري الإرسال...' : 'إرسال الطلب'}

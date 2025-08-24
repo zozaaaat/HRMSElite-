@@ -39,7 +39,7 @@ import {
 } from 'lucide-react';
 import {Label} from '../components/ui/label';
 import logger from '../lib/logger';
-
+import { t } from "i18next";
 
 interface SortConfig {
   key: keyof Employee;
@@ -142,13 +142,13 @@ function EmployeeManagementContent () {
     switch (status) {
 
     case 'active':
-      return <Badge variant="default">نشط</Badge>;
+      return <Badge variant="default">{t('auto.employee-management.1')}</Badge>;
     case 'inactive':
-      return <Badge variant="secondary">غير نشط</Badge>;
+      return <Badge variant="secondary">{t('auto.employee-management.2')}</Badge>;
     case 'terminated':
-      return <Badge variant="destructive">منتهي</Badge>;
+      return <Badge variant="destructive">{t('auto.employee-management.3')}</Badge>;
     default:
-      return <Badge variant="outline">غير محدد</Badge>;
+      return <Badge variant="outline">{t('auto.employee-management.4')}</Badge>;
 
     }
 
@@ -332,7 +332,7 @@ function EmployeeManagementContent () {
   }
   if (error) {
 
-    return <ErrorMessage error="حدث خطأ أثناء تحميل بيانات الموظفين" />;
+    return <ErrorMessage error={t('auto.employee-management.40')} />;
 
   }
 
@@ -340,29 +340,25 @@ function EmployeeManagementContent () {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">إدارة الموظفين</h1>
+          <h1 className="text-3xl font-bold">{t('auto.employee-management.5')}</h1>
           <p className="text-muted-foreground mt-2">
-            إدارة شاملة لجميع بيانات الموظفين والملفات الشخصية
-          </p>
+            {t('auto.employee-management.6')}</p>
         </div>
 
         <div className="flex gap-3">
           <Button variant="outline" className="gap-2" onClick={exportEmployees}>
             <Download className="h-4 w-4" />
-            تصدير
-          </Button>
+            {t('auto.employee-management.7')}</Button>
 
           <Button variant="outline" className="gap-2" onClick={() => refetch()}>
             <RefreshCw className="h-4 w-4" />
-            تحديث
-          </Button>
+            {t('auto.employee-management.8')}</Button>
 
           <Dialog open={isAddEmployeeOpen} onOpenChange={setIsAddEmployeeOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="h-4 w-4" />
-                إضافة موظف
-              </Button>
+                {t('auto.employee-management.9')}</Button>
             </DialogTrigger>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <EmployeeForm
@@ -379,7 +375,7 @@ function EmployeeManagementContent () {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">إجمالي الموظفين</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('auto.employee-management.10')}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -389,7 +385,7 @@ function EmployeeManagementContent () {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">الموظفين النشطين</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('auto.employee-management.11')}</CardTitle>
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -399,7 +395,7 @@ function EmployeeManagementContent () {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">متوسط الراتب</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('auto.employee-management.12')}</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -409,7 +405,7 @@ function EmployeeManagementContent () {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">الموظفين غير النشطين</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('auto.employee-management.13')}</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -425,28 +421,27 @@ function EmployeeManagementContent () {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Filter className="h-5 w-5" />
-            فلاتر البحث
-          </CardTitle>
+            {t('auto.employee-management.14')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
-              <Label>البحث</Label>
+              <Label>{t('auto.employee-management.15')}</Label>
               <Input
-                placeholder="البحث بالاسم أو البريد الإلكتروني أو الهاتف..."
+                placeholder={t('auto.employee-management.41')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>القسم</Label>
+              <Label>{t('auto.employee-management.16')}</Label>
               <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
                 <SelectTrigger>
-                  <SelectValue placeholder="اختر القسم" />
+                  <SelectValue placeholder={t('auto.employee-management.42')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">جميع الأقسام</SelectItem>
+                  <SelectItem value="all">{t('auto.employee-management.17')}</SelectItem>
                   {departments.map((dept) => (
                     <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                   ))}
@@ -455,31 +450,31 @@ function EmployeeManagementContent () {
             </div>
 
             <div className="space-y-2">
-              <Label>الحالة</Label>
+              <Label>{t('auto.employee-management.18')}</Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger>
-                  <SelectValue placeholder="اختر الحالة" />
+                  <SelectValue placeholder={t('auto.employee-management.43')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">جميع الحالات</SelectItem>
-                  <SelectItem value="active">نشط</SelectItem>
-                  <SelectItem value="inactive">غير نشط</SelectItem>
-                  <SelectItem value="terminated">منتهي</SelectItem>
+                  <SelectItem value="all">{t('auto.employee-management.19')}</SelectItem>
+                  <SelectItem value="active">{t('auto.employee-management.20')}</SelectItem>
+                  <SelectItem value="inactive">{t('auto.employee-management.21')}</SelectItem>
+                  <SelectItem value="terminated">{t('auto.employee-management.22')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label>نطاق الراتب</Label>
+              <Label>{t('auto.employee-management.23')}</Label>
               <div className="flex gap-2">
                 <Input
-                  placeholder="من"
+                  placeholder={t('auto.employee-management.44')}
                   type="number"
                   value={salaryRange.min}
                   onChange={(e) => setSalaryRange(prev => ({...prev, 'min': e.target.value}))}
                 />
                 <Input
-                  placeholder="إلى"
+                  placeholder={t('auto.employee-management.45')}
                   type="number"
                   value={salaryRange.max}
                   onChange={(e) => setSalaryRange(prev => ({...prev, 'max': e.target.value}))}
@@ -494,11 +489,11 @@ function EmployeeManagementContent () {
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle>قائمة الموظفين ({filteredEmployees.length})</CardTitle>
+            <CardTitle>{t('auto.employee-management.24')}{filteredEmployees.length})</CardTitle>
             {selectedEmployees.length > 0 && (
               <Button variant="destructive" onClick={handleBulkDelete}>
                 <Trash2 className="h-4 w-4 ml-2" />
-                حذف المحدد ({selectedEmployees.length})
+                {t('auto.employee-management.25')}{selectedEmployees.length})
               </Button>
             )}
           </div>
@@ -516,13 +511,13 @@ function EmployeeManagementContent () {
                       onCheckedChange={handleSelectAll}
                     />
                   </TableHead>
-                  <TableHead>الموظف</TableHead>
-                  <TableHead>معلومات الاتصال</TableHead>
-                  <TableHead>المنصب والقسم</TableHead>
-                  <TableHead>الراتب</TableHead>
-                  <TableHead>تاريخ التوظيف</TableHead>
-                  <TableHead>الحالة</TableHead>
-                  <TableHead className="text-right">الإجراءات</TableHead>
+                  <TableHead>{t('auto.employee-management.26')}</TableHead>
+                  <TableHead>{t('auto.employee-management.27')}</TableHead>
+                  <TableHead>{t('auto.employee-management.28')}</TableHead>
+                  <TableHead>{t('auto.employee-management.29')}</TableHead>
+                  <TableHead>{t('auto.employee-management.30')}</TableHead>
+                  <TableHead>{t('auto.employee-management.31')}</TableHead>
+                  <TableHead className="text-right">{t('auto.employee-management.32')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -633,10 +628,9 @@ function EmployeeManagementContent () {
         <Dialog open={!!viewingEmployee} onOpenChange={() => setViewingEmployee(null)}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>تفاصيل الموظف</DialogTitle>
+              <DialogTitle>{t('auto.employee-management.33')}</DialogTitle>
               <DialogDescription>
-                عرض كافة معلومات الموظف
-              </DialogDescription>
+                {t('auto.employee-management.34')}</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
@@ -657,25 +651,25 @@ function EmployeeManagementContent () {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium">البريد الإلكتروني</Label>
+                  <Label className="text-sm font-medium">{t('auto.employee-management.35')}</Label>
                   <p className="text-sm">{viewingEmployee.email}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">رقم الهاتف</Label>
+                  <Label className="text-sm font-medium">{t('auto.employee-management.36')}</Label>
                   <p className="text-sm">{viewingEmployee.phone}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">الراتب</Label>
+                  <Label className="text-sm font-medium">{t('auto.employee-management.37')}</Label>
                   <p className="text-sm">{formatCurrency(viewingEmployee.salary)}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">تاريخ التوظيف</Label>
+                  <Label className="text-sm font-medium">{t('auto.employee-management.38')}</Label>
                   <p className="text-sm">
                     {format(new Date(viewingEmployee.hireDate), 'dd/MM/yyyy', {'locale': ar})}
                   </p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium">الحالة</Label>
+                  <Label className="text-sm font-medium">{t('auto.employee-management.39')}</Label>
                   <div className="mt-1">{getStatusBadge(viewingEmployee.status)}</div>
                 </div>
               </div>

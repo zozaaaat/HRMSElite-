@@ -1,6 +1,7 @@
 /* global NodeJS, performance */
 
 import React from 'react';
+import { t } from "i18next";
 
 /**
  * Performance Utilities for HRMS Elite

@@ -1,5 +1,6 @@
 import logger from './logger';
 import i18n from './i18n';
+import { t } from "i18next";
 
 /**
  * CSRF Token Management for Frontend

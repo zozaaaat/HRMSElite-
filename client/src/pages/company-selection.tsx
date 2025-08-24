@@ -18,6 +18,8 @@ import {
   Shield,
   Crown
 } from 'lucide-react';
+import { t } from "i18next";
+
 // Logo import removed
 
 export default function CompanySelection () {
@@ -177,8 +179,8 @@ export default function CompanySelection () {
             </div>
           </div>
 
-          <p className="text-xl text-gray-600 mb-2">نظام إدارة الموارد البشرية المتقدم</p>
-          <p className="text-lg text-gray-500">اختر الشركة التي تريد إدارتها</p>
+          <p className="text-xl text-gray-600 mb-2">{t('auto.company-selection.1')}</p>
+          <p className="text-lg text-gray-500">{t('auto.company-selection.2')}</p>
         </div>
 
         {/* Search Bar */}
@@ -186,7 +188,7 @@ export default function CompanySelection () {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <Input
-              placeholder="البحث في الشركات..."
+              placeholder={t('auto.company-selection.9')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 py-3 text-lg border-2 border-gray-200 focus:border-blue-500 rounded-xl"
@@ -197,11 +199,11 @@ export default function CompanySelection () {
 
         {/* Companies Grid */}
         <div className="max-w-6xl mx-auto">
-          {isLoading && <LoadingSpinner text="جاري تحميل الشركات..." />}
+          {isLoading && <LoadingSpinner text={t('auto.company-selection.10')} />}
           {
   error && <ErrorMessage error={
   error
-} title="خطأ في تحميل الشركات" onRetry={
+} title={t('auto.company-selection.11')} onRetry={
   () => window.location.reload()
 } />
 }
@@ -210,7 +212,7 @@ export default function CompanySelection () {
               <Card className="text-center py-16">
                 <CardContent>
                   <Building2 className="h-20 w-20 mx-auto mb-6 text-gray-300" />
-                  <h3 className="text-2xl font-semibold text-gray-700 mb-4">لا توجد شركات</h3>
+                  <h3 className="text-2xl font-semibold text-gray-700 mb-4">{t('auto.company-selection.3')}</h3>
                   <p className="text-gray-500 mb-6">
                     {searchQuery ? 'لا توجد شركات تطابق بحثك' : 'لم يتم تسجيل أي شركات بعد'}
                   </p>
@@ -269,14 +271,13 @@ export default function CompanySelection () {
                         </div>
                         <div className="flex items-center gap-2 text-sm text-gray-500">
                           <Users className="h-4 w-4" />
-                          <span>{company.employeeCount ?? 0} موظف</span>
+                          <span>{company.employeeCount ?? 0} {t('auto.company-selection.4')}</span>
                         </div>
                       </div>
 
                       <div className="flex items-center justify-between pt-4 border-t">
                         <div className="text-xs text-gray-400">
-                          آخر نشاط: منذ {Math.floor(Math.random() * 24)} ساعة
-                        </div>
+                          {t('auto.company-selection.5')}{Math.floor(Math.random() * 24)} {t('auto.company-selection.6')}</div>
                         <Button
                           size="sm"
                           className="gap-2 group-hover:bg-blue-600 group-hover:text-white transition-colors"
@@ -289,8 +290,7 @@ export default function CompanySelection () {
 }`)
 }
                         >
-                          دخول
-                          <ArrowRight className="h-4 w-4" />
+                          {t('auto.company-selection.7')}<ArrowRight className="h-4 w-4" />
                         </Button>
                       </div>
                     </CardContent>
@@ -304,7 +304,7 @@ export default function CompanySelection () {
         {/* Footer Info */}
         <div className="text-center mt-16 text-gray-500">
           <p className="text-sm">
-            Zeylab HRMS • آخر تسجيل دخول: {new Date().toLocaleDateString('ar-SA')}
+            {t('auto.company-selection.8')}{new Date().toLocaleDateString('ar-SA')}
           </p>
         </div>
       </div>

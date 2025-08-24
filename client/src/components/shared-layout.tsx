@@ -2,6 +2,7 @@ import React from 'react';
 import {Sidebar} from './sidebar';
 import {Header} from './header';
 import type {User} from '../lib/authUtils';
+import { t } from "i18next";
 
 interface SharedLayoutProps {
   children: React.ReactNode;

@@ -1,3 +1,5 @@
+import { t } from "i18next";
+
 // Removed conflicting import. This module defines and exports `logger`.
 
 /**

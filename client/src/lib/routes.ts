@@ -1,3 +1,5 @@
+import { t } from "i18next";
+
 // تعريف المسارات الموحدة للتطبيق
 export const routes = {
   // المسارات العامة

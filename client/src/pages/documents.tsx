@@ -204,15 +204,13 @@ export default function DocumentsPage () {
         <div className="flex gap-2">
           <Button variant="outline">
             <Filter className="h-4 w-4 ml-2" />
-            فلترة
-          </Button>
+            {t('auto.documents.1')}</Button>
           <Button
             className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
             onClick={() => setShowForm(true)}
           >
             <Upload className="h-4 w-4 ml-2" />
-            رفع مستند
-          </Button>
+            {t('auto.documents.2')}</Button>
         </div>
       </div>
 
@@ -220,7 +218,7 @@ export default function DocumentsPage () {
         <div className="relative">
           <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="البحث في المستندات..."
+            placeholder={t('auto.documents.23')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pr-10"
@@ -228,50 +226,44 @@ export default function DocumentsPage () {
         </div>
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
           <SelectTrigger>
-            <SelectValue placeholder="جميع الفئات" />
+            <SelectValue placeholder={t('auto.documents.24')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">جميع الفئات</SelectItem>
-            <SelectItem value="contracts">عقود</SelectItem>
-            <SelectItem value="payroll">رواتب</SelectItem>
-            <SelectItem value="reports">تقارير</SelectItem>
-            <SelectItem value="personal">شخصية</SelectItem>
-            <SelectItem value="leaves">إجازات</SelectItem>
+            <SelectItem value="all">{t('auto.documents.3')}</SelectItem>
+            <SelectItem value="contracts">{t('auto.documents.4')}</SelectItem>
+            <SelectItem value="payroll">{t('auto.documents.5')}</SelectItem>
+            <SelectItem value="reports">{t('auto.documents.6')}</SelectItem>
+            <SelectItem value="personal">{t('auto.documents.7')}</SelectItem>
+            <SelectItem value="leaves">{t('auto.documents.8')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="flex items-center gap-2 text-gray-600">
         <FolderOpen className="h-4 w-4" />
-        <span>إجمالي المستندات: {mockDocuments.length}</span>
+        <span>{t('auto.documents.9')}{mockDocuments.length}</span>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="all" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
-            الكل
-          </TabsTrigger>
+            {t('auto.documents.10')}</TabsTrigger>
           <TabsTrigger value="contracts" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
-            عقود
-          </TabsTrigger>
+            {t('auto.documents.11')}</TabsTrigger>
           <TabsTrigger value="payroll" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
-            رواتب
-          </TabsTrigger>
+            {t('auto.documents.12')}</TabsTrigger>
           <TabsTrigger value="reports" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
-            تقارير
-          </TabsTrigger>
+            {t('auto.documents.13')}</TabsTrigger>
           <TabsTrigger value="personal" className="flex items-center gap-2">
             <FileImage className="h-4 w-4" />
-            شخصية
-          </TabsTrigger>
+            {t('auto.documents.14')}</TabsTrigger>
           <TabsTrigger value="leaves" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
-            إجازات
-          </TabsTrigger>
+            {t('auto.documents.15')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-6">
@@ -337,20 +329,17 @@ export default function DocumentsPage () {
                       onClick={() => handleViewDocument(doc)}
                     >
                       <Eye className="h-4 w-4 ml-1" />
-                      عرض
-                    </Button>
+                      {t('auto.documents.16')}</Button>
                     <Button size="sm" variant="outline">
                       <Download className="h-4 w-4 ml-1" />
-                      تحميل
-                    </Button>
+                      {t('auto.documents.17')}</Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleEditDocument(doc)}
                     >
                       <Edit className="h-4 w-4 ml-1" />
-                      تعديل
-                    </Button>
+                      {t('auto.documents.18')}</Button>
                     <Button
                       size="sm"
                       variant="outline"
@@ -358,8 +347,7 @@ export default function DocumentsPage () {
                       onClick={() => handleDeleteDocument(doc.id ?? '')}
                     >
                       <Trash2 className="h-4 w-4 ml-1" />
-                      حذف
-                    </Button>
+                      {t('auto.documents.19')}</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -370,11 +358,9 @@ export default function DocumentsPage () {
             <div className="text-center py-12">
               <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                لا توجد مستندات
-              </h3>
+                {t('auto.documents.20')}</h3>
               <p className="text-gray-500">
-                لم يتم العثور على مستندات تطابق معايير البحث
-              </p>
+                {t('auto.documents.21')}</p>
             </div>
           )}
         </TabsContent>
@@ -406,7 +392,7 @@ export default function DocumentsPage () {
       <Dialog open={!!viewingDocument} onOpenChange={() => setViewingDocument(null)}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>تفاصيل المستند</DialogTitle>
+            <DialogTitle>{t('auto.documents.22')}</DialogTitle>
           </DialogHeader>
           {viewingDocument && (
             <DocumentForm

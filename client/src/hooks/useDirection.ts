@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { t } from "i18next";
 
 /**
  * Hook to update the document direction and language based on i18n settings.

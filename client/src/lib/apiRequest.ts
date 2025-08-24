@@ -2,6 +2,7 @@
 
 import {fetchWithCsrf, handleCsrfError} from './csrf';
 import logger from './logger';
+import { t } from "i18next";
 
 // Local aliases to avoid direct references to DOM lib names in annotations
 type BodyInitLike = globalThis.BodyInit;

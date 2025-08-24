@@ -19,6 +19,7 @@ import {
   Minimize2,
   Maximize2
 } from 'lucide-react';
+import { t } from "i18next";
 
 interface Message {
   id: string;
@@ -206,7 +207,7 @@ export default function AIAssistant ({className}: AIAssistantProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Brain className="w-5 h-5 text-primary" />
-                <CardTitle className="text-sm">المساعد الذكي</CardTitle>
+                <CardTitle className="text-sm">{t('auto.ai-assistant.1')}</CardTitle>
               </div>
               <Button
                 variant="ghost"
@@ -230,7 +231,7 @@ export default function AIAssistant ({className}: AIAssistantProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Brain className="w-5 h-5 text-primary" />
-              <CardTitle className="text-sm">المساعد الذكي</CardTitle>
+              <CardTitle className="text-sm">{t('auto.ai-assistant.2')}</CardTitle>
               <Badge variant="secondary" className="text-xs">
                 <Bot className="w-3 h-3 mr-1" />
                 AI
@@ -258,7 +259,7 @@ export default function AIAssistant ({className}: AIAssistantProps) {
         <CardContent className="flex-1 p-0 flex flex-col">
           {/* Quick Actions */}
           <div className="p-4 border-b">
-            <p className="text-xs text-muted-foreground mb-3">إجراءات سريعة:</p>
+            <p className="text-xs text-muted-foreground mb-3">{t('auto.ai-assistant.3')}</p>
             <div className="grid grid-cols-2 gap-2">
               {quickActions.slice(0, 4).map((action, index) => (
                 <Button
@@ -344,7 +345,7 @@ export default function AIAssistant ({className}: AIAssistantProps) {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="اكتب رسالتك هنا..."
+                placeholder={t('auto.ai-assistant.4')}
                 disabled={isLoading}
                 className="flex-1"
               />

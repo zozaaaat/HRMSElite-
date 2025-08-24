@@ -1,3 +1,5 @@
+import { t } from "i18next";
+
 // Layout Components
 export {Layout} from './layout';
 export {Header} from './header';

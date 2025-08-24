@@ -37,6 +37,7 @@ import {
   Clock,
   FileText
 } from 'lucide-react';
+import { t } from "i18next";
 
 // Strongly-typed company item matching UI usage
 interface CompanyItem {
@@ -171,15 +172,14 @@ export default function Companies () {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">إدارة الشركات</h1>
-          <p className="text-muted-foreground mt-2">إدارة شاملة لجميع الشركات المسجلة في النظام</p>
+          <h1 className="text-3xl font-bold text-foreground">{t('auto.companies.1')}</h1>
+          <p className="text-muted-foreground mt-2">{t('auto.companies.2')}</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button className="gap-2">
               <Plus className="h-4 w-4" />
-              إضافة شركة جديدة
-            </Button>
+              {t('auto.companies.3')}</Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
@@ -193,57 +193,19 @@ export default function Companies () {
                   <FormField
                     control={form.control}
                     name="name"
-                    render={({field}) => (
-                      <FormItem>
-                        <FormLabel>اسم الشركة</FormLabel>
-                        <FormControl>
-                          <Input placeholder="اسم الشركة" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={t('auto.companies.40')}
                   />
                   <FormField
                     control={form.control}
                     name="industry"
-                    render={({field}) => (
-                      <FormItem>
-                        <FormLabel>نوع الصناعة</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="اختر نوع الصناعة" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="technology">تقنية المعلومات</SelectItem>
-                            <SelectItem value="healthcare">الرعاية الصحية</SelectItem>
-                            <SelectItem value="finance">المالية والمصرفية</SelectItem>
-                            <SelectItem value="manufacturing">التصنيع</SelectItem>
-                            <SelectItem value="retail">التجارة والبيع</SelectItem>
-                            <SelectItem value="construction">البناء والتشييد</SelectItem>
-                            <SelectItem value="education">التعليم</SelectItem>
-                            <SelectItem value="other">أخرى</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={t('auto.companies.41')}
                   />
                 </div>
 
                 <FormField
                   control={form.control}
                   name="description"
-                  render={({field}) => (
-                    <FormItem>
-                      <FormLabel>وصف الشركة</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="وصف مختصر عن نشاط الشركة" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={t('auto.companies.42')}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -252,7 +214,7 @@ export default function Companies () {
                     name="phone"
                     render={({field}) => (
                       <FormItem>
-                        <FormLabel>رقم الهاتف</FormLabel>
+                        <FormLabel>{t('auto.companies.15')}</FormLabel>
                         <FormControl>
                           <Input placeholder="+966 50 123 4567" {...field} />
                         </FormControl>
@@ -265,7 +227,7 @@ export default function Companies () {
                     name="email"
                     render={({field}) => (
                       <FormItem>
-                        <FormLabel>البريد الإلكتروني</FormLabel>
+                        <FormLabel>{t('auto.companies.16')}</FormLabel>
                         <FormControl>
                           <Input placeholder="info@company.com" {...field} />
                         </FormControl>
@@ -278,15 +240,7 @@ export default function Companies () {
                 <FormField
                   control={form.control}
                   name="address"
-                  render={({field}) => (
-                    <FormItem>
-                      <FormLabel>العنوان</FormLabel>
-                      <FormControl>
-                        <Input placeholder="العنوان الكامل للشركة" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={t('auto.companies.43')}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -295,7 +249,7 @@ export default function Companies () {
                     name="website"
                     render={({field}) => (
                       <FormItem>
-                        <FormLabel>الموقع الإلكتروني (اختياري)</FormLabel>
+                        <FormLabel>{t('auto.companies.18')}</FormLabel>
                         <FormControl>
                           <Input placeholder="https://company.com" {...field} />
                         </FormControl>
@@ -306,26 +260,7 @@ export default function Companies () {
                   <FormField
                     control={form.control}
                     name="size"
-                    render={({field}) => (
-                      <FormItem>
-                        <FormLabel>حجم الشركة</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="اختر حجم الشركة" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="startup">ناشئة (1-10 موظفين)</SelectItem>
-                            <SelectItem value="small">صغيرة (11-50 موظف)</SelectItem>
-                            <SelectItem value="medium">متوسطة (51-200 موظف)</SelectItem>
-                            <SelectItem value="large">كبيرة (201-1000 موظف)</SelectItem>
-                            <SelectItem value="enterprise">مؤسسية (+1000 موظف)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={t('auto.companies.44')}
                   />
                 </div>
 
@@ -335,8 +270,7 @@ export default function Companies () {
                     variant="outline"
                     onClick={() => setIsAddDialogOpen(false)}
                   >
-                    إلغاء
-                  </Button>
+                    {t('auto.companies.25')}</Button>
                   <Button type="submit" disabled={addCompanyMutation.isPending}>
                     {addCompanyMutation.isPending ? 'جاري الحفظ...' : 'حفظ الشركة'}
                   </Button>
@@ -353,7 +287,7 @@ export default function Companies () {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-600">إجمالي الشركات</p>
+                <p className="text-sm font-medium text-blue-600">{t('auto.companies.26')}</p>
                 <p className="text-3xl font-bold text-blue-700">{statsData.total}</p>
               </div>
               <Building2 className="h-8 w-8 text-blue-500" />
@@ -365,7 +299,7 @@ export default function Companies () {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-600">الشركات النشطة</p>
+                <p className="text-sm font-medium text-green-600">{t('auto.companies.27')}</p>
                 <p className="text-3xl font-bold text-green-700">{statsData.active}</p>
               </div>
               <CheckCircle className="h-8 w-8 text-green-500" />
@@ -377,7 +311,7 @@ export default function Companies () {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-yellow-600">قيد المراجعة</p>
+                <p className="text-sm font-medium text-yellow-600">{t('auto.companies.28')}</p>
                 <p className="text-3xl font-bold text-yellow-700">{statsData.pending}</p>
               </div>
               <Clock className="h-8 w-8 text-yellow-500" />
@@ -389,7 +323,7 @@ export default function Companies () {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-red-600">معلقة</p>
+                <p className="text-sm font-medium text-red-600">{t('auto.companies.29')}</p>
                 <p className="text-3xl font-bold text-red-700">{statsData.suspended}</p>
               </div>
               <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -405,7 +339,7 @@ export default function Companies () {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="البحث في الشركات..."
+                placeholder={t('auto.companies.45')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -416,13 +350,13 @@ export default function Companies () {
               onValueChange={(value) => setStatusFilter(value as 'all' | 'active' | 'pending' | 'suspended')}
             >
               <SelectTrigger className="w-full md:w-48">
-                <SelectValue placeholder="فلترة حسب الحالة" />
+                <SelectValue placeholder={t('auto.companies.46')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">جميع الحالات</SelectItem>
-                <SelectItem value="active">نشطة</SelectItem>
-                <SelectItem value="pending">قيد المراجعة</SelectItem>
-                <SelectItem value="suspended">معلقة</SelectItem>
+                <SelectItem value="all">{t('auto.companies.30')}</SelectItem>
+                <SelectItem value="active">{t('auto.companies.31')}</SelectItem>
+                <SelectItem value="pending">{t('auto.companies.32')}</SelectItem>
+                <SelectItem value="suspended">{t('auto.companies.33')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -432,7 +366,7 @@ export default function Companies () {
       {/* Loading and Error States */}
       {isLoading && (
         <div className="flex items-center justify-center py-12">
-          <LoadingSpinner text="جاري تحميل الشركات..." />
+          <LoadingSpinner text={t('auto.companies.47')} />
         </div>
       )}
 
@@ -440,7 +374,7 @@ export default function Companies () {
         <div className="py-8">
           <ErrorMessage
             error={error}
-            title="خطأ في تحميل الشركات"
+            title={t('auto.companies.48')}
             onRetry={() => window.location.reload()}
           />
         </div>
@@ -500,11 +434,11 @@ export default function Companies () {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4 text-blue-500" />
-                    <span>{company.totalEmployees ?? 0} موظف</span>
+                    <span>{company.totalEmployees ?? 0} {t('auto.companies.34')}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <FileText className="h-4 w-4 text-green-500" />
-                    <span>{company.activeLicenses ?? 0} رخصة</span>
+                    <span>{company.activeLicenses ?? 0} {t('auto.companies.35')}</span>
                   </div>
                 </div>
 
@@ -517,8 +451,7 @@ export default function Companies () {
 
                   }}>
                     <BarChart3 className="h-4 w-4 ml-2" />
-                    عرض التفاصيل
-                  </Button>
+                    {t('auto.companies.36')}</Button>
                   <Button variant="outline" size="sm" onClick={() => {
                     // TODO: Implement company settings
                   }}>
@@ -528,7 +461,7 @@ export default function Companies () {
 
                 <div className="text-xs text-muted-foreground flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  تاريخ التسجيل: {new Date(company.createdAt ?? Date.now()).toLocaleDateString('ar-SA')}
+                  {t('auto.companies.37')}{new Date(company.createdAt ?? Date.now()).toLocaleDateString('ar-SA')}
                 </div>
               </CardContent>
             </Card>
@@ -540,7 +473,7 @@ export default function Companies () {
         <Card className="text-center py-12">
           <CardContent>
             <Building2 className="h-16 w-16 mx-auto mb-4 text-muted-foreground/30" />
-            <h3 className="text-lg font-medium mb-2">لا توجد شركات</h3>
+            <h3 className="text-lg font-medium mb-2">{t('auto.companies.38')}</h3>
             <p className="text-sm text-muted-foreground mb-4">
               {searchQuery ?? statusFilter !== 'all'
                 ? 'لا توجد شركات تطابق معايير البحث'
@@ -549,8 +482,7 @@ export default function Companies () {
             {!searchQuery && statusFilter === 'all' && (
               <Button onClick={() => setIsAddDialogOpen(true)}>
                 <Plus className="h-4 w-4 ml-2" />
-                إضافة شركة جديدة
-              </Button>
+                {t('auto.companies.39')}</Button>
             )}
           </CardContent>
         </Card>

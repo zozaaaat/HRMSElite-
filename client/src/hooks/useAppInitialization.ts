@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react';
 import {
   useAppStore, useIsInitialized, useHydrationComplete, useAuthActions
 } from '../stores/useAppStore';
+import { t } from "i18next";
 
 export const useAppInitialization = () => {
 

@@ -124,8 +124,8 @@ export default function EmployeesPage () {
   return (
     <SharedLayout
       userRole="company_manager"
-      userName="مدير الشركة"
-      companyName="شركة النيل الأزرق للمجوهرات"
+      userName={t('auto.employees.64')}
+      companyName={t('auto.employees.65')}
     >
       <EmployeesContent />
     </SharedLayout>
@@ -537,35 +537,31 @@ function EmployeesContent () {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">إدارة الموظفين</h1>
+          <h1 className="text-3xl font-bold">{t('auto.employees.1')}</h1>
           <p className="text-muted-foreground mt-2">
-            إدارة شاملة لجميع بيانات الموظفين والملفات الشخصية
-          </p>
+            {t('auto.employees.2')}</p>
         </div>
 
         <div className="flex gap-3">
           <Button variant="outline" className="gap-2" onClick={exportEmployees}>
             <Download className="h-4 w-4" />
-            تصدير
-          </Button>
+            {t('auto.employees.3')}</Button>
 
           <Dialog open={isAddEmployeeOpen} onOpenChange={setIsAddEmployeeOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2">
                 <Plus className="h-4 w-4" />
-                إضافة موظف
-              </Button>
+                {t('auto.employees.4')}</Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>إضافة موظف جديد</DialogTitle>
+                <DialogTitle>{t('auto.employees.5')}</DialogTitle>
                 <DialogDescription>
-                  قم بتعبئة بيانات الموظف الجديد
-                </DialogDescription>
+                  {t('auto.employees.6')}</DialogDescription>
               </DialogHeader>
               <div className="grid grid-cols-2 gap-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">الاسم الكامل *</Label>
+                  <Label htmlFor="name">{t('auto.employees.7')}</Label>
                   <Input
                     id="name"
                     value={newEmployee.name}
@@ -574,7 +570,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">البريد الإلكتروني *</Label>
+                  <Label htmlFor="email">{t('auto.employees.8')}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -584,7 +580,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">رقم الهاتف *</Label>
+                  <Label htmlFor="phone">{t('auto.employees.9')}</Label>
                   <Input
                     id="phone"
                     value={newEmployee.phone}
@@ -593,7 +589,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="nationalId">الرقم المدني *</Label>
+                  <Label htmlFor="nationalId">{t('auto.employees.10')}</Label>
                   <Input
                     id="nationalId"
                     value={newEmployee.nationalId}
@@ -602,7 +598,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="position">المنصب *</Label>
+                  <Label htmlFor="position">{t('auto.employees.11')}</Label>
                   <Input
                     id="position"
                     value={newEmployee.position}
@@ -611,13 +607,13 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="department">القسم *</Label>
+                  <Label htmlFor="department">{t('auto.employees.12')}</Label>
                   <Select
                     value={newEmployee.department}
                     onValueChange={(value) => setNewEmployee({...newEmployee, 'department': value})}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="اختر القسم" />
+                      <SelectValue placeholder={t('auto.employees.66')} />
                     </SelectTrigger>
                     <SelectContent>
                       {departments.map(dept => (
@@ -628,7 +624,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="salary">الراتب</Label>
+                  <Label htmlFor="salary">{t('auto.employees.13')}</Label>
                   <Input
                     id="salary"
                     type="number"
@@ -638,7 +634,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="hireDate">تاريخ التوظيف *</Label>
+                  <Label htmlFor="hireDate">{t('auto.employees.14')}</Label>
                   <Input
                     id="hireDate"
                     type="date"
@@ -648,7 +644,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="birthDate">تاريخ الميلاد</Label>
+                  <Label htmlFor="birthDate">{t('auto.employees.15')}</Label>
                   <Input
                     id="birthDate"
                     type="date"
@@ -658,7 +654,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="experience">سنوات الخبرة</Label>
+                  <Label htmlFor="experience">{t('auto.employees.16')}</Label>
                   <Input
                     id="experience"
                     type="number"
@@ -668,7 +664,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="education">المؤهل العلمي</Label>
+                  <Label htmlFor="education">{t('auto.employees.17')}</Label>
                   <Input
                     id="education"
                     value={newEmployee.education}
@@ -677,7 +673,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="emergencyContact">جهة اتصال طوارئ</Label>
+                  <Label htmlFor="emergencyContact">{t('auto.employees.18')}</Label>
                   <Input
                     id="emergencyContact"
                     value={newEmployee.emergencyContact}
@@ -690,7 +686,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="col-span-2 space-y-2">
-                  <Label htmlFor="address">العنوان</Label>
+                  <Label htmlFor="address">{t('auto.employees.19')}</Label>
                   <Input
                     id="address"
                     value={newEmployee.address}
@@ -700,8 +696,7 @@ function EmployeesContent () {
               </div>
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setIsAddEmployeeOpen(false)}>
-                  إلغاء
-                </Button>
+                  {t('auto.employees.20')}</Button>
                 <Button
                   onClick={handleAddEmployee}
                   disabled={addEmployeeMutation.isPending}
@@ -720,8 +715,7 @@ function EmployeesContent () {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Users className="h-4 w-4" />
-              إجمالي الموظفين
-            </CardTitle>
+              {t('auto.employees.21')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
@@ -732,8 +726,7 @@ function EmployeesContent () {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <UserCheck className="h-4 w-4 text-green-600" />
-              الموظفون النشطون
-            </CardTitle>
+              {t('auto.employees.22')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{stats.active}</div>
@@ -744,8 +737,7 @@ function EmployeesContent () {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <DollarSign className="h-4 w-4 text-blue-600" />
-              متوسط الراتب
-            </CardTitle>
+              {t('auto.employees.23')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
@@ -758,13 +750,11 @@ function EmployeesContent () {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-purple-600" />
-              متوسط الخبرة
-            </CardTitle>
+              {t('auto.employees.24')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-purple-600">
-              {Math.round(stats.avgExperience)} سنوات
-            </div>
+              {Math.round(stats.avgExperience)} {t('auto.employees.25')}</div>
           </CardContent>
         </Card>
       </div>
@@ -778,7 +768,7 @@ function EmployeesContent () {
                 <div className="relative">
                   <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="البحث في الموظفين (اسم، رقم موظف، بريد إلكتروني)"
+                    placeholder={t('auto.employees.67')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-3 pr-10"
@@ -793,15 +783,14 @@ function EmployeesContent () {
                   className="gap-2"
                 >
                   <FilterIcon className="h-4 w-4" />
-                  فلاتر متقدمة
-                </Button>
+                  {t('auto.employees.26')}</Button>
 
                 <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
                   <SelectTrigger className="w-40">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">جميع الأقسام</SelectItem>
+                    <SelectItem value="all">{t('auto.employees.27')}</SelectItem>
                     {departments.map(dept => (
                       <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                     ))}
@@ -813,10 +802,10 @@ function EmployeesContent () {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">جميع الحالات</SelectItem>
-                    <SelectItem value="active">نشط</SelectItem>
-                    <SelectItem value="inactive">غير نشط</SelectItem>
-                    <SelectItem value="archived">مؤرشف</SelectItem>
+                    <SelectItem value="all">{t('auto.employees.28')}</SelectItem>
+                    <SelectItem value="active">{t('auto.employees.29')}</SelectItem>
+                    <SelectItem value="inactive">{t('auto.employees.30')}</SelectItem>
+                    <SelectItem value="archived">{t('auto.employees.31')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -826,16 +815,16 @@ function EmployeesContent () {
             {showAdvancedFilters && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t">
                 <div className="space-y-2">
-                  <Label>نطاق الراتب</Label>
+                  <Label>{t('auto.employees.32')}</Label>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="من"
+                      placeholder={t('auto.employees.68')}
                       type="number"
                       value={salaryRange.min}
                       onChange={(e) => setSalaryRange({...salaryRange, 'min': e.target.value})}
                     />
                     <Input
-                      placeholder="إلى"
+                      placeholder={t('auto.employees.69')}
                       type="number"
                       value={salaryRange.max}
                       onChange={(e) => setSalaryRange({...salaryRange, 'max': e.target.value})}
@@ -844,7 +833,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>مستوى الخبرة</Label>
+                  <Label>{t('auto.employees.33')}</Label>
                   <Select value={experienceFilter} onValueChange={setExperienceFilter}>
                     <SelectTrigger>
                       <SelectValue />
@@ -867,8 +856,7 @@ function EmployeesContent () {
             <div className="flex items-center justify-between p-4 mb-4 bg-muted rounded-lg">
               <div className="flex items-center gap-4">
                 <span className="text-sm font-medium">
-                  {selectedEmployees.length} موظف محدد
-                </span>
+                  {selectedEmployees.length} {t('auto.employees.34')}</span>
                 <Button
                   variant="destructive"
                   size="sm"
@@ -877,22 +865,20 @@ function EmployeesContent () {
                   className="gap-2"
                 >
                   <Trash2 className="h-4 w-4" />
-                  حذف محدد
-                </Button>
+                  {t('auto.employees.35')}</Button>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSelectedEmployees([])}
               >
-                إلغاء التحديد
-              </Button>
+                {t('auto.employees.36')}</Button>
             </div>
           )}
 
           {isLoading && (
             <div className="flex items-center justify-center py-12">
-              <LoadingSpinner text="جاري تحميل الموظفين..." />
+              <LoadingSpinner text={t('auto.employees.70')} />
             </div>
           )}
 
@@ -900,7 +886,7 @@ function EmployeesContent () {
             <div className="py-8">
               <ErrorMessage
                 error={error}
-                title="خطأ في تحميل الموظفين"
+                title={t('auto.employees.71')}
                 onRetry={() => window.location.reload()}
               />
             </div>
@@ -923,8 +909,7 @@ function EmployeesContent () {
                         onClick={() => handleSort('name')}
                         className="h-auto p-0 font-medium"
                       >
-                        الموظف
-                        {sortConfig.key === 'name' && (
+                        {t('auto.employees.37')}{sortConfig.key === 'name' && (
                           sortConfig.direction === 'asc'
                             ? <SortAsc className="h-4 w-4 mr-1" />
                             : <SortDesc className="h-4 w-4 mr-1" />
@@ -937,8 +922,7 @@ function EmployeesContent () {
                         onClick={() => handleSort('employeeId')}
                         className="h-auto p-0 font-medium"
                       >
-                        رقم الموظف
-                        {sortConfig.key === 'employeeId' && (
+                        {t('auto.employees.38')}{sortConfig.key === 'employeeId' && (
                           sortConfig.direction === 'asc'
                             ? <SortAsc className="h-4 w-4 mr-1" />
                             : <SortDesc className="h-4 w-4 mr-1" />
@@ -951,8 +935,7 @@ function EmployeesContent () {
                         onClick={() => handleSort('position')}
                         className="h-auto p-0 font-medium"
                       >
-                        المنصب
-                        {sortConfig.key === 'position' && (
+                        {t('auto.employees.39')}{sortConfig.key === 'position' && (
                           sortConfig.direction === 'asc'
                             ? <SortAsc className="h-4 w-4 mr-1" />
                             : <SortDesc className="h-4 w-4 mr-1" />
@@ -965,8 +948,7 @@ function EmployeesContent () {
                         onClick={() => handleSort('department')}
                         className="h-auto p-0 font-medium"
                       >
-                        القسم
-                        {sortConfig.key === 'department' && (
+                        {t('auto.employees.40')}{sortConfig.key === 'department' && (
                           sortConfig.direction === 'asc'
                             ? <SortAsc className="h-4 w-4 mr-1" />
                             : <SortDesc className="h-4 w-4 mr-1" />
@@ -979,8 +961,7 @@ function EmployeesContent () {
                         onClick={() => handleSort('salary')}
                         className="h-auto p-0 font-medium"
                       >
-                        الراتب
-                        {sortConfig.key === 'salary' && (
+                        {t('auto.employees.41')}{sortConfig.key === 'salary' && (
                           sortConfig.direction === 'asc'
                             ? <SortAsc className="h-4 w-4 mr-1" />
                             : <SortDesc className="h-4 w-4 mr-1" />
@@ -993,16 +974,15 @@ function EmployeesContent () {
                         onClick={() => handleSort('hireDate')}
                         className="h-auto p-0 font-medium"
                       >
-                        تاريخ التوظيف
-                        {sortConfig.key === 'hireDate' && (
+                        {t('auto.employees.42')}{sortConfig.key === 'hireDate' && (
                           sortConfig.direction === 'asc'
                             ? <SortAsc className="h-4 w-4 mr-1" />
                             : <SortDesc className="h-4 w-4 mr-1" />
                         )}
                       </Button>
                     </TableHead>
-                    <TableHead className="text-right">الحالة</TableHead>
-                    <TableHead className="text-right">الإجراءات</TableHead>
+                    <TableHead className="text-right">{t('auto.employees.43')}</TableHead>
+                    <TableHead className="text-right">{t('auto.employees.44')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1073,8 +1053,7 @@ function EmployeesContent () {
               {filteredEmployees.length > pagination.pageSize && (
                 <div className="flex items-center justify-between mt-4">
                   <div className="text-sm text-muted-foreground">
-                    عرض {filteredEmployees.length} من {filteredEmployees.length} موظف
-                  </div>
+                    {t('auto.employees.45')}{filteredEmployees.length} {t('auto.employees.46')}{filteredEmployees.length} {t('auto.employees.47')}</div>
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
@@ -1089,9 +1068,9 @@ function EmployeesContent () {
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
                     <span className="text-sm">
-                      صفحة {
+                      {t('auto.employees.48')}{
   pagination.currentPage
-} من {
+} {t('auto.employees.49')}{
   Math.ceil(filteredEmployees.length / pagination.pageSize)
 }
                     </span>
@@ -1121,7 +1100,7 @@ function EmployeesContent () {
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>تفاصيل الموظف</DialogTitle>
+            <DialogTitle>{t('auto.employees.50')}</DialogTitle>
           </DialogHeader>
           {selectedEmployee && (
             <div className="space-y-6">
@@ -1141,17 +1120,17 @@ function EmployeesContent () {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">رقم الموظف</Label>
+                  <Label className="text-sm font-medium">{t('auto.employees.51')}</Label>
                   <p className="font-mono">{selectedEmployee.employeeId}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">الرقم المدني</Label>
+                  <Label className="text-sm font-medium">{t('auto.employees.52')}</Label>
                   <p className="font-mono">{selectedEmployee.nationalId}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">البريد الإلكتروني</Label>
+                  <Label className="text-sm font-medium">{t('auto.employees.53')}</Label>
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-muted-foreground" />
                     <p>{selectedEmployee.email}</p>
@@ -1159,7 +1138,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">رقم الهاتف</Label>
+                  <Label className="text-sm font-medium">{t('auto.employees.54')}</Label>
                   <div className="flex items-center gap-2">
                     <Phone className="h-4 w-4 text-muted-foreground" />
                     <p>{selectedEmployee.phone}</p>
@@ -1167,7 +1146,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">القسم</Label>
+                  <Label className="text-sm font-medium">{t('auto.employees.55')}</Label>
                   <div className="flex items-center gap-2">
                     <Briefcase className="h-4 w-4 text-muted-foreground" />
                     <p>{selectedEmployee.department}</p>
@@ -1175,7 +1154,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">الراتب</Label>
+                  <Label className="text-sm font-medium">{t('auto.employees.56')}</Label>
                   <div className="flex items-center gap-2">
                     <DollarSign className="h-4 w-4 text-muted-foreground" />
                     <p className="font-mono">{formatCurrency(selectedEmployee.salary)}</p>
@@ -1183,7 +1162,7 @@ function EmployeesContent () {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">تاريخ التوظيف</Label>
+                  <Label className="text-sm font-medium">{t('auto.employees.57')}</Label>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <p>{
@@ -1196,21 +1175,21 @@ function EmployeesContent () {
 
                 {selectedEmployee.experience && (
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">سنوات الخبرة</Label>
-                    <p>{selectedEmployee.experience} سنوات</p>
+                    <Label className="text-sm font-medium">{t('auto.employees.58')}</Label>
+                    <p>{selectedEmployee.experience} {t('auto.employees.59')}</p>
                   </div>
                 )}
 
                 {selectedEmployee.education && (
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">المؤهل العلمي</Label>
+                    <Label className="text-sm font-medium">{t('auto.employees.60')}</Label>
                     <p>{selectedEmployee.education}</p>
                   </div>
                 )}
 
                 {selectedEmployee.emergencyContact && (
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">جهة اتصال طوارئ</Label>
+                    <Label className="text-sm font-medium">{t('auto.employees.61')}</Label>
                     <div className="flex items-center gap-2">
                       <Phone className="h-4 w-4 text-muted-foreground" />
                       <p>{selectedEmployee.emergencyContact}</p>
@@ -1221,7 +1200,7 @@ function EmployeesContent () {
 
               {selectedEmployee.address && (
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">العنوان</Label>
+                  <Label className="text-sm font-medium">{t('auto.employees.62')}</Label>
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
                     <p>{selectedEmployee.address}</p>
@@ -1231,7 +1210,7 @@ function EmployeesContent () {
 
               {selectedEmployee.skills && selectedEmployee.skills.length > 0 && (
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">المهارات</Label>
+                  <Label className="text-sm font-medium">{t('auto.employees.63')}</Label>
                   <div className="flex flex-wrap gap-2">
                     {selectedEmployee.skills.map((skill, index) => (
                       <Badge key={index} variant="secondary">{skill}</Badge>

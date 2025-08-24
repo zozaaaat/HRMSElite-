@@ -7,6 +7,7 @@ import {Users, Building, FileText, Calendar, DollarSign, TrendingUp} from 'lucid
 import {log} from '../lib/logger';
 import type {Company} from '../../../shared/schema';
 import type {User as FrontendUser} from '../lib/authUtils';
+import { t } from "i18next";
 
 function LayoutExample () {
 
@@ -191,13 +192,12 @@ function LayoutExample () {
         {/* عنوان الصفحة */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">لوحة التحكم</h1>
+            <h1 className="text-3xl font-bold text-foreground">{t('auto.layout-example.1')}</h1>
             <p className="text-muted-foreground mt-2">
-              مرحباً بك في نظام إدارة الموارد البشرية
-            </p>
+              {t('auto.layout-example.2')}</p>
           </div>
           <Badge variant="secondary" className="text-sm">
-            العرض النشط: {activeView}
+            {t('auto.layout-example.3')}{activeView}
           </Badge>
         </div>
 
@@ -205,53 +205,49 @@ function LayoutExample () {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">إجمالي الموظفين</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('auto.layout-example.4')}</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{sampleCompany.totalEmployees}</div>
               <p className="text-xs text-muted-foreground">
-                +12% من الشهر الماضي
-              </p>
+                {t('auto.layout-example.5')}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">التراخيص النشطة</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('auto.layout-example.6')}</CardTitle>
               <Building className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{sampleCompany.totalLicenses}</div>
               <p className="text-xs text-muted-foreground">
-                جميع التراخيص سارية
-              </p>
+                {t('auto.layout-example.7')}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">المستندات</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('auto.layout-example.8')}</CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">156</div>
               <p className="text-xs text-muted-foreground">
-                +8 مستندات جديدة
-              </p>
+                {t('auto.layout-example.9')}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">الإجازات المعلقة</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('auto.layout-example.10')}</CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">3</div>
               <p className="text-xs text-muted-foreground">
-                تحتاج مراجعة
-              </p>
+                {t('auto.layout-example.11')}</p>
             </CardContent>
           </Card>
         </div>
@@ -260,26 +256,25 @@ function LayoutExample () {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>معلومات الشركة</CardTitle>
+              <CardTitle>{t('auto.layout-example.12')}</CardTitle>
               <CardDescription>
-                تفاصيل الشركة الأساسية
-              </CardDescription>
+                {t('auto.layout-example.13')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">اسم الشركة:</span>
+                <span className="text-sm text-muted-foreground">{t('auto.layout-example.14')}</span>
                 <span className="text-sm font-medium">{sampleCompany.name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">رقم الملف التجاري:</span>
+                <span className="text-sm text-muted-foreground">{t('auto.layout-example.15')}</span>
                 <span className="text-sm font-medium">{sampleCompany.commercialFileNumber}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">النشاط التجاري:</span>
+                <span className="text-sm text-muted-foreground">{t('auto.layout-example.16')}</span>
                 <span className="text-sm font-medium">{sampleCompany.businessActivity}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">الموقع:</span>
+                <span className="text-sm text-muted-foreground">{t('auto.layout-example.17')}</span>
                 <span className="text-sm font-medium">{sampleCompany.location}</span>
               </div>
             </CardContent>
@@ -287,16 +282,14 @@ function LayoutExample () {
 
           <Card>
             <CardHeader>
-              <CardTitle>إجراءات سريعة</CardTitle>
+              <CardTitle>{t('auto.layout-example.18')}</CardTitle>
               <CardDescription>
-                الوصول السريع للميزات المهمة
-              </CardDescription>
+                {t('auto.layout-example.19')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <Button className="w-full justify-start" variant="outline">
                 <Users className="mr-2 h-4 w-4" />
-                إدارة الموظفين
-              </Button>
+                {t('auto.layout-example.20')}</Button>
               <Button className="w-full justify-start" variant="outline">
                 <Calendar className="mr-2 h-4 w-4" />
                 إدارة الإجازات

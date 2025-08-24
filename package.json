@@ -239,6 +239,8 @@
     "zustand": "5.0.7"
   },
   "devDependencies": {
+    "@babel/parser": "^7.28.3",
+    "@babel/traverse": "^7.28.3",
     "@replit/vite-plugin-cartographer": "0.2.7",
     "@replit/vite-plugin-runtime-error-modal": "0.0.3",
     "@tailwindcss/typography": "0.5.15",

@@ -18,6 +18,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import {routes, getDashboardRouteWithCompany, UserRole} from './routes';
 import {canAccessPage} from './roles';
+import { t } from "i18next";
 
 // تعريف أنواع البيانات
 export interface MenuItem {

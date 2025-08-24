@@ -27,6 +27,7 @@ import {
   Edit,
   X
 } from 'lucide-react';
+import { t } from "i18next";
 
 interface LeaveBalance {
   annual: number;
@@ -316,11 +317,9 @@ export function LeaveRequestForm ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5" />
-          طلب إجازة جديد
-        </CardTitle>
+          {t('auto.leave-request-form.1')}</CardTitle>
         <CardDescription>
-          قم بتعبئة تفاصيل طلب الإجازة. سيتم مراجعة الطلب من قبل المدير المباشر.
-        </CardDescription>
+          {t('auto.leave-request-form.2')}</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -333,7 +332,7 @@ export function LeaveRequestForm ({
 
           {/* نوع الإجازة */}
           <div className="space-y-2">
-            <Label htmlFor="leave-type">نوع الإجازة *</Label>
+            <Label htmlFor="leave-type">{t('auto.leave-request-form.3')}</Label>
             <Select
               value={formData.leaveType}
               onValueChange={(value) => {
@@ -344,16 +343,16 @@ export function LeaveRequestForm ({
               }}
             >
               <SelectTrigger className={errors.leaveType ? 'border-red-500' : ''}>
-                <SelectValue placeholder="اختر نوع الإجازة" />
+                <SelectValue placeholder={t('auto.leave-request-form.38')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="annual">إجازة سنوية</SelectItem>
-                <SelectItem value="sick">إجازة مرضية</SelectItem>
-                <SelectItem value="emergency">إجازة طارئة</SelectItem>
-                <SelectItem value="maternity">إجازة أمومة</SelectItem>
-                <SelectItem value="paternity">إجازة أبوة</SelectItem>
-                <SelectItem value="study">إجازة دراسية</SelectItem>
-                <SelectItem value="unpaid">إجازة بدون راتب</SelectItem>
+                <SelectItem value="annual">{t('auto.leave-request-form.4')}</SelectItem>
+                <SelectItem value="sick">{t('auto.leave-request-form.5')}</SelectItem>
+                <SelectItem value="emergency">{t('auto.leave-request-form.6')}</SelectItem>
+                <SelectItem value="maternity">{t('auto.leave-request-form.7')}</SelectItem>
+                <SelectItem value="paternity">{t('auto.leave-request-form.8')}</SelectItem>
+                <SelectItem value="study">{t('auto.leave-request-form.9')}</SelectItem>
+                <SelectItem value="unpaid">{t('auto.leave-request-form.10')}</SelectItem>
               </SelectContent>
             </Select>
             {errors.leaveType && (
@@ -370,7 +369,7 @@ export function LeaveRequestForm ({
               <div className="flex items-center gap-2 mb-2">
                 <Info className="h-4 w-4 text-blue-600" />
                 <span className="text-sm font-medium text-blue-900">
-                  رصيد {getLeaveTypeLabel(formData.leaveType)}
+                  {t('auto.leave-request-form.11')}{getLeaveTypeLabel(formData.leaveType)}
                 </span>
               </div>
               {(() => {
@@ -385,17 +384,15 @@ export function LeaveRequestForm ({
                 return (
                   <div className="flex gap-4 text-sm">
                     <div className="flex items-center gap-1">
-                      <span className="text-muted-foreground">المتاح:</span>
+                      <span className="text-muted-foreground">{t('auto.leave-request-form.12')}</span>
                       <Badge variant="outline" className="text-green-600">
-                        {balance.remaining} يوم
-                      </Badge>
+                        {balance.remaining} {t('auto.leave-request-form.13')}</Badge>
                     </div>
                     {balance.used > 0 && (
                       <div className="flex items-center gap-1">
-                        <span className="text-muted-foreground">المستخدم:</span>
+                        <span className="text-muted-foreground">{t('auto.leave-request-form.14')}</span>
                         <Badge variant="outline" className="text-orange-600">
-                          {balance.used} يوم
-                        </Badge>
+                          {balance.used} {t('auto.leave-request-form.15')}</Badge>
                       </div>
                     )}
                   </div>
@@ -408,7 +405,7 @@ export function LeaveRequestForm ({
           {/* تواريخ الإجازة */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="start-date">تاريخ البداية *</Label>
+              <Label htmlFor="start-date">{t('auto.leave-request-form.16')}</Label>
               <Input
                 id="start-date"
                 type="date"
@@ -431,7 +428,7 @@ export function LeaveRequestForm ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="end-date">تاريخ النهاية *</Label>
+              <Label htmlFor="end-date">{t('auto.leave-request-form.17')}</Label>
               <Input
                 id="end-date"
                 type="date"
@@ -459,20 +456,18 @@ export function LeaveRequestForm ({
             <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
               <Calculator className="h-4 w-4 text-green-600" />
               <span className="text-sm font-medium text-green-900">
-                عدد أيام الإجازة: {calculatedDays} يوم
-              </span>
+                {t('auto.leave-request-form.18')}{calculatedDays} {t('auto.leave-request-form.19')}</span>
               <Badge variant="outline" className="text-green-600">
-                {calculatedDays} يوم
-              </Badge>
+                {calculatedDays} {t('auto.leave-request-form.20')}</Badge>
             </div>
           )}
 
           {/* سبب الإجازة */}
           <div className="space-y-2">
-            <Label htmlFor="reason">سبب الإجازة *</Label>
+            <Label htmlFor="reason">{t('auto.leave-request-form.21')}</Label>
             <Textarea
               id="reason"
-              placeholder="اذكر سبب طلب الإجازة بالتفصيل..."
+              placeholder={t('auto.leave-request-form.39')}
               rows={4}
               value={formData.reason}
               onChange={(e) => {
@@ -514,12 +509,11 @@ export function LeaveRequestForm ({
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    عدد أيام الإجازة المطلوبة ({
+                    {t('auto.leave-request-form.22')}{
   calculatedDays
-} يوم) يتجاوز الرصيد المتاح ({
+} {t('auto.leave-request-form.23')}{
   balance.remaining
-} يوم)
-                  </AlertDescription>
+} {t('auto.leave-request-form.24')}</AlertDescription>
                 </Alert>
               );
 
@@ -531,10 +525,9 @@ export function LeaveRequestForm ({
                 <Alert>
                   <Info className="h-4 w-4" />
                   <AlertDescription>
-                    تحذير: هذا الطلب سيستنفذ {
+                    {t('auto.leave-request-form.25')}{
   (calculatedDays / balance.remaining * 100).toFixed(0)
-}% من رصيدك المتبقي
-                  </AlertDescription>
+}{t('auto.leave-request-form.26')}</AlertDescription>
                 </Alert>
               );
 
@@ -546,14 +539,14 @@ export function LeaveRequestForm ({
 
           {/* قسم التوقيع */}
           <div className="space-y-2">
-            <Label>توقيع الموظف</Label>
+            <Label>{t('auto.leave-request-form.27')}</Label>
             <div className="space-y-2">
               {employeeSignature ? (
                 <div className="border rounded-lg p-4 bg-gray-50">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <PenTool className="h-4 w-4 text-blue-600" />
-                      <span className="text-sm font-medium">تم إضافة التوقيع</span>
+                      <span className="text-sm font-medium">{t('auto.leave-request-form.28')}</span>
                     </div>
                     <div className="flex gap-1">
                       <Button
@@ -563,8 +556,7 @@ export function LeaveRequestForm ({
                         onClick={() => setShowSignatureCapture(true)}
                       >
                         <Edit className="h-4 w-4 mr-1" />
-                        تعديل
-                      </Button>
+                        {t('auto.leave-request-form.29')}</Button>
                       <Button
                         type="button"
                         variant="outline"
@@ -572,14 +564,13 @@ export function LeaveRequestForm ({
                         onClick={() => setEmployeeSignature(undefined)}
                       >
                         <X className="h-4 w-4 mr-1" />
-                        حذف
-                      </Button>
+                        {t('auto.leave-request-form.30')}</Button>
                     </div>
                   </div>
                   <div className="mt-2">
                     <img
                       src={employeeSignature.imageData}
-                      alt="توقيع الموظف"
+                      alt={t('auto.leave-request-form.40')}
                       className="w-full h-24 object-contain border rounded"
                     />
                   </div>
@@ -592,8 +583,7 @@ export function LeaveRequestForm ({
                   className="w-full"
                 >
                   <PenTool className="h-4 w-4 mr-1" />
-                  إضافة توقيع الموظف
-                </Button>
+                  {t('auto.leave-request-form.31')}</Button>
               )}
             </div>
           </div>
@@ -608,13 +598,11 @@ export function LeaveRequestForm ({
               {submitRequestMutation.isPending ? (
                 <>
                   <Clock className="h-4 w-4 mr-2 animate-spin" />
-                  جاري الإرسال...
-                </>
+                  {t('auto.leave-request-form.32')}</>
               ) : (
                 <>
                   <CheckCircle className="h-4 w-4 mr-2" />
-                  إرسال الطلب
-                </>
+                  {t('auto.leave-request-form.33')}</>
               )}
             </Button>
 
@@ -625,16 +613,15 @@ export function LeaveRequestForm ({
                 onClick={onCancel}
                 disabled={submitRequestMutation.isPending}
               >
-                إلغاء
-              </Button>
+                {t('auto.leave-request-form.34')}</Button>
             )}
           </div>
 
           {/* معلومات إضافية */}
           <div className="text-xs text-muted-foreground space-y-1">
-            <p>• سيتم مراجعة الطلب من قبل المدير المباشر خلال 24-48 ساعة</p>
-            <p>• يمكن تتبع حالة الطلب من صفحة طلبات الإجازات</p>
-            <p>• الإجازات الطارئة تتطلب إشعار فوري للمدير</p>
+            <p>{t('auto.leave-request-form.35')}</p>
+            <p>{t('auto.leave-request-form.36')}</p>
+            <p>{t('auto.leave-request-form.37')}</p>
           </div>
         </form>
 
@@ -647,8 +634,8 @@ export function LeaveRequestForm ({
                 entityType="leave"
                 onSave={handleSignatureSave}
                 onCancel={() => setShowSignatureCapture(false)}
-                title="توقيع الموظف"
-                description="قم بالتوقيع على طلب الإجازة"
+                title={t('auto.leave-request-form.41')}
+                description={t('auto.leave-request-form.42')}
               />
             </div>
           </div>

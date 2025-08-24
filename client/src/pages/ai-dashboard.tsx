@@ -34,6 +34,7 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import {useToast} from '@/hooks/use-toast';
+import { t } from "i18next";
 
 // بيانات وهمية للتحليلات
 const licenseExpiryData = [
@@ -125,9 +126,8 @@ export default function AIDashboard () {
         <div>
           <h1 className="text-3xl font-bold text-primary flex items-center gap-2">
             <Brain className="w-8 h-8" />
-            لوحة التحكم الذكية
-          </h1>
-          <p className="text-muted-foreground">تحليلات ذكية وتنبؤات باستخدام الذكاء الاصطناعي</p>
+            {t('auto.ai-dashboard.1')}</h1>
+          <p className="text-muted-foreground">{t('auto.ai-dashboard.2')}</p>
         </div>
         <Badge variant="secondary" className="text-lg px-4 py-2">
           <Zap className="w-4 h-4 mr-2" />
@@ -153,10 +153,10 @@ export default function AIDashboard () {
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
-          <TabsTrigger value="licenses">التراخيص</TabsTrigger>
-          <TabsTrigger value="attendance">الحضور</TabsTrigger>
-          <TabsTrigger value="employees">الموظفين</TabsTrigger>
+          <TabsTrigger value="overview">{t('auto.ai-dashboard.3')}</TabsTrigger>
+          <TabsTrigger value="licenses">{t('auto.ai-dashboard.4')}</TabsTrigger>
+          <TabsTrigger value="attendance">{t('auto.ai-dashboard.5')}</TabsTrigger>
+          <TabsTrigger value="employees">{t('auto.ai-dashboard.6')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -166,8 +166,7 @@ export default function AIDashboard () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-orange-500" />
-                  تنبؤ انتهاء التراخيص
-                </CardTitle>
+                  {t('auto.ai-dashboard.7')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -190,8 +189,7 @@ export default function AIDashboard () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Activity className="w-5 h-5 text-blue-500" />
-                  أنماط الحضور الأسبوعية
-                </CardTitle>
+                  {t('auto.ai-dashboard.8')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -216,18 +214,13 @@ export default function AIDashboard () {
             {/* رسم بياني دائري للتراخيص */}
             <Card>
               <CardHeader>
-                <CardTitle>حالة التراخيص</CardTitle>
+                <CardTitle>{t('auto.ai-dashboard.9')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <RechartsPieChart>
                     <Pie
-                      data={[
-                        {'name': 'نشطة', 'value': 65},
-                        {'name': 'تنتهي قريباً', 'value': 15},
-                        {'name': 'منتهية', 'value': 10},
-                        {'name': 'قيد التجديد', 'value': 10}
-                      ]}
+                      data={t('auto.ai-dashboard.29')}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -251,8 +244,7 @@ export default function AIDashboard () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <AlertCircle className="w-5 h-5 text-red-500" />
-                  التراخيص المهددة بالانتهاء
-                </CardTitle>
+                  {t('auto.ai-dashboard.10')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -270,8 +262,7 @@ export default function AIDashboard () {
                         <p className="text-sm text-muted-foreground">{license.type}</p>
                       </div>
                       <Badge variant={license.days <= 30 ? 'destructive' : 'secondary'}>
-                        {license.days} يوم
-                      </Badge>
+                        {license.days} {t('auto.ai-dashboard.11')}</Badge>
                     </div>
                   ))}
                 </div>
@@ -285,7 +276,7 @@ export default function AIDashboard () {
             {/* رسم بياني خطي للحضور */}
             <Card>
               <CardHeader>
-                <CardTitle>معدل الحضور الشهري</CardTitle>
+                <CardTitle>{t('auto.ai-dashboard.12')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -305,25 +296,25 @@ export default function AIDashboard () {
             {/* إحصائيات الحضور */}
             <Card>
               <CardHeader>
-                <CardTitle>إحصائيات الحضور</CardTitle>
+                <CardTitle>{t('auto.ai-dashboard.13')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span>نسبة الحضور الإجمالية</span>
+                    <span>{t('auto.ai-dashboard.14')}</span>
                     <Badge variant="secondary">92%</Badge>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span>متوسط التأخير</span>
-                    <Badge variant="outline">12 دقيقة</Badge>
+                    <span>{t('auto.ai-dashboard.15')}</span>
+                    <Badge variant="outline">{t('auto.ai-dashboard.16')}</Badge>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span>أيام الغياب الشهرية</span>
-                    <Badge variant="outline">3.2 يوم</Badge>
+                    <span>{t('auto.ai-dashboard.17')}</span>
+                    <Badge variant="outline">{t('auto.ai-dashboard.18')}</Badge>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span>أفضل قسم في الحضور</span>
-                    <Badge variant="secondary">قسم IT</Badge>
+                    <span>{t('auto.ai-dashboard.19')}</span>
+                    <Badge variant="secondary">{t('auto.ai-dashboard.20')}</Badge>
                   </div>
                 </div>
               </CardContent>
@@ -338,8 +329,7 @@ export default function AIDashboard () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="w-5 h-5 text-purple-500" />
-                  أكثر الموظفين تغييراً للوظائف
-                </CardTitle>
+                  {t('auto.ai-dashboard.21')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -357,7 +347,7 @@ export default function AIDashboard () {
             {/* تحليل الأداء */}
             <Card>
               <CardHeader>
-                <CardTitle>تحليل أداء الموظفين</CardTitle>
+                <CardTitle>{t('auto.ai-dashboard.22')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -373,7 +363,7 @@ export default function AIDashboard () {
                       <div>
                         <p className="font-medium">{employee.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          الأداء: {employee.performance}%
+                          {t('auto.ai-dashboard.23')}{employee.performance}%
                         </p>
                       </div>
                       <Badge
@@ -399,49 +389,48 @@ export default function AIDashboard () {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="w-5 h-5 text-primary" />
-            إجراءات الذكاء الاصطناعي
-          </CardTitle>
+            {t('auto.ai-dashboard.24')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Button
-              onClick={() => handleAIAction('تقرير الغياب')}
+              onClick={t('auto.ai-dashboard.30')}
               disabled={loading}
               variant="outline"
               className="flex flex-col items-center gap-2 h-auto py-4"
             >
               <Calendar className="w-6 h-6" />
-              <span>تقرير الغياب</span>
+              <span>{t('auto.ai-dashboard.25')}</span>
             </Button>
 
             <Button
-              onClick={() => handleAIAction('التراخيص المنتهية')}
+              onClick={t('auto.ai-dashboard.31')}
               disabled={loading}
               variant="outline"
               className="flex flex-col items-center gap-2 h-auto py-4"
             >
               <AlertTriangle className="w-6 h-6" />
-              <span>التراخيص المنتهية</span>
+              <span>{t('auto.ai-dashboard.26')}</span>
             </Button>
 
             <Button
-              onClick={() => handleAIAction('تحليل الأداء')}
+              onClick={t('auto.ai-dashboard.32')}
               disabled={loading}
               variant="outline"
               className="flex flex-col items-center gap-2 h-auto py-4"
             >
               <Target className="w-6 h-6" />
-              <span>تحليل الأداء</span>
+              <span>{t('auto.ai-dashboard.27')}</span>
             </Button>
 
             <Button
-              onClick={() => handleAIAction('التوصيات')}
+              onClick={t('auto.ai-dashboard.33')}
               disabled={loading}
               variant="outline"
               className="flex flex-col items-center gap-2 h-auto py-4"
             >
               <Lightbulb className="w-6 h-6" />
-              <span>التوصيات</span>
+              <span>{t('auto.ai-dashboard.28')}</span>
             </Button>
           </div>
         </CardContent>

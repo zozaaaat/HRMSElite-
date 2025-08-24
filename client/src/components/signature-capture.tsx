@@ -17,6 +17,7 @@ import {
   X,
   Eye
 } from 'lucide-react';
+import { t } from "i18next";
 
 interface SignatureCaptureProps {
   entityId?: string;
@@ -414,7 +415,7 @@ export default function SignatureCapture ({
           <div className="border rounded-lg p-4 bg-white">
             <img
               src={existingSignature.imageData}
-              alt="التوقيع"
+              alt={t('auto.signature-capture.11')}
               className="w-full h-auto max-h-48 object-contain"
               loading="lazy"
               decoding="async"
@@ -423,10 +424,10 @@ export default function SignatureCapture ({
             />
           </div>
           <div className="mt-4 text-sm text-gray-600">
-            <p>تم التوقيع في: {
+            <p>{t('auto.signature-capture.1')}{
   new Date(existingSignature.uploadedAt ?? '').toLocaleDateString('ar-SA')
 }</p>
-            {existingSignature.fileName && <p>اسم الملف: {existingSignature.fileName}</p>}
+            {existingSignature.fileName && <p>{t('auto.signature-capture.2')}{existingSignature.fileName}</p>}
           </div>
         </CardContent>
       </Card>
@@ -448,7 +449,7 @@ export default function SignatureCapture ({
       <CardContent className="space-y-4">
         {/* أدوات الرسم */}
         <div className="flex items-center gap-2 flex-wrap">
-          <Label className="text-sm font-medium">لون القلم:</Label>
+          <Label className="text-sm font-medium">{t('auto.signature-capture.3')}</Label>
           <div className="flex gap-1">
             {['#000000', '#0000FF', '#FF0000', '#008000'].map((color) => (
               <button
@@ -463,7 +464,7 @@ export default function SignatureCapture ({
             ))}
           </div>
 
-          <Label className="text-sm font-medium mr-2">سمك القلم:</Label>
+          <Label className="text-sm font-medium mr-2">{t('auto.signature-capture.4')}</Label>
           <div className="flex gap-1">
             {[1, 2, 4, 6].map((width) => (
               <button
@@ -505,8 +506,7 @@ export default function SignatureCapture ({
         {required && !hasSignature && (
           <Alert variant="destructive">
             <AlertDescription>
-              التوقيع مطلوب لهذا المستند
-            </AlertDescription>
+              {t('auto.signature-capture.5')}</AlertDescription>
           </Alert>
         )}
 
@@ -520,8 +520,7 @@ export default function SignatureCapture ({
             disabled={!hasSignature}
           >
             <RotateCcw className="h-4 w-4 mr-1" />
-            مسح
-          </Button>
+            {t('auto.signature-capture.6')}</Button>
 
           <Button
             type="button"
@@ -530,8 +529,7 @@ export default function SignatureCapture ({
             onClick={() => document.getElementById('file-upload')?.click()}
           >
             <Upload className="h-4 w-4 mr-1" />
-            رفع ملف
-          </Button>
+            {t('auto.signature-capture.7')}</Button>
 
           <Button
             type="button"
@@ -541,8 +539,7 @@ export default function SignatureCapture ({
             disabled={!hasSignature}
           >
             <Download className="h-4 w-4 mr-1" />
-            تحميل
-          </Button>
+            {t('auto.signature-capture.8')}</Button>
 
           {onCancel && (
             <Button
@@ -552,8 +549,7 @@ export default function SignatureCapture ({
               onClick={onCancel}
             >
               <X className="h-4 w-4 mr-1" />
-              إلغاء
-            </Button>
+              {t('auto.signature-capture.9')}</Button>
           )}
 
           <Button
@@ -568,8 +564,7 @@ export default function SignatureCapture ({
             ) : (
               <Save className="h-4 w-4 mr-1" />
             )}
-            حفظ التوقيع
-          </Button>
+            {t('auto.signature-capture.10')}</Button>
         </div>
 
         {/* إدخال الملف المخفي */}

@@ -7,6 +7,7 @@ import {
   getAdvancedFeatures
 } from '../lib/navigation-config';
 import {useRole} from './useRole';
+import { t } from "i18next";
 
 export const useNavigation = () => {
 

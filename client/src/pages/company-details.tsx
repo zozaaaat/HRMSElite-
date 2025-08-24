@@ -51,6 +51,7 @@ import {
 
 import type { Employee } from '@/lib/types';
 import type { Document as CompanyDocument } from '@/types/documents';
+import { t } from "i18next";
 
 const companyUpdateSchema = z.object({
   'name': z.string().min(2, 'اسم الشركة يجب أن يكون أكثر من حرفين'),
@@ -244,13 +245,13 @@ export default function CompanyDetails () {
 
   if (companyError) {
 
-    return <ErrorMessage error={companyError} title="حدث خطأ في تحميل بيانات الشركة" />;
+    return <ErrorMessage error={companyError} title={t('auto.company-details.69')} />;
 
   }
 
   if (!company) {
 
-    return <ErrorMessage error={new Error('الشركة غير موجودة')} title="الشركة غير موجودة" />;
+    return <ErrorMessage error={t('auto.company-details.70')} title={t('auto.company-details.71')} />;
 
   }
 
@@ -268,23 +269,21 @@ export default function CompanyDetails () {
             className="gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            العودة للشركات
-          </Button>
+            {t('auto.company-details.1')}</Button>
           <div>
             <h1 className="text-3xl font-bold text-foreground">{company.name}</h1>
-            <p className="text-muted-foreground mt-2">تفاصيل شاملة للشركة</p>
+            <p className="text-muted-foreground mt-2">{t('auto.company-details.2')}</p>
           </div>
         </div>
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" className="gap-2">
               <Edit className="h-4 w-4" />
-              تعديل الشركة
-            </Button>
+              {t('auto.company-details.3')}</Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>تعديل بيانات الشركة</DialogTitle>
+              <DialogTitle>{t('auto.company-details.4')}</DialogTitle>
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -292,85 +291,31 @@ export default function CompanyDetails () {
                   <FormField
                     control={form.control}
                     name="name"
-                    render={({field}) => (
-                      <FormItem>
-                        <FormLabel>اسم الشركة</FormLabel>
-                        <FormControl>
-                          <Input placeholder="اسم الشركة" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={t('auto.company-details.72')}
                   />
                   <FormField
                     control={form.control}
                     name="industry"
-                    render={({field}) => (
-                      <FormItem>
-                        <FormLabel>نوع الصناعة</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="اختر نوع الصناعة" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="technology">تقنية المعلومات</SelectItem>
-                            <SelectItem value="healthcare">الرعاية الصحية</SelectItem>
-                            <SelectItem value="finance">المالية والمصرفية</SelectItem>
-                            <SelectItem value="manufacturing">التصنيع</SelectItem>
-                            <SelectItem value="retail">التجارة والبيع</SelectItem>
-                            <SelectItem value="construction">البناء والتشييد</SelectItem>
-                            <SelectItem value="education">التعليم</SelectItem>
-                            <SelectItem value="other">أخرى</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={t('auto.company-details.73')}
                   />
                 </div>
 
                 <FormField
                   control={form.control}
                   name="description"
-                  render={({field}) => (
-                    <FormItem>
-                      <FormLabel>وصف الشركة</FormLabel>
-                      <FormControl>
-                        <Textarea placeholder="وصف الشركة" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={t('auto.company-details.74')}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="address"
-                    render={({field}) => (
-                      <FormItem>
-                        <FormLabel>العنوان</FormLabel>
-                        <FormControl>
-                          <Input placeholder="عنوان الشركة" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={t('auto.company-details.75')}
                   />
                   <FormField
                     control={form.control}
                     name="phone"
-                    render={({field}) => (
-                      <FormItem>
-                        <FormLabel>رقم الهاتف</FormLabel>
-                        <FormControl>
-                          <Input placeholder="رقم الهاتف" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={t('auto.company-details.76')}
                   />
                 </div>
 
@@ -378,28 +323,12 @@ export default function CompanyDetails () {
                   <FormField
                     control={form.control}
                     name="email"
-                    render={({field}) => (
-                      <FormItem>
-                        <FormLabel>البريد الإلكتروني</FormLabel>
-                        <FormControl>
-                          <Input placeholder="البريد الإلكتروني" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={t('auto.company-details.77')}
                   />
                   <FormField
                     control={form.control}
                     name="website"
-                    render={({field}) => (
-                      <FormItem>
-                        <FormLabel>الموقع الإلكتروني</FormLabel>
-                        <FormControl>
-                          <Input placeholder="الموقع الإلكتروني" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={t('auto.company-details.78')}
                   />
                 </div>
 
@@ -407,47 +336,12 @@ export default function CompanyDetails () {
                   <FormField
                     control={form.control}
                     name="size"
-                    render={({field}) => (
-                      <FormItem>
-                        <FormLabel>حجم الشركة</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="اختر حجم الشركة" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="small">صغيرة (1-50 موظف)</SelectItem>
-                            <SelectItem value="medium">متوسطة (51-200 موظف)</SelectItem>
-                            <SelectItem value="large">كبيرة (201-1000 موظف)</SelectItem>
-                            <SelectItem value="enterprise">مؤسسة (أكثر من 1000 موظف)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={t('auto.company-details.79')}
                   />
                   <FormField
                     control={form.control}
                     name="status"
-                    render={({field}) => (
-                      <FormItem>
-                        <FormLabel>حالة الشركة</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="اختر حالة الشركة" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="active">نشطة</SelectItem>
-                            <SelectItem value="pending">قيد المراجعة</SelectItem>
-                            <SelectItem value="suspended">معلقة</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={t('auto.company-details.80')}
                   />
                 </div>
 
@@ -457,8 +351,7 @@ export default function CompanyDetails () {
                     variant="outline"
                     onClick={() => setIsEditDialogOpen(false)}
                   >
-                    إلغاء
-                  </Button>
+                    {t('auto.company-details.29')}</Button>
                   <Button type="submit" disabled={updateCompanyMutation.isPending}>
                     {updateCompanyMutation.isPending ? 'جاري الحفظ...' : 'حفظ التغييرات'}
                   </Button>
@@ -479,10 +372,10 @@ export default function CompanyDetails () {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
-          <TabsTrigger value="employees">الموظفين</TabsTrigger>
-          <TabsTrigger value="documents">المستندات</TabsTrigger>
-          <TabsTrigger value="analytics">التحليلات</TabsTrigger>
+          <TabsTrigger value="overview">{t('auto.company-details.30')}</TabsTrigger>
+          <TabsTrigger value="employees">{t('auto.company-details.31')}</TabsTrigger>
+          <TabsTrigger value="documents">{t('auto.company-details.32')}</TabsTrigger>
+          <TabsTrigger value="analytics">{t('auto.company-details.33')}</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
@@ -493,30 +386,29 @@ export default function CompanyDetails () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Building2 className="h-5 w-5" />
-                  معلومات الشركة
-                </CardTitle>
+                  {t('auto.company-details.34')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">العنوان:</span>
+                    <span className="text-sm text-muted-foreground">{t('auto.company-details.35')}</span>
                     <span>{company.address}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">الهاتف:</span>
+                    <span className="text-sm text-muted-foreground">{t('auto.company-details.36')}</span>
                     <span>{company.phone}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">البريد الإلكتروني:</span>
+                    <span className="text-sm text-muted-foreground">{t('auto.company-details.37')}</span>
                     <span>{company.email}</span>
                   </div>
                   {company.website && (
                     <div className="flex items-center gap-2">
                       <Globe className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">الموقع:</span>
+                      <span className="text-sm text-muted-foreground">{t('auto.company-details.38')}</span>
                       <a
                         href={company.website}
                         target="_blank"
@@ -532,11 +424,11 @@ export default function CompanyDetails () {
                 <Separator />
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">الصناعة:</span>
+                    <span className="text-sm text-muted-foreground">{t('auto.company-details.39')}</span>
                     <Badge variant="outline">{getIndustryText(company.industry ?? '')}</Badge>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">الحجم:</span>
+                    <span className="text-sm text-muted-foreground">{t('auto.company-details.40')}</span>
                     <Badge variant="outline">{getSizeText(company.size ?? '')}</Badge>
                   </div>
                 </div>
@@ -548,8 +440,7 @@ export default function CompanyDetails () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BarChart3 className="h-5 w-5" />
-                  الإحصائيات
-                </CardTitle>
+                  {t('auto.company-details.41')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -557,23 +448,23 @@ export default function CompanyDetails () {
                     <div className="text-2xl font-bold text-blue-600">
                       {employees.length}
                     </div>
-                    <div className="text-sm text-muted-foreground">إجمالي الموظفين</div>
+                    <div className="text-sm text-muted-foreground">{t('auto.company-details.42')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-600">
                       {employees.filter(e => e.status === 'active').length}
                     </div>
-                    <div className="text-sm text-muted-foreground">الموظفين النشطين</div>
+                    <div className="text-sm text-muted-foreground">{t('auto.company-details.43')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-orange-600">
                       {documents.length}
                     </div>
-                    <div className="text-sm text-muted-foreground">المستندات</div>
+                    <div className="text-sm text-muted-foreground">{t('auto.company-details.44')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-purple-600">0</div>
-                    <div className="text-sm text-muted-foreground">التراخيص</div>
+                    <div className="text-sm text-muted-foreground">{t('auto.company-details.45')}</div>
                   </div>
                 </div>
               </CardContent>
@@ -584,8 +475,7 @@ export default function CompanyDetails () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Settings className="h-5 w-5" />
-                  إجراءات سريعة
-                </CardTitle>
+                  {t('auto.company-details.46')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button
@@ -594,24 +484,21 @@ export default function CompanyDetails () {
                   onClick={() => setActiveTab('employees')}
                 >
                   <UserPlus className="h-4 w-4" />
-                  إضافة موظف جديد
-                </Button>
+                  {t('auto.company-details.47')}</Button>
                 <Button
                   variant="outline"
                   className="w-full justify-start gap-2"
                   onClick={() => setActiveTab('documents')}
                 >
                   <Upload className="h-4 w-4" />
-                  رفع مستند جديد
-                </Button>
+                  {t('auto.company-details.48')}</Button>
                 <Button
                   variant="outline"
                   className="w-full justify-start gap-2"
                   onClick={() => setActiveTab('analytics')}
                 >
                   <PieChart className="h-4 w-4" />
-                  عرض التقارير
-                </Button>
+                  {t('auto.company-details.49')}</Button>
               </CardContent>
             </Card>
           </div>
@@ -620,7 +507,7 @@ export default function CompanyDetails () {
           {company.description && (
             <Card>
               <CardHeader>
-                <CardTitle>وصف الشركة</CardTitle>
+                <CardTitle>{t('auto.company-details.50')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed">
@@ -634,11 +521,10 @@ export default function CompanyDetails () {
         {/* Employees Tab */}
         <TabsContent value="employees" className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">الموظفين</h2>
+            <h2 className="text-2xl font-bold">{t('auto.company-details.51')}</h2>
             <Button className="gap-2">
               <Plus className="h-4 w-4" />
-              إضافة موظف جديد
-            </Button>
+              {t('auto.company-details.52')}</Button>
           </div>
 
           {isLoadingEmployees ? (
@@ -669,7 +555,7 @@ export default function CompanyDetails () {
                       <div className="flex items-center gap-2">
                         <Calendar className="h-3 w-3 text-muted-foreground" />
                         <span>
-                          تاريخ التعيين: {employee.hireDate ? new Date(employee.hireDate).toLocaleDateString('ar-SA') : '-'}
+                          {t('auto.company-details.53')}{employee.hireDate ? new Date(employee.hireDate).toLocaleDateString('ar-SA') : '-'}
                         </span>
                       </div>
                     </div>
@@ -693,11 +579,10 @@ export default function CompanyDetails () {
         {/* Documents Tab */}
         <TabsContent value="documents" className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">المستندات</h2>
+            <h2 className="text-2xl font-bold">{t('auto.company-details.54')}</h2>
             <Button className="gap-2">
               <Upload className="h-4 w-4" />
-              رفع مستند جديد
-            </Button>
+              {t('auto.company-details.55')}</Button>
           </div>
 
           {isLoadingDocuments ? (
@@ -720,23 +605,21 @@ export default function CompanyDetails () {
                       <div className="flex items-center gap-2">
                         <Calendar className="h-3 w-3 text-muted-foreground" />
                         <span>
-                          تاريخ الرفع: {doc.uploadDate ? new Date(doc.uploadDate).toLocaleDateString('ar-SA') : '-'}
+                          {t('auto.company-details.56')}{doc.uploadDate ? new Date(doc.uploadDate).toLocaleDateString('ar-SA') : '-'}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Users className="h-3 w-3 text-muted-foreground" />
-                        <span>تم الرفع بواسطة: {doc.uploadedBy}</span>
+                        <span>{t('auto.company-details.57')}{doc.uploadedBy}</span>
                       </div>
                     </div>
                     <div className="mt-3 flex items-center gap-2">
                       <Button size="sm" variant="outline" className="gap-1">
                         <Download className="h-3 w-3" />
-                        تحميل
-                      </Button>
+                        {t('auto.company-details.58')}</Button>
                       <Button size="sm" variant="outline" className="gap-1">
                         <Eye className="h-3 w-3" />
-                        عرض
-                      </Button>
+                        {t('auto.company-details.59')}</Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -747,17 +630,17 @@ export default function CompanyDetails () {
 
         {/* Analytics Tab */}
         <TabsContent value="analytics" className="space-y-6">
-          <h2 className="text-2xl font-bold">التحليلات والتقارير</h2>
+          <h2 className="text-2xl font-bold">{t('auto.company-details.60')}</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp className="h-5 w-5 text-green-600" />
-                  <span className="text-sm text-muted-foreground">نمو الموظفين</span>
+                  <span className="text-sm text-muted-foreground">{t('auto.company-details.61')}</span>
                 </div>
                 <div className="text-2xl font-bold">+12%</div>
-                <div className="text-sm text-muted-foreground">مقارنة بالشهر الماضي</div>
+                <div className="text-sm text-muted-foreground">{t('auto.company-details.62')}</div>
               </CardContent>
             </Card>
 
@@ -765,10 +648,10 @@ export default function CompanyDetails () {
               <CardContent className="p-6">
                 <div className="flex items-center gap-2 mb-2">
                   <DollarSign className="h-5 w-5 text-blue-600" />
-                  <span className="text-sm text-muted-foreground">إجمالي الرواتب</span>
+                  <span className="text-sm text-muted-foreground">{t('auto.company-details.63')}</span>
                 </div>
                 <div className="text-2xl font-bold">$125,000</div>
-                <div className="text-sm text-muted-foreground">هذا الشهر</div>
+                <div className="text-sm text-muted-foreground">{t('auto.company-details.64')}</div>
               </CardContent>
             </Card>
 
@@ -776,10 +659,10 @@ export default function CompanyDetails () {
               <CardContent className="p-6">
                 <div className="flex items-center gap-2 mb-2">
                   <Clock className="h-5 w-5 text-orange-600" />
-                  <span className="text-sm text-muted-foreground">متوسط الحضور</span>
+                  <span className="text-sm text-muted-foreground">{t('auto.company-details.65')}</span>
                 </div>
                 <div className="text-2xl font-bold">94%</div>
-                <div className="text-sm text-muted-foreground">هذا الشهر</div>
+                <div className="text-sm text-muted-foreground">{t('auto.company-details.66')}</div>
               </CardContent>
             </Card>
 
@@ -787,10 +670,10 @@ export default function CompanyDetails () {
               <CardContent className="p-6">
                 <div className="flex items-center gap-2 mb-2">
                   <Award className="h-5 w-5 text-purple-600" />
-                  <span className="text-sm text-muted-foreground">رضا الموظفين</span>
+                  <span className="text-sm text-muted-foreground">{t('auto.company-details.67')}</span>
                 </div>
                 <div className="text-2xl font-bold">4.2/5</div>
-                <div className="text-sm text-muted-foreground">متوسط التقييم</div>
+                <div className="text-sm text-muted-foreground">{t('auto.company-details.68')}</div>
               </CardContent>
             </Card>
           </div>

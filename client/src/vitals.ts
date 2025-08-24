@@ -1,4 +1,5 @@
 import { onCLS, onINP, onLCP, Metric } from 'web-vitals';
+import { t } from "i18next";
 
 const token = typeof import.meta !== 'undefined' ? (import.meta as any).env?.VITE_METRICS_TOKEN : undefined;
 

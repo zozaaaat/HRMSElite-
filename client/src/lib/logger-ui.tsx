@@ -2,7 +2,7 @@
 import React from 'react';
 import { logger as baseLogger } from './logger';
 import {useAppStore} from '../stores/useAppStore';
-
+import { t } from "i18next";
 
 interface LogLevel {
   DEBUG: 0;

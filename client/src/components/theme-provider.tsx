@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import {useAppStore} from '../stores/useAppStore';
+import { t } from "i18next";
 
 type Theme = 'dark' | 'light' | 'system';
 

@@ -5,6 +5,7 @@ import {Badge} from './ui/badge';
 import {useState} from 'react';
 import {LoginModal} from './login-modal';
 import type {CompanyWithStats} from '@shared/schema';
+import { t } from "i18next";
 
 interface CompanyCardProps {
   company: CompanyWithStats;
@@ -18,10 +19,10 @@ export const CompanyCard = React.memo(({company}: CompanyCardProps) => {
 
     if (status) {
 
-      return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">ساري</Badge>;
+      return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">{t('auto.company-card.1')}</Badge>;
 
     }
-    return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">قريب الانتهاء</Badge>;
+    return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">{t('auto.company-card.2')}</Badge>;
 
   };
 
@@ -70,15 +71,15 @@ export const CompanyCard = React.memo(({company}: CompanyCardProps) => {
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">عدد العمال:</span>
+              <span className="text-sm text-muted-foreground">{t('auto.company-card.3')}</span>
               <span className="text-sm font-medium text-foreground">{company.totalEmployees}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">التراخيص:</span>
+              <span className="text-sm text-muted-foreground">{t('auto.company-card.4')}</span>
               <span className="text-sm font-medium text-foreground">{company.totalLicenses}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">حالة الملف:</span>
+              <span className="text-sm text-muted-foreground">{t('auto.company-card.5')}</span>
               {getStatusBadge(company.commercialFileStatus)}
             </div>
           </div>
@@ -88,8 +89,7 @@ export const CompanyCard = React.memo(({company}: CompanyCardProps) => {
               className="w-full"
               onClick={() => setShowLoginModal(true)}
             >
-              دخول إلى النظام
-            </Button>
+              {t('auto.company-card.6')}</Button>
           </div>
         </CardContent>
       </Card>

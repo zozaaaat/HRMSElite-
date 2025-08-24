@@ -3,6 +3,7 @@ import {Sidebar} from './sidebar';
 import {Header} from './header';
 import type {Company} from '../../../shared/schema';
 import type {User as FrontendUser, Company as AuthCompany} from '../lib/authUtils';
+import { t } from "i18next";
 
 interface LayoutProps {
   children: React.ReactNode;

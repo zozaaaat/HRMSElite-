@@ -1,5 +1,6 @@
 import {useEffect, useCallback, useState, useRef} from 'react';
 import { log } from '../lib/logger';
+import { t } from "i18next";
 
 // Type declarations for browser APIs
 declare global {

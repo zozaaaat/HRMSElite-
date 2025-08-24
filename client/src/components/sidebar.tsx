@@ -4,6 +4,7 @@ import {useNavigation} from '../hooks/useNavigation';
 import {getMenuItems, getAdvancedFeatures} from '../lib/navigation-config';
 import type {Company} from '../../../shared/schema';
 import type {User} from '../lib/authUtils';
+import { t } from "i18next";
 
 interface SidebarProps {
   company: Company;
@@ -119,8 +120,7 @@ export function Sidebar ({
       <nav className="mt-6">
         <div className="px-3">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            القائمة الرئيسية
-          </p>
+            {t('auto.sidebar.1')}</p>
           <ul className="space-y-1">
             {mainMenuItems.map((item) => {
 
@@ -151,8 +151,7 @@ export function Sidebar ({
         {settingsMenuItems.length > 0 && (
           <div className="px-3 mt-8">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-              الإعدادات
-            </p>
+              {t('auto.sidebar.2')}</p>
             <ul className="space-y-1">
               {settingsMenuItems.map((item) => {
 
@@ -184,8 +183,7 @@ export function Sidebar ({
         {advancedFeatures.length > 0 && (
           <div className="px-3 mt-8">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-              الميزات المتقدمة
-            </p>
+              {t('auto.sidebar.3')}</p>
             <ul className="space-y-1">
               {advancedFeatures.map((feature) => {
 

@@ -2,6 +2,7 @@ import React from 'react';
 import {Card, CardContent} from '@/components/ui/card';
 import {cn} from '@/lib/utils';
 import {Building2, Users, CheckCircle2, Award} from 'lucide-react';
+import { t } from "i18next";
 
 type SupportedIcon = 'building' | 'users' | 'check' | 'certificate';
 type SupportedColor = 'blue' | 'green' | 'orange' | 'purple' | 'red' | 'gray';

@@ -15,7 +15,7 @@ import {
 import {useMutation, useQueryClient} from '@tanstack/react-query';
 import {Loader2, Save, X, UserPlus, Edit} from 'lucide-react';
 import logger from '../lib/logger';
-
+import { t } from "i18next";
 
 // مخطط التحقق من صحة البيانات
 const employeeSchema = z.object({
@@ -255,13 +255,11 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
           {mode === 'create' ? (
             <>
               <UserPlus className="h-5 w-5" />
-              إضافة موظف جديد
-            </>
+              {t('auto.employee-form.1')}</>
           ) : (
             <>
               <Edit className="h-5 w-5" />
-              تحديث بيانات الموظف
-            </>
+              {t('auto.employee-form.2')}</>
           )}
         </CardTitle>
         <CardDescription>
@@ -277,11 +275,11 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
           {/* المعلومات الأساسية */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName">الاسم الأول *</Label>
+              <Label htmlFor="firstName">{t('auto.employee-form.3')}</Label>
               <Input
                 id="firstName"
                 {...register('firstName')}
-                placeholder="أحمد"
+                placeholder={t('auto.employee-form.20')}
                 className={errors.firstName ? 'border-red-500' : ''}
               />
               {errors.firstName && (
@@ -290,11 +288,11 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="lastName">الاسم الأخير *</Label>
+              <Label htmlFor="lastName">{t('auto.employee-form.4')}</Label>
               <Input
                 id="lastName"
                 {...register('lastName')}
-                placeholder="محمد"
+                placeholder={t('auto.employee-form.21')}
                 className={errors.lastName ? 'border-red-500' : ''}
               />
               {errors.lastName && (
@@ -303,7 +301,7 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">البريد الإلكتروني *</Label>
+              <Label htmlFor="email">{t('auto.employee-form.5')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -317,7 +315,7 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">رقم الهاتف *</Label>
+              <Label htmlFor="phone">{t('auto.employee-form.6')}</Label>
               <Input
                 id="phone"
                 {...register('phone')}
@@ -333,13 +331,13 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
           {/* معلومات العمل */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="position">المنصب *</Label>
+              <Label htmlFor="position">{t('auto.employee-form.7')}</Label>
               <Select
                 value={watch('position')}
                 onValueChange={(value) => setValue('position', value)}
               >
                 <SelectTrigger className={errors.position ? 'border-red-500' : ''}>
-                  <SelectValue placeholder="اختر المنصب" />
+                  <SelectValue placeholder={t('auto.employee-form.22')} />
                 </SelectTrigger>
                 <SelectContent>
                   {positions.map((position) => (
@@ -355,13 +353,13 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="department">القسم *</Label>
+              <Label htmlFor="department">{t('auto.employee-form.8')}</Label>
               <Select
                 value={watch('department')}
                 onValueChange={(value) => setValue('department', value)}
               >
                 <SelectTrigger className={errors.department ? 'border-red-500' : ''}>
-                  <SelectValue placeholder="اختر القسم" />
+                  <SelectValue placeholder={t('auto.employee-form.23')} />
                 </SelectTrigger>
                 <SelectContent>
                   {departments.map((department) => (
@@ -377,7 +375,7 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="hireDate">تاريخ التوظيف *</Label>
+              <Label htmlFor="hireDate">{t('auto.employee-form.9')}</Label>
               <Input
                 id="hireDate"
                 type="date"
@@ -390,7 +388,7 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="salary">الراتب (دينار كويتي) *</Label>
+              <Label htmlFor="salary">{t('auto.employee-form.10')}</Label>
               <Input
                 id="salary"
                 type="number"
@@ -408,7 +406,7 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
           {/* المعلومات الشخصية */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="nationalId">رقم الهوية الوطنية *</Label>
+              <Label htmlFor="nationalId">{t('auto.employee-form.11')}</Label>
               <Input
                 id="nationalId"
                 {...register('nationalId')}
@@ -421,7 +419,7 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="birthDate">تاريخ الميلاد *</Label>
+              <Label htmlFor="birthDate">{t('auto.employee-form.12')}</Label>
               <Input
                 id="birthDate"
                 type="date"
@@ -434,7 +432,7 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="emergencyContact">رقم الطوارئ *</Label>
+              <Label htmlFor="emergencyContact">{t('auto.employee-form.13')}</Label>
               <Input
                 id="emergencyContact"
                 {...register('emergencyContact')}
@@ -447,7 +445,7 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="experience">سنوات الخبرة *</Label>
+              <Label htmlFor="experience">{t('auto.employee-form.14')}</Label>
               <Input
                 id="experience"
                 type="number"
@@ -464,11 +462,11 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
           {/* العنوان والتعليم */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="address">العنوان *</Label>
+              <Label htmlFor="address">{t('auto.employee-form.15')}</Label>
               <Textarea
                 id="address"
                 {...register('address')}
-                placeholder="الكويت، حولي، شارع..."
+                placeholder={t('auto.employee-form.24')}
                 className={errors.address ? 'border-red-500' : ''}
                 rows={3}
               />
@@ -478,11 +476,11 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="education">المؤهل العلمي *</Label>
+              <Label htmlFor="education">{t('auto.employee-form.16')}</Label>
               <Input
                 id="education"
                 {...register('education')}
-                placeholder="بكالوريوس إدارة أعمال"
+                placeholder={t('auto.employee-form.25')}
                 className={errors.education ? 'border-red-500' : ''}
               />
               {errors.education && (
@@ -500,8 +498,7 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
               disabled={isSubmitting}
             >
               <X className="h-4 w-4 ml-2" />
-              إلغاء
-            </Button>
+              {t('auto.employee-form.17')}</Button>
 
             {mode === 'update' && (
               <Button
@@ -510,8 +507,7 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
                 onClick={handleArchive}
                 disabled={isSubmitting}
               >
-                أرشفة
-              </Button>
+                {t('auto.employee-form.18')}</Button>
             )}
 
             <Button
@@ -522,8 +518,7 @@ export function EmployeeForm ({employee, companyId, onSuccess, onCancel, mode}: 
               {isSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 ml-2 animate-spin" />
-                  جاري الحفظ...
-                </>
+                  {t('auto.employee-form.19')}</>
               ) : (
                 <>
                   <Save className="h-4 w-4 ml-2" />

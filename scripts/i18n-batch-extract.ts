@@ -1,124 +1,88 @@
-import { Project, SyntaxKind, Node, SourceFile, FunctionLikeDeclaration } from 'ts-morph';
-import path from 'path';
+import { Project, SyntaxKind, JsxAttribute } from 'ts-morph';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
+import path from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-interface RecordEntry { file: string; original: string }
-
-const LIMIT_ARG = process.argv.find(a => a.startsWith('--limit'));
-const LIMIT = LIMIT_ARG ? parseInt(LIMIT_ARG.split('=')[1], 10) : Infinity;
-
-const project = new Project({ tsConfigFilePath: path.join(__dirname, '../client/tsconfig.json') });
-const sourceFiles = project.addSourceFilesAtPaths('client/src/**/*.tsx');
-
-const arPath = path.join(__dirname, '../client/src/locales/ar.json');
-const enPath = path.join(__dirname, '../client/src/locales/en.json');
-const csvPath = path.join(__dirname, '../audit/i18n/suggested-keys.csv');
-
-function setNested(obj: any, keys: string[], value: string) {
-  let cur = obj;
-  for (let i = 0; i < keys.length - 1; i++) {
-    const k = keys[i];
-    if (!cur[k]) cur[k] = {};
-    cur = cur[k];
+const args = process.argv.slice(2);
+let limit = Infinity;
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--limit' && args[i + 1]) {
+    limit = parseInt(args[i + 1], 10);
+  } else if (args[i].startsWith('--limit=')) {
+    limit = parseInt(args[i].split('=')[1], 10);
   }
-  cur[keys[keys.length - 1]] = value;
 }
 
-function ensureImport(sourceFile: SourceFile) {
-  const existing = sourceFile.getImportDeclaration('react-i18next');
-  if (!existing) {
-    sourceFile.addImportDeclaration({ moduleSpecifier: 'react-i18next', namedImports: ['useTranslation'] });
-    return;
-  }
-  const hasUse = existing.getNamedImports().some(n => n.getName() === 'useTranslation');
-  if (!hasUse) existing.addNamedImport('useTranslation');
-}
+const arabicRegex = /[\u0600-\u06FF]/;
+const project = new Project({ tsConfigFilePath: path.join(process.cwd(), 'tsconfig.json') });
 
-function getTopFunction(node: Node): FunctionLikeDeclaration | undefined {
-  let func = node.getFirstAncestor(f => Node.isFunctionDeclaration(f) || Node.isArrowFunction(f) || Node.isFunctionExpression(f)) as FunctionLikeDeclaration | undefined;
-  if (!func) return undefined;
-  while (true) {
-    const parent = func.getFirstAncestor(f => Node.isFunctionDeclaration(f) || Node.isArrowFunction(f) || Node.isFunctionExpression(f)) as FunctionLikeDeclaration | undefined;
-    if (!parent) break;
-    func = parent;
-  }
-  return func;
-}
-
-function ensureT(sourceFile: SourceFile, node: Node): boolean {
-  const func = getTopFunction(node);
-  if (!func) return false;
-  const body = func.getBody();
-  if (!body || !Node.isBlock(body)) return false;
-  if (processedFuncs.has(func)) return true;
-  const hasT = func.getDescendantsOfKind(SyntaxKind.VariableDeclaration).some(v => {
-    return v.getName() === 't' && v.getInitializer()?.getText().includes('useTranslation');
-  });
-  if (!hasT) {
-    body.insertStatements(0, 'const { t } = useTranslation();');
-    ensureImport(sourceFile);
-  }
-  processedFuncs.add(func);
-  return true;
-}
-
+const arPath = path.join(process.cwd(), 'client', 'src', 'locales', 'ar.json');
+const enPath = path.join(process.cwd(), 'client', 'src', 'locales', 'en.json');
 const ar = JSON.parse(fs.readFileSync(arPath, 'utf8'));
 const en = JSON.parse(fs.readFileSync(enPath, 'utf8'));
-const records: RecordEntry[] = [];
-const fileCounters = new Map<string, number>();
+
+function ensureLocale(locale: any, fileBase: string, index: number, value: string) {
+  if (!locale.auto) locale.auto = {};
+  if (!locale.auto[fileBase]) locale.auto[fileBase] = {};
+  locale.auto[fileBase][index] = value;
+}
+
 let processed = 0;
-const processedFuncs = new Set<FunctionLikeDeclaration>();
 
-for (const file of sourceFiles) {
-  if (processed >= LIMIT) break;
-  const rel = path.relative(path.join(__dirname, '../client/src'), file.getFilePath()).replace(/\\/g, '/');
-  const fileBase = path.basename(file.getFilePath(), '.tsx').toLowerCase();
-  let counter = fileCounters.get(fileBase) || 1;
-  const literals = file.getDescendantsOfKind(SyntaxKind.StringLiteral);
-  let modified = false;
+for (const sf of project.getSourceFiles('client/src/**/*.{ts,tsx,js,jsx}')) {
+  if (processed >= limit) break;
+  const filePath = sf.getFilePath();
+  if (filePath.includes('/locales/') || filePath.includes('__tests__') || filePath.includes('/mocks/') || filePath.includes('/fixtures/')) continue;
+  const fileBase = path.basename(filePath).replace(/\.[^.]+$/, '');
+  let index = 1;
 
-  for (const lit of literals) {
-    if (processed >= LIMIT) break;
-    const text = lit.getLiteralText();
-    if (!/[\u0600-\u06FF]/.test(text)) continue;
-    const func = lit.getFirstAncestor(f => Node.isFunctionDeclaration(f) || Node.isArrowFunction(f) || Node.isFunctionExpression(f));
-    if (!func) continue;
-    const key = `auto.${fileBase}.${counter}`;
-    if (!ensureT(file, lit)) continue;
-    const attr = lit.getParentIfKind(SyntaxKind.JsxAttribute);
-    if (attr) {
-      attr.setInitializer(`{t('${key}')}`);
-    } else {
-      lit.replaceWithText(`t('${key}')`);
+  // ensure t import
+  const hasT = sf.getDescendantsOfKind(SyntaxKind.BindingElement).some(be => be.getName() === 't');
+  if (!hasT) {
+    const imp = sf.getImportDeclaration(dec => dec.getModuleSpecifierValue() === 'i18next');
+    if (!imp) {
+      sf.addImportDeclaration({ moduleSpecifier: 'i18next', namedImports: ['t'] });
+    } else if (!imp.getNamedImports().some(n => n.getName() === 't')) {
+      imp.addNamedImport('t');
     }
-    setNested(ar, ['auto', fileBase, String(counter)], text);
-    setNested(en, ['auto', fileBase, String(counter)], 'TODO(translate)');
-    records.push({ file: rel, original: text });
-    counter++;
-    processed++;
-    modified = true;
   }
 
-  if (modified) {
-    fileCounters.set(fileBase, counter);
+  const jsxTexts = sf.getDescendantsOfKind(SyntaxKind.JsxText);
+  for (const node of jsxTexts) {
+    if (processed >= limit) break;
+    const parent = node.getParentIfKind(SyntaxKind.JsxElement) || node.getParentIfKind(SyntaxKind.JsxFragment);
+    if (!parent) continue;
+    const text = node.getText();
+    if (arabicRegex.test(text)) {
+      const key = `auto.${fileBase}.${index}`;
+      node.replaceWithText(`{t('${key}')}`);
+      ensureLocale(ar, fileBase, index, text.trim());
+      ensureLocale(en, fileBase, index, 'TODO(translate)');
+      processed++; index++;
+    }
   }
+  if (processed >= limit) break;
+
+  sf.forEachDescendant(node => {
+    if (processed >= limit) return false;
+    if (node.getKind() !== SyntaxKind.JsxAttribute) return;
+    const attr = node as JsxAttribute;
+    const attrParent = attr.getParentIfKind(SyntaxKind.JsxAttributes);
+    if (!attrParent) return;
+    const init = attr.getInitializer();
+    if (!init) return;
+    const text = init.getText();
+    if (arabicRegex.test(text)) {
+      const key = `auto.${fileBase}.${index}`;
+      attr.setInitializer(`{t('${key}')}`);
+      ensureLocale(ar, fileBase, index, text.replace(/["'{}]/g, ''));
+      ensureLocale(en, fileBase, index, 'TODO(translate)');
+      processed++; index++;
+    }
+  });
 }
 
 project.saveSync();
 fs.writeFileSync(arPath, JSON.stringify(ar, null, 2) + '\n');
 fs.writeFileSync(enPath, JSON.stringify(en, null, 2) + '\n');
-
-if (fs.existsSync(csvPath)) {
-  const lines = fs.readFileSync(csvPath, 'utf8').split(/\r?\n/);
-  const header = lines.shift();
-  const filtered = lines.filter(line => {
-    return !records.some(r => line.includes(`"${r.file}"`) && line.includes(`"${r.original.replace(/"/g, '""')}"`));
-  });
-  fs.writeFileSync(csvPath, [header, ...filtered].join('\n'));
-}
 
 console.log(`Processed ${processed} strings`);

@@ -12,6 +12,7 @@ import {
 } from './ui/dialog';
 import {useAuth} from '@/hooks/useAuth';
 import type {Company} from '@shared/schema';
+import { t } from "i18next";
 
 interface LoginModalProps {
   company: Company;
@@ -44,15 +45,15 @@ export const LoginModal: React.FC<LoginModalProps> = ({company, isOpen, onClose}
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>تسجيل الدخول</DialogTitle>
+          <DialogTitle>{t('auto.login-modal.1')}</DialogTitle>
           <DialogDescription>
-            الرجاء تسجيل الدخول للدخول إلى شركة: {company.name}
+            {t('auto.login-modal.2')}{company.name}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="username">اسم المستخدم</Label>
+            <Label htmlFor="username">{t('auto.login-modal.3')}</Label>
             <Input
               id="username"
               value={username}
@@ -63,7 +64,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({company, isOpen, onClose}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">كلمة المرور</Label>
+            <Label htmlFor="password">{t('auto.login-modal.4')}</Label>
             <Input
               id="password"
               type="password"
@@ -82,8 +83,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({company, isOpen, onClose}
 
         <DialogFooter>
           <Button variant="secondary" onClick={onClose} disabled={loading}>
-            إلغاء
-          </Button>
+            {t('auto.login-modal.5')}</Button>
           <Button onClick={handleLogin} disabled={loading}>
             {loading ? 'جارٍ الدخول...' : 'تسجيل الدخول'}
           </Button>

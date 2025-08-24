@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import Analytics from '@/components/ai/analytics';
 import Chatbot from '@/components/ai/chatbot';
+import { t } from "i18next";
 
 export default function AIAnalyticsPage () {
 
@@ -31,15 +32,14 @@ export default function AIAnalyticsPage () {
                 <Brain className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold">الذكاء الاصطناعي</h1>
-                <p className="text-muted-foreground">تحليلات ذكية ومساعد آلي متقدم</p>
+                <h1 className="text-3xl font-bold">{t('auto.ai-analytics.1')}</h1>
+                <p className="text-muted-foreground">{t('auto.ai-analytics.2')}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="text-sm">
                 <Activity className="w-3 h-3 mr-1" />
-                متصل
-              </Badge>
+                {t('auto.ai-analytics.3')}</Badge>
             </div>
           </div>
         </div>
@@ -51,16 +51,13 @@ export default function AIAnalyticsPage () {
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="analytics" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
-              التحليلات
-            </TabsTrigger>
+              {t('auto.ai-analytics.4')}</TabsTrigger>
             <TabsTrigger value="chatbot" className="flex items-center gap-2">
               <Brain className="w-4 h-4" />
-              المساعد الذكي
-            </TabsTrigger>
+              {t('auto.ai-analytics.5')}</TabsTrigger>
             <TabsTrigger value="info" className="flex items-center gap-2">
               <Info className="w-4 h-4" />
-              المعلومات
-            </TabsTrigger>
+              {t('auto.ai-analytics.6')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="analytics" className="space-y-6">
@@ -71,24 +68,23 @@ export default function AIAnalyticsPage () {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <TrendingUp className="w-5 h-5" />
-                      إحصائيات سريعة
-                    </CardTitle>
+                      {t('auto.ai-analytics.7')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">إجمالي الطلبات</span>
+                      <span className="text-sm text-muted-foreground">{t('auto.ai-analytics.8')}</span>
                       <Badge variant="outline">1,247</Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">متوسط وقت الاستجابة</span>
+                      <span className="text-sm text-muted-foreground">{t('auto.ai-analytics.9')}</span>
                       <Badge variant="outline">2.3s</Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">معدل النجاح</span>
+                      <span className="text-sm text-muted-foreground">{t('auto.ai-analytics.10')}</span>
                       <Badge variant="outline">94.2%</Badge>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">رضا المستخدمين</span>
+                      <span className="text-sm text-muted-foreground">{t('auto.ai-analytics.11')}</span>
                       <Badge variant="outline">4.6/5</Badge>
                     </div>
                   </CardContent>
@@ -98,29 +94,28 @@ export default function AIAnalyticsPage () {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Lightbulb className="w-5 h-5" />
-                      الميزات المتاحة
-                    </CardTitle>
+                      {t('auto.ai-analytics.12')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-green-500" />
-                      <span className="text-sm">تحليل النصوص</span>
+                      <span className="text-sm">{t('auto.ai-analytics.13')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-green-500" />
-                      <span className="text-sm">توليد التقارير</span>
+                      <span className="text-sm">{t('auto.ai-analytics.14')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-green-500" />
-                      <span className="text-sm">تحليل المشاعر</span>
+                      <span className="text-sm">{t('auto.ai-analytics.15')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-green-500" />
-                      <span className="text-sm">استخراج الكلمات المفتاحية</span>
+                      <span className="text-sm">{t('auto.ai-analytics.16')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-green-500" />
-                      <span className="text-sm">المساعد الذكي</span>
+                      <span className="text-sm">{t('auto.ai-analytics.17')}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -141,34 +136,27 @@ export default function AIAnalyticsPage () {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Brain className="w-5 h-5" />
-                      المساعد الذكي
-                    </CardTitle>
+                      {t('auto.ai-analytics.18')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-sm text-muted-foreground">
-                      مساعد ذكي متقدم يساعدك في:
-                    </p>
+                      {t('auto.ai-analytics.19')}</p>
                     <ul className="text-sm space-y-2">
                       <li className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        الإجابة على الأسئلة حول النظام
-                      </li>
+                        {t('auto.ai-analytics.20')}</li>
                       <li className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        مساعدتك في إدارة الموظفين
-                      </li>
+                        {t('auto.ai-analytics.21')}</li>
                       <li className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        متابعة التراخيص والانتهاء
-                      </li>
+                        {t('auto.ai-analytics.22')}</li>
                       <li className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        استخراج التقارير المختلفة
-                      </li>
+                        {t('auto.ai-analytics.23')}</li>
                       <li className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        تحليل البيانات والمعلومات
-                      </li>
+                        {t('auto.ai-analytics.24')}</li>
                     </ul>
                   </CardContent>
                 </Card>
@@ -177,21 +165,20 @@ export default function AIAnalyticsPage () {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Zap className="w-5 h-5" />
-                      أمثلة على الاستخدام
-                    </CardTitle>
+                      {t('auto.ai-analytics.25')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="p-3 bg-muted rounded-lg">
-                      <p className="text-sm font-medium">"كيف أضيف موظف جديد؟"</p>
+                      <p className="text-sm font-medium">{t('auto.ai-analytics.26')}</p>
                     </div>
                     <div className="p-3 bg-muted rounded-lg">
-                      <p className="text-sm font-medium">"أعطني تقرير الغياب لهذا الشهر"</p>
+                      <p className="text-sm font-medium">{t('auto.ai-analytics.27')}</p>
                     </div>
                     <div className="p-3 bg-muted rounded-lg">
-                      <p className="text-sm font-medium">"كم رخصة ستنتهي خلال الشهر القادم؟"</p>
+                      <p className="text-sm font-medium">{t('auto.ai-analytics.28')}</p>
                     </div>
                     <div className="p-3 bg-muted rounded-lg">
-                      <p className="text-sm font-medium">"ما هي ميزات النظام؟"</p>
+                      <p className="text-sm font-medium">{t('auto.ai-analytics.29')}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -203,8 +190,7 @@ export default function AIAnalyticsPage () {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Brain className="w-5 h-5" />
-                      محادثة مع المساعد الذكي
-                    </CardTitle>
+                      {t('auto.ai-analytics.30')}</CardTitle>
                   </CardHeader>
                   <CardContent className="h-[500px] p-0">
                     <Chatbot />
@@ -220,28 +206,27 @@ export default function AIAnalyticsPage () {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Settings className="w-5 h-5" />
-                    معلومات تقنية
-                  </CardTitle>
+                    {t('auto.ai-analytics.31')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <h4 className="font-medium mb-2">المكونات المستخدمة:</h4>
+                    <h4 className="font-medium mb-2">{t('auto.ai-analytics.32')}</h4>
                     <ul className="text-sm space-y-1 text-muted-foreground">
-                      <li>• Local LLM للتحليل والمعالجة</li>
-                      <li>• قاعدة معرفة متقدمة للردود</li>
-                      <li>• خوارزميات تحليل المشاعر</li>
-                      <li>• استخراج الكلمات المفتاحية</li>
-                      <li>• توليد الملخصات الذكية</li>
+                      <li>{t('auto.ai-analytics.33')}</li>
+                      <li>{t('auto.ai-analytics.34')}</li>
+                      <li>{t('auto.ai-analytics.35')}</li>
+                      <li>{t('auto.ai-analytics.36')}</li>
+                      <li>{t('auto.ai-analytics.37')}</li>
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-medium mb-2">الميزات المتقدمة:</h4>
+                    <h4 className="font-medium mb-2">{t('auto.ai-analytics.38')}</h4>
                     <ul className="text-sm space-y-1 text-muted-foreground">
-                      <li>• تحليل النصوص باللغة العربية</li>
-                      <li>• فهم السياق والاستعلامات</li>
-                      <li>• تحليلات ذكية للاستخدام</li>
-                      <li>• توصيات مخصصة</li>
-                      <li>• تقارير تفاعلية</li>
+                      <li>{t('auto.ai-analytics.39')}</li>
+                      <li>{t('auto.ai-analytics.40')}</li>
+                      <li>{t('auto.ai-analytics.41')}</li>
+                      <li>{t('auto.ai-analytics.42')}</li>
+                      <li>{t('auto.ai-analytics.43')}</li>
                     </ul>
                   </div>
                 </CardContent>
@@ -251,26 +236,25 @@ export default function AIAnalyticsPage () {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="w-5 h-5" />
-                    دليل الاستخدام
-                  </CardTitle>
+                    {t('auto.ai-analytics.44')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <h4 className="font-medium mb-2">كيفية الاستخدام:</h4>
+                    <h4 className="font-medium mb-2">{t('auto.ai-analytics.45')}</h4>
                     <ol className="text-sm space-y-2 text-muted-foreground">
-                      <li>1. اكتب سؤالك أو طلبك باللغة العربية</li>
-                      <li>2. انتظر رد المساعد الذكي</li>
-                      <li>3. استخدم الأزرار السريعة للاستعلامات الشائعة</li>
-                      <li>4. تصفح التحليلات للحصول على رؤى مفصلة</li>
+                      <li>{t('auto.ai-analytics.46')}</li>
+                      <li>{t('auto.ai-analytics.47')}</li>
+                      <li>{t('auto.ai-analytics.48')}</li>
+                      <li>{t('auto.ai-analytics.49')}</li>
                     </ol>
                   </div>
                   <div>
-                    <h4 className="font-medium mb-2">نصائح للحصول على أفضل النتائج:</h4>
+                    <h4 className="font-medium mb-2">{t('auto.ai-analytics.50')}</h4>
                     <ul className="text-sm space-y-1 text-muted-foreground">
-                      <li>• استخدم لغة واضحة ومباشرة</li>
-                      <li>• اطرح أسئلة محددة</li>
-                      <li>• استخدم الكلمات المفتاحية المناسبة</li>
-                      <li>• راجع التحليلات بانتظام</li>
+                      <li>{t('auto.ai-analytics.51')}</li>
+                      <li>{t('auto.ai-analytics.52')}</li>
+                      <li>{t('auto.ai-analytics.53')}</li>
+                      <li>{t('auto.ai-analytics.54')}</li>
                     </ul>
                   </div>
                 </CardContent>
@@ -281,37 +265,36 @@ export default function AIAnalyticsPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Activity className="w-5 h-5" />
-                  حالة النظام
-                </CardTitle>
+                  {t('auto.ai-analytics.55')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                     <div className="w-3 h-3 rounded-full bg-green-500" />
                     <div>
-                      <p className="font-medium text-sm">المساعد الذكي</p>
-                      <p className="text-xs text-muted-foreground">متصل ومتاح</p>
+                      <p className="font-medium text-sm">{t('auto.ai-analytics.56')}</p>
+                      <p className="text-xs text-muted-foreground">{t('auto.ai-analytics.57')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                     <div className="w-3 h-3 rounded-full bg-green-500" />
                     <div>
-                      <p className="font-medium text-sm">تحليل النصوص</p>
-                      <p className="text-xs text-muted-foreground">يعمل بشكل طبيعي</p>
+                      <p className="font-medium text-sm">{t('auto.ai-analytics.58')}</p>
+                      <p className="text-xs text-muted-foreground">{t('auto.ai-analytics.59')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                     <div className="w-3 h-3 rounded-full bg-green-500" />
                     <div>
-                      <p className="font-medium text-sm">تحليل المشاعر</p>
-                      <p className="text-xs text-muted-foreground">دقة عالية</p>
+                      <p className="font-medium text-sm">{t('auto.ai-analytics.60')}</p>
+                      <p className="text-xs text-muted-foreground">{t('auto.ai-analytics.61')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                     <div className="w-3 h-3 rounded-full bg-green-500" />
                     <div>
-                      <p className="font-medium text-sm">التحليلات</p>
-                      <p className="text-xs text-muted-foreground">بيانات محدثة</p>
+                      <p className="font-medium text-sm">{t('auto.ai-analytics.62')}</p>
+                      <p className="text-xs text-muted-foreground">{t('auto.ai-analytics.63')}</p>
                     </div>
                   </div>
                 </div>

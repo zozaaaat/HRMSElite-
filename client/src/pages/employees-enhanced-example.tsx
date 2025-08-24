@@ -6,6 +6,7 @@ import {apiRequest, invalidateCache} from '@/lib/queryClient';
 import {Button} from '@/components/ui/button';
 import {Badge} from '@/components/ui/badge';
 import {useToast} from '@/hooks/use-toast';
+import { t } from "i18next";
 
 // Example of using enhanced React Query hooks
 export default function EmployeesEnhancedExample () {
@@ -99,23 +100,22 @@ export default function EmployeesEnhancedExample () {
 
   if (isLoading) {
 
-    return <div>جاري التحميل...</div>;
+    return <div>{t('auto.employees-enhanced-example.1')}</div>;
 
   }
 
   if (error) {
 
-    return <div>حدث خطأ في تحميل البيانات</div>;
+    return <div>{t('auto.employees-enhanced-example.2')}</div>;
 
   }
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">إدارة الموظفين</h1>
+        <h1 className="text-2xl font-bold">{t('auto.employees-enhanced-example.3')}</h1>
         <Button onClick={handleRefreshCache}>
-          تحديث البيانات
-        </Button>
+          {t('auto.employees-enhanced-example.4')}</Button>
       </div>
 
       <div className="grid gap-4">

@@ -10,6 +10,7 @@ import {NotificationCenter} from './notification-center';
 import {LanguageSwitcher} from './LanguageSwitcher';
 import type {User} from '../lib/authUtils';
 import type {Company} from '../../../shared/schema';
+import { t } from "i18next";
 
 interface HeaderProps {
   user?: User;
@@ -79,8 +80,7 @@ export function Header ({
                 {company?.name ?? "نظام إدارة الموارد البشرية"}
               </h1>
               <p className="text-sm text-muted-foreground">
-                {getRoleLabel(user?.role)} • {company?.totalEmployees ?? 0} موظف
-              </p>
+                {getRoleLabel(user?.role)} • {company?.totalEmployees ?? 0} {t('auto.header.1')}</p>
             </div>
           </div>
         </div>
@@ -144,16 +144,16 @@ export function Header ({
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onSettingsClick}>
                 <Settings className="mr-2 h-4 w-4" />
-                <span>الإعدادات</span>
+                <span>{t('auto.header.2')}</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <UserIcon className="mr-2 h-4 w-4" />
-                <span>الملف الشخصي</span>
+                <span>{t('auto.header.3')}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onLogout} className="text-red-600">
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>تسجيل الخروج</span>
+                <span>{t('auto.header.4')}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -3,6 +3,7 @@ import App from './App';
 import './index.css';
 import './lib/i18n';
 import { initWebVitals } from './vitals';
+import { t } from "i18next";
 
 const maybeDocument = (globalThis as { document?: { getElementById?: (id: string) => unknown } }).document;
 const rootElement = typeof maybeDocument?.getElementById === 'function' ? maybeDocument.getElementById('root') : null;

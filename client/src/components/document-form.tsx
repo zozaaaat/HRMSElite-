@@ -26,7 +26,7 @@ import {
 import {Document, SignatureData} from '../types/documents';
 import SignatureCapture from './signature-capture';
 import logger from '../lib/logger';
-
+import { t } from "i18next";
 
 interface DocumentFormProps {
   document?: Document;
@@ -303,8 +303,7 @@ export default function DocumentForm ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            عرض المستند
-          </CardTitle>
+            {t('auto.document-form.1')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
@@ -322,19 +321,18 @@ export default function DocumentForm ({
             </div>
             <Button onClick={handleDownload} variant="outline" size="sm">
               <Download className="h-4 w-4 ml-1" />
-              تحميل
-            </Button>
+              {t('auto.document-form.2')}</Button>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label className="text-sm font-medium text-gray-700">الفئة</Label>
+              <Label className="text-sm font-medium text-gray-700">{t('auto.document-form.3')}</Label>
               <p className="mt-1 text-sm">{
   documentCategories.find(cat => cat.value === formData.category)?.label
 }</p>
             </div>
             <div>
-              <Label className="text-sm font-medium text-gray-700">الحالة</Label>
+              <Label className="text-sm font-medium text-gray-700">{t('auto.document-form.4')}</Label>
               <Badge className="mt-1" variant={
   formData.status === 'active' ? 'default' : 'secondary'
 }>
@@ -342,7 +340,7 @@ export default function DocumentForm ({
               </Badge>
             </div>
             <div>
-              <Label className="text-sm font-medium text-gray-700">تاريخ الرفع</Label>
+              <Label className="text-sm font-medium text-gray-700">{t('auto.document-form.5')}</Label>
               <p className="mt-1 text-sm flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
                 {
@@ -351,7 +349,7 @@ export default function DocumentForm ({
               </p>
             </div>
             <div>
-              <Label className="text-sm font-medium text-gray-700">تم الرفع بواسطة</Label>
+              <Label className="text-sm font-medium text-gray-700">{t('auto.document-form.6')}</Label>
               <p className="mt-1 text-sm flex items-center gap-1">
                 <User className="h-3 w-3" />
                 {formData.uploadedBy ?? "غير محدد"}
@@ -361,14 +359,14 @@ export default function DocumentForm ({
 
           {formData.description && (
             <div>
-              <Label className="text-sm font-medium text-gray-700">الوصف</Label>
+              <Label className="text-sm font-medium text-gray-700">{t('auto.document-form.7')}</Label>
               <p className="mt-1 text-sm text-gray-600">{formData.description}</p>
             </div>
           )}
 
           {formData.tags && formData.tags.length > 0 && (
             <div>
-              <Label className="text-sm font-medium text-gray-700">العلامات</Label>
+              <Label className="text-sm font-medium text-gray-700">{t('auto.document-form.8')}</Label>
               <div className="mt-1 flex flex-wrap gap-1">
                 {formData.tags.map((tag, index) => (
                   <Badge key={index} variant="outline" className="text-xs">
@@ -382,16 +380,13 @@ export default function DocumentForm ({
 
           <div className="flex gap-2 pt-4">
             <Button onClick={onCancel} variant="outline">
-              إغلاق
-            </Button>
+              {t('auto.document-form.9')}</Button>
             <Button onClick={() => setFormData({...formData})} variant="outline">
               <Edit className="h-4 w-4 ml-1" />
-              تعديل
-            </Button>
+              {t('auto.document-form.10')}</Button>
             <Button onClick={handleDelete} variant="destructive">
               <Trash2 className="h-4 w-4 ml-1" />
-              حذف
-            </Button>
+              {t('auto.document-form.11')}</Button>
           </div>
         </CardContent>
       </Card>
@@ -411,19 +406,19 @@ export default function DocumentForm ({
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name">اسم المستند *</Label>
+              <Label htmlFor="name">{t('auto.document-form.12')}</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({...prev, 'name': e.target.value}))}
-                placeholder="أدخل اسم المستند"
+                placeholder={t('auto.document-form.28')}
                 className={errors.name ? 'border-red-500' : ''}
               />
               {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
             </div>
 
             <div>
-              <Label htmlFor="category">فئة المستند *</Label>
+              <Label htmlFor="category">{t('auto.document-form.13')}</Label>
               <Select value={
   formData.category
 } onValueChange={
@@ -432,7 +427,7 @@ export default function DocumentForm ({
 }))
 }>
                 <SelectTrigger className={errors.category ? 'border-red-500' : ''}>
-                  <SelectValue placeholder="اختر فئة المستند" />
+                  <SelectValue placeholder={t('auto.document-form.29')} />
                 </SelectTrigger>
                 <SelectContent>
                   {documentCategories.map((category) => (
@@ -450,7 +445,7 @@ export default function DocumentForm ({
 
             {mode === 'create' && (
               <div>
-                <Label htmlFor="file">الملف *</Label>
+                <Label htmlFor="file">{t('auto.document-form.14')}</Label>
                 <div className="mt-1">
                   <Input
                     id="file"
@@ -464,7 +459,7 @@ export default function DocumentForm ({
                 {selectedFile && (
                   <div className="mt-2 p-2 bg-blue-50 rounded border">
                     <p className="text-sm text-blue-700">
-                      تم اختيار: {selectedFile.name} ({formatFileSize(selectedFile.size)})
+                      {t('auto.document-form.15')}{selectedFile.name} ({formatFileSize(selectedFile.size)})
                     </p>
                   </div>
                 )}
@@ -472,18 +467,18 @@ export default function DocumentForm ({
             )}
 
             <div>
-              <Label htmlFor="description">الوصف</Label>
+              <Label htmlFor="description">{t('auto.document-form.16')}</Label>
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({...prev, 'description': e.target.value}))}
-                placeholder="أدخل وصف المستند (اختياري)"
+                placeholder={t('auto.document-form.30')}
                 rows={3}
               />
             </div>
 
             <div>
-              <Label htmlFor="tags">العلامات</Label>
+              <Label htmlFor="tags">{t('auto.document-form.17')}</Label>
               <Input
                 id="tags"
                 value={formData.tags?.join(', ') ?? ''}
@@ -493,12 +488,12 @@ export default function DocumentForm ({
                   setFormData(prev => ({...prev, tags}));
 
                 }}
-                placeholder="أدخل العلامات مفصولة بفواصل"
+                placeholder={t('auto.document-form.31')}
               />
             </div>
 
             <div>
-              <Label htmlFor="status">الحالة</Label>
+              <Label htmlFor="status">{t('auto.document-form.18')}</Label>
               <Select value={
   formData.status ?? 'active'
 } onValueChange={
@@ -510,22 +505,22 @@ export default function DocumentForm ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">نشط</SelectItem>
-                  <SelectItem value="inactive">غير نشط</SelectItem>
+                  <SelectItem value="active">{t('auto.document-form.19')}</SelectItem>
+                  <SelectItem value="inactive">{t('auto.document-form.20')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {/* قسم التوقيع */}
             <div>
-              <Label>التوقيع</Label>
+              <Label>{t('auto.document-form.21')}</Label>
               <div className="mt-2 space-y-2">
                 {signature ? (
                   <div className="border rounded-lg p-4 bg-gray-50">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <FileImage className="h-4 w-4 text-blue-600" />
-                        <span className="text-sm font-medium">تم إضافة التوقيع</span>
+                        <span className="text-sm font-medium">{t('auto.document-form.22')}</span>
                       </div>
                       <div className="flex gap-1">
                         <Button
@@ -535,8 +530,7 @@ export default function DocumentForm ({
                           onClick={() => setShowSignatureCapture(true)}
                         >
                           <Edit className="h-4 w-4 mr-1" />
-                          تعديل
-                        </Button>
+                          {t('auto.document-form.23')}</Button>
                         <Button
                           type="button"
                           variant="outline"
@@ -553,14 +547,13 @@ export default function DocumentForm ({
                           }}
                         >
                           <X className="h-4 w-4 mr-1" />
-                          حذف
-                        </Button>
+                          {t('auto.document-form.24')}</Button>
                       </div>
                     </div>
                     <div className="mt-2">
                       <img
                         src={signature.imageData}
-                        alt="التوقيع"
+                        alt={t('auto.document-form.32')}
                         className="w-full h-24 object-contain border rounded"
                         loading="lazy"
                         decoding="async"
@@ -577,8 +570,7 @@ export default function DocumentForm ({
                     className="w-full"
                   >
                     <PenTool className="h-4 w-4 mr-1" />
-                    إضافة توقيع
-                  </Button>
+                    {t('auto.document-form.25')}</Button>
                 )}
               </div>
             </div>
@@ -593,8 +585,8 @@ export default function DocumentForm ({
                   entityType="document"
                   onSave={handleSignatureSave}
                   onCancel={() => setShowSignatureCapture(false)}
-                  title="توقيع المستند"
-                  description="قم بالتوقيع على المستند"
+                  title={t('auto.document-form.33')}
+                  description={t('auto.document-form.34')}
                 />
               </div>
             </div>
@@ -602,14 +594,12 @@ export default function DocumentForm ({
 
           <div className="flex gap-2 pt-4">
             <Button type="button" onClick={onCancel} variant="outline">
-              إلغاء
-            </Button>
+              {t('auto.document-form.26')}</Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white ml-2" />
-                  جاري الحفظ...
-                </>
+                  {t('auto.document-form.27')}</>
               ) : (
                 <>
                   <Save className="h-4 w-4 ml-1" />

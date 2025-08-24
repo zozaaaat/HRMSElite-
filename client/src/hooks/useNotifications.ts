@@ -2,6 +2,7 @@ import {useState, useEffect, useCallback} from 'react';
 import {notificationService} from '../services/notifications';
 import type {Notification} from '../../../shared/schema';
 import {useToast} from './use-toast';
+import { t } from "i18next";
 
 interface UseNotificationsOptions {
   userId: string;

@@ -10,6 +10,7 @@ import { useRoleBasedPreloading } from './hooks/useLazyLoading';
 import { useDirection } from './hooks/useDirection';
 import { Toaster } from './components/ui/toaster';
 import { NotFound } from './pages/lazy-pages';
+import { t } from "i18next";
 
 const AuthRoutes = lazy(() => import('./routes/authRoutes'));
 const HrRoutes = lazy(() => import('./routes/hrRoutes'));

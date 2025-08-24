@@ -1,3 +1,5 @@
+import { t } from "i18next";
+
 // Lazy-loaded pages exports for better performance
 export {
   CompanySelection,

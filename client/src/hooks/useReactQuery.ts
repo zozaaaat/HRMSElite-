@@ -2,6 +2,7 @@ import {
   useQuery, useMutation, useQueryClient, UseQueryOptions, UseMutationOptions, useInfiniteQuery as useInfiniteQueryBase
 } from '@tanstack/react-query';
 import {cacheUtils} from '@/lib/queryClient';
+import { t } from "i18next";
 
 // Enhanced useQuery hook with better defaults
 export function useEnhancedQuery<TData = unknown, TError = unknown> (

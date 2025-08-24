@@ -23,6 +23,7 @@ import {
   ArrowLeft,
   Filter
 } from 'lucide-react';
+import { t } from "i18next";
 
 // Simple SearchForm Component
 const SearchForm = ({
@@ -34,7 +35,7 @@ const SearchForm = ({
     <div className="relative">
       <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       <Input
-        placeholder="ابحث عن الموظفين، المستندات، التقارير..."
+        placeholder={t('auto.advanced-search.88')}
         className="pl-4 pr-10"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
@@ -43,12 +44,10 @@ const SearchForm = ({
     <div className="flex gap-2">
       <Button variant="outline" size="sm">
         <Filter className="h-4 w-4 mr-2" />
-        فلترة متقدمة
-      </Button>
+        {t('auto.advanced-search.1')}</Button>
       <Button size="sm">
         <Search className="h-4 w-4 mr-2" />
-        بحث
-      </Button>
+        {t('auto.advanced-search.2')}</Button>
     </div>
   </div>
 );
@@ -61,21 +60,21 @@ const SummaryBox = ({
 }) => (
   <Card>
     <CardHeader>
-      <CardTitle>ملخص النتائج</CardTitle>
+      <CardTitle>{t('auto.advanced-search.3')}</CardTitle>
     </CardHeader>
     <CardContent>
       <div className="grid grid-cols-3 gap-4">
         <div className="text-center">
           <div className="text-2xl font-bold text-blue-600">{totalResults}</div>
-          <div className="text-sm text-muted-foreground">إجمالي النتائج</div>
+          <div className="text-sm text-muted-foreground">{t('auto.advanced-search.4')}</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-green-600">{employeesCount}</div>
-          <div className="text-sm text-muted-foreground">الموظفين</div>
+          <div className="text-sm text-muted-foreground">{t('auto.advanced-search.5')}</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-orange-600">{documentsCount}</div>
-          <div className="text-sm text-muted-foreground">المستندات</div>
+          <div className="text-sm text-muted-foreground">{t('auto.advanced-search.6')}</div>
         </div>
       </div>
     </CardContent>
@@ -90,20 +89,20 @@ const ResultsList = ({accuracy, avgTime, trends}: {
 }) => (
   <Card>
     <CardHeader>
-      <CardTitle>نتائج البحث</CardTitle>
+      <CardTitle>{t('auto.advanced-search.7')}</CardTitle>
     </CardHeader>
     <CardContent>
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <span className="text-sm">دقة البحث</span>
+          <span className="text-sm">{t('auto.advanced-search.8')}</span>
           <Badge variant="default">{accuracy}</Badge>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-sm">متوسط وقت البحث</span>
+          <span className="text-sm">{t('auto.advanced-search.9')}</span>
           <Badge variant="secondary">{avgTime}</Badge>
         </div>
         <div className="space-y-2">
-          <h4 className="font-medium">اتجاهات البحث</h4>
+          <h4 className="font-medium">{t('auto.advanced-search.10')}</h4>
           {trends.map((trend, index) => (
             <div key={index} className="flex justify-between items-center">
               <span className="text-sm">{trend.label}</span>
@@ -126,12 +125,12 @@ const FiltersPanel = ({
 }) => (
   <Card>
     <CardHeader>
-      <CardTitle>خيارات البحث</CardTitle>
+      <CardTitle>{t('auto.advanced-search.11')}</CardTitle>
     </CardHeader>
     <CardContent>
       <div className="space-y-4">
         <div>
-          <h4 className="font-medium mb-2">أنواع البحث</h4>
+          <h4 className="font-medium mb-2">{t('auto.advanced-search.12')}</h4>
           <div className="space-y-2">
             {options.map((option, index) => (
               <div key={index} className="flex items-center">
@@ -142,7 +141,7 @@ const FiltersPanel = ({
           </div>
         </div>
         <div>
-          <h4 className="font-medium mb-2">الفلترة المتاحة</h4>
+          <h4 className="font-medium mb-2">{t('auto.advanced-search.13')}</h4>
           <div className="space-y-2">
             {filters.map((filter, index) => (
               <div key={index} className="flex justify-between items-center">
@@ -221,14 +220,13 @@ export default function AdvancedSearchPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5" />
-                    تحليل الأداء
-                </CardTitle>
+                    {t('auto.advanced-search.14')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-blue-600">94.5%</div>
-                    <div className="text-sm text-muted-foreground">معدل الإنتاجية</div>
+                    <div className="text-sm text-muted-foreground">{t('auto.advanced-search.15')}</div>
                   </div>
                   <div className="h-32 bg-gradient-to-b from-blue-100 to-blue-200 rounded-lg flex items-end justify-between p-4">
                     {[65, 78, 82, 89, 94, 91, 88].map((value, index) => (
@@ -251,21 +249,20 @@ export default function AdvancedSearchPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5" />
-                    تحليل الموظفين
-                </CardTitle>
+                    {t('auto.advanced-search.16')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">الموظفون النشطون</span>
+                    <span className="text-sm">{t('auto.advanced-search.17')}</span>
                     <Badge variant="default">425</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">في إجازة</span>
+                    <span className="text-sm">{t('auto.advanced-search.18')}</span>
                     <Badge variant="secondary">23</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">جدد</span>
+                    <span className="text-sm">{t('auto.advanced-search.19')}</span>
                     <Badge variant="outline">12</Badge>
                   </div>
                 </div>
@@ -276,18 +273,17 @@ export default function AdvancedSearchPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <DollarSign className="h-5 w-5" />
-                    التحليل المالي
-                </CardTitle>
+                    {t('auto.advanced-search.20')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-green-600">1,250,000</div>
-                    <div className="text-sm text-muted-foreground">إجمالي الرواتب</div>
+                    <div className="text-sm text-muted-foreground">{t('auto.advanced-search.21')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-600">+12.5%</div>
-                    <div className="text-sm text-muted-foreground">مقارنة بالشهر السابق</div>
+                    <div className="text-sm text-muted-foreground">{t('auto.advanced-search.22')}</div>
                   </div>
                 </div>
               </CardContent>
@@ -296,40 +292,40 @@ export default function AdvancedSearchPage () {
 
           <Card>
             <CardHeader>
-              <CardTitle>التنبؤات المستقبلية</CardTitle>
+              <CardTitle>{t('auto.advanced-search.23')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-medium mb-4">توقعات الموظفين</h4>
+                  <h4 className="font-medium mb-4">{t('auto.advanced-search.24')}</h4>
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span>الموظفون المتوقع توظيفهم</span>
+                      <span>{t('auto.advanced-search.25')}</span>
                       <Badge variant="default">+15</Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span>الموظفون المتوقع استقالتهم</span>
+                      <span>{t('auto.advanced-search.26')}</span>
                       <Badge variant="secondary">-3</Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span>معدل الاحتفاظ</span>
+                      <span>{t('auto.advanced-search.27')}</span>
                       <Badge variant="outline">92%</Badge>
                     </div>
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-medium mb-4">توقعات الأداء</h4>
+                  <h4 className="font-medium mb-4">{t('auto.advanced-search.28')}</h4>
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span>معدل الإنتاجية المتوقع</span>
+                      <span>{t('auto.advanced-search.29')}</span>
                       <Badge variant="default">+8%</Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span>تكلفة العمالة المتوقعة</span>
+                      <span>{t('auto.advanced-search.30')}</span>
                       <Badge variant="secondary">+5%</Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span>معدل الرضا المتوقع</span>
+                      <span>{t('auto.advanced-search.31')}</span>
                       <Badge variant="outline">89%</Badge>
                     </div>
                   </div>
@@ -348,13 +344,12 @@ export default function AdvancedSearchPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Workflow className="h-5 w-5" />
-                    المشاريع النشطة
-                </CardTitle>
+                    {t('auto.advanced-search.32')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600">12</div>
-                  <div className="text-sm text-muted-foreground">مشروع نشط</div>
+                  <div className="text-sm text-muted-foreground">{t('auto.advanced-search.33')}</div>
                 </div>
               </CardContent>
             </Card>
@@ -363,13 +358,12 @@ export default function AdvancedSearchPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Clock className="h-5 w-5" />
-                    المهام المكتملة
-                </CardTitle>
+                    {t('auto.advanced-search.34')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600">89</div>
-                  <div className="text-sm text-muted-foreground">مهمة مكتملة</div>
+                  <div className="text-sm text-muted-foreground">{t('auto.advanced-search.35')}</div>
                 </div>
               </CardContent>
             </Card>
@@ -378,13 +372,12 @@ export default function AdvancedSearchPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <UserCheck className="h-5 w-5" />
-                    الفرق العاملة
-                </CardTitle>
+                    {t('auto.advanced-search.36')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-orange-600">8</div>
-                  <div className="text-sm text-muted-foreground">فريق نشط</div>
+                  <div className="text-sm text-muted-foreground">{t('auto.advanced-search.37')}</div>
                 </div>
               </CardContent>
             </Card>
@@ -392,7 +385,7 @@ export default function AdvancedSearchPage () {
 
           <Card>
             <CardHeader>
-              <CardTitle>قائمة المشاريع</CardTitle>
+              <CardTitle>{t('auto.advanced-search.38')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -418,7 +411,7 @@ export default function AdvancedSearchPage () {
                     </div>
                     <div className="flex justify-between text-sm text-muted-foreground">
                       <span>{project.team}</span>
-                      <span>الموعد النهائي: {project.deadline}</span>
+                      <span>{t('auto.advanced-search.39')}{project.deadline}</span>
                     </div>
                     <div className="mt-2 bg-gray-200 rounded-full h-2">
                       <div
@@ -442,13 +435,12 @@ export default function AdvancedSearchPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Package className="h-5 w-5" />
-                    إجمالي الأصول
-                </CardTitle>
+                    {t('auto.advanced-search.40')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600">1,234</div>
-                  <div className="text-sm text-muted-foreground">أصل مسجل</div>
+                  <div className="text-sm text-muted-foreground">{t('auto.advanced-search.41')}</div>
                 </div>
               </CardContent>
             </Card>
@@ -457,13 +449,12 @@ export default function AdvancedSearchPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calculator className="h-5 w-5" />
-                    القيمة الإجمالية
-                </CardTitle>
+                    {t('auto.advanced-search.42')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600">2.5M</div>
-                  <div className="text-sm text-muted-foreground">دينار كويتي</div>
+                  <div className="text-sm text-muted-foreground">{t('auto.advanced-search.43')}</div>
                 </div>
               </CardContent>
             </Card>
@@ -472,13 +463,12 @@ export default function AdvancedSearchPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Eye className="h-5 w-5" />
-                    الأصول النشطة
-                </CardTitle>
+                    {t('auto.advanced-search.44')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-orange-600">1,156</div>
-                  <div className="text-sm text-muted-foreground">أصل نشط</div>
+                  <div className="text-sm text-muted-foreground">{t('auto.advanced-search.45')}</div>
                 </div>
               </CardContent>
             </Card>
@@ -486,40 +476,40 @@ export default function AdvancedSearchPage () {
 
           <Card>
             <CardHeader>
-              <CardTitle>فئات الأصول</CardTitle>
+              <CardTitle>{t('auto.advanced-search.46')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h4 className="font-medium">الأجهزة الإلكترونية</h4>
+                  <h4 className="font-medium">{t('auto.advanced-search.47')}</h4>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span>أجهزة الكمبيوتر</span>
+                      <span>{t('auto.advanced-search.48')}</span>
                       <Badge variant="default">456</Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span>الطابعات</span>
+                      <span>{t('auto.advanced-search.49')}</span>
                       <Badge variant="secondary">89</Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span>الشاشات</span>
+                      <span>{t('auto.advanced-search.50')}</span>
                       <Badge variant="outline">234</Badge>
                     </div>
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <h4 className="font-medium">الأثاث والمعدات</h4>
+                  <h4 className="font-medium">{t('auto.advanced-search.51')}</h4>
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span>المكاتب والكراسي</span>
+                      <span>{t('auto.advanced-search.52')}</span>
                       <Badge variant="default">567</Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span>خزائن الملفات</span>
+                      <span>{t('auto.advanced-search.53')}</span>
                       <Badge variant="secondary">123</Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span>معدات المكتب</span>
+                      <span>{t('auto.advanced-search.54')}</span>
                       <Badge variant="outline">89</Badge>
                     </div>
                   </div>
@@ -538,13 +528,12 @@ export default function AdvancedSearchPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Shield className="h-5 w-5" />
-                    إجمالي المستخدمين
-                </CardTitle>
+                    {t('auto.advanced-search.55')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600">456</div>
-                  <div className="text-sm text-muted-foreground">مستخدم نشط</div>
+                  <div className="text-sm text-muted-foreground">{t('auto.advanced-search.56')}</div>
                 </div>
               </CardContent>
             </Card>
@@ -553,13 +542,12 @@ export default function AdvancedSearchPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Settings className="h-5 w-5" />
-                    الأدوار المحددة
-                </CardTitle>
+                    {t('auto.advanced-search.57')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600">8</div>
-                  <div className="text-sm text-muted-foreground">دور مختلف</div>
+                  <div className="text-sm text-muted-foreground">{t('auto.advanced-search.58')}</div>
                 </div>
               </CardContent>
             </Card>
@@ -568,13 +556,12 @@ export default function AdvancedSearchPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Bell className="h-5 w-5" />
-                    طلبات الصلاحيات
-                </CardTitle>
+                    {t('auto.advanced-search.59')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-orange-600">12</div>
-                  <div className="text-sm text-muted-foreground">طلب معلق</div>
+                  <div className="text-sm text-muted-foreground">{t('auto.advanced-search.60')}</div>
                 </div>
               </CardContent>
             </Card>
@@ -582,12 +569,12 @@ export default function AdvancedSearchPage () {
 
           <Card>
             <CardHeader>
-              <CardTitle>إدارة الأدوار والصلاحيات</CardTitle>
+              <CardTitle>{t('auto.advanced-search.61')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-medium mb-4">الأدوار المتاحة</h4>
+                  <h4 className="font-medium mb-4">{t('auto.advanced-search.62')}</h4>
                   <div className="space-y-3">
                     {[
                       {'role': 'مدير عام', 'users': 3, 'permissions': 15},
@@ -601,15 +588,15 @@ export default function AdvancedSearchPage () {
 } className="flex justify-between items-center p-3 border rounded-lg">
                         <div>
                           <div className="font-medium">{role.role}</div>
-                          <div className="text-sm text-muted-foreground">{role.users} مستخدم</div>
+                          <div className="text-sm text-muted-foreground">{role.users} {t('auto.advanced-search.63')}</div>
                         </div>
-                        <Badge variant="outline">{role.permissions} صلاحية</Badge>
+                        <Badge variant="outline">{role.permissions} {t('auto.advanced-search.64')}</Badge>
                       </div>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-medium mb-4">الصلاحيات الشائعة</h4>
+                  <h4 className="font-medium mb-4">{t('auto.advanced-search.65')}</h4>
                   <div className="space-y-3">
                     {[
                       'إدارة الموظفين',
@@ -648,13 +635,12 @@ export default function AdvancedSearchPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Smartphone className="h-5 w-5" />
-                    التحميلات
-                </CardTitle>
+                    {t('auto.advanced-search.66')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600">1,234</div>
-                  <div className="text-sm text-muted-foreground">تحميل إجمالي</div>
+                  <div className="text-sm text-muted-foreground">{t('auto.advanced-search.67')}</div>
                 </div>
               </CardContent>
             </Card>
@@ -663,13 +649,12 @@ export default function AdvancedSearchPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5" />
-                    المستخدمون النشطون
-                </CardTitle>
+                    {t('auto.advanced-search.68')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600">856</div>
-                  <div className="text-sm text-muted-foreground">مستخدم نشط</div>
+                  <div className="text-sm text-muted-foreground">{t('auto.advanced-search.69')}</div>
                 </div>
               </CardContent>
             </Card>
@@ -678,13 +663,12 @@ export default function AdvancedSearchPage () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5" />
-                    معدل الاستخدام
-                </CardTitle>
+                    {t('auto.advanced-search.70')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-orange-600">89%</div>
-                  <div className="text-sm text-muted-foreground">معدل نشط</div>
+                  <div className="text-sm text-muted-foreground">{t('auto.advanced-search.71')}</div>
                 </div>
               </CardContent>
             </Card>
@@ -692,40 +676,40 @@ export default function AdvancedSearchPage () {
 
           <Card>
             <CardHeader>
-              <CardTitle>إحصائيات التطبيق المحمول</CardTitle>
+              <CardTitle>{t('auto.advanced-search.72')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="font-medium mb-4">إحصائيات المنصات</h4>
+                  <h4 className="font-medium mb-4">{t('auto.advanced-search.73')}</h4>
                   <div className="space-y-3">
                     <div className="flex justify-between">
                       <span>Android</span>
-                      <Badge variant="default">756 تحميل</Badge>
+                      <Badge variant="default">{t('auto.advanced-search.74')}</Badge>
                     </div>
                     <div className="flex justify-between">
                       <span>iOS</span>
-                      <Badge variant="secondary">478 تحميل</Badge>
+                      <Badge variant="secondary">{t('auto.advanced-search.75')}</Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span>معدل التقييم</span>
+                      <span>{t('auto.advanced-search.76')}</span>
                       <Badge variant="outline">4.5/5</Badge>
                     </div>
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-medium mb-4">الميزات الأكثر استخداماً</h4>
+                  <h4 className="font-medium mb-4">{t('auto.advanced-search.77')}</h4>
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span>تسجيل الحضور</span>
+                      <span>{t('auto.advanced-search.78')}</span>
                       <Badge variant="default">95%</Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span>عرض الرواتب</span>
+                      <span>{t('auto.advanced-search.79')}</span>
                       <Badge variant="secondary">87%</Badge>
                     </div>
                     <div className="flex justify-between">
-                      <span>طلب الإجازات</span>
+                      <span>{t('auto.advanced-search.80')}</span>
                       <Badge variant="outline">78%</Badge>
                     </div>
                   </div>
@@ -747,23 +731,13 @@ export default function AdvancedSearchPage () {
               <ResultsList
                 accuracy="89%"
                 avgTime="0.3s"
-                trends={[
-                  {'label': 'البحث عن الموظفين', 'value': '+15%', 'variant': 'default'},
-                  {'label': 'البحث في التقارير', 'value': '+8%', 'variant': 'secondary'},
-                  {'label': 'البحث في المستندات', 'value': '+12%', 'variant': 'outline'}
-                ]}
+                trends={t('auto.advanced-search.89')}
               />
             </div>
             <div className="w-full md:w-1/3">
               <FiltersPanel
-                options={
-  ['البحث بالاسم', 'البحث بالرقم المدني', 'البحث بالقسم', 'البحث بالمنصب', 'البحث بالتاريخ', 'البحث بالحالة']
-}
-                filters={[
-                  {'label': 'فلتر بالراتب', 'value': 'متوفر'},
-                  {'label': 'فلتر بالخبرة', 'value': 'متوفر'},
-                  {'label': 'فلتر بالمؤهل', 'value': 'متوفر'}
-                ]}
+                options={t('auto.advanced-search.90')}
+                filters={t('auto.advanced-search.91')}
               />
             </div>
           </div>
@@ -793,7 +767,7 @@ export default function AdvancedSearchPage () {
               <div className="relative">
                 <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="البحث..."
+                  placeholder={t('auto.advanced-search.92')}
                   className="pl-4 pr-10 w-64"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -807,9 +781,9 @@ export default function AdvancedSearchPage () {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
-            <TabsTrigger value="details">التفاصيل</TabsTrigger>
-            <TabsTrigger value="settings">الإعدادات</TabsTrigger>
+            <TabsTrigger value="overview">{t('auto.advanced-search.81')}</TabsTrigger>
+            <TabsTrigger value="details">{t('auto.advanced-search.82')}</TabsTrigger>
+            <TabsTrigger value="settings">{t('auto.advanced-search.83')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -819,11 +793,11 @@ export default function AdvancedSearchPage () {
           <TabsContent value="details" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>تفاصيل إضافية</CardTitle>
+                <CardTitle>{t('auto.advanced-search.84')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  هنا يمكن عرض تفاصيل إضافية حول {pageTitle.toLowerCase()}
+                  {t('auto.advanced-search.85')}{pageTitle.toLowerCase()}
                 </p>
               </CardContent>
             </Card>
@@ -832,11 +806,11 @@ export default function AdvancedSearchPage () {
           <TabsContent value="settings" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>إعدادات {pageTitle}</CardTitle>
+                <CardTitle>{t('auto.advanced-search.86')}{pageTitle}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  هنا يمكن تكوين إعدادات {pageTitle.toLowerCase()}
+                  {t('auto.advanced-search.87')}{pageTitle.toLowerCase()}
                 </p>
               </CardContent>
             </Card>

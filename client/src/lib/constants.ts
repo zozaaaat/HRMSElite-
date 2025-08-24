@@ -1,3 +1,5 @@
+import { t } from "i18next";
+
 // API Endpoints Constants
 export const AUTH_ENDPOINTS = {
   'USER': '/api/auth/user',

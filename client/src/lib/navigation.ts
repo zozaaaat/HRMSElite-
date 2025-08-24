@@ -1,6 +1,7 @@
 import {useLocation} from 'wouter';
 import {routes, getDashboardRoute, UserRole} from './routes';
 import {canAccessPage} from './roles';
+import { t } from "i18next";
 
 // Hook for navigation
 export const useNavigation = () => {

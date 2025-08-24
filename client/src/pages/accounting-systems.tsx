@@ -23,12 +23,13 @@ import {apiRequest} from '@/lib/queryClient';
 import {LoadingSpinner} from '../components/shared/LoadingSpinner';
 import {ErrorMessage} from '../components/shared/ErrorMessage';
 import {AccountingIntegration, FieldMapping} from '../types/component-props';
+import { t } from "i18next";
 
 export default function AccountingSystems () {
 
   return (
     <SharedLayout
-      companyName="شركة النيل الأزرق للمجوهرات"
+      companyName={t('auto.accounting-systems.53')}
     >
       <AccountingSystemsContent />
     </SharedLayout>
@@ -131,10 +132,9 @@ function AccountingSystemsContent () {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">أنظمة المحاسبة</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('auto.accounting-systems.1')}</h1>
             <p className="text-gray-600 dark:text-gray-300 mt-1">
-              ربط وإدارة الأنظمة المحاسبية الخارجية مع نظام الموارد البشرية
-            </p>
+              {t('auto.accounting-systems.2')}</p>
           </div>
           <Button
             onClick={handleSync}
@@ -146,16 +146,15 @@ function AccountingSystemsContent () {
             ) : (
               <RefreshCw className="h-4 w-4 ml-2" />
             )}
-            مزامنة البيانات
-          </Button>
+            {t('auto.accounting-systems.3')}</Button>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
-            <TabsTrigger value="integrations">الأنظمة</TabsTrigger>
-            <TabsTrigger value="mapping">ربط الحقول</TabsTrigger>
-            <TabsTrigger value="reports">التقارير</TabsTrigger>
+            <TabsTrigger value="overview">{t('auto.accounting-systems.4')}</TabsTrigger>
+            <TabsTrigger value="integrations">{t('auto.accounting-systems.5')}</TabsTrigger>
+            <TabsTrigger value="mapping">{t('auto.accounting-systems.6')}</TabsTrigger>
+            <TabsTrigger value="reports">{t('auto.accounting-systems.7')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -164,14 +163,13 @@ function AccountingSystemsContent () {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <RefreshCw className="h-5 w-5" />
-                  حالة المزامنة
-                </CardTitle>
+                  {t('auto.accounting-systems.8')}</CardTitle>
               </CardHeader>
               <CardContent>
                 {syncLoading ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto" />
-                    <p className="mt-2 text-gray-600">جاري تحميل حالة المزامنة...</p>
+                    <p className="mt-2 text-gray-600">{t('auto.accounting-systems.9')}</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -189,26 +187,26 @@ function AccountingSystemsContent () {
                         {syncStatus?.status === 'completed' ? 'مكتملة'
                           : syncStatus?.status === 'running' ? 'قيد التشغيل' : 'متوقفة'}
                       </p>
-                      <p className="text-sm text-gray-600">حالة المزامنة</p>
+                      <p className="text-sm text-gray-600">{t('auto.accounting-systems.10')}</p>
                     </div>
 
                     <div className="text-center">
                       <p className="text-2xl font-bold text-blue-600">{
   syncStatus?.recordsProcessed ?? 0
 }</p>
-                      <p className="text-sm text-gray-600">السجلات المعالجة</p>
+                      <p className="text-sm text-gray-600">{t('auto.accounting-systems.11')}</p>
                     </div>
 
                     <div className="text-center">
                       <p className="text-2xl font-bold text-red-600">{syncStatus?.errors ?? 0}</p>
-                      <p className="text-sm text-gray-600">الأخطاء</p>
+                      <p className="text-sm text-gray-600">{t('auto.accounting-systems.12')}</p>
                     </div>
 
                     <div className="text-center">
                       <p className="text-2xl font-bold text-yellow-600">{
   syncStatus?.warnings ?? 0
 }</p>
-                      <p className="text-sm text-gray-600">التحذيرات</p>
+                      <p className="text-sm text-gray-600">{t('auto.accounting-systems.13')}</p>
                     </div>
                   </div>
                 )}
@@ -216,15 +214,15 @@ function AccountingSystemsContent () {
                 {syncStatus && (
                   <div className="mt-6 space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span>آخر تشغيل:</span>
+                      <span>{t('auto.accounting-systems.14')}</span>
                       <span>{new Date(syncStatus.lastRun).toLocaleString('ar-SA')}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span>التشغيل التالي:</span>
+                      <span>{t('auto.accounting-systems.15')}</span>
                       <span>{new Date(syncStatus.nextRun).toLocaleString('ar-SA')}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span>مدة التشغيل:</span>
+                      <span>{t('auto.accounting-systems.16')}</span>
                       <span>{syncStatus.duration}</span>
                     </div>
                   </div>
@@ -242,7 +240,7 @@ function AccountingSystemsContent () {
   integrations.filter((i: AccountingIntegration) => i.status === 'connected').length
 }
                   </p>
-                  <p className="text-sm text-gray-600">الأنظمة المتصلة</p>
+                  <p className="text-sm text-gray-600">{t('auto.accounting-systems.17')}</p>
                 </CardContent>
               </Card>
 
@@ -254,7 +252,7 @@ function AccountingSystemsContent () {
   integrations.filter((i: AccountingIntegration) => i.status === 'disconnected').length
 }
                   </p>
-                  <p className="text-sm text-gray-600">الأنظمة المنقطعة</p>
+                  <p className="text-sm text-gray-600">{t('auto.accounting-systems.18')}</p>
                 </CardContent>
               </Card>
 
@@ -266,7 +264,7 @@ function AccountingSystemsContent () {
   integrations.filter((i: AccountingIntegration) => i.status === 'pending').length
 }
                   </p>
-                  <p className="text-sm text-gray-600">قيد الإعداد</p>
+                  <p className="text-sm text-gray-600">{t('auto.accounting-systems.19')}</p>
                 </CardContent>
               </Card>
             </div>
@@ -274,7 +272,7 @@ function AccountingSystemsContent () {
             {/* Quick Actions */}
             <Card>
               <CardHeader>
-                <CardTitle>الإجراءات السريعة</CardTitle>
+                <CardTitle>{t('auto.accounting-systems.20')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -282,19 +280,19 @@ function AccountingSystemsContent () {
   handleSync
 }>
                     <RefreshCw className="h-6 w-6" />
-                    <span>مزامنة فورية</span>
+                    <span>{t('auto.accounting-systems.21')}</span>
                   </Button>
                   <Button variant="outline" className="h-20 flex flex-col gap-2">
                     <FileText className="h-6 w-6" />
-                    <span>تقرير المزامنة</span>
+                    <span>{t('auto.accounting-systems.22')}</span>
                   </Button>
                   <Button variant="outline" className="h-20 flex flex-col gap-2">
                     <Settings className="h-6 w-6" />
-                    <span>إعدادات الربط</span>
+                    <span>{t('auto.accounting-systems.23')}</span>
                   </Button>
                   <Button variant="outline" className="h-20 flex flex-col gap-2">
                     <Database className="h-6 w-6" />
-                    <span>نسخ احتياطي</span>
+                    <span>{t('auto.accounting-systems.24')}</span>
                   </Button>
                 </div>
               </CardContent>
@@ -303,18 +301,17 @@ function AccountingSystemsContent () {
 
           <TabsContent value="integrations" className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">الأنظمة المحاسبية</h2>
+              <h2 className="text-2xl font-bold">{t('auto.accounting-systems.25')}</h2>
               <Button>
                 <LinkIcon className="h-4 w-4 ml-2" />
-                إضافة نظام جديد
-              </Button>
+                {t('auto.accounting-systems.26')}</Button>
             </div>
 
-            {integrationsLoading && <LoadingSpinner text="جاري تحميل الأنظمة المحاسبية..." />}
+            {integrationsLoading && <LoadingSpinner text={t('auto.accounting-systems.54')} />}
             {
   integrationsError && <ErrorMessage error={
   integrationsError
-} title="خطأ في تحميل الأنظمة المحاسبية" onRetry={
+} title={t('auto.accounting-systems.55')} onRetry={
   () => window.location.reload()
 } />
 }
@@ -345,11 +342,11 @@ function AccountingSystemsContent () {
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                         <div>
-                          <p className="text-sm text-gray-600 mb-1">تكرار المزامنة</p>
+                          <p className="text-sm text-gray-600 mb-1">{t('auto.accounting-systems.27')}</p>
                           <p className="font-semibold">{integration.syncFrequency}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600 mb-1">آخر مزامنة</p>
+                          <p className="text-sm text-gray-600 mb-1">{t('auto.accounting-systems.28')}</p>
                           <p className="font-semibold">
                             {integration.lastSync
                               ? new Date(integration.lastSync).toLocaleString('ar-SA')
@@ -357,13 +354,13 @@ function AccountingSystemsContent () {
                           </p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-600 mb-1">حالة الاتصال</p>
+                          <p className="text-sm text-gray-600 mb-1">{t('auto.accounting-systems.29')}</p>
                           <p className="font-semibold">{integration.connectionHealth}</p>
                         </div>
                       </div>
 
                       <div className="space-y-2 mb-6">
-                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">أنواع البيانات المدعومة:</p>
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('auto.accounting-systems.30')}</p>
                         <div className="flex flex-wrap gap-2">
                           {(integration.dataTypes ?? []).map((type: string, index: number) => (
                             <Badge key={index} variant="outline" className="text-xs">
@@ -383,22 +380,18 @@ function AccountingSystemsContent () {
                           <>
                             <Button size="sm" variant="outline">
                               <Settings className="h-4 w-4 ml-1" />
-                              إعدادات
-                            </Button>
+                              {t('auto.accounting-systems.31')}</Button>
                             <Button size="sm" variant="outline">
                               <RefreshCw className="h-4 w-4 ml-1" />
-                              مزامنة
-                            </Button>
+                              {t('auto.accounting-systems.32')}</Button>
                             <Button size="sm" variant="outline">
                               <FileText className="h-4 w-4 ml-1" />
-                              السجلات
-                            </Button>
+                              {t('auto.accounting-systems.33')}</Button>
                           </>
                         ) : (
                           <Button size="sm" className="bg-orange-600 hover:bg-orange-700">
                             <LinkIcon className="h-4 w-4 ml-1" />
-                            ربط النظام
-                          </Button>
+                            {t('auto.accounting-systems.34')}</Button>
                         )}
                       </div>
                     </CardContent>
@@ -410,23 +403,22 @@ function AccountingSystemsContent () {
 
           <TabsContent value="mapping" className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">ربط الحقول</h2>
+              <h2 className="text-2xl font-bold">{t('auto.accounting-systems.35')}</h2>
               <Button>
                 <Settings className="h-4 w-4 ml-2" />
-                إعدادات الربط
-              </Button>
+                {t('auto.accounting-systems.36')}</Button>
             </div>
 
             <Card>
               <CardHeader>
-                <CardTitle>ربط حقول البيانات</CardTitle>
+                <CardTitle>{t('auto.accounting-systems.37')}</CardTitle>
               </CardHeader>
               <CardContent>
-                {mappingLoading && <LoadingSpinner text="جاري تحميل ربط الحقول..." />}
+                {mappingLoading && <LoadingSpinner text={t('auto.accounting-systems.56')} />}
                 {
   mappingError && <ErrorMessage error={
   mappingError
-} title="خطأ في تحميل ربط الحقول" onRetry={
+} title={t('auto.accounting-systems.57')} onRetry={
   () => window.location.reload()
 } />
 }
@@ -456,8 +448,7 @@ function AccountingSystemsContent () {
                             {field.mapped ? 'مربوط' : 'غير مربوط'}
                           </Badge>
                           <Button size="sm" variant="outline">
-                            تعديل
-                          </Button>
+                            {t('auto.accounting-systems.38')}</Button>
                         </div>
                       </div>
                     ))}
@@ -469,17 +460,17 @@ function AccountingSystemsContent () {
             {/* Mapping Guide */}
             <Card>
               <CardHeader>
-                <CardTitle>دليل ربط الحقول</CardTitle>
+                <CardTitle>{t('auto.accounting-systems.39')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">نصائح للربط الصحيح:</h4>
+                    <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">{t('auto.accounting-systems.40')}</h4>
                     <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-1">
-                      <li>• تأكد من تطابق أنواع البيانات بين النظامين</li>
-                      <li>• استخدم أسماء الحقول الصحيحة كما هي في النظام المحاسبي</li>
-                      <li>• اختبر الربط بعد كل تغيير</li>
-                      <li>• احتفظ بنسخة احتياطية من إعدادات الربط</li>
+                      <li>{t('auto.accounting-systems.41')}</li>
+                      <li>{t('auto.accounting-systems.42')}</li>
+                      <li>{t('auto.accounting-systems.43')}</li>
+                      <li>{t('auto.accounting-systems.44')}</li>
                     </ul>
                   </div>
                 </div>
@@ -490,8 +481,8 @@ function AccountingSystemsContent () {
           <TabsContent value="reports" className="space-y-6">
             <div className="text-center py-12">
               <TrendingUp className="h-16 w-16 text-orange-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">تقارير المحاسبة</h3>
-              <p className="text-muted-foreground mb-4">قريباً - تقارير شاملة للعمليات المحاسبية</p>
+              <h3 className="text-lg font-semibold mb-2">{t('auto.accounting-systems.45')}</h3>
+              <p className="text-muted-foreground mb-4">{t('auto.accounting-systems.46')}</p>
             </div>
 
             {/* Sample Reports Section */}
@@ -499,24 +490,24 @@ function AccountingSystemsContent () {
               <Card className="border-dashed border-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
                 <CardContent className="p-6 text-center">
                   <FileText className="h-8 w-8 text-gray-500 mx-auto mb-3" />
-                  <h3 className="font-semibold">تقرير المزامنة</h3>
-                  <p className="text-sm text-gray-600 mt-1">سجل تفصيلي لعمليات المزامنة</p>
+                  <h3 className="font-semibold">{t('auto.accounting-systems.47')}</h3>
+                  <p className="text-sm text-gray-600 mt-1">{t('auto.accounting-systems.48')}</p>
                 </CardContent>
               </Card>
 
               <Card className="border-dashed border-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
                 <CardContent className="p-6 text-center">
                   <DollarSign className="h-8 w-8 text-gray-500 mx-auto mb-3" />
-                  <h3 className="font-semibold">تقرير المرتبات</h3>
-                  <p className="text-sm text-gray-600 mt-1">ملخص مالي للمرتبات المنقولة</p>
+                  <h3 className="font-semibold">{t('auto.accounting-systems.49')}</h3>
+                  <p className="text-sm text-gray-600 mt-1">{t('auto.accounting-systems.50')}</p>
                 </CardContent>
               </Card>
 
               <Card className="border-dashed border-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800">
                 <CardContent className="p-6 text-center">
                   <AlertTriangle className="h-8 w-8 text-gray-500 mx-auto mb-3" />
-                  <h3 className="font-semibold">تقرير الأخطاء</h3>
-                  <p className="text-sm text-gray-600 mt-1">سجل الأخطاء وحالات الفشل</p>
+                  <h3 className="font-semibold">{t('auto.accounting-systems.51')}</h3>
+                  <p className="text-sm text-gray-600 mt-1">{t('auto.accounting-systems.52')}</p>
                 </CardContent>
               </Card>
             </div>
