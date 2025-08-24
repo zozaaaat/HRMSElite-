@@ -2,8 +2,15 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 // Image optimization
 import viteImagemin from 'vite-plugin-imagemin';
+import sri from 'vite-plugin-sri';
+import { execSync } from 'child_process';
+
+const buildHash = execSync('git rev-parse --short HEAD').toString().trim();
 
 export default defineConfig({
+  define: {
+    __BUILD_HASH__: JSON.stringify(buildHash),
+  },
   plugins: [
     react(),
     viteImagemin({
@@ -17,6 +24,7 @@ export default defineConfig({
         ],
       },
     }),
+    sri(),
   ],
   build: {
     sourcemap: false,

@@ -8,6 +8,8 @@ import { Platform } from 'react-native';
 import { SyncData, PendingDataItem, EmployeeData, CompanyData, DocumentData, LicenseData } from '@shared/types/common';
 import { logger } from './logger';
 
+declare const __BUILD_HASH__: string;
+
 
 export interface PWAConfig {
   name: string;
@@ -188,7 +190,8 @@ export class PWAManager {
   private async registerServiceWorker(): Promise<void> {
     if ('serviceWorker' in navigator) {
       try {
-        this.swRegistration = await navigator.serviceWorker.register('/sw.js', {
+        const swUrl = `/sw.js?build=${__BUILD_HASH__}`;
+        this.swRegistration = await navigator.serviceWorker.register(swUrl, {
           scope: '/'
         });
         logger.info('Service Worker registered successfully:', this.swRegistration);
