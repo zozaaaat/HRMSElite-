@@ -34,7 +34,7 @@
     "fonts:download": "node scripts/download-fonts.mjs",
     "fix-typescript-types": "node scripts/fix-typescript-types.js",
     "security-fix": "node scripts/security-fix.cjs",
-    "check:secrets": "node scripts/check-placeholder-secrets.js",
+    "check:secrets": "node scripts/check-secrets.js",
     "security:guard": "node scripts/security-ci-guard.js",
     "security:guard:production": "cross-env NODE_ENV=production node scripts/security-ci-guard.js --production",
     "security:validate": "node scripts/security-validator.js",

@@ -131,6 +131,26 @@ groups:
           summary: "Slow database queries detected"
           description: "95th percentile database query time is above 1 second"
 
+      # Rate Limit Spikes
+      - alert: RateLimitSpike
+        expr: increase(http_requests_total{status="429"}[5m]) > 25
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Rate limit spike detected"
+          description: "More than 25 requests were rate limited in the last 5 minutes"
+
+      # Authentication/Authorization Error Spikes
+      - alert: AuthErrorSpike
+        expr: increase(http_requests_total{status=~"401|403"}[5m]) > 25
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Spike in 401/403 responses"
+          description: "More than 25 authentication or authorization errors in the last 5 minutes"
+
       # Antivirus Scan Failures
       - alert: AVScanFailure
         expr: increase(av_scan_failures_total[5m]) > 0

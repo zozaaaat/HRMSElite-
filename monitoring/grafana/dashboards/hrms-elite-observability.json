@@ -672,8 +672,77 @@
           "h": 8,
           "w": 24,
           "x": 0,
-          "y": 56
+        "y": 56
         }
+      }
+      ,
+      {
+        "id": 14,
+        "title": "Rate Limit Spikes",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=\\"429\\"}[5m])",
+            "legendFormat": "429 responses"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "custom": {
+              "displayMode": "gradient",
+              "orientation": "auto",
+              "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+              "showThresholdLabels": false,
+              "showThresholdMarkers": true
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 10 },
+                { "color": "red", "value": 20 }
+              ]
+            },
+            "unit": "reqps"
+          }
+        },
+        "gridPos": { "h": 8, "w": 24, "x": 0, "y": 64 }
+      },
+      {
+        "id": 15,
+        "title": "Auth Errors",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~\\"401|403\\"}[5m])",
+            "legendFormat": "401/403 responses"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "custom": {
+              "displayMode": "gradient",
+              "orientation": "auto",
+              "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+              "showThresholdLabels": false,
+              "showThresholdMarkers": true
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 10 },
+                { "color": "red", "value": 20 }
+              ]
+            },
+            "unit": "reqps"
+          }
+        },
+        "gridPos": { "h": 8, "w": 24, "x": 0, "y": 72 }
       }
     ],
     "time": {

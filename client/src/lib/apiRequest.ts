@@ -78,6 +78,9 @@ export const apiRequest = async <T = unknown>(
     // Always include CSRF token via wrapped fetch
     const response = await fetchWithCsrf(url, requestOptions);
 
+    const requestId = response.headers.get('x-request-id') ?? undefined;
+    logger.dev(`API ${method} ${url}`, { status: response.status, requestId }, 'API');
+
     // Cache ETag header if present
     const etag = response.headers.get('etag');
     if (etag) {
@@ -109,6 +112,7 @@ export const apiRequest = async <T = unknown>(
 
       }
 
+      logger.error(`HTTP error! status: ${response.status} - ${response.statusText}`, { requestId });
       throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
 
     }
@@ -135,7 +139,7 @@ export const apiRequest = async <T = unknown>(
 
   } catch (error) {
 
-    logger.error(`API Request failed for ${url}:`, error);
+    logger.error(`API Request failed for ${url}:`, { error, requestId });
     throw error;
 
   }
