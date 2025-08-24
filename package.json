@@ -24,7 +24,7 @@
     "db:push": "drizzle-kit push",
     "clean": "rimraf dist node_modules/.cache",
     "clean:electron": "rimraf electron/dist electron/dist-electron",
-    "lint": "eslint . --ext .ts,.tsx --fix",
+    "lint": "npx -y eslint@8 . --ext .ts,.tsx --max-warnings=0 --config .eslintrc.cjs",
     "lint:strict": "eslint . --ext .ts,.tsx --fix --max-warnings 0",
     "deadcode": "ts-prune -p tsconfig.deadcode.json | diff -u ts-prune-baseline.txt -",
     "remove-console-logs": "node scripts/remove-console-logs.js",
@@ -122,7 +122,8 @@
     "observability:test": "node scripts/test-observability.js",
     "logs:ship": "node scripts/ship-logs.js",
     "license:check": "npx license-checker --production --onlyAllow 'MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0'",
-    "license:report": "npx license-checker --production --json > license-report.json"
+    "license:report": "npx license-checker --production --json > license-report.json",
+    "lint:fix": "npx -y eslint@8 . --ext .ts,.tsx --fix --config .eslintrc.cjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.37.0",
@@ -276,7 +277,8 @@
     "cross-env": "10.0.0",
     "drizzle-kit": "0.31.4",
     "esbuild": "0.25.0",
-    "eslint": "9.32.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-react": "7.37.5",
@@ -287,6 +289,7 @@
     "jsdoc": "4.0.2",
     "jsdom": "24.1.0",
     "postcss": "8.4.47",
+    "prettier": "^3.6.2",
     "tailwindcss": "4.1.11",
     "ts-prune": "0.10.3",
     "tsx": "4.20.3",
