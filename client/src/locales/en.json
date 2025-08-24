@@ -623,5 +623,67 @@
     "performanceMonitoring": "Performance Monitoring",
     "metricsTitle": "Performance metrics:",
     "featuresTitleShort": "Features:"
+  },
+  "components": {
+    "ai": {
+      "analytics": {
+        "error": {
+          "title": "Data load error",
+          "description": "An error occurred while loading analytics data. Please try again."
+        },
+        "popularFeatures": {
+          "textAnalysis": "Text Analysis",
+          "reportGeneration": "Report Generation",
+          "sentimentAnalysis": "Sentiment Analysis",
+          "keywordExtraction": "Keyword Extraction",
+          "smartAssistant": "Smart Assistant"
+        },
+        "insights": {
+          "textAnalysisIncrease": {
+            "title": "Increase in text analysis usage",
+            "description": "Text analysis usage rose by 23% this week, indicating growing interest in advanced analytics."
+          },
+          "responseTimeImprovement": {
+            "title": "Improved response time",
+            "description": "Average response time dropped from 3.2 to 2.3 seconds, greatly improving user experience."
+          },
+          "sentimentAccuracyDrop": {
+            "title": "Decrease in sentiment analysis accuracy",
+            "description": "Sentiment analysis accuracy fell by 5%; the algorithm needs review and improvement."
+          },
+          "assistantUsageIncrease": {
+            "title": "Increase in smart assistant usage",
+            "description": "Smart assistant usage increased by 45%, indicating the feature's success."
+          },
+          "satisfactionImprovement": {
+            "title": "Improved user satisfaction",
+            "description": "User satisfaction rose from 4.2 to 4.6 out of 5, indicating improved service quality."
+          }
+        },
+        "recommendations": {
+          "improveSentiment": {
+            "title": "Improve sentiment analysis algorithm",
+            "description": "Invest in enhancing sentiment analysis accuracy to improve user experience and build trust in results.",
+            "estimatedImpact": "Increase accuracy by 15%",
+            "implementationTime": "2-3 weeks",
+            "cost": "Medium"
+          },
+          "addAutoTranslation": {
+            "title": "Add automatic translation feature",
+            "description": "Add automatic translation support to improve accessibility and expand usage.",
+            "estimatedImpact": "Increase users by 25%",
+            "implementationTime": "4-6 weeks",
+            "cost": "High"
+          },
+          "improveUI": {
+            "title": "Improve user interface",
+            "description": "Enhance the user interface design based on user behavior analysis.",
+            "estimatedImpact": "Increase user satisfaction by 20%",
+            "implementationTime": "3-4 weeks",
+            "cost": "Medium"
+          }
+        }
+      }
+    }
   }
 }
