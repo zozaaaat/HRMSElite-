@@ -89,6 +89,7 @@ const SECURITY_CONFIG = {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'"], // Will be dynamically updated with nonce
         styleSrc: ["'self'"],
+        fontSrc: ["'self'", 'data:'],
         imgSrc: ["'self'", 'data:', 'https:'],
         connectSrc: ["'self'"],
         frameSrc: ["'none'"],

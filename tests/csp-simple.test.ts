@@ -82,6 +82,7 @@ describe('CSP Nonce Implementation Tests', () => {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", `'nonce-${nonce}'`],
         styleSrc: ["'self'"],
+        fontSrc: ["'self'", 'data:'],
         imgSrc: ["'self'", 'data:', 'https:'],
         connectSrc: ["'self'"],
         frameSrc: ["'none'"],
@@ -94,6 +95,8 @@ describe('CSP Nonce Implementation Tests', () => {
       expect(cspDirectives.scriptSrc).toContain("'self'");
       expect(cspDirectives.scriptSrc).toContain(`'nonce-${nonce}'`);
       expect(cspDirectives.styleSrc).toContain("'self'");
+      expect(cspDirectives.fontSrc).toContain("'self'");
+      expect(cspDirectives.fontSrc).toContain('data:');
       expect(cspDirectives.imgSrc).toContain("'self'");
       expect(cspDirectives.imgSrc).toContain('data:');
       expect(cspDirectives.imgSrc).toContain('https:');

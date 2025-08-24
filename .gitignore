@@ -9,3 +9,6 @@ vite.config.ts.*
 .env
 .env.*
 !.env.example
+
+# Downloaded fonts
+public/fonts/*.woff2
