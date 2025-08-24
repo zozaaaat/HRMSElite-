@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter } from 'react-router-dom';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 import { mockEmployees, mockCompanies, mockDocuments, mockLicenses } from '../mock-data';
 
 // Mock API services
@@ -42,22 +41,7 @@ import { getCompanies, createCompany } from '@/services/companies';
 import { getDocuments, uploadDocument } from '@/services/documents';
 
 // Test wrapper component
-const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        {children}
-      </BrowserRouter>
-    </QueryClientProvider>
-  );
-};
+const TestWrapper = ({ children }: { children: React.ReactNode }) => <>{children}</>;
 
 // Mock components for testing
 const MockEmployeeCard = ({ employee, onEdit, onDelete }: any) => (
@@ -149,14 +133,12 @@ describe('Comprehensive Component Tests', () => {
       const onEdit = vi.fn();
       const onDelete = vi.fn();
 
-      render(
-        <TestWrapper>
-          <MockEmployeeCard 
+      renderWithProviders(
+        <MockEmployeeCard 
             employee={employee} 
             onEdit={onEdit} 
             onDelete={onDelete} 
           />
-        </TestWrapper>
       );
 
       expect(screen.getByTestId('employee-card')).toBeInTheDocument();
@@ -172,14 +154,12 @@ describe('Comprehensive Component Tests', () => {
       const onEdit = vi.fn();
       const onDelete = vi.fn();
 
-      render(
-        <TestWrapper>
-          <MockEmployeeCard 
+      renderWithProviders(
+        <MockEmployeeCard 
             employee={employee} 
             onEdit={onEdit} 
             onDelete={onDelete} 
           />
-        </TestWrapper>
       );
 
       const editButton = screen.getByTestId('edit-btn');
@@ -194,14 +174,12 @@ describe('Comprehensive Component Tests', () => {
       const onEdit = vi.fn();
       const onDelete = vi.fn();
 
-      render(
-        <TestWrapper>
-          <MockEmployeeCard 
+      renderWithProviders(
+        <MockEmployeeCard 
             employee={employee} 
             onEdit={onEdit} 
             onDelete={onDelete} 
           />
-        </TestWrapper>
       );
 
       const deleteButton = screen.getByTestId('delete-btn');
@@ -220,14 +198,12 @@ describe('Comprehensive Component Tests', () => {
       const onEdit = vi.fn();
       const onDelete = vi.fn();
 
-      render(
-        <TestWrapper>
-          <MockEmployeeCard 
+      renderWithProviders(
+        <MockEmployeeCard 
             employee={incompleteEmployee} 
             onEdit={onEdit} 
             onDelete={onDelete} 
           />
-        </TestWrapper>
       );
 
       expect(screen.getByTestId('employee-card')).toBeInTheDocument();
@@ -242,14 +218,12 @@ describe('Comprehensive Component Tests', () => {
       const onEdit = vi.fn();
       const onDelete = vi.fn();
 
-      render(
-        <TestWrapper>
-          <MockCompanyCard 
+      renderWithProviders(
+        <MockCompanyCard 
             company={company} 
             onEdit={onEdit} 
             onDelete={onDelete} 
           />
-        </TestWrapper>
       );
 
       expect(screen.getByTestId('company-card')).toBeInTheDocument();
@@ -263,14 +237,12 @@ describe('Comprehensive Component Tests', () => {
       const onEdit = vi.fn();
       const onDelete = vi.fn();
 
-      render(
-        <TestWrapper>
-          <MockCompanyCard 
+      renderWithProviders(
+        <MockCompanyCard 
             company={company} 
             onEdit={onEdit} 
             onDelete={onDelete} 
           />
-        </TestWrapper>
       );
 
       const editButton = screen.getByTestId('edit-btn');
@@ -289,13 +261,11 @@ describe('Comprehensive Component Tests', () => {
       const onSubmit = vi.fn();
       const onCancel = vi.fn();
 
-      render(
-        <TestWrapper>
-          <MockDocumentForm 
+      renderWithProviders(
+        <MockDocumentForm 
             onSubmit={onSubmit} 
             onCancel={onCancel} 
           />
-        </TestWrapper>
       );
 
       expect(screen.getByTestId('document-form')).toBeInTheDocument();
@@ -309,13 +279,11 @@ describe('Comprehensive Component Tests', () => {
       const onSubmit = vi.fn();
       const onCancel = vi.fn();
 
-      render(
-        <TestWrapper>
-          <MockDocumentForm 
+      renderWithProviders(
+        <MockDocumentForm 
             onSubmit={onSubmit} 
             onCancel={onCancel} 
           />
-        </TestWrapper>
       );
 
       const titleInput = screen.getByTestId('title-input');
@@ -337,13 +305,11 @@ describe('Comprehensive Component Tests', () => {
       const onSubmit = vi.fn();
       const onCancel = vi.fn();
 
-      render(
-        <TestWrapper>
-          <MockDocumentForm 
+      renderWithProviders(
+        <MockDocumentForm 
             onSubmit={onSubmit} 
             onCancel={onCancel} 
           />
-        </TestWrapper>
       );
 
       const cancelButton = screen.getByTestId('cancel-btn');
@@ -361,14 +327,12 @@ describe('Comprehensive Component Tests', () => {
         description: 'Initial Description'
       };
 
-      render(
-        <TestWrapper>
-          <MockDocumentForm 
+      renderWithProviders(
+        <MockDocumentForm 
             onSubmit={onSubmit} 
             onCancel={onCancel} 
             initialData={initialData}
           />
-        </TestWrapper>
       );
 
       const titleInput = screen.getByTestId('title-input') as HTMLInputElement;
@@ -381,10 +345,8 @@ describe('Comprehensive Component Tests', () => {
 
   describe('Loading Spinner Component', () => {
     it('should render loading spinner correctly', () => {
-      render(
-        <TestWrapper>
-          <MockLoadingSpinner />
-        </TestWrapper>
+      renderWithProviders(
+        <MockLoadingSpinner />
       );
 
       expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
@@ -394,12 +356,10 @@ describe('Comprehensive Component Tests', () => {
 
   describe('Error Boundary Component', () => {
     it('should render children when no error occurs', () => {
-      render(
-        <TestWrapper>
-          <MockErrorBoundary>
+      renderWithProviders(
+        <MockErrorBoundary>
             <div data-testid="child-content">Child Content</div>
           </MockErrorBoundary>
-        </TestWrapper>
       );
 
       expect(screen.getByTestId('child-content')).toBeInTheDocument();
@@ -411,12 +371,10 @@ describe('Comprehensive Component Tests', () => {
         throw new Error('Test error');
       };
 
-      render(
-        <TestWrapper>
-          <MockErrorBoundary>
+      renderWithProviders(
+        <MockErrorBoundary>
             <ErrorComponent />
           </MockErrorBoundary>
-        </TestWrapper>
       );
 
       expect(screen.getByTestId('error-fallback')).toBeInTheDocument();
@@ -429,9 +387,8 @@ describe('Comprehensive Component Tests', () => {
       const onEdit = vi.fn();
       const onDelete = vi.fn();
 
-      render(
-        <TestWrapper>
-          <div data-testid="employee-list">
+      renderWithProviders(
+        <div data-testid="employee-list">
             {employees.map(employee => (
               <MockEmployeeCard
                 key={employee.id}
@@ -441,7 +398,6 @@ describe('Comprehensive Component Tests', () => {
               />
             ))}
           </div>
-        </TestWrapper>
       );
 
       const employeeCards = screen.getAllByTestId('employee-card');
@@ -457,13 +413,11 @@ describe('Comprehensive Component Tests', () => {
       const onSubmit = vi.fn();
       const onCancel = vi.fn();
 
-      render(
-        <TestWrapper>
-          <MockDocumentForm 
+      renderWithProviders(
+        <MockDocumentForm 
             onSubmit={onSubmit} 
             onCancel={onCancel} 
           />
-        </TestWrapper>
       );
 
       const submitButton = screen.getByTestId('submit-btn');
@@ -482,14 +436,12 @@ describe('Comprehensive Component Tests', () => {
       const onEdit = vi.fn();
       const onDelete = vi.fn();
 
-      render(
-        <TestWrapper>
-          <MockEmployeeCard 
+      renderWithProviders(
+        <MockEmployeeCard 
             employee={employee} 
             onEdit={onEdit} 
             onDelete={onDelete} 
           />
-        </TestWrapper>
       );
 
       const editButton = screen.getByTestId('edit-btn');
@@ -503,13 +455,11 @@ describe('Comprehensive Component Tests', () => {
       const onSubmit = vi.fn();
       const onCancel = vi.fn();
 
-      render(
-        <TestWrapper>
-          <MockDocumentForm 
+      renderWithProviders(
+        <MockDocumentForm 
             onSubmit={onSubmit} 
             onCancel={onCancel} 
           />
-        </TestWrapper>
       );
 
       const titleInput = screen.getByTestId('title-input');
@@ -539,9 +489,8 @@ describe('Comprehensive Component Tests', () => {
 
       const startTime = performance.now();
       
-      render(
-        <TestWrapper>
-          <div data-testid="large-employee-list">
+      renderWithProviders(
+        <div data-testid="large-employee-list">
             {largeEmployeeList.map(employee => (
               <MockEmployeeCard
                 key={employee.id}
@@ -551,7 +500,6 @@ describe('Comprehensive Component Tests', () => {
               />
             ))}
           </div>
-        </TestWrapper>
       );
 
       const endTime = performance.now();

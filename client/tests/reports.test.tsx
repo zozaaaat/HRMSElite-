@@ -1,31 +1,12 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 import Reports from '../src/pages/reports';
 
 // Mock fetch for API calls
 global.fetch = vi.fn();
-
-// Create a test query client
-const createTestQueryClient = () => new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-    },
-  },
-});
-
-// Wrapper component for testing
-const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-  const queryClient = createTestQueryClient();
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
-};
 
 describe('Reports Page', () => {
   beforeEach(() => {
@@ -33,11 +14,7 @@ describe('Reports Page', () => {
   });
 
   it('renders AI summary tab by default', () => {
-    render(
-      <TestWrapper>
-        <Reports />
-      </TestWrapper>
-    );
+    renderWithProviders(<Reports />);
 
     expect(screen.getByText('التقارير والمستندات')).toBeInTheDocument();
     expect(screen.getByText('التحليل الذكي')).toBeInTheDocument();
@@ -48,10 +25,8 @@ describe('Reports Page', () => {
       new Promise(() => {}) // Never resolves to simulate loading
     );
 
-    render(
-      <TestWrapper>
-        <Reports />
-      </TestWrapper>
+    renderWithProviders(
+      <Reports />
     );
 
     await waitFor(() => {
@@ -83,10 +58,8 @@ describe('Reports Page', () => {
       json: () => Promise.resolve(mockAISummary)
     } as Response);
 
-    render(
-      <TestWrapper>
-        <Reports />
-      </TestWrapper>
+    renderWithProviders(
+      <Reports />
     );
 
     await waitFor(() => {
@@ -100,10 +73,8 @@ describe('Reports Page', () => {
   it('shows error state when API fails', async () => {
     (fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('API Error'));
 
-    render(
-      <TestWrapper>
-        <Reports />
-      </TestWrapper>
+    renderWithProviders(
+      <Reports />
     );
 
     await waitFor(() => {
@@ -118,10 +89,8 @@ describe('Reports Page', () => {
       json: () => Promise.resolve(mockData)
     } as Response);
 
-    render(
-      <TestWrapper>
-        <Reports />
-      </TestWrapper>
+    renderWithProviders(
+      <Reports />
     );
 
     // Click on AI Insights tab

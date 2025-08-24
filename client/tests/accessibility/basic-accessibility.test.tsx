@@ -1,10 +1,8 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { I18nextProvider } from 'react-i18next';
-import i18n from '../../src/lib/i18n';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 import { AccessibilityProvider } from '../../src/components/shared/AccessibilityProvider';
 import { AccessibleButton } from '../../src/components/ui/accessible-button';
 import { AccessibleInput } from '../../src/components/ui/accessible-form';
@@ -12,31 +10,15 @@ import { AccessibleInput } from '../../src/components/ui/accessible-form';
 // Extend expect to include axe matchers
 expect.extend(toHaveNoViolations);
 
-// Test wrapper with necessary providers
-const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <I18nextProvider i18n={i18n}>
-        <AccessibilityProvider>
-          {children}
-        </AccessibilityProvider>
-      </I18nextProvider>
-    </QueryClientProvider>
-  );
-};
+// Test wrapper with accessibility provider
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <AccessibilityProvider>{children}</AccessibilityProvider>
+);
 
 describe('Basic Accessibility Tests', () => {
   describe('AccessibleButton Component', () => {
     it('should have no critical accessibility violations', async () => {
-      const { container } = render(
+      const { container } = renderWithProviders(
         <TestWrapper>
           <AccessibleButton>Test Button</AccessibleButton>
         </TestWrapper>
@@ -47,7 +29,7 @@ describe('Basic Accessibility Tests', () => {
     });
 
     it('should have proper ARIA attributes', () => {
-      render(
+      renderWithProviders(
         <TestWrapper>
           <AccessibleButton
             aria-label="Submit form"
@@ -66,7 +48,7 @@ describe('Basic Accessibility Tests', () => {
     });
 
     it('should support loading state', () => {
-      render(
+      renderWithProviders(
         <TestWrapper>
           <AccessibleButton loading loadingText="Processing...">
             Submit
@@ -83,7 +65,7 @@ describe('Basic Accessibility Tests', () => {
 
   describe('AccessibleInput Component', () => {
     it('should have no critical accessibility violations', async () => {
-      const { container } = render(
+      const { container } = renderWithProviders(
         <TestWrapper>
           <AccessibleInput
             label="Email Address"
@@ -98,7 +80,7 @@ describe('Basic Accessibility Tests', () => {
     });
 
     it('should have proper form labels', () => {
-      render(
+      renderWithProviders(
         <TestWrapper>
           <AccessibleInput
             label="Email Address"
@@ -115,7 +97,7 @@ describe('Basic Accessibility Tests', () => {
     });
 
     it('should handle error states', () => {
-      render(
+      renderWithProviders(
         <TestWrapper>
           <AccessibleInput
             label="Email Address"
@@ -134,7 +116,7 @@ describe('Basic Accessibility Tests', () => {
     });
 
     it('should support helper text', () => {
-      render(
+      renderWithProviders(
         <TestWrapper>
           <AccessibleInput
             label="Email Address"
@@ -152,7 +134,7 @@ describe('Basic Accessibility Tests', () => {
 
   describe('AccessibilityProvider', () => {
     it('should provide skip links', () => {
-      render(
+      renderWithProviders(
         <TestWrapper>
           <div>
             <h1>Test Page</h1>
@@ -172,7 +154,7 @@ describe('Basic Accessibility Tests', () => {
     });
 
     it('should provide live regions for announcements', () => {
-      render(
+      renderWithProviders(
         <TestWrapper>
           <div>Test content</div>
         </TestWrapper>
@@ -187,7 +169,7 @@ describe('Basic Accessibility Tests', () => {
 
   describe('Form Accessibility', () => {
     it('should have proper form structure', () => {
-      render(
+      renderWithProviders(
         <TestWrapper>
           <form>
             <AccessibleInput
@@ -218,7 +200,7 @@ describe('Basic Accessibility Tests', () => {
     });
 
     it('should handle required field indicators', () => {
-      render(
+      renderWithProviders(
         <TestWrapper>
           <AccessibleInput
             label="Required Field"
@@ -234,7 +216,7 @@ describe('Basic Accessibility Tests', () => {
 
   describe('Color Contrast and Visual Accessibility', () => {
     it('should have sufficient color contrast', async () => {
-      const { container } = render(
+      const { container } = renderWithProviders(
         <TestWrapper>
           <div>
             <h1>Test Heading</h1>
@@ -258,7 +240,7 @@ describe('Basic Accessibility Tests', () => {
     });
 
     it('should have proper focus indicators', async () => {
-      const { container } = render(
+      const { container } = renderWithProviders(
         <TestWrapper>
           <AccessibleButton>Test Button</AccessibleButton>
           <AccessibleInput label="Test Input" />
@@ -281,7 +263,7 @@ describe('Basic Accessibility Tests', () => {
 
   describe('Screen Reader Accessibility', () => {
     it('should have proper ARIA labels and descriptions', async () => {
-      const { container } = render(
+      const { container } = renderWithProviders(
         <TestWrapper>
           <AccessibleButton aria-label="Custom button label">
             Button Text
@@ -310,7 +292,7 @@ describe('Basic Accessibility Tests', () => {
     });
 
     it('should have proper heading hierarchy', async () => {
-      const { container } = render(
+      const { container } = renderWithProviders(
         <TestWrapper>
           <h1>Main Heading</h1>
           <section>
@@ -336,7 +318,7 @@ describe('Basic Accessibility Tests', () => {
 
   describe('Keyboard Navigation', () => {
     it('should have focusable elements', () => {
-      render(
+      renderWithProviders(
         <TestWrapper>
           <AccessibleButton>Button 1</AccessibleButton>
           <AccessibleInput label="Input 1" />
@@ -359,7 +341,7 @@ describe('Basic Accessibility Tests', () => {
     it('should support keyboard activation', () => {
       const handleClick = vi.fn();
 
-      render(
+      renderWithProviders(
         <TestWrapper>
           <AccessibleButton onClick={handleClick}>
             Test Button

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 import { Router } from 'wouter';
 import React from 'react';
 import OptimizedLicenseCard from '@/components/optimized/OptimizedLicenseCard';
@@ -83,7 +84,7 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
+      renderWithProviders(
         <Router>
           <OptimizedLicenseCard
             license={mockLicense}
@@ -106,7 +107,7 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
+      renderWithProviders(
         <Router>
           <OptimizedLicenseCard
             license={mockLicense}
@@ -129,7 +130,7 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
+      renderWithProviders(
         <Router>
           <OptimizedLicenseCard
             license={mockLicense}
@@ -157,7 +158,7 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
+      renderWithProviders(
         <Router>
           <OptimizedLicenseCard
             license={expiringLicense}
@@ -183,7 +184,7 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
+      renderWithProviders(
         <Router>
           <OptimizedLicenseCard
             license={expiredLicense}
@@ -204,7 +205,7 @@ describe('Optimized Components', () => {
         onSelect: vi.fn(),
       };
 
-      render(
+      renderWithProviders(
         <Router>
           <OptimizedLicenseCard
             license={mockLicense}
@@ -230,7 +231,7 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
+      renderWithProviders(
         <Router>
           <OptimizedDocumentCard
             document={mockDocument}
@@ -253,7 +254,7 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
+      renderWithProviders(
         <Router>
           <OptimizedDocumentCard
             document={mockDocument}
@@ -276,7 +277,7 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
+      renderWithProviders(
         <Router>
           <OptimizedDocumentCard
             document={mockDocument}
@@ -296,7 +297,7 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
+      renderWithProviders(
         <Router>
           <OptimizedDocumentCard
             document={mockDocument}
@@ -318,7 +319,7 @@ describe('Optimized Components', () => {
         onSelect: vi.fn(),
       };
 
-      render(
+      renderWithProviders(
         <Router>
           <OptimizedDocumentCard
             document={mockDocument}
@@ -337,7 +338,7 @@ describe('Optimized Components', () => {
 
   describe('SuspenseWrapper', () => {
     it('should render children when no suspense is needed', () => {
-      render(
+      renderWithProviders(
         <SuspenseWrapper>
           <div data-testid="test-content">Test Content</div>
         </SuspenseWrapper>
@@ -347,7 +348,7 @@ describe('Optimized Components', () => {
     });
 
     it('should render default fallback when type is default', () => {
-      render(
+      renderWithProviders(
         <SuspenseWrapper type="default">
           <div data-testid="test-content">Test Content</div>
         </SuspenseWrapper>
@@ -360,7 +361,7 @@ describe('Optimized Components', () => {
     it('should render custom fallback when provided', () => {
       const customFallback = <div data-testid="custom-fallback">Custom Loading...</div>;
 
-      render(
+      renderWithProviders(
         <SuspenseWrapper fallback={customFallback}>
           <div data-testid="test-content">Test Content</div>
         </SuspenseWrapper>
@@ -372,7 +373,7 @@ describe('Optimized Components', () => {
 
   describe('Specialized Suspense Wrappers', () => {
     it('should render DocumentSuspense with list fallback', () => {
-      render(
+      renderWithProviders(
         <DocumentSuspense>
           <div data-testid="document-content">Document Content</div>
         </DocumentSuspense>
@@ -382,7 +383,7 @@ describe('Optimized Components', () => {
     });
 
     it('should render LicenseSuspense with card fallback', () => {
-      render(
+      renderWithProviders(
         <LicenseSuspense>
           <div data-testid="license-content">License Content</div>
         </LicenseSuspense>
@@ -392,7 +393,7 @@ describe('Optimized Components', () => {
     });
 
     it('should render EmployeeSuspense with table fallback', () => {
-      render(
+      renderWithProviders(
         <EmployeeSuspense>
           <div data-testid="employee-content">Employee Content</div>
         </EmployeeSuspense>
@@ -402,7 +403,7 @@ describe('Optimized Components', () => {
     });
 
     it('should render DashboardSuspense with chart fallback', () => {
-      render(
+      renderWithProviders(
         <DashboardSuspense>
           <div data-testid="dashboard-content">Dashboard Content</div>
         </DashboardSuspense>
@@ -414,7 +415,7 @@ describe('Optimized Components', () => {
 
   describe('EnhancedErrorBoundary', () => {
     it('should render children when no error occurs', () => {
-      render(
+      renderWithProviders(
         <EnhancedErrorBoundary>
           <div data-testid="test-content">Test Content</div>
         </EnhancedErrorBoundary>
@@ -428,7 +429,7 @@ describe('Optimized Components', () => {
         throw new Error('Test error');
       };
 
-      render(
+      renderWithProviders(
         <EnhancedErrorBoundary>
           <ThrowError />
         </EnhancedErrorBoundary>
@@ -449,7 +450,7 @@ describe('Optimized Components', () => {
         return <div data-testid="success-content">Success</div>;
       };
 
-      render(
+      renderWithProviders(
         <EnhancedErrorBoundary>
           <ThrowError />
         </EnhancedErrorBoundary>
@@ -474,7 +475,7 @@ describe('Optimized Components', () => {
         throw new Error('Test error');
       };
 
-      render(
+      renderWithProviders(
         <EnhancedErrorBoundary showDetails>
           <ThrowError />
         </EnhancedErrorBoundary>
@@ -491,7 +492,7 @@ describe('Optimized Components', () => {
         throw new Error('Test error');
       };
 
-      render(
+      renderWithProviders(
         <EnhancedErrorBoundary onError={mockErrorHandler}>
           <ThrowError />
         </EnhancedErrorBoundary>
@@ -519,7 +520,7 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      const { rerender } = render(
+      const { rerender } = renderWithProviders(
         <Router>
           <OptimizedLicenseCard
             license={mockLicense}
@@ -550,7 +551,7 @@ describe('Optimized Components', () => {
         onDelete: vi.fn(),
       };
 
-      render(
+      renderWithProviders(
         <Router>
           <OptimizedLicenseCard
             license={mockLicense}

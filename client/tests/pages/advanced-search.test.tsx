@@ -1,6 +1,7 @@
 import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 import '@testing-library/jest-dom';
 import { Router } from 'wouter';
 import AdvancedSearchPage from '../../src/pages/advanced-search';
@@ -78,7 +79,7 @@ Object.defineProperty(global, 'ResizeObserver', {
 
 // Wrapper component for testing with router
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
+  return renderWithProviders(
     <Router>
       {component}
     </Router>
@@ -170,7 +171,7 @@ describe('Advanced Search Page', () => {
         </div>
       );
       
-      render(<LoadingComponent />);
+      renderWithProviders(<LoadingComponent />);
       
       const loadingSpinner = screen.getByTestId('loading-spinner');
       expect(loadingSpinner).toBeInTheDocument();

@@ -7,7 +7,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['tests/setup.ts'],
+    setupFiles: ['setupTests.ts'],
     // ✅ تحسين أداء الاختبارات - المرحلة الثانية
     pool: 'threads',
     poolOptions: {
@@ -39,7 +39,7 @@ export default defineConfig({
         '**/__mocks__/**',
         '**/mock-data.ts',
         '**/test-utils.tsx',
-        '**/setup.ts',
+        '**/setupTests.ts',
       ],
       thresholds: {
         global: {
@@ -105,7 +105,7 @@ export default defineConfig({
       '**/__mocks__/**',
       '**/mock-data.ts',
       '**/test-utils.tsx',
-      '**/setup.ts',
+      '**/setupTests.ts',
     ],
     // تحسينات إضافية
     testTimeout: 10000,

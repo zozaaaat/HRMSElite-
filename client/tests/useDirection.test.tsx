@@ -1,4 +1,5 @@
-import { render, act, waitFor } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 import { describe, it, expect } from 'vitest';
 import { useDirection } from '@/hooks/useDirection';
 import i18n from '@/lib/i18n';
@@ -10,7 +11,7 @@ function TestComponent() {
 
 describe('useDirection', () => {
   it('updates html dir attribute on language change', async () => {
-    render(<TestComponent />);
+    renderWithProviders(<TestComponent />);
     expect(document.documentElement.getAttribute('dir')).toBe('ltr');
 
     await act(async () => {
