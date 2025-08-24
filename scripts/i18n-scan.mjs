@@ -1,14 +1,19 @@
 import fs from "fs";
 import path from "path";
+import { parse } from "@babel/parser";
+import traverse from "@babel/traverse";
 
 const root = ".";
 const outDir = path.join("audit", "i18n");
 const hitsFile = path.join(outDir, "hits.json");
 const csvFile = path.join(outDir, "suggested-keys.csv");
 
-const isTS = (f) => /\.(tsx?|jsx?)$/.test(f);
-const ignore = (p) =>
-  /(^|\/)(node_modules|\.git|dist|build|audit|locales|fixtures)\//.test(p);
+const reArabic = /[\u0600-\u06FF]/;
+
+const isSource = (f) => /\.(tsx?|jsx?)$/.test(f);
+const ignorePath = (p) =>
+  /(^|\/)(node_modules|\.git|dist|build|audit|locales|fixtures|coverage|\.backup|backup-console-logs)\//.test(p) ||
+  /(test|spec|mock|fixture|stories)\.[tj]sx?$/.test(p);
 const files = [];
 
 (function walk(dir) {
@@ -16,19 +21,70 @@ const files = [];
     const p = path.join(dir, f);
     const st = fs.statSync(p);
     if (st.isDirectory()) {
-      if (!ignore(p)) walk(p);
-    } else if (isTS(p) && !ignore(p)) files.push(p);
+      if (!ignorePath(p)) walk(p);
+    } else if (isSource(p) && !ignorePath(p)) files.push(p);
   }
 })(root);
 
-const reArabic = /[\u0600-\u06FF]/;
 const hits = [];
 
+function addHit(file, node, text) {
+  hits.push({ file, line: node.loc.start.line, text: text.trim().slice(0, 180) });
+}
+
+function isLogCall(path) {
+  return path.findParent(
+    (p) =>
+      p.isCallExpression() &&
+      p.get("callee").isMemberExpression() &&
+      ((p.get("callee.object").isIdentifier({ name: "console" }) &&
+        p.get("callee.property").isIdentifier({ name: "log" })) ||
+        p.get("callee.object").isIdentifier({ name: "logger" }))
+  );
+}
+
 for (const file of files) {
-  const lines = fs.readFileSync(file, "utf8").split(/\r?\n/);
-  lines.forEach((line, i) => {
-    if (reArabic.test(line))
-      hits.push({ file, line: i + 1, text: line.trim().slice(0, 180) });
+  const code = fs.readFileSync(file, "utf8");
+  let ast;
+  try {
+    ast = parse(code, {
+      sourceType: "module",
+      plugins: ["jsx", "typescript"],
+    });
+  } catch (e) {
+    // Skip files that fail to parse
+    continue;
+  }
+
+  (traverse.default || traverse)(ast, {
+    JSXText(path) {
+      const text = path.node.value.trim();
+      if (reArabic.test(text)) addHit(file, path.node, text);
+    },
+    StringLiteral(path) {
+      if (isLogCall(path)) return;
+      const parent = path.parent;
+      if (
+        parent.type === "JSXAttribute" ||
+        (parent.type === "JSXExpressionContainer" &&
+          path.parentPath.parent.type === "JSXElement")
+      ) {
+        const text = path.node.value;
+        if (reArabic.test(text)) addHit(file, path.node, text);
+      }
+    },
+    TemplateLiteral(path) {
+      if (isLogCall(path)) return;
+      const parent = path.parent;
+      if (
+        parent.type === "JSXAttribute" ||
+        (parent.type === "JSXExpressionContainer" &&
+          path.parentPath.parent.type === "JSXElement")
+      ) {
+        const text = path.node.quasis.map((q) => q.value.cooked).join("${}");
+        if (reArabic.test(text)) addHit(file, path.node, text);
+      }
+    },
   });
 }
 
