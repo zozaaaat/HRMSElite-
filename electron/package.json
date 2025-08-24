@@ -89,7 +89,7 @@
     "concurrently": "8.2.2",
     "electron": "37.2.4",
     "electron-builder": "26.0.12",
-    "rimraf": "5.0.10",
+    "rimraf": "6.0.1",
     "typescript": "5.5.x",
     "wait-on": "7.2.0"
   }
