@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 import { Router } from 'wouter';
 import React from 'react';
 import LicensesPage from '@/pages/licenses';
@@ -27,7 +28,7 @@ describe('Licenses and Documents Display', () => {
 
   describe('Licenses Page', () => {
     it('should render licenses page with all components', () => {
-      render(
+      renderWithProviders(
         <Router>
           <LicensesPage />
         </Router>
@@ -39,7 +40,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should display license cards with correct information', () => {
-      render(
+      renderWithProviders(
         <Router>
           <LicensesPage />
         </Router>
@@ -52,7 +53,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should filter licenses by company', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <LicensesPage />
         </Router>
@@ -68,7 +69,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should filter licenses by status', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <LicensesPage />
         </Router>
@@ -84,7 +85,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should search licenses by name or number', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <LicensesPage />
         </Router>
@@ -100,7 +101,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should show license details when view button is clicked', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <LicensesPage />
         </Router>
@@ -115,7 +116,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should show edit license form when edit button is clicked', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <LicensesPage />
         </Router>
@@ -130,7 +131,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should show document form when documents button is clicked', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <LicensesPage />
         </Router>
@@ -150,7 +151,7 @@ describe('Licenses and Documents Display', () => {
         toast: mockToast,
       });
 
-      render(
+      renderWithProviders(
         <Router>
           <LicensesPage />
         </Router>
@@ -171,7 +172,7 @@ describe('Licenses and Documents Display', () => {
 
   describe('Documents Page', () => {
     it('should render documents page with all components', () => {
-      render(
+      renderWithProviders(
         <Router>
           <DocumentsPage />
         </Router>
@@ -183,7 +184,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should display document cards with correct information', () => {
-      render(
+      renderWithProviders(
         <Router>
           <DocumentsPage />
         </Router>
@@ -196,7 +197,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should filter documents by type', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <DocumentsPage />
         </Router>
@@ -212,7 +213,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should filter documents by entity', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <DocumentsPage />
         </Router>
@@ -228,7 +229,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should search documents by name or description', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <DocumentsPage />
         </Router>
@@ -244,7 +245,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should show document details when view button is clicked', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <DocumentsPage />
         </Router>
@@ -259,7 +260,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should show edit document form when edit button is clicked', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <DocumentsPage />
         </Router>
@@ -278,7 +279,7 @@ describe('Licenses and Documents Display', () => {
       global.URL.createObjectURL = vi.fn(() => 'mock-url');
       global.URL.revokeObjectURL = vi.fn();
 
-      render(
+      renderWithProviders(
         <Router>
           <DocumentsPage />
         </Router>
@@ -298,7 +299,7 @@ describe('Licenses and Documents Display', () => {
         toast: mockToast,
       });
 
-      render(
+      renderWithProviders(
         <Router>
           <DocumentsPage />
         </Router>
@@ -319,7 +320,7 @@ describe('Licenses and Documents Display', () => {
 
   describe('Document Form', () => {
     it('should render document form with all fields', () => {
-      render(
+      renderWithProviders(
         <Router>
           <DocumentsPage />
         </Router>
@@ -337,7 +338,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should validate required fields', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <DocumentsPage />
         </Router>
@@ -359,7 +360,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should handle file upload', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <DocumentsPage />
         </Router>
@@ -385,7 +386,7 @@ describe('Licenses and Documents Display', () => {
         toast: mockToast,
       });
 
-      render(
+      renderWithProviders(
         <Router>
           <DocumentsPage />
         </Router>
@@ -422,7 +423,7 @@ describe('Licenses and Documents Display', () => {
 
   describe('License Form', () => {
     it('should render license form with all fields', () => {
-      render(
+      renderWithProviders(
         <Router>
           <LicensesPage />
         </Router>
@@ -441,7 +442,7 @@ describe('Licenses and Documents Display', () => {
     });
 
     it('should validate license form fields', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <LicensesPage />
         </Router>
@@ -468,7 +469,7 @@ describe('Licenses and Documents Display', () => {
         toast: mockToast,
       });
 
-      render(
+      renderWithProviders(
         <Router>
           <LicensesPage />
         </Router>

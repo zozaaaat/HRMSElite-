@@ -1,10 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter } from 'react-router-dom';
-import { I18nextProvider } from 'react-i18next';
-import i18n from '../../src/lib/i18n';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 
 // Import key pages and components
 import Login from '../../src/pages/login';
@@ -17,25 +14,7 @@ import CompanySelection from '../../src/pages/company-selection';
 expect.extend(toHaveNoViolations);
 
 // Test wrapper with all necessary providers
-const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <I18nextProvider i18n={i18n}>
-        <BrowserRouter>
-          {children}
-        </BrowserRouter>
-      </I18nextProvider>
-    </QueryClientProvider>
-  );
-};
+const TestWrapper = ({ children }: { children: React.ReactNode }) => <>{children}</>;
 
 // Mock authentication store
 vi.mock('../../src/stores/useAppStore', () => ({
@@ -56,10 +35,8 @@ vi.mock('../../src/hooks/use-toast', () => ({
 describe('Accessibility Tests', () => {
   describe('Login Page', () => {
     it('should have no critical accessibility violations', async () => {
-      const { container } = render(
-        <TestWrapper>
-          <Login />
-        </TestWrapper>
+      const { container } = renderWithProviders(
+        <Login />
       );
 
       const results = await axe(container);
@@ -67,10 +44,8 @@ describe('Accessibility Tests', () => {
     });
 
     it('should have proper form labels and ARIA attributes', () => {
-      render(
-        <TestWrapper>
-          <Login />
-        </TestWrapper>
+      renderWithProviders(
+        <Login />
       );
 
       // Check for form labels
@@ -84,10 +59,8 @@ describe('Accessibility Tests', () => {
     });
 
     it('should support keyboard navigation', () => {
-      render(
-        <TestWrapper>
-          <Login />
-        </TestWrapper>
+      renderWithProviders(
+        <Login />
       );
 
       const usernameInput = screen.getByLabelText(/username|اسم المستخدم/i);
@@ -103,10 +76,8 @@ describe('Accessibility Tests', () => {
 
   describe('Company Selection Page', () => {
     it('should have no critical accessibility violations', async () => {
-      const { container } = render(
-        <TestWrapper>
-          <CompanySelection />
-        </TestWrapper>
+      const { container } = renderWithProviders(
+        <CompanySelection />
       );
 
       const results = await axe(container);
@@ -114,10 +85,8 @@ describe('Accessibility Tests', () => {
     });
 
     it('should have proper heading structure', () => {
-      render(
-        <TestWrapper>
-          <CompanySelection />
-        </TestWrapper>
+      renderWithProviders(
+        <CompanySelection />
       );
 
       // Check for main heading
@@ -128,10 +97,8 @@ describe('Accessibility Tests', () => {
 
   describe('Dashboard Page', () => {
     it('should have no critical accessibility violations', async () => {
-      const { container } = render(
-        <TestWrapper>
-          <Dashboard />
-        </TestWrapper>
+      const { container } = renderWithProviders(
+        <Dashboard />
       );
 
       const results = await axe(container);
@@ -139,10 +106,8 @@ describe('Accessibility Tests', () => {
     });
 
     it('should have proper navigation structure', () => {
-      render(
-        <TestWrapper>
-          <Dashboard />
-        </TestWrapper>
+      renderWithProviders(
+        <Dashboard />
       );
 
       // Check for navigation landmarks
@@ -157,10 +122,8 @@ describe('Accessibility Tests', () => {
 
   describe('Employees Page', () => {
     it('should have no critical accessibility violations', async () => {
-      const { container } = render(
-        <TestWrapper>
-          <Employees />
-        </TestWrapper>
+      const { container } = renderWithProviders(
+        <Employees />
       );
 
       const results = await axe(container);
@@ -168,10 +131,8 @@ describe('Accessibility Tests', () => {
     });
 
     it('should have proper table accessibility', () => {
-      render(
-        <TestWrapper>
-          <Employees />
-        </TestWrapper>
+      renderWithProviders(
+        <Employees />
       );
 
       // Check for table with proper structure
@@ -186,10 +147,8 @@ describe('Accessibility Tests', () => {
 
   describe('Documents Page', () => {
     it('should have no critical accessibility violations', async () => {
-      const { container } = render(
-        <TestWrapper>
-          <Documents />
-        </TestWrapper>
+      const { container } = renderWithProviders(
+        <Documents />
       );
 
       const results = await axe(container);
@@ -197,10 +156,8 @@ describe('Accessibility Tests', () => {
     });
 
     it('should have proper file upload accessibility', () => {
-      render(
-        <TestWrapper>
-          <Documents />
-        </TestWrapper>
+      renderWithProviders(
+        <Documents />
       );
 
       // Check for file input with proper labeling
@@ -212,30 +169,24 @@ describe('Accessibility Tests', () => {
 
   describe('Global Accessibility', () => {
     it('should have proper page title', () => {
-      render(
-        <TestWrapper>
-          <Login />
-        </TestWrapper>
+      renderWithProviders(
+        <Login />
       );
 
       expect(document.title).toBeTruthy();
     });
 
     it('should have proper language attribute', () => {
-      render(
-        <TestWrapper>
-          <Login />
-        </TestWrapper>
+      renderWithProviders(
+        <Login />
       );
 
       expect(document.documentElement).toHaveAttribute('lang');
     });
 
     it('should have skip links for keyboard users', () => {
-      render(
-        <TestWrapper>
-          <Dashboard />
-        </TestWrapper>
+      renderWithProviders(
+        <Dashboard />
       );
 
       // Look for skip links
@@ -246,10 +197,8 @@ describe('Accessibility Tests', () => {
 
   describe('Color Contrast and Visual Accessibility', () => {
     it('should have sufficient color contrast', async () => {
-      const { container } = render(
-        <TestWrapper>
-          <Login />
-        </TestWrapper>
+      const { container } = renderWithProviders(
+        <Login />
       );
 
       const results = await axe(container, {
@@ -266,10 +215,8 @@ describe('Accessibility Tests', () => {
     });
 
     it('should have proper focus indicators', async () => {
-      const { container } = render(
-        <TestWrapper>
-          <Login />
-        </TestWrapper>
+      const { container } = renderWithProviders(
+        <Login />
       );
 
       const results = await axe(container, {
@@ -288,10 +235,8 @@ describe('Accessibility Tests', () => {
 
   describe('Screen Reader Accessibility', () => {
     it('should have proper ARIA labels and descriptions', async () => {
-      const { container } = render(
-        <TestWrapper>
-          <Login />
-        </TestWrapper>
+      const { container } = renderWithProviders(
+        <Login />
       );
 
       const results = await axe(container, {
@@ -310,10 +255,8 @@ describe('Accessibility Tests', () => {
     });
 
     it('should have proper heading hierarchy', async () => {
-      const { container } = render(
-        <TestWrapper>
-          <Dashboard />
-        </TestWrapper>
+      const { container } = renderWithProviders(
+        <Dashboard />
       );
 
       const results = await axe(container, {

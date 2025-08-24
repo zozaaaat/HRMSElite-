@@ -1,7 +1,7 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { BrowserRouter } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { Dropdown } from '@/components/ui/dropdown';
@@ -19,12 +19,6 @@ vi.mock('@/hooks/use-toast', () => ({
   })),
 }));
 
-// Test wrapper component
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <BrowserRouter>
-    {children}
-  </BrowserRouter>
-);
 
 // Mock UI components for testing
 const MockButton = ({ onClick, disabled, variant, children }: any) => (
@@ -134,10 +128,8 @@ describe('UI Components', () => {
     it('should render button with correct text', () => {
       const mockOnClick = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockButton onClick={mockOnClick}>Click Me</MockButton>
-        </TestWrapper>
+      renderWithProviders(
+        <MockButton onClick={mockOnClick}>Click Me</MockButton>
       );
 
       const button = screen.getByTestId('mock-button');
@@ -148,10 +140,8 @@ describe('UI Components', () => {
     it('should call onClick when clicked', async () => {
       const mockOnClick = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockButton onClick={mockOnClick}>Click Me</MockButton>
-        </TestWrapper>
+      renderWithProviders(
+        <MockButton onClick={mockOnClick}>Click Me</MockButton>
       );
 
       const button = screen.getByTestId('mock-button');
@@ -165,10 +155,8 @@ describe('UI Components', () => {
     it('should be disabled when disabled prop is true', () => {
       const mockOnClick = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockButton onClick={mockOnClick} disabled>Disabled Button</MockButton>
-        </TestWrapper>
+      renderWithProviders(
+        <MockButton onClick={mockOnClick} disabled>Disabled Button</MockButton>
       );
 
       const button = screen.getByTestId('mock-button');
@@ -178,10 +166,8 @@ describe('UI Components', () => {
     it('should not call onClick when disabled', async () => {
       const mockOnClick = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockButton onClick={mockOnClick} disabled>Disabled Button</MockButton>
-        </TestWrapper>
+      renderWithProviders(
+        <MockButton onClick={mockOnClick} disabled>Disabled Button</MockButton>
       );
 
       const button = screen.getByTestId('mock-button');
@@ -193,10 +179,8 @@ describe('UI Components', () => {
     });
 
     it('should apply correct variant class', () => {
-      render(
-        <TestWrapper>
-          <MockButton variant="primary">Primary Button</MockButton>
-        </TestWrapper>
+      renderWithProviders(
+        <MockButton variant="primary">Primary Button</MockButton>
       );
 
       const button = screen.getByTestId('mock-button');
@@ -206,10 +190,8 @@ describe('UI Components', () => {
     it('should support keyboard navigation', () => {
       const mockOnClick = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockButton onClick={mockOnClick}>Click Me</MockButton>
-        </TestWrapper>
+      renderWithProviders(
+        <MockButton onClick={mockOnClick}>Click Me</MockButton>
       );
 
       const button = screen.getByTestId('mock-button');
@@ -232,12 +214,10 @@ describe('UI Components', () => {
     it('should render modal when isOpen is true', () => {
       const mockOnClose = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockModal isOpen={true} onClose={mockOnClose} title="Test Modal">
+      renderWithProviders(
+        <MockModal isOpen={true} onClose={mockOnClose} title="Test Modal">
             <p>Modal content</p>
           </MockModal>
-        </TestWrapper>
       );
 
       const modal = screen.getByTestId('mock-modal');
@@ -249,12 +229,10 @@ describe('UI Components', () => {
     it('should not render modal when isOpen is false', () => {
       const mockOnClose = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockModal isOpen={false} onClose={mockOnClose} title="Test Modal">
+      renderWithProviders(
+        <MockModal isOpen={false} onClose={mockOnClose} title="Test Modal">
             <p>Modal content</p>
           </MockModal>
-        </TestWrapper>
       );
 
       const modal = screen.queryByTestId('mock-modal');
@@ -264,12 +242,10 @@ describe('UI Components', () => {
     it('should call onClose when close button is clicked', async () => {
       const mockOnClose = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockModal isOpen={true} onClose={mockOnClose} title="Test Modal">
+      renderWithProviders(
+        <MockModal isOpen={true} onClose={mockOnClose} title="Test Modal">
             <p>Modal content</p>
           </MockModal>
-        </TestWrapper>
       );
 
       const closeButton = screen.getByTestId('modal-close');
@@ -283,12 +259,10 @@ describe('UI Components', () => {
     it('should support keyboard navigation', () => {
       const mockOnClose = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockModal isOpen={true} onClose={mockOnClose} title="Test Modal">
+      renderWithProviders(
+        <MockModal isOpen={true} onClose={mockOnClose} title="Test Modal">
             <p>Modal content</p>
           </MockModal>
-        </TestWrapper>
       );
 
       const closeButton = screen.getByTestId('modal-close');
@@ -308,14 +282,12 @@ describe('UI Components', () => {
       const mockOnSelect = vi.fn();
       const options = ['Option 1', 'Option 2', 'Option 3'];
       
-      render(
-        <TestWrapper>
-          <MockDropdown
+      renderWithProviders(
+        <MockDropdown
             options={options}
             onSelect={mockOnSelect}
             placeholder="Select an option"
           />
-        </TestWrapper>
       );
 
       const dropdown = screen.getByTestId('mock-dropdown');
@@ -329,14 +301,12 @@ describe('UI Components', () => {
       const mockOnSelect = vi.fn();
       const options = ['Option 1', 'Option 2', 'Option 3'];
       
-      render(
-        <TestWrapper>
-          <MockDropdown
+      renderWithProviders(
+        <MockDropdown
             options={options}
             onSelect={mockOnSelect}
             placeholder="Select an option"
           />
-        </TestWrapper>
       );
 
       const toggle = screen.getByTestId('dropdown-toggle');
@@ -355,14 +325,12 @@ describe('UI Components', () => {
       const mockOnSelect = vi.fn();
       const options = ['Option 1', 'Option 2', 'Option 3'];
       
-      render(
-        <TestWrapper>
-          <MockDropdown
+      renderWithProviders(
+        <MockDropdown
             options={options}
             onSelect={mockOnSelect}
             placeholder="Select an option"
           />
-        </TestWrapper>
       );
 
       const toggle = screen.getByTestId('dropdown-toggle');
@@ -380,14 +348,12 @@ describe('UI Components', () => {
       const mockOnSelect = vi.fn();
       const options = ['Option 1', 'Option 2', 'Option 3'];
       
-      render(
-        <TestWrapper>
-          <MockDropdown
+      renderWithProviders(
+        <MockDropdown
             options={options}
             onSelect={mockOnSelect}
             placeholder="Select an option"
           />
-        </TestWrapper>
       );
 
       const toggle = screen.getByTestId('dropdown-toggle');
@@ -408,14 +374,12 @@ describe('UI Components', () => {
       const mockOnSelect = vi.fn();
       const options = ['Option 1', 'Option 2', 'Option 3'];
       
-      render(
-        <TestWrapper>
-          <MockDropdown
+      renderWithProviders(
+        <MockDropdown
             options={options}
             onSelect={mockOnSelect}
             placeholder="Select an option"
           />
-        </TestWrapper>
       );
 
       const toggle = screen.getByTestId('dropdown-toggle');
@@ -436,14 +400,12 @@ describe('UI Components', () => {
     it('should render input with placeholder', () => {
       const mockOnChange = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockInput
+      renderWithProviders(
+        <MockInput
             value=""
             onChange={mockOnChange}
             placeholder="Enter text"
           />
-        </TestWrapper>
       );
 
       const input = screen.getByTestId('mock-input');
@@ -454,14 +416,12 @@ describe('UI Components', () => {
     it('should call onChange when value changes', async () => {
       const mockOnChange = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockInput
+      renderWithProviders(
+        <MockInput
             value=""
             onChange={mockOnChange}
             placeholder="Enter text"
           />
-        </TestWrapper>
       );
 
       const input = screen.getByTestId('mock-input');
@@ -475,15 +435,13 @@ describe('UI Components', () => {
     it('should support different input types', () => {
       const mockOnChange = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockInput
+      renderWithProviders(
+        <MockInput
             type="email"
             value=""
             onChange={mockOnChange}
             placeholder="Enter email"
           />
-        </TestWrapper>
       );
 
       const input = screen.getByTestId('mock-input');
@@ -493,15 +451,13 @@ describe('UI Components', () => {
     it('should support required attribute', () => {
       const mockOnChange = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockInput
+      renderWithProviders(
+        <MockInput
             value=""
             onChange={mockOnChange}
             placeholder="Required field"
             required
           />
-        </TestWrapper>
       );
 
       const input = screen.getByTestId('mock-input');
@@ -511,14 +467,12 @@ describe('UI Components', () => {
     it('should support keyboard navigation', () => {
       const mockOnChange = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockInput
+      renderWithProviders(
+        <MockInput
             value=""
             onChange={mockOnChange}
             placeholder="Enter text"
           />
-        </TestWrapper>
       );
 
       const input = screen.getByTestId('mock-input');
@@ -535,10 +489,8 @@ describe('UI Components', () => {
 
   describe('Badge Component', () => {
     it('should render badge with text', () => {
-      render(
-        <TestWrapper>
-          <MockBadge variant="success">Success</MockBadge>
-        </TestWrapper>
+      renderWithProviders(
+        <MockBadge variant="success">Success</MockBadge>
       );
 
       const badge = screen.getByTestId('mock-badge');
@@ -547,10 +499,8 @@ describe('UI Components', () => {
     });
 
     it('should apply correct variant class', () => {
-      render(
-        <TestWrapper>
-          <MockBadge variant="error">Error</MockBadge>
-        </TestWrapper>
+      renderWithProviders(
+        <MockBadge variant="error">Error</MockBadge>
       );
 
       const badge = screen.getByTestId('mock-badge');
@@ -558,19 +508,15 @@ describe('UI Components', () => {
     });
 
     it('should support different variants', () => {
-      const { rerender } = render(
-        <TestWrapper>
-          <MockBadge variant="warning">Warning</MockBadge>
-        </TestWrapper>
+      const { rerender } = renderWithProviders(
+        <MockBadge variant="warning">Warning</MockBadge>
       );
 
       let badge = screen.getByTestId('mock-badge');
       expect(badge).toHaveAttribute('data-variant', 'warning');
 
       rerender(
-        <TestWrapper>
-          <MockBadge variant="info">Info</MockBadge>
-        </TestWrapper>
+        <MockBadge variant="info">Info</MockBadge>
       );
 
       badge = screen.getByTestId('mock-badge');
@@ -582,12 +528,10 @@ describe('UI Components', () => {
     it('should render card with title and content', () => {
       const mockOnClick = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockCard title="Test Card" onClick={mockOnClick}>
+      renderWithProviders(
+        <MockCard title="Test Card" onClick={mockOnClick}>
             <p>Card content</p>
           </MockCard>
-        </TestWrapper>
       );
 
       const card = screen.getByTestId('mock-card');
@@ -599,12 +543,10 @@ describe('UI Components', () => {
     it('should call onClick when clicked', async () => {
       const mockOnClick = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockCard title="Test Card" onClick={mockOnClick}>
+      renderWithProviders(
+        <MockCard title="Test Card" onClick={mockOnClick}>
             <p>Card content</p>
           </MockCard>
-        </TestWrapper>
       );
 
       const card = screen.getByTestId('mock-card');
@@ -616,12 +558,10 @@ describe('UI Components', () => {
     });
 
     it('should render card without title', () => {
-      render(
-        <TestWrapper>
-          <MockCard>
+      renderWithProviders(
+        <MockCard>
             <p>Card content without title</p>
           </MockCard>
-        </TestWrapper>
       );
 
       const card = screen.getByTestId('mock-card');
@@ -633,10 +573,8 @@ describe('UI Components', () => {
 
   describe('Alert Component', () => {
     it('should render alert with message', () => {
-      render(
-        <TestWrapper>
-          <MockAlert type="success" message="Operation completed successfully" />
-        </TestWrapper>
+      renderWithProviders(
+        <MockAlert type="success" message="Operation completed successfully" />
       );
 
       const alert = screen.getByTestId('mock-alert');
@@ -645,10 +583,8 @@ describe('UI Components', () => {
     });
 
     it('should apply correct type class', () => {
-      render(
-        <TestWrapper>
-          <MockAlert type="error" message="An error occurred" />
-        </TestWrapper>
+      renderWithProviders(
+        <MockAlert type="error" message="An error occurred" />
       );
 
       const alert = screen.getByTestId('mock-alert');
@@ -658,14 +594,12 @@ describe('UI Components', () => {
     it('should call onClose when close button is clicked', async () => {
       const mockOnClose = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockAlert
+      renderWithProviders(
+        <MockAlert
             type="warning"
             message="Warning message"
             onClose={mockOnClose}
           />
-        </TestWrapper>
       );
 
       const closeButton = screen.getByTestId('alert-close');
@@ -677,10 +611,8 @@ describe('UI Components', () => {
     });
 
     it('should not show close button when onClose is not provided', () => {
-      render(
-        <TestWrapper>
-          <MockAlert type="info" message="Info message" />
-        </TestWrapper>
+      renderWithProviders(
+        <MockAlert type="info" message="Info message" />
       );
 
       const closeButton = screen.queryByTestId('alert-close');
@@ -688,19 +620,15 @@ describe('UI Components', () => {
     });
 
     it('should support different alert types', () => {
-      const { rerender } = render(
-        <TestWrapper>
-          <MockAlert type="success" message="Success message" />
-        </TestWrapper>
+      const { rerender } = renderWithProviders(
+        <MockAlert type="success" message="Success message" />
       );
 
       let alert = screen.getByTestId('mock-alert');
       expect(alert).toHaveAttribute('data-type', 'success');
 
       rerender(
-        <TestWrapper>
-          <MockAlert type="warning" message="Warning message" />
-        </TestWrapper>
+        <MockAlert type="warning" message="Warning message" />
       );
 
       alert = screen.getByTestId('mock-alert');
@@ -713,9 +641,8 @@ describe('UI Components', () => {
       const mockOnSubmit = vi.fn();
       const mockOnClose = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockModal isOpen={true} onClose={mockOnClose} title="Add User">
+      renderWithProviders(
+        <MockModal isOpen={true} onClose={mockOnClose} title="Add User">
             <form onSubmit={(e) => { e.preventDefault(); mockOnSubmit(); }}>
               <MockInput
                 value=""
@@ -731,7 +658,6 @@ describe('UI Components', () => {
               <MockButton onClick={mockOnSubmit}>Save</MockButton>
             </form>
           </MockModal>
-        </TestWrapper>
       );
 
       const modal = screen.getByTestId('mock-modal');
@@ -752,9 +678,8 @@ describe('UI Components', () => {
       const mockOnSelect = vi.fn();
       const mockOnClick = vi.fn();
       
-      render(
-        <TestWrapper>
-          <MockCard title="User Actions" onClick={mockOnClick}>
+      renderWithProviders(
+        <MockCard title="User Actions" onClick={mockOnClick}>
             <MockDropdown
               options={['Edit', 'Delete', 'View']}
               onSelect={mockOnSelect}
@@ -763,7 +688,6 @@ describe('UI Components', () => {
             <MockBadge variant="success">Active</MockBadge>
             <MockButton onClick={mockOnClick}>Confirm</MockButton>
           </MockCard>
-        </TestWrapper>
       );
 
       const card = screen.getByTestId('mock-card');

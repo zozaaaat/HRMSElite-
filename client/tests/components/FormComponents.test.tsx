@@ -1,8 +1,7 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { BrowserRouter } from 'react-router-dom';
-import { Toaster } from '@/components/ui/toaster';
 import { useToast } from '@/hooks/use-toast';
 
 // Mock useToast hook
@@ -14,13 +13,6 @@ vi.mock('@/hooks/use-toast', () => ({
   })),
 }));
 
-// Test wrapper component
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <BrowserRouter>
-    {children}
-    <Toaster />
-  </BrowserRouter>
-);
 
 // Mock form components for testing
 const MockFormComponent = ({ onSubmit, validation }: Record<string, unknown>) => {
@@ -110,10 +102,8 @@ describe('Form Components', () => {
         return errors;
       };
 
-      render(
-        <TestWrapper>
-          <MockFormComponent onSubmit={mockOnSubmit} validation={validation} />
-        </TestWrapper>
+      renderWithProviders(
+        <MockFormComponent onSubmit={mockOnSubmit} validation={validation} />
       );
 
       const submitButton = screen.getByTestId('submit-button');
@@ -139,10 +129,8 @@ describe('Form Components', () => {
         return errors;
       };
 
-      render(
-        <TestWrapper>
-          <MockFormComponent onSubmit={mockOnSubmit} validation={validation} />
-        </TestWrapper>
+      renderWithProviders(
+        <MockFormComponent onSubmit={mockOnSubmit} validation={validation} />
       );
 
       const emailInput = screen.getByTestId('email-input');
@@ -167,10 +155,8 @@ describe('Form Components', () => {
         return errors;
       };
 
-      render(
-        <TestWrapper>
-          <MockFormComponent onSubmit={mockOnSubmit} validation={validation} />
-        </TestWrapper>
+      renderWithProviders(
+        <MockFormComponent onSubmit={mockOnSubmit} validation={validation} />
       );
 
       const phoneInput = screen.getByTestId('phone-input');
@@ -196,10 +182,8 @@ describe('Form Components', () => {
         return errors;
       };
 
-      render(
-        <TestWrapper>
-          <MockFormComponent onSubmit={mockOnSubmit} validation={validation} />
-        </TestWrapper>
+      renderWithProviders(
+        <MockFormComponent onSubmit={mockOnSubmit} validation={validation} />
       );
 
       // Fill form with valid data
@@ -231,10 +215,8 @@ describe('Form Components', () => {
         return errors;
       };
 
-      render(
-        <TestWrapper>
-          <MockFormComponent onSubmit={mockOnSubmit} validation={validation} />
-        </TestWrapper>
+      renderWithProviders(
+        <MockFormComponent onSubmit={mockOnSubmit} validation={validation} />
       );
 
       // Submit empty form to show errors
@@ -257,10 +239,8 @@ describe('Form Components', () => {
 
   describe('Form Accessibility', () => {
     it('should have proper labels and form structure', () => {
-      render(
-        <TestWrapper>
-          <MockFormComponent onSubmit={vi.fn()} />
-        </TestWrapper>
+      renderWithProviders(
+        <MockFormComponent onSubmit={vi.fn()} />
       );
 
       const form = screen.getByTestId('test-form');
@@ -278,10 +258,8 @@ describe('Form Components', () => {
     });
 
     it('should support keyboard navigation', () => {
-      render(
-        <TestWrapper>
-          <MockFormComponent onSubmit={vi.fn()} />
-        </TestWrapper>
+      renderWithProviders(
+        <MockFormComponent onSubmit={vi.fn()} />
       );
 
       const nameInput = screen.getByTestId('name-input');
@@ -311,10 +289,8 @@ describe('Form Components', () => {
         return errors;
       };
 
-      render(
-        <TestWrapper>
-          <MockFormComponent onSubmit={mockOnSubmit} validation={validation} />
-        </TestWrapper>
+      renderWithProviders(
+        <MockFormComponent onSubmit={mockOnSubmit} validation={validation} />
       );
 
       const nameInput = screen.getByTestId('name-input');
@@ -338,10 +314,8 @@ describe('Form Components', () => {
       const mockValidation = vi.fn(() => ({}));
       const mockOnSubmit = vi.fn();
 
-      render(
-        <TestWrapper>
-          <MockFormComponent onSubmit={mockOnSubmit} validation={mockValidation} />
-        </TestWrapper>
+      renderWithProviders(
+        <MockFormComponent onSubmit={mockOnSubmit} validation={mockValidation} />
       );
 
       const nameInput = screen.getByTestId('name-input');

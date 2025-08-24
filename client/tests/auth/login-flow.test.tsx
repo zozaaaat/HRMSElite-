@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 import { Router } from 'wouter';
 import Login from '@/pages/login';
 import { useAppStore } from '@/stores/useAppStore';
@@ -29,7 +30,7 @@ describe('Login Flow', () => {
 
   describe('Login Form Rendering', () => {
     it('should render login form with all required fields', () => {
-      render(
+      renderWithProviders(
         <Router>
           <Login />
         </Router>
@@ -41,7 +42,7 @@ describe('Login Flow', () => {
     });
 
     it('should show loading state when form is submitted', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <Login />
         </Router>
@@ -68,7 +69,7 @@ describe('Login Flow', () => {
         login: mockLogin,
       });
 
-      render(
+      renderWithProviders(
         <Router>
           <Login />
         </Router>
@@ -109,7 +110,7 @@ describe('Login Flow', () => {
         writable: true,
       });
 
-      render(
+      renderWithProviders(
         <Router>
           <Login />
         </Router>
@@ -137,7 +138,7 @@ describe('Login Flow', () => {
     });
 
     it('should handle login with empty credentials', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <Login />
         </Router>
@@ -152,7 +153,7 @@ describe('Login Flow', () => {
     });
 
     it('should handle login with invalid credentials', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <Login />
         </Router>
@@ -185,7 +186,7 @@ describe('Login Flow', () => {
         login: mockLogin,
       });
 
-      render(
+      renderWithProviders(
         <Router>
           <Login />
         </Router>
@@ -211,7 +212,7 @@ describe('Login Flow', () => {
 
   describe('Form Validation', () => {
     it('should validate required fields', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <Login />
         </Router>
@@ -227,7 +228,7 @@ describe('Login Flow', () => {
     });
 
     it('should clear error messages when user starts typing', async () => {
-      render(
+      renderWithProviders(
         <Router>
           <Login />
         </Router>

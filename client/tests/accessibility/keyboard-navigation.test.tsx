@@ -1,11 +1,8 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter } from 'react-router-dom';
-import { I18nextProvider } from 'react-i18next';
-import i18n from '../../src/lib/i18n';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 import { AccessibilityProvider } from '../../src/components/shared/AccessibilityProvider';
 
 // Import components to test
@@ -13,28 +10,6 @@ import Login from '../../src/pages/login';
 import { AccessibleButton } from '../../src/components/ui/accessible-button';
 import { AccessibleInput } from '../../src/components/ui/accessible-form';
 
-// Test wrapper with all necessary providers
-const TestWrapper = ({ children }: { children: React.ReactNode }) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-
-  return (
-    <QueryClientProvider client={queryClient}>
-      <I18nextProvider i18n={i18n}>
-        <BrowserRouter>
-          <AccessibilityProvider>
-            {children}
-          </AccessibilityProvider>
-        </BrowserRouter>
-      </I18nextProvider>
-    </QueryClientProvider>
-  );
-};
 
 // Mock authentication store
 vi.mock('../../src/stores/useAppStore', () => ({
@@ -56,10 +31,10 @@ describe('Keyboard Navigation Tests', () => {
   describe('Tab Navigation', () => {
     it('should have logical tab order in login form', async () => {
       const user = userEvent.setup();
-      render(
-        <TestWrapper>
+      renderWithProviders(
+        <AccessibilityProvider>
           <Login />
-        </TestWrapper>
+        </AccessibilityProvider>
       );
 
       const usernameInput = screen.getByLabelText(/username|اسم المستخدم/i);
@@ -85,10 +60,10 @@ describe('Keyboard Navigation Tests', () => {
 
     it('should support Shift+Tab for reverse navigation', async () => {
       const user = userEvent.setup();
-      render(
-        <TestWrapper>
+      renderWithProviders(
+        <AccessibilityProvider>
           <Login />
-        </TestWrapper>
+        </AccessibilityProvider>
       );
 
       const usernameInput = screen.getByLabelText(/username|اسم المستخدم/i);
@@ -113,12 +88,12 @@ describe('Keyboard Navigation Tests', () => {
       const user = userEvent.setup();
       const handleClick = vi.fn();
 
-      render(
-        <TestWrapper>
+      renderWithProviders(
+        <AccessibilityProvider>
           <AccessibleButton onClick={handleClick}>
             Test Button
           </AccessibleButton>
-        </TestWrapper>
+        </AccessibilityProvider>
       );
 
       const button = screen.getByRole('button', { name: /test button/i });
@@ -133,12 +108,12 @@ describe('Keyboard Navigation Tests', () => {
       const user = userEvent.setup();
       const handleClick = vi.fn();
 
-      render(
-        <TestWrapper>
+      renderWithProviders(
+        <AccessibilityProvider>
           <AccessibleButton onClick={handleClick}>
             Test Button
           </AccessibleButton>
-        </TestWrapper>
+        </AccessibilityProvider>
       );
 
       const button = screen.getByRole('button', { name: /test button/i });
@@ -153,12 +128,12 @@ describe('Keyboard Navigation Tests', () => {
       const user = userEvent.setup();
       const handleClick = vi.fn();
 
-      render(
-        <TestWrapper>
+      renderWithProviders(
+        <AccessibilityProvider>
           <AccessibleButton onClick={handleClick} disabled>
             Disabled Button
           </AccessibleButton>
-        </TestWrapper>
+        </AccessibilityProvider>
       );
 
       const button = screen.getByRole('button', { name: /disabled button/i });
@@ -179,8 +154,8 @@ describe('Keyboard Navigation Tests', () => {
       const user = userEvent.setup();
       const handleChange = vi.fn();
 
-      render(
-        <TestWrapper>
+      renderWithProviders(
+        <AccessibilityProvider>
           <fieldset>
             <legend>Test Options</legend>
             <label>
@@ -211,7 +186,7 @@ describe('Keyboard Navigation Tests', () => {
               Option 3
             </label>
           </fieldset>
-        </TestWrapper>
+        </AccessibilityProvider>
       );
 
       const radio1 = screen.getByLabelText('Option 1');
@@ -243,8 +218,8 @@ describe('Keyboard Navigation Tests', () => {
       const user = userEvent.setup();
       const handleClose = vi.fn();
 
-      render(
-        <TestWrapper>
+      renderWithProviders(
+        <AccessibilityProvider>
           <div
             role="dialog"
             aria-modal="true"
@@ -258,7 +233,7 @@ describe('Keyboard Navigation Tests', () => {
             <p>Modal content</p>
             <button onClick={handleClose}>Close</button>
           </div>
-        </TestWrapper>
+        </AccessibilityProvider>
       );
 
       const modal = screen.getByRole('dialog');
@@ -274,8 +249,8 @@ describe('Keyboard Navigation Tests', () => {
     it('should focus main content when skip link is activated', async () => {
       const user = userEvent.setup();
 
-      render(
-        <TestWrapper>
+      renderWithProviders(
+        <AccessibilityProvider>
           <div>
             <a href="#main-content" className="skip-link">
               Skip to main content
@@ -285,7 +260,7 @@ describe('Keyboard Navigation Tests', () => {
               <p>This is the main content area.</p>
             </main>
           </div>
-        </TestWrapper>
+        </AccessibilityProvider>
       );
 
       const skipLink = screen.getByRole('link', { name: /skip to main content/i });
@@ -338,10 +313,10 @@ describe('Keyboard Navigation Tests', () => {
         );
       };
 
-      render(
-        <TestWrapper>
+      renderWithProviders(
+        <AccessibilityProvider>
           <TestComponent />
-        </TestWrapper>
+        </AccessibilityProvider>
       );
 
       const openButton = screen.getByRole('button', { name: /open modal/i });
@@ -360,8 +335,8 @@ describe('Keyboard Navigation Tests', () => {
     it('should trap focus within modal', async () => {
       const user = userEvent.setup();
 
-      render(
-        <TestWrapper>
+      renderWithProviders(
+        <AccessibilityProvider>
           <div>
             <button>Before Modal</button>
             <div role="dialog" aria-modal="true">
@@ -372,7 +347,7 @@ describe('Keyboard Navigation Tests', () => {
             </div>
             <button>After Modal</button>
           </div>
-        </TestWrapper>
+        </AccessibilityProvider>
       );
 
       const firstButton = screen.getByRole('button', { name: /first button/i });
@@ -403,8 +378,8 @@ describe('Keyboard Navigation Tests', () => {
     it('should navigate form fields with proper labels', async () => {
       const user = userEvent.setup();
 
-      render(
-        <TestWrapper>
+      renderWithProviders(
+        <AccessibilityProvider>
           <form>
             <AccessibleInput
               label="First Name"
@@ -426,7 +401,7 @@ describe('Keyboard Navigation Tests', () => {
               Submit
             </AccessibleButton>
           </form>
-        </TestWrapper>
+        </AccessibilityProvider>
       );
 
       const firstNameInput = screen.getByLabelText(/first name/i);
@@ -451,15 +426,15 @@ describe('Keyboard Navigation Tests', () => {
     it('should announce form errors to screen readers', async () => {
       const user = userEvent.setup();
 
-      render(
-        <TestWrapper>
+      renderWithProviders(
+        <AccessibilityProvider>
           <AccessibleInput
             label="Email"
             type="email"
             error="Please enter a valid email address"
             required
           />
-        </TestWrapper>
+        </AccessibilityProvider>
       );
 
       const emailInput = screen.getByLabelText(/email/i);

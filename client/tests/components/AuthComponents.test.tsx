@@ -1,6 +1,6 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { BrowserRouter } from 'react-router-dom';
 import { useAuth } from '../../src/hooks/useAuth';
 
 // Mock useAuth hook
@@ -61,13 +61,6 @@ const MockPermissionGuard = ({ permission, children }: { permission: string; chi
   return <div data-testid="permission-granted">{children}</div>;
 };
 
-const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
-};
 
 describe('Auth Components', () => {
   beforeEach(() => {
@@ -110,7 +103,7 @@ describe('Auth Components', () => {
         initializeFromSession: vi.fn()
       });
 
-      renderWithRouter(<MockLoginForm />);
+      renderWithProviders(<MockLoginForm />);
 
       expect(screen.getByTestId('login-form')).toBeInTheDocument();
       expect(screen.getByTestId('username-input')).toBeInTheDocument();
@@ -155,7 +148,7 @@ describe('Auth Components', () => {
         initializeFromSession: vi.fn()
       });
 
-      renderWithRouter(<MockLoginForm />);
+      renderWithProviders(<MockLoginForm />);
 
       const usernameInput = screen.getByTestId('username-input');
       const passwordInput = screen.getByTestId('password-input');
@@ -208,7 +201,7 @@ describe('Auth Components', () => {
         initializeFromSession: vi.fn()
       });
 
-      renderWithRouter(<MockLoginForm />);
+      renderWithProviders(<MockLoginForm />);
 
       expect(screen.getByText('جاري تسجيل الدخول...')).toBeInTheDocument();
       expect(screen.getByTestId('login-button')).toBeDisabled();
@@ -249,7 +242,7 @@ describe('Auth Components', () => {
         initializeFromSession: vi.fn()
       });
 
-      renderWithRouter(<MockLoginForm />);
+      renderWithProviders(<MockLoginForm />);
 
       expect(screen.getByTestId('error-message')).toBeInTheDocument();
       expect(screen.getByText('خطأ في تسجيل الدخول')).toBeInTheDocument();
@@ -306,7 +299,7 @@ describe('Auth Components', () => {
         initializeFromSession: vi.fn()
       });
 
-      renderWithRouter(<MockUserProfile />);
+      renderWithProviders(<MockUserProfile />);
 
       expect(screen.getByTestId('user-profile')).toBeInTheDocument();
       expect(screen.getByText('محمد أحمد')).toBeInTheDocument();
@@ -349,7 +342,7 @@ describe('Auth Components', () => {
         initializeFromSession: vi.fn()
       });
 
-      renderWithRouter(<MockUserProfile />);
+      renderWithProviders(<MockUserProfile />);
 
       expect(screen.getByTestId('no-user')).toBeInTheDocument();
       expect(screen.getByText('لا يوجد مستخدم')).toBeInTheDocument();
@@ -405,7 +398,7 @@ describe('Auth Components', () => {
         initializeFromSession: vi.fn()
       });
 
-      renderWithRouter(<MockUserProfile />);
+      renderWithProviders(<MockUserProfile />);
 
       const updateButton = screen.getByTestId('update-button');
       fireEvent.click(updateButton);
@@ -453,7 +446,7 @@ describe('Auth Components', () => {
         initializeFromSession: vi.fn()
       });
 
-      renderWithRouter(
+      renderWithProviders(
         <MockPermissionGuard permission="read">
           <div data-testid="protected-content">محتوى محمي</div>
         </MockPermissionGuard>
@@ -500,7 +493,7 @@ describe('Auth Components', () => {
         initializeFromSession: vi.fn()
       });
 
-      renderWithRouter(
+      renderWithProviders(
         <MockPermissionGuard permission="admin">
           <div data-testid="protected-content">محتوى محمي</div>
         </MockPermissionGuard>
@@ -563,7 +556,7 @@ describe('Auth Components', () => {
         initializeFromSession: vi.fn()
       });
 
-      renderWithRouter(<MockUserProfile />);
+      renderWithProviders(<MockUserProfile />);
 
       expect(screen.getByTestId('user-profile')).toBeInTheDocument();
       expect(screen.getByText('محمد أحمد')).toBeInTheDocument();
@@ -604,7 +597,7 @@ describe('Auth Components', () => {
         initializeFromSession: vi.fn()
       });
 
-      renderWithRouter(<MockUserProfile />);
+      renderWithProviders(<MockUserProfile />);
 
       expect(screen.getByTestId('no-user')).toBeInTheDocument();
     });

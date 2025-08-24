@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 import { CompanyCard } from '../src/components/company-card';
 import { mockCompanyWithStats } from './mock-data';
 
@@ -13,32 +14,32 @@ describe('CompanyCard', () => {
   const mockCompany = mockCompanyWithStats;
 
   it('يجب أن يعرض اسم الشركة بشكل صحيح', () => {
-    render(<CompanyCard company={mockCompany} />);
+    renderWithProviders(<CompanyCard company={mockCompany} />);
     
     // التحقق من أن اسم الشركة يظهر في العنصر
     expect(screen.getByText('شركة النيل الأزرق للمجوهرات')).toBeInTheDocument();
   });
 
   it('يجب أن يعرض تصنيف الشركة', () => {
-    render(<CompanyCard company={mockCompany} />);
+    renderWithProviders(<CompanyCard company={mockCompany} />);
     
     expect(screen.getByText('تجارة عامة')).toBeInTheDocument();
   });
 
   it('يجب أن يعرض عدد العمال', () => {
-    render(<CompanyCard company={mockCompany} />);
+    renderWithProviders(<CompanyCard company={mockCompany} />);
     
     expect(screen.getByText('25')).toBeInTheDocument();
   });
 
   it('يجب أن يعرض عدد التراخيص', () => {
-    render(<CompanyCard company={mockCompany} />);
+    renderWithProviders(<CompanyCard company={mockCompany} />);
     
     expect(screen.getByText('3')).toBeInTheDocument();
   });
 
   it('يجب أن يعرض حالة الملف التجاري', () => {
-    render(<CompanyCard company={mockCompany} />);
+    renderWithProviders(<CompanyCard company={mockCompany} />);
     
     // التحقق من وجود شارة "ساري" عندما تكون الحالة true
     expect(screen.getByText('ساري')).toBeInTheDocument();
@@ -50,20 +51,20 @@ describe('CompanyCard', () => {
       commercialFileStatus: false,
     };
     
-    render(<CompanyCard company={companyWithExpiredStatus} />);
+    renderWithProviders(<CompanyCard company={companyWithExpiredStatus} />);
     
     expect(screen.getByText('قريب الانتهاء')).toBeInTheDocument();
   });
 
   it('يجب أن يعرض الحروف الأولى من اسم الشركة في الشعار', () => {
-    render(<CompanyCard company={mockCompany} />);
+    renderWithProviders(<CompanyCard company={mockCompany} />);
     
     // الحروف الأولى من "شركة النيل الأزرق للمجوهرات" هي "ش ا"
     expect(screen.getByText('ش ا')).toBeInTheDocument();
   });
 
   it('يجب أن يعرض زر "دخول إلى النظام"', () => {
-    render(<CompanyCard company={mockCompany} />);
+    renderWithProviders(<CompanyCard company={mockCompany} />);
     
     expect(screen.getByText('دخول إلى النظام')).toBeInTheDocument();
   });

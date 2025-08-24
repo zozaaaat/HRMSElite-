@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithProviders } from '@/test-utils/renderWithProviders';
 import EmployeeList from '@/components/EmployeeList';
 
 // Mock data for testing
@@ -73,7 +74,7 @@ vi.mock('@/components/EmployeeList', () => ({
 
 describe('EmployeeList', () => {
   it('should render all employees', () => {
-    render(
+    renderWithProviders(
       <EmployeeList 
         employees={mockEmployees} 
         companies={mockCompanies}
@@ -85,7 +86,7 @@ describe('EmployeeList', () => {
   });
 
   it('should render employee list container', () => {
-    render(
+    renderWithProviders(
       <EmployeeList 
         employees={mockEmployees} 
         companies={mockCompanies}
@@ -96,7 +97,7 @@ describe('EmployeeList', () => {
   });
 
   it('should render individual employee items', () => {
-    render(
+    renderWithProviders(
       <EmployeeList 
         employees={mockEmployees} 
         companies={mockCompanies}
@@ -108,7 +109,7 @@ describe('EmployeeList', () => {
   });
 
   it('should display employee names correctly', () => {
-    render(
+    renderWithProviders(
       <EmployeeList 
         employees={mockEmployees} 
         companies={mockCompanies}
@@ -120,7 +121,7 @@ describe('EmployeeList', () => {
   });
 
   it('should render edit buttons for each employee', () => {
-    render(
+    renderWithProviders(
       <EmployeeList 
         employees={mockEmployees} 
         companies={mockCompanies}
@@ -132,7 +133,7 @@ describe('EmployeeList', () => {
   });
 
   it('should render delete buttons for each employee', () => {
-    render(
+    renderWithProviders(
       <EmployeeList 
         employees={mockEmployees} 
         companies={mockCompanies}
@@ -146,7 +147,7 @@ describe('EmployeeList', () => {
   it('should call onEdit when edit button is clicked', () => {
     const mockOnEdit = vi.fn();
     
-    render(
+    renderWithProviders(
       <EmployeeList 
         employees={mockEmployees} 
         companies={mockCompanies}
@@ -161,7 +162,7 @@ describe('EmployeeList', () => {
   it('should call onDelete when delete button is clicked', () => {
     const mockOnDelete = vi.fn();
     
-    render(
+    renderWithProviders(
       <EmployeeList 
         employees={mockEmployees} 
         companies={mockCompanies}
@@ -174,7 +175,7 @@ describe('EmployeeList', () => {
   });
 
   it('should handle empty employees list', () => {
-    render(
+    renderWithProviders(
       <EmployeeList 
         employees={[]} 
         companies={mockCompanies}
@@ -186,7 +187,7 @@ describe('EmployeeList', () => {
   });
 
   it('should render correct number of employees', () => {
-    render(
+    renderWithProviders(
       <EmployeeList 
         employees={mockEmployees} 
         companies={mockCompanies}
