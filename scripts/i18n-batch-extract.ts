@@ -78,18 +78,44 @@ for (const file of sourceFiles) {
   const rel = path.relative(path.join(__dirname, '../client/src'), file.getFilePath()).replace(/\\/g, '/');
   const fileBase = path.basename(file.getFilePath(), '.tsx').toLowerCase();
   let counter = fileCounters.get(fileBase) || 1;
-  const literals = file.getDescendantsOfKind(SyntaxKind.StringLiteral);
   let modified = false;
+
+  const jsxTexts = file.getDescendantsOfKind(SyntaxKind.JsxText);
+  for (const jt of jsxTexts) {
+    if (processed >= LIMIT) break;
+    const text = jt.getText().trim();
+    if (!/[\u0600-\u06FF]/.test(text)) continue;
+    if (!ensureT(file, jt)) continue;
+    const key = `auto.${fileBase}.${counter}`;
+    jt.replaceWithText(`{t('${key}')}`);
+    setNested(ar, ['auto', fileBase, String(counter)], text);
+    setNested(en, ['auto', fileBase, String(counter)], 'TODO(translate)');
+    records.push({ file: rel, original: text });
+    counter++;
+    processed++;
+    modified = true;
+  }
+
+  function isInJsx(node: Node) {
+    if (node.getFirstAncestorByKind(SyntaxKind.JsxAttribute)) return true;
+    const expr = node.getFirstAncestorByKind(SyntaxKind.JsxExpression);
+    if (!expr) return false;
+    const parent = expr.getParent();
+    return Node.isJsxElement(parent) || Node.isJsxFragment(parent);
+  }
+
+  const literals = file.getDescendants().filter(n =>
+    (Node.isStringLiteral(n) || Node.isNoSubstitutionTemplateLiteral(n)) && isInJsx(n)
+  ) as Array<Node & { getLiteralText(): string }>;
 
   for (const lit of literals) {
     if (processed >= LIMIT) break;
-    const text = lit.getLiteralText();
+    if (lit.wasForgotten?.()) continue;
+    const text = ((lit as any).getLiteralText?.() ?? lit.getText()).trim();
     if (!/[\u0600-\u06FF]/.test(text)) continue;
-    const func = lit.getFirstAncestor(f => Node.isFunctionDeclaration(f) || Node.isArrowFunction(f) || Node.isFunctionExpression(f));
-    if (!func) continue;
-    const key = `auto.${fileBase}.${counter}`;
     if (!ensureT(file, lit)) continue;
-    const attr = lit.getParentIfKind(SyntaxKind.JsxAttribute);
+    const key = `auto.${fileBase}.${counter}`;
+    const attr = lit.getFirstAncestorByKind(SyntaxKind.JsxAttribute);
     if (attr) {
       attr.setInitializer(`{t('${key}')}`);
     } else {
