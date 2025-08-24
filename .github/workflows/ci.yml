@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: '20.19.4'
+  NODE_VERSION: '20.12.2'
   PNPM_VERSION: '8'
 
 jobs:
@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        node-version: [20.19.4]
+        node-version: [20.12.2]
         os: [ubuntu-22.04, windows-2022]
     timeout-minutes: 15
     

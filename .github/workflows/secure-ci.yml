@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: '20.19.4'
-  NPM_VERSION: '10'
+  NODE_VERSION: '20.12.2'
+  NPM_VERSION: '10.5.0'
 
 jobs:
   # 🔍 Lint & Type Check
@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        node-version: [20.19.4]
+        node-version: [20.12.2]
         os: [ubuntu-22.04, windows-2022]
     timeout-minutes: 20
     
