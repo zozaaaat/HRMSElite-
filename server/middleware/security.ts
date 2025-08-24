@@ -25,12 +25,12 @@ const SECURITY_CONFIG = {
       message: {
         error: 'تم تجاوز حد الطلبات',
         message: 'يرجى المحاولة مرة أخرى بعد فترة',
-        retryAfter: '15 دقيقة'
+        retryAfter: '15 دقيقة',
       },
       standardHeaders: true,
       legacyHeaders: false,
       skipSuccessfulRequests: false,
-      skipFailedRequests: false
+      skipFailedRequests: false,
     },
 
     // Login rate limiting (stricter)
@@ -41,12 +41,12 @@ const SECURITY_CONFIG = {
       message: {
         error: 'تم تجاوز حد محاولات تسجيل الدخول',
         message: 'يرجى المحاولة مرة أخرى بعد 15 دقيقة',
-        retryAfter: '15 دقيقة'
+        retryAfter: '15 دقيقة',
       },
       standardHeaders: true,
       legacyHeaders: false,
       skipSuccessfulRequests: true,
-      skipFailedRequests: false
+      skipFailedRequests: false,
     },
 
     // Document upload rate limiting
@@ -57,12 +57,12 @@ const SECURITY_CONFIG = {
       message: {
         error: 'تم تجاوز حد رفع الملفات',
         message: 'يرجى المحاولة مرة أخرى بعد 5 دقائق',
-        retryAfter: '5 دقائق'
+        retryAfter: '5 دقائق',
       },
       standardHeaders: true,
       legacyHeaders: false,
       skipSuccessfulRequests: false,
-      skipFailedRequests: false
+      skipFailedRequests: false,
     },
 
     // Search rate limiting
@@ -73,13 +73,13 @@ const SECURITY_CONFIG = {
       message: {
         error: 'تم تجاوز حد عمليات البحث',
         message: 'يرجى المحاولة مرة أخرى بعد دقيقة',
-        retryAfter: '1 دقيقة'
+        retryAfter: '1 دقيقة',
       },
       standardHeaders: true,
       legacyHeaders: false,
       skipSuccessfulRequests: false,
-      skipFailedRequests: false
-    }
+      skipFailedRequests: false,
+    },
   },
 
   // Security Headers Configuration
@@ -89,20 +89,20 @@ const SECURITY_CONFIG = {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'"], // Will be dynamically updated with nonce
         styleSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"],
+        imgSrc: ["'self'", 'data:', 'https:'],
         connectSrc: ["'self'"],
         frameSrc: ["'none'"],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
-        upgradeInsecureRequests: []
-      }
+        upgradeInsecureRequests: [],
+      },
     },
     hsts: {
       maxAge: 31536000, // 1 year
       includeSubDomains: true,
-      preload: true
-    }
-  }
+      preload: true,
+    },
+  },
 };
 
 /**
@@ -110,7 +110,7 @@ const SECURITY_CONFIG = {
  */
 export const createEnhancedRateLimiter = (type: keyof typeof SECURITY_CONFIG.rateLimit) => {
   const config = SECURITY_CONFIG.rateLimit[type];
-  
+
   // Create IP-based rate limiter
   const ipLimiter = rateLimit({
     windowMs: config.windowMs,
@@ -129,12 +129,12 @@ export const createEnhancedRateLimiter = (type: keyof typeof SECURITY_CONFIG.rat
         method: req.method,
         userAgent: req.get('User-Agent'),
         userId: req.user?.id,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
       req.log?.warn(`IP rate limit exceeded for ${type}`, logData);
       req.metrics?.increment('security_alerts_total', {
         type: `${type}_rate_limit`,
-        limitType: 'ip'
+        limitType: 'ip',
       });
       log.warn(`IP rate limit exceeded for ${type}`, logData, 'SECURITY');
 
@@ -144,9 +144,9 @@ export const createEnhancedRateLimiter = (type: keyof typeof SECURITY_CONFIG.rat
         retryAfter: config.message.retryAfter,
         code: `RATE_LIMIT_IP_${type.toUpperCase()}`,
         limitType: 'IP',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
-    }
+    },
   });
 
   // Create user-based rate limiter (only for authenticated users)
@@ -171,12 +171,12 @@ export const createEnhancedRateLimiter = (type: keyof typeof SECURITY_CONFIG.rat
         method: req.method,
         userAgent: req.get('User-Agent'),
         userId: req.user?.id,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
       req.log?.warn(`User rate limit exceeded for ${type}`, logData);
       req.metrics?.increment('security_alerts_total', {
         type: `${type}_rate_limit`,
-        limitType: 'user'
+        limitType: 'user',
       });
       log.warn(`User rate limit exceeded for ${type}`, logData, 'SECURITY');
 
@@ -186,9 +186,9 @@ export const createEnhancedRateLimiter = (type: keyof typeof SECURITY_CONFIG.rat
         retryAfter: config.message.retryAfter,
         code: `RATE_LIMIT_USER_${type.toUpperCase()}`,
         limitType: 'USER',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
-    }
+    },
   });
 
   // Return middleware that applies both limiters
@@ -196,7 +196,7 @@ export const createEnhancedRateLimiter = (type: keyof typeof SECURITY_CONFIG.rat
     // Apply IP-based rate limiting first
     ipLimiter(req, res, (err) => {
       if (err) return next(err);
-      
+
       // Then apply user-based rate limiting
       userLimiter(req, res, next);
     });
@@ -208,7 +208,7 @@ export const createEnhancedRateLimiter = (type: keyof typeof SECURITY_CONFIG.rat
  */
 export const createRateLimiter = (type: keyof typeof SECURITY_CONFIG.rateLimit) => {
   const config = SECURITY_CONFIG.rateLimit[type];
-  
+
   return rateLimit({
     windowMs: config.windowMs,
     max: config.max,
@@ -218,27 +218,33 @@ export const createRateLimiter = (type: keyof typeof SECURITY_CONFIG.rateLimit) 
     skipSuccessfulRequests: config.skipSuccessfulRequests,
     skipFailedRequests: config.skipFailedRequests,
     handler: (req: Request, res: Response) => {
-      log.warn(`Rate limit exceeded for ${type}`, {
-        ip: req.ip,
-        url: req.url,
-        method: req.method,
-        userAgent: req.get('User-Agent'),
-        userId: req.user?.id,
-        timestamp: new Date().toISOString()
-      }, 'SECURITY');
+      log.warn(
+        `Rate limit exceeded for ${type}`,
+        {
+          ip: req.ip,
+          url: req.url,
+          method: req.method,
+          userAgent: req.get('User-Agent'),
+          userId: req.user?.id,
+          timestamp: new Date().toISOString(),
+        },
+        'SECURITY',
+      );
 
       res.status(429).json({
         error: config.message.error,
         message: config.message.message,
         retryAfter: config.message.retryAfter,
         code: `RATE_LIMIT_${type.toUpperCase()}`,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     },
     keyGenerator: (req: Request) => {
       // Use user ID if authenticated, otherwise use IP
-      return req.user?.id ? `user:${req.user.id}` : `ip:${req.ip || req.connection.remoteAddress || 'unknown'}`;
-    }
+      return req.user?.id
+        ? `user:${req.user.id}`
+        : `ip:${req.ip || req.connection.remoteAddress || 'unknown'}`;
+    },
   });
 };
 
@@ -246,7 +252,7 @@ export const createRateLimiter = (type: keyof typeof SECURITY_CONFIG.rateLimit) 
  * Generate CSP nonce for scripts
  */
 function generateNonce(): string {
-  return crypto.randomBytes(16).toString('base64');
+  return crypto.randomBytes(16).toString('base64url');
 }
 
 /**
@@ -255,47 +261,32 @@ function generateNonce(): string {
 export const securityHeaders = (req: Request, res: Response, next: NextFunction) => {
   // Generate unique nonce for this request
   const nonce = generateNonce();
-  
+
   // Store nonce in request and response locals for use in templates
   (req as any).cspNonce = nonce;
   res.locals.cspNonce = nonce;
-  
-  // Dynamic CSP configuration with nonce - strict policy without unsafe directives
-  const cspDirectives = {
-    defaultSrc: ["'self'"],
-    scriptSrc: [
-      "'self'",
-      `'nonce-${nonce}'`
-    ],
-    styleSrc: [
-      "'self'"
-    ],
-    imgSrc: [
-      "'self'",
-      "data:",
-      "https:"
-    ],
-    connectSrc: [
-      "'self'"
-    ],
-    frameSrc: [
-      "'none'"
-    ],
-    objectSrc: [
-      "'none'"
-    ],
-    baseUri: [
-      "'self'"
-    ]
-  };
+  // Also expose as res.locals.nonce for SSR templates
+  res.locals.nonce = nonce;
 
-  // Apply helmet with dynamic CSP
+  // Build CSP header string manually to allow base64url nonce
+  const cspHeader = [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}'`,
+    "style-src 'self'",
+    "img-src 'self' data: https:",
+    "connect-src 'self'",
+    "frame-src 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+  ].join('; ');
+
+  res.setHeader('Content-Security-Policy', cspHeader);
+
+  // Apply helmet for additional security headers (CSP disabled to use custom header)
   const isProd = process.env.NODE_ENV === 'production';
 
   helmet({
-    contentSecurityPolicy: {
-      directives: cspDirectives
-    },
+    contentSecurityPolicy: false,
     hsts: SECURITY_CONFIG.headers.hsts,
     noSniff: true,
     frameguard: { action: 'deny' },
@@ -303,7 +294,7 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
     crossOriginEmbedderPolicy: isProd ? { policy: 'require-corp' } : false,
     crossOriginOpenerPolicy: isProd ? { policy: 'same-origin' } : false,
-    crossOriginResourcePolicy: { policy: isProd ? 'same-origin' : 'cross-origin' }
+    crossOriginResourcePolicy: { policy: isProd ? 'same-origin' : 'cross-origin' },
   })(req, res, next);
 };
 
@@ -313,21 +304,22 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
 export const additionalSecurityHeaders = (req: Request, res: Response, next: NextFunction) => {
   // X-Content-Type-Options
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  
+
   // X-Frame-Options
   res.setHeader('X-Frame-Options', 'DENY');
-  
+
   // X-XSS-Protection
   res.setHeader('X-XSS-Protection', '1; mode=block');
-  
+
   // Permissions-Policy
-  res.setHeader('Permissions-Policy', 
-    'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=()'
+  res.setHeader(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=()',
   );
-  
+
   // Referrer-Policy
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
+
   // Clear-Site-Data (for logout)
   if (req.path === '/api/auth/logout') {
     res.setHeader('Clear-Site-Data', '"cache", "cookies", "storage"');
@@ -348,7 +340,7 @@ export const requestValidation = (req: Request, res: Response, next: NextFunctio
         error: 'نوع المحتوى غير صالح',
         message: 'يجب أن يكون المحتوى من نوع JSON',
         code: 'INVALID_CONTENT_TYPE',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
   }
@@ -356,13 +348,13 @@ export const requestValidation = (req: Request, res: Response, next: NextFunctio
   // Validate request size
   const contentLength = parseInt(req.get('Content-Length') || '0');
   const maxSize = 10 * 1024 * 1024; // 10MB
-  
+
   if (contentLength > maxSize) {
     return res.status(413).json({
       error: 'حجم الطلب كبير جداً',
       message: 'الحد الأقصى لحجم الطلب هو 10 ميجابايت',
       code: 'REQUEST_TOO_LARGE',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -380,20 +372,24 @@ export const requestValidation = (req: Request, res: Response, next: NextFunctio
 export const ipWhitelist = (allowedIPs: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const clientIP = req.ip || req.connection.remoteAddress || '';
-    
+
     if (!allowedIPs.includes(clientIP) && !allowedIPs.includes('*')) {
-      log.warn('Access denied from IP', {
-        ip: clientIP,
-        url: req.url,
-        method: req.method,
-        timestamp: new Date().toISOString()
-      }, 'SECURITY');
+      log.warn(
+        'Access denied from IP',
+        {
+          ip: clientIP,
+          url: req.url,
+          method: req.method,
+          timestamp: new Date().toISOString(),
+        },
+        'SECURITY',
+      );
 
       return res.status(403).json({
         error: 'غير مصرح بالوصول',
         message: 'عنوان IP غير مسموح به',
         code: 'IP_NOT_ALLOWED',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
@@ -409,30 +405,39 @@ export const securityMonitoring = (req: Request, res: Response, next: NextFuncti
   const originalSend = res.send;
 
   // Monitor response
-  res.send = function(data) {
+  res.send = function (data) {
     const responseTime = Date.now() - startTime;
-    
+
     // Log suspicious activities
-    if (responseTime > 5000) { // 5 seconds
-      log.warn('Slow response detected', {
-        url: req.url,
-        method: req.method,
-        ip: req.ip,
-        responseTime,
-        userAgent: req.get('User-Agent'),
-        timestamp: new Date().toISOString()
-      }, 'SECURITY');
+    if (responseTime > 5000) {
+      // 5 seconds
+      log.warn(
+        'Slow response detected',
+        {
+          url: req.url,
+          method: req.method,
+          ip: req.ip,
+          responseTime,
+          userAgent: req.get('User-Agent'),
+          timestamp: new Date().toISOString(),
+        },
+        'SECURITY',
+      );
     }
 
     if (res.statusCode >= 400) {
-      log.warn('Error response', {
-        url: req.url,
-        method: req.method,
-        ip: req.ip,
-        statusCode: res.statusCode,
-        userAgent: req.get('User-Agent'),
-        timestamp: new Date().toISOString()
-      }, 'SECURITY');
+      log.warn(
+        'Error response',
+        {
+          url: req.url,
+          method: req.method,
+          ip: req.ip,
+          statusCode: res.statusCode,
+          userAgent: req.get('User-Agent'),
+          timestamp: new Date().toISOString(),
+        },
+        'SECURITY',
+      );
     }
 
     return originalSend.call(this, data);
@@ -454,8 +459,8 @@ function parseCorsOrigins(): string[] {
 
   const origins = corsOrigins
     .split(',')
-    .map(origin => origin.trim())
-    .filter(origin => origin.length > 0);
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
 
   if (origins.length === 0) {
     log.warn('No valid CORS origins found, blocking all origins', {}, 'SECURITY');
@@ -463,7 +468,7 @@ function parseCorsOrigins(): string[] {
   }
 
   // Validate origins format
-  const validOrigins = origins.filter(origin => {
+  const validOrigins = origins.filter((origin) => {
     try {
       const url = new URL(origin);
       return url.protocol === 'http:' || url.protocol === 'https:';
@@ -514,8 +519,8 @@ function parseOriginlessApiKeys(): string[] {
   if (!keys) return [];
   const list = keys
     .split(',')
-    .map(k => k.trim())
-    .filter(k => k.length > 0);
+    .map((k) => k.trim())
+    .filter((k) => k.length > 0);
   if (list.length > 0) {
     log.info('CORS originless API keys configured', { count: list.length }, 'SECURITY');
   }
@@ -529,8 +534,8 @@ function parseInternalCidrs(): string[] {
   if (!cidrs) return [];
   return cidrs
     .split(',')
-    .map(c => c.trim())
-    .filter(c => c.length > 0);
+    .map((c) => c.trim())
+    .filter((c) => c.length > 0);
 }
 
 const internalCidrs = parseInternalCidrs();
@@ -549,7 +554,7 @@ function cidrMatch(ip: string, cidr: string): boolean {
 
 function isInternalRequest(req: Request): boolean {
   const ip = req.ip || (req.connection as any).remoteAddress || '';
-  const cidrAllowed = internalCidrs.some(cidr => cidrMatch(ip, cidr));
+  const cidrAllowed = internalCidrs.some((cidr) => cidrMatch(ip, cidr));
   const mtls = (req.socket as any).authorized || (req.client as any)?.authorized;
   return cidrAllowed || mtls;
 }
@@ -566,8 +571,14 @@ export const corsConfig = (req: Request, callback: (err: Error | null, options?:
       origin,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Requested-With', 'X-API-Key'],
-      exposedHeaders: ['X-CSRF-Token', 'X-Request-ID', 'X-Response-Time']
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'X-CSRF-Token',
+        'X-Requested-With',
+        'X-API-Key',
+      ],
+      exposedHeaders: ['X-CSRF-Token', 'X-Request-ID', 'X-Response-Time'],
     });
   }
 
@@ -584,9 +595,9 @@ export const corsConfig = (req: Request, callback: (err: Error | null, options?:
           requestId: req.id,
           ip: req.ip,
           userAgent,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         },
-        'SECURITY'
+        'SECURITY',
       );
       const error: Error & { status?: number } = new Error('CORS origin required');
       error.status = 403;
@@ -598,8 +609,14 @@ export const corsConfig = (req: Request, callback: (err: Error | null, options?:
         origin: true,
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Requested-With', 'X-API-Key'],
-        exposedHeaders: ['X-CSRF-Token', 'X-Request-ID', 'X-Response-Time']
+        allowedHeaders: [
+          'Content-Type',
+          'Authorization',
+          'X-CSRF-Token',
+          'X-Requested-With',
+          'X-API-Key',
+        ],
+        exposedHeaders: ['X-CSRF-Token', 'X-Request-ID', 'X-Response-Time'],
       });
     }
 
@@ -610,17 +627,23 @@ export const corsConfig = (req: Request, callback: (err: Error | null, options?:
         {
           apiKey: `${apiKey.substring(0, 4)}***`,
           requestId: req.id,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         },
-        'SECURITY'
+        'SECURITY',
       );
 
       return callback(null, {
         origin: true,
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Requested-With', 'X-API-Key'],
-        exposedHeaders: ['X-CSRF-Token', 'X-Request-ID', 'X-Response-Time']
+        allowedHeaders: [
+          'Content-Type',
+          'Authorization',
+          'X-CSRF-Token',
+          'X-Requested-With',
+          'X-API-Key',
+        ],
+        exposedHeaders: ['X-CSRF-Token', 'X-Request-ID', 'X-Response-Time'],
       });
     }
 
@@ -630,9 +653,9 @@ export const corsConfig = (req: Request, callback: (err: Error | null, options?:
         requestId: req.id,
         ip: req.ip,
         userAgent,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       },
-      'SECURITY'
+      'SECURITY',
     );
 
     const error: Error & { status?: number } = new Error('CORS origin not allowed');
@@ -647,9 +670,9 @@ export const corsConfig = (req: Request, callback: (err: Error | null, options?:
       origin,
       allowedOrigins: allowedCorsOrigins,
       requestId: req.id,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     },
-    'SECURITY'
+    'SECURITY',
   );
 
   const error: Error & { status?: number } = new Error('CORS origin not allowed');
@@ -668,18 +691,18 @@ export const apiKeyAuth = (requiredScope?: string) => {
         error: 'مفتاح API غير صالح',
         message: 'Authentication required',
         code: 'API_KEY_INVALID',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
     const config = apiKeys[apiKey];
 
-    if (!config.routes.some(route => req.path.startsWith(route))) {
+    if (!config.routes.some((route) => req.path.startsWith(route))) {
       return res.status(403).json({
         error: 'غير مصرح بالوصول',
         message: 'Route not allowed for this API key',
         code: 'API_KEY_ROUTE_FORBIDDEN',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
@@ -688,7 +711,7 @@ export const apiKeyAuth = (requiredScope?: string) => {
         error: 'غير مصرح بالوصول',
         message: 'Scope not allowed for this API key',
         code: 'API_KEY_SCOPE_FORBIDDEN',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
 
@@ -699,7 +722,7 @@ export const apiKeyAuth = (requiredScope?: string) => {
         return res.status(401).json({
           error: 'Signature timestamp missing',
           code: 'SIGNATURE_MISSING_TIMESTAMP',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
 
@@ -708,26 +731,32 @@ export const apiKeyAuth = (requiredScope?: string) => {
         return res.status(401).json({
           error: 'Signature expired',
           code: 'SIGNATURE_EXPIRED',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
 
       const body = req.body && Object.keys(req.body).length > 0 ? JSON.stringify(req.body) : '';
-      const expected = crypto.createHmac('sha256', config.secret).update(body + timestamp).digest('hex');
+      const expected = crypto
+        .createHmac('sha256', config.secret)
+        .update(body + timestamp)
+        .digest('hex');
       try {
-        const valid = crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(signature, 'hex'));
+        const valid = crypto.timingSafeEqual(
+          Buffer.from(expected, 'hex'),
+          Buffer.from(signature, 'hex'),
+        );
         if (!valid) {
           return res.status(401).json({
             error: 'Invalid signature',
             code: 'SIGNATURE_INVALID',
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           });
         }
       } catch {
         return res.status(401).json({
           error: 'Invalid signature',
           code: 'SIGNATURE_INVALID',
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     }
@@ -745,7 +774,7 @@ export const rateLimiters = {
   general: createRateLimiter('general'),
   login: createRateLimiter('login'),
   document: createRateLimiter('document'),
-  search: createRateLimiter('search')
+  search: createRateLimiter('search'),
 };
 
 /**
@@ -755,7 +784,7 @@ export const enhancedRateLimiters = {
   general: createEnhancedRateLimiter('general'),
   login: createEnhancedRateLimiter('login'),
   document: createEnhancedRateLimiter('document'),
-  search: createEnhancedRateLimiter('search')
+  search: createEnhancedRateLimiter('search'),
 };
 
 /**
@@ -789,8 +818,8 @@ export const cspUtils = {
    * Validate nonce format
    */
   validateNonce: (nonce: string): boolean => {
-    return /^[A-Za-z0-9+/]{22}==$/.test(nonce);
-  }
+    return /^[A-Za-z0-9_-]+$/.test(nonce);
+  },
 };
 
 /**
