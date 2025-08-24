@@ -9,6 +9,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import { createSessionMiddleware } from './utils/session';
+import { assertDatabaseEncryption } from './bootstrap/encryption-guard';
 
 // Import observability middleware
 import { observability } from './middleware/observability';
@@ -37,6 +38,9 @@ import aiRoutes from './routes/ai';
 import qualityRoutes from './routes/quality-routes';
 import { cacheControlGuard } from './middleware/cacheControl';
 
+// Enforce at-rest encryption before anything touches the DB
+assertDatabaseEncryption();
+
 // Import versioned routes
 import v1AuthRoutes from './routes/v1/auth-routes';
 import { registerEmployeeRoutes as registerV1EmployeeRoutes } from './routes/v1/employee-routes';
@@ -45,10 +49,6 @@ import { registerDocumentRoutes } from './routes/v1/document-routes';
 export const app = express();
 const PORT = env.PORT;
 const vitalsRateLimiter = createRateLimiter('general');
-
-if (!process.env.DB_ENCRYPTION_KEY || process.env.DB_ENCRYPTION_KEY.length < 32) {
-  throw new Error('DB_ENCRYPTION_KEY is required and must be at least 32 characters');
-}
 
 // Trust proxy for rate limiting
 app.set('trust proxy', 1);
