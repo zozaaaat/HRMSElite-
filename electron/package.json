@@ -85,7 +85,7 @@
     }
   },
   "devDependencies": {
-    "@types/node": "20.16.11",
+    "@types/node": "24.3.0",
     "concurrently": "8.2.2",
     "electron": "37.2.4",
     "electron-builder": "26.0.12",
