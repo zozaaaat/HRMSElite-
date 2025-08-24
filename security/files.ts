@@ -99,19 +99,26 @@ export function createScanFile(options: ScanFileOptions = {}) {
 
       next();
     } catch (error) {
-      log.error('Antivirus scan failed', error as Error, 'SECURITY');
+      if (req.file) {
+        await quarantineFile(req.file.buffer, req.file.originalname);
+      }
+      log.error(
+        'Antivirus scan failed',
+        { error: error as Error, fileName: req.file?.originalname, action: 'quarantine' },
+        'SECURITY'
+      );
       if (createErrorResponse) {
         const err = createErrorResponse(
-          'INTERNAL_ERROR',
+          'SECURITY_ERROR',
           'Security scan failed',
-          { message: 'Unable to complete security scan - file rejected' },
-          500
+          { message: 'Unable to complete security scan - file quarantined' },
+          422
         );
         return res.status(err.statusCode).json(err.body);
       }
-      res.status(500).json({
+      res.status(422).json({
         error: 'Security scan failed',
-        message: 'Unable to complete security scan - file rejected'
+        message: 'Unable to complete security scan - file quarantined'
       });
     }
   };

@@ -312,7 +312,10 @@ export class AntivirusScanner {
 
 // Default antivirus configuration
 export const defaultAntivirusConfig: AntivirusConfig = {
-  enabled: process.env.ANTIVIRUS_ENABLED === 'true',
+  enabled:
+    process.env.NODE_ENV === 'production'
+      ? true
+      : process.env.ANTIVIRUS_ENABLED === 'true',
   provider: (process.env.ANTIVIRUS_PROVIDER as 'clamav' | 'external' | 'both') || 'external',
   externalApiUrl: process.env.ANTIVIRUS_API_URL,
   externalApiKey: process.env.ANTIVIRUS_API_KEY,
