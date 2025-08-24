@@ -1,13 +1,14 @@
 import fs from "fs";
 import path from "path";
 
-const root = "client/src";
+const root = ".";
 const outDir = path.join("audit", "i18n");
 const hitsFile = path.join(outDir, "hits.json");
 const csvFile = path.join(outDir, "suggested-keys.csv");
 
 const isTS = (f) => /\.(tsx?|jsx?)$/.test(f);
-const ignore = (p) => /(^|\/)(locales|__tests__|__mocks__|fixtures)\//.test(p);
+const ignore = (p) =>
+  /(^|\/)(node_modules|\.git|dist|build|audit|locales|fixtures)\//.test(p);
 const files = [];
 
 (function walk(dir) {
