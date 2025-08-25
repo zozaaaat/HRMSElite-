@@ -250,39 +250,22 @@ export const createRateLimiter = (type: keyof typeof SECURITY_CONFIG.rateLimit) 
 };
 
 /**
- * Generate CSP nonce for scripts
- */
-function generateNonce(): string {
-  return crypto.randomBytes(16).toString('base64');
-}
-
-/**
  * Security Headers Middleware with Dynamic CSP
  */
 export const securityHeaders = (req: Request, res: Response, next: NextFunction) => {
   // Generate unique nonce for this request
-  const nonce = generateNonce();
+  const nonce = crypto.randomBytes(16).toString('base64');
 
   // Store nonce in request and response locals for use in templates
   (req as any).cspNonce = nonce;
-  res.locals.cspNonce = nonce;
-  // Also expose as res.locals.nonce for SSR templates
+  // Expose nonce for SSR templates
   res.locals.nonce = nonce;
 
-  // Build CSP header string manually to allow base64 nonce
-  const cspHeader = [
-    "default-src 'self'",
-    // Nonce + strict-dynamic يمنع أي سكريبت غير موثوق حتى لو من self بدون nonce
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
-    "style-src 'self'",
-    "img-src 'self' data: https:",
-    "connect-src 'self'",
-    "object-src 'none'",
-    "frame-ancestors 'none'",
-    "base-uri 'self'",
-  ].join('; ');
-
-  res.setHeader('Content-Security-Policy', cspHeader);
+  // Simple CSP header with nonce and strict-dynamic
+  res.setHeader(
+    'Content-Security-Policy',
+    `default-src 'self'; script-src 'nonce-${res.locals.nonce}' 'strict-dynamic'; object-src 'none'`
+  );
 
   // Apply helmet for additional security headers (CSP disabled to use custom header)
   const isProd = process.env.NODE_ENV === 'production';
