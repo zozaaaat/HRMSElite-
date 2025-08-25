@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'node:crypto';
+import { log } from '../utils/logger';
 
 // Standardized error response interface
 export interface ApiError {
@@ -139,7 +140,7 @@ export function errorHandler(
   const traceId = randomUUID();
   
   // Log error with trace ID
-  console.error(`[${traceId}] Error:`, error);
+  log.error(`[${traceId}] Error`, { error });
 
   // CSRF errors
   if (error.code === 'EBADCSRFTOKEN') {
