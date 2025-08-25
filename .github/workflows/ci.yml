@@ -327,6 +327,9 @@ jobs:
       - name: Run axe accessibility audit
         run: npx axe-ci http://localhost:3000
 
+      - name: Run Pa11y accessibility audit
+        run: npx pa11y http://localhost:3000
+
   # 🔄 Post-CI Tasks
   post-ci:
     name: Post-CI Tasks

@@ -33,11 +33,10 @@ import { env } from './utils/env';
 import { getLocale, t } from './utils/errorMessages';
 
 // Import routes
-import authRoutes from './routes/auth-routes';
-import { registerEmployeeRoutes } from './routes/employee-routes';
 import aiRoutes from './routes/ai';
 import qualityRoutes from './routes/quality-routes';
 import { cacheControlGuard } from './middleware/cacheControl';
+import { apiVersioningRedirect } from './middleware/apiVersioningRedirect';
 
 // Enforce at-rest encryption before anything touches the DB
 assertDatabaseEncryption();
@@ -96,7 +95,7 @@ app.use(createSessionMiddleware());
 // CSRF protection
 app.use(csrfProtection);
 app.use(csrfTokenMiddleware);
-app.get('/api/csrf-token', csrfTokenHandler);
+app.get('/api/v1/csrf-token', csrfTokenHandler);
 
 // Rate limiting
 app.use(enhancedRateLimiters.general);
@@ -127,35 +126,28 @@ app.get('/api-docs', (req, res) => {
     version: '1.0.0',
     description: 'Human Resource Management System Elite API',
     endpoints: {
-      auth: '/api/auth',
-      employees: '/api/employees',
+      auth: '/api/v1/auth',
+      employees: '/api/v1/employees',
       documents: '/api/v1/documents',
-      ai: '/api/ai',
-      quality: '/api/quality',
-      v1: {
-        auth: '/api/v1/auth',
-        employees: '/api/v1/employees',
-        documents: '/api/v1/documents'
-      }
+      ai: '/api/v1/ai',
+      quality: '/api/v1/quality'
     },
     health: '/health',
     metrics: '/metrics'
   });
 });
-
-// API routes with authentication
-app.use('/api/auth', isAuthenticated, authRoutes);
-registerEmployeeRoutes(app);
-app.use('/api/ai', isAuthenticated, aiRoutes);
-app.use('/api/quality', isAuthenticated, qualityRoutes);
+// API versioning redirect for legacy routes
+app.use(apiVersioningRedirect);
 
 // Versioned API routes
 app.use('/api/v1/auth', isAuthenticated, v1AuthRoutes);
 registerV1EmployeeRoutes(app);
 registerDocumentRoutes(app);
+app.use('/api/v1/ai', isAuthenticated, aiRoutes);
+app.use('/api/v1/quality', isAuthenticated, qualityRoutes);
 
 // Optional auth routes (for public endpoints)
-app.use('/api/public', optionalAuth);
+app.use('/api/v1/public', optionalAuth);
 
 // CSRF error handler
 app.use(csrfErrorHandler);
@@ -165,7 +157,7 @@ app.use(observability.errorTracking);
 
 // Global error handler
 app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error('❌', err);
+  log.error('Unhandled error', { error: err, requestId: req.id }, 'SERVER');
   res.status(500).json({ error: 'Internal Server Error', requestId: req.id });
 });
 
