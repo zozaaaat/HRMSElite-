@@ -14,9 +14,10 @@ services:
       - NODE_ENV=development
       - PORT=3000
       - DATABASE_URL=/app/data/hrms-dev.db
-      - SESSION_SECRET=dev-session-secret-change-in-production
-      - JWT_SECRET=dev-jwt-secret-change-in-production
-      - CSRF_SECRET=dev-csrf-secret-change-in-production
+        - SESSION_SECRET=dev-session-secret-change-in-production
+        - ACCESS_JWT_SECRET=dev-access-jwt-secret-change-in-production
+        - REFRESH_JWT_SECRET=dev-refresh-jwt-secret-change-in-production
+        - CSRF_SECRET=dev-csrf-secret-change-in-production
       - RATE_LIMIT_WINDOW_MS=900000
       - RATE_LIMIT_MAX_REQUESTS=1000
       - LOG_LEVEL=debug

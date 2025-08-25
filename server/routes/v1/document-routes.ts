@@ -7,6 +7,7 @@ import { isAuthenticated, requireRole } from '../../middleware/auth';
 import { secureFileStorage, type StoredFile } from '../../utils/secureStorage';
 import { generateETag, setETagHeader, matchesIfMatchHeader } from '../../utils/etag';
 import { fileTypeFromBuffer } from 'file-type';
+import { antivirusScanner } from '../../utils/antivirus';
 import {
   createErrorResponse,
   createSuccessResponse,
@@ -530,8 +531,37 @@ export function registerDocumentRoutes(app: Express) {
         }
 
         const file = req.file;
-        
-        // Store file securely
+
+        // Antivirus scanning - fail closed
+        const avStatus = antivirusScanner.getStatus();
+        if (!avStatus.enabled) {
+          const errorResponse = createErrorResponse(
+            'SECURITY_ERROR',
+            'Antivirus scanner unavailable',
+            { message: 'File uploads are temporarily disabled' },
+            503
+          );
+          return res.status(errorResponse.statusCode).json(errorResponse.body);
+        }
+
+        const scanResult = await antivirusScanner.scanBuffer(file.buffer, file.originalname);
+        if (!scanResult.isClean) {
+          log.warn('Antivirus scan rejected file', {
+            fileName: file.originalname,
+            threats: scanResult.threats,
+            provider: scanResult.provider
+          }, 'SECURITY');
+
+          const errorResponse = createErrorResponse(
+            'SECURITY_ERROR',
+            'File failed security scan',
+            { threats: scanResult.threats },
+            400
+          );
+          return res.status(errorResponse.statusCode).json(errorResponse.body);
+        }
+
+        // Store file securely after passing scan
         const storedFile: StoredFile = await secureFileStorage.storeFile(
           file.buffer,
           file.originalname,

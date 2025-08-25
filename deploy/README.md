@@ -132,7 +132,8 @@ docker-compose logs -f
 ```env
 # مفاتيح الأمان (تغييرها في الإنتاج!)
 SESSION_SECRET=your-super-secret-session-key-change-this-in-production
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+ACCESS_JWT_SECRET=your-super-secret-access-jwt-key-change-this-in-production
+REFRESH_JWT_SECRET=your-super-secret-refresh-jwt-key-change-this-in-production
 CSRF_SECRET=your-csrf-secret-key-change-this-in-production
 
 # مفاتيح الذكاء الاصطناعي (اختياري)

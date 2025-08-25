@@ -69,7 +69,8 @@ DATABASE_URL=/app/data/hrms.db
 
 # مفاتيح الأمان
 SESSION_SECRET=your-super-secret-session-key-change-this
-JWT_SECRET=your-super-secret-jwt-key-change-this
+ACCESS_JWT_SECRET=your-super-secret-access-jwt-key-change-this
+REFRESH_JWT_SECRET=your-super-secret-refresh-jwt-key-change-this
 CSRF_SECRET=your-csrf-secret-key-change-this
 
 # مفاتيح AI

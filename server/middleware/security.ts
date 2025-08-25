@@ -274,10 +274,10 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
   // Expose nonce for SSR templates
   res.locals.nonce = nonce;
 
-  // Simple CSP header with nonce and strict-dynamic
+  // Strict CSP header with nonce for scripts and styles
   res.setHeader(
     'Content-Security-Policy',
-    `default-src 'self'; script-src 'nonce-${res.locals.nonce}' 'strict-dynamic'; object-src 'none'`
+    `default-src 'self'; script-src 'nonce-${res.locals.nonce}' 'strict-dynamic'; style-src 'self' 'nonce-${res.locals.nonce}'; img-src 'self' data:; connect-src 'self' https:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'`
   );
 
   // Apply helmet for additional security headers (CSP disabled to use custom header)
