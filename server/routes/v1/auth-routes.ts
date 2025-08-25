@@ -3,7 +3,6 @@ import { storage } from '../../models/storage';
 import { log } from '../../utils/logger';
 import {
   isAuthenticated,
-  optionalAuth,
   generateJWTToken,
   generateRefreshToken,
   verifyRefreshToken,
@@ -67,14 +66,15 @@ interface SessionData {
   user?: SessionUser;
 }
 
-const router = Router();
+export const authRoutesPublic = Router();
+export const authRoutesPrivate = Router();
 
 /**
  * Unified User Endpoint - Primary endpoint for all user operations
  * GET /api/v1/auth/user
  * Returns current user with company context
  */
-router.get('/user', isAuthenticated, async (req: Request, res: Response) => {
+authRoutesPrivate.get('/user', isAuthenticated, async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
     const companyId = req.query.companyId as string;
@@ -154,7 +154,7 @@ router.get('/user', isAuthenticated, async (req: Request, res: Response) => {
  * Login endpoint
  * POST /api/v1/auth/login
  */
-router.post('/login', async (req: Request, res: Response) => {
+authRoutesPublic.post('/login', async (req: Request, res: Response) => {
   try {
     const { email, password, rememberMe } = req.body;
 
@@ -264,7 +264,7 @@ router.post('/login', async (req: Request, res: Response) => {
  * Register endpoint
  * POST /api/v1/auth/register
  */
-router.post('/register', async (req: Request, res: Response) => {
+authRoutesPublic.post('/register', async (req: Request, res: Response) => {
   try {
     const { email, password, confirmPassword, firstName, lastName, companyName, role } = req.body;
 
@@ -399,7 +399,7 @@ router.post('/register', async (req: Request, res: Response) => {
  * Logout endpoint
  * POST /api/v1/auth/logout
  */
-router.post('/logout', isAuthenticated, async (req: Request, res: Response) => {
+authRoutesPrivate.post('/logout', isAuthenticated, async (req: Request, res: Response) => {
   try {
     const refreshToken = getRefreshTokenFromRequest(req);
     
@@ -433,7 +433,7 @@ router.post('/logout', isAuthenticated, async (req: Request, res: Response) => {
  * Refresh token endpoint
  * POST /api/v1/auth/refresh
  */
-router.post('/refresh', async (req: Request, res: Response) => {
+authRoutesPublic.post('/refresh', async (req: Request, res: Response) => {
   try {
     const refreshToken = getRefreshTokenFromRequest(req);
     
@@ -527,7 +527,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
  * Forgot password endpoint
  * POST /api/v1/auth/forgot-password
  */
-router.post('/forgot-password', async (req: Request, res: Response) => {
+authRoutesPublic.post('/forgot-password', async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
 
@@ -593,7 +593,7 @@ router.post('/forgot-password', async (req: Request, res: Response) => {
  * Reset password endpoint
  * POST /api/v1/auth/reset-password
  */
-router.post('/reset-password', async (req: Request, res: Response) => {
+authRoutesPublic.post('/reset-password', async (req: Request, res: Response) => {
   try {
     const { token, password, confirmPassword } = req.body;
 
@@ -673,7 +673,7 @@ router.post('/reset-password', async (req: Request, res: Response) => {
  * Verify email endpoint
  * POST /api/v1/auth/verify-email
  */
-router.post('/verify-email', async (req: Request, res: Response) => {
+authRoutesPublic.post('/verify-email', async (req: Request, res: Response) => {
   try {
     const { token } = req.body;
 
@@ -729,4 +729,4 @@ router.post('/verify-email', async (req: Request, res: Response) => {
   }
 });
 
-export default router;
+export { authRoutesPublic, authRoutesPrivate };
