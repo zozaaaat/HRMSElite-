@@ -10,8 +10,10 @@ clientsClaim();
 // Precache assets generated during build
 precacheAndRoute(self.__WB_MANIFEST);
 
-// Cache only same-origin requests that are not API calls
+// Cache only public static assets
 registerRoute(
-  ({url}) => url.origin === self.location.origin && !url.pathname.startsWith('/api/'),
+  ({url, request}) =>
+    url.origin === self.location.origin &&
+    ['style', 'script', 'image', 'font'].includes(request.destination),
   new CacheFirst()
 );

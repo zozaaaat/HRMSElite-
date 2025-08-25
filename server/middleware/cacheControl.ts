@@ -1,14 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 
+const STATIC_ASSET = /\.(?:css|js|mjs|html|png|jpg|jpeg|gif|svg|ico|webp|woff2?|ttf|map)$/i;
+
 // Middleware to prevent caching of sensitive responses
 export function cacheControlGuard(req: Request, res: Response, next: NextFunction) {
-  const path = req.path;
-  const isAuthPath = path.startsWith('/auth') || path.startsWith('/session') || path.startsWith('/api/auth') || path.startsWith('/api/session');
-  const hasCredentials = Boolean(req.headers.authorization || req.headers.cookie);
-
-  if (isAuthPath || hasCredentials) {
+  if (!STATIC_ASSET.test(req.path)) {
     res.setHeader('Cache-Control', 'no-store, private');
   }
-
   next();
 }
