@@ -64,7 +64,7 @@ export class SecureFileStorage {
    */
   private initializeS3Client(): void {
     if (!this.config.s3AccessKeyId || !this.config.s3SecretAccessKey) {
-      log.warn('AWS S3 credentials not provided, using local storage only', {}, 'STORAGE');
+      log.error('AWS S3 credentials not provided; S3 operations disabled', {}, 'STORAGE');
       return;
     }
 
@@ -200,11 +200,17 @@ export class SecureFileStorage {
 
       // Store file based on provider
       let url: string;
-      if (this.config.provider === 's3' && this.s3Client) {
+      if (this.config.provider === 's3') {
+        if (!this.s3Client) {
+          throw new Error('S3 storage selected but AWS credentials are missing');
+        }
         url = await this.storeInS3(processedBuffer, key, metadata);
       } else if (this.config.provider === 'local') {
         url = await this.storeLocally(processedBuffer, key, metadata);
       } else {
+        if (!this.s3Client) {
+          throw new Error('Hybrid storage requires valid AWS credentials');
+        }
         // Hybrid: store in both S3 and local
         const [s3Url, localUrl] = await Promise.all([
           this.storeInS3(processedBuffer, key, metadata),
@@ -291,19 +297,29 @@ export class SecureFileStorage {
   private async storeLocally(buffer: Buffer, key: string, metadata: FileMetadata): Promise<string> {
     const fs = await import('fs/promises');
     const path = await import('path');
-    
+
     const filePath = path.join(this.config.localPath, key);
     const dirPath = path.dirname(filePath);
 
     // Create directory if it doesn't exist
     await fs.mkdir(dirPath, { recursive: true });
+    const keyHex = env.FILE_ENCRYPTION_KEY;
+    if (!keyHex || keyHex.length < 32) {
+      throw new Error('FILE_ENCRYPTION_KEY is required for local storage');
+    }
+    const encryptionKey = Buffer.from(keyHex, 'hex');
+    const iv = crypto.randomBytes(12);
+    const cipher = crypto.createCipheriv('aes-256-gcm', encryptionKey, iv);
+    const encrypted = Buffer.concat([cipher.update(buffer), cipher.final()]);
+    const authTag = cipher.getAuthTag();
+    const encryptedBuffer = Buffer.concat([iv, authTag, encrypted]);
 
-    // Write file
-    await fs.writeFile(filePath, buffer);
+    // Write encrypted file with restricted permissions
+    await fs.writeFile(filePath, encryptedBuffer, { mode: 0o600 });
 
-    // Store metadata separately
+    // Store metadata separately with restricted permissions
     const metadataPath = `${filePath}.meta.json`;
-    await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2));
+    await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2), { mode: 0o600 });
 
     return `/api/files/${key}`;
   }
@@ -316,7 +332,10 @@ export class SecureFileStorage {
    */
   async generateSignedUrl(fileId: string, key: string): Promise<string> {
     try {
-      if (this.config.provider === 's3' && this.s3Client) {
+      if (this.config.provider === 's3') {
+        if (!this.s3Client) {
+          throw new Error('S3 client not initialized');
+        }
         const command = new GetObjectCommand({
           Bucket: this.config.s3Bucket,
           Key: key
@@ -325,7 +344,7 @@ export class SecureFileStorage {
         return await getSignedUrl(this.s3Client, command, {
           expiresIn: this.config.urlExpiration
         });
-      } else {
+      } else if (this.config.provider === 'local') {
         // For local storage, return a temporary signed URL
         const expiresAt = Date.now() + this.config.urlExpiration * 1000;
         const signature = crypto
@@ -334,6 +353,18 @@ export class SecureFileStorage {
           .digest('hex');
 
         return `/api/files/${fileId}/download?expires=${expiresAt}&signature=${signature}`;
+      } else {
+        if (!this.s3Client) {
+          throw new Error('Hybrid storage requires valid AWS credentials');
+        }
+        const command = new GetObjectCommand({
+          Bucket: this.config.s3Bucket,
+          Key: key
+        });
+
+        return await getSignedUrl(this.s3Client, command, {
+          expiresIn: this.config.urlExpiration
+        });
       }
     } catch (error) {
       log.error('Failed to generate signed URL', error as Error, 'STORAGE');
@@ -348,20 +379,37 @@ export class SecureFileStorage {
    */
   async deleteFile(key: string): Promise<void> {
     try {
-      if (this.config.provider === 's3' && this.s3Client) {
+      if (this.config.provider === 's3') {
+        if (!this.s3Client) {
+          throw new Error('S3 client not initialized');
+        }
         const command = new DeleteObjectCommand({
           Bucket: this.config.s3Bucket,
           Key: key
         });
         await this.s3Client.send(command);
-      } else {
+      } else if (this.config.provider === 'local') {
         const fs = await import('fs/promises');
         const path = await import('path');
-        
+
         const filePath = path.join(this.config.localPath, key);
         const metadataPath = `${filePath}.meta.json`;
 
         await Promise.allSettled([
+          fs.unlink(filePath),
+          fs.unlink(metadataPath)
+        ]);
+      } else {
+        if (!this.s3Client) {
+          throw new Error('Hybrid storage requires valid AWS credentials');
+        }
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const filePath = path.join(this.config.localPath, key);
+        const metadataPath = `${filePath}.meta.json`;
+
+        await Promise.allSettled([
+          this.s3Client.send(new DeleteObjectCommand({ Bucket: this.config.s3Bucket, Key: key })),
           fs.unlink(filePath),
           fs.unlink(metadataPath)
         ]);
@@ -381,20 +429,41 @@ export class SecureFileStorage {
    */
   async fileExists(key: string): Promise<boolean> {
     try {
-      if (this.config.provider === 's3' && this.s3Client) {
+      if (this.config.provider === 's3') {
+        if (!this.s3Client) {
+          throw new Error('S3 client not initialized');
+        }
         const command = new HeadObjectCommand({
           Bucket: this.config.s3Bucket,
           Key: key
         });
         await this.s3Client.send(command);
         return true;
-      } else {
+      } else if (this.config.provider === 'local') {
         const fs = await import('fs/promises');
         const path = await import('path');
-        
+
         const filePath = path.join(this.config.localPath, key);
         await fs.access(filePath);
         return true;
+      } else {
+        if (!this.s3Client) {
+          throw new Error('Hybrid storage requires valid AWS credentials');
+        }
+        try {
+          const command = new HeadObjectCommand({
+            Bucket: this.config.s3Bucket,
+            Key: key
+          });
+          await this.s3Client.send(command);
+          return true;
+        } catch {
+          const fs = await import('fs/promises');
+          const path = await import('path');
+          const filePath = path.join(this.config.localPath, key);
+          await fs.access(filePath);
+          return true;
+        }
       }
     } catch {
       return false;
