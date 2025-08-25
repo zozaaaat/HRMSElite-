@@ -197,6 +197,7 @@ export const getTokenFromRequest = (req: Request): string | null => {
   }
 
   // No header fallback: tokens are cookies-only
+  const hdr = undefined;
   return null;
 };
 
