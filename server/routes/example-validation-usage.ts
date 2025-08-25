@@ -280,7 +280,7 @@ export function registerExampleValidationRoutes (app: Express) {
   );
 
   // Example 6: Document upload with validation
-  app.post('/api/documents',
+  app.post('/api/v1/documents',
     validateInput.sanitize,
     validateInput.body(documentUploadSchema),
     async (req: Request, res: Response) => {

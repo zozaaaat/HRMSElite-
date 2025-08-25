@@ -13,6 +13,7 @@ import {
 import {registerEmployeeRoutes} from './routes/employee-routes';
 import {registerPayrollRoutes} from './routes/payroll-routes';
 import {registerLicenseRoutes} from './routes/license-routes';
+import { registerDocumentRoutes } from './routes/v1/document-routes';
 import aiRoutes from './routes/ai';
 import authRoutes from './routes/auth-routes';
 import qualityRoutes from './routes/quality-routes';
@@ -38,6 +39,7 @@ export async function registerRoutes (app: Express): Promise<Server> {
   registerEmployeeRoutes(app);
   registerPayrollRoutes(app);
   registerLicenseRoutes(app);
+  registerDocumentRoutes(app);
 
   // Register AI routes
   app.use('/api/ai', isAuthenticated, aiRoutes);
@@ -1717,29 +1719,6 @@ export async function registerRoutes (app: Express): Promise<Server> {
 
       safeLogError('Error fetching documents:', error);
       res.status(500).json({'message': 'Failed to fetch documents'});
-
-    }
-
-  });
-
-  app.post('/api/documents/upload', isAuthenticated, async (req, res) => {
-
-    try {
-
-      // Mock file upload response
-      const uploadedDocument = {
-        'id': Date.now().toString(),
-        'name': 'مستند_جديد.pdf',
-        'size': '1.5 MB',
-        'uploadDate': new Date().toISOString().split('T')[0],
-        'status': 'uploaded'
-      };
-      res.json(uploadedDocument);
-
-    } catch (error) {
-
-      safeLogError('Error uploading document:', error);
-      res.status(500).json({'message': 'Failed to upload document'});
 
     }
 

@@ -48,7 +48,7 @@ scenarios:
     weight: 30
     flow:
       - post:
-          url: "/api/documents/upload"
+          url: "/api/v1/documents/upload"
           form:
             file: "test-document.pdf"
             type: "license"
@@ -56,7 +56,7 @@ scenarios:
             - statusCode: [200, 400, 401, 500]
       - think: 3
       - get:
-          url: "/api/documents"
+          url: "/api/v1/documents"
           expect:
             - statusCode: [200, 401, 500]
 

@@ -36,14 +36,14 @@ export const documentService = {
 
     });
 
-    return apiRequest<Document[]>(`/api/documents?${params.toString()}`);
+    return apiRequest<Document[]>(`/api/v1/documents?${params.toString()}`);
 
   },
 
   // Get document by ID
   async getDocument (id: string): Promise<Document> {
 
-    return apiRequest<Document>(`/api/documents/${id}`);
+    return apiRequest<Document>(`/api/v1/documents/${id}`);
 
   },
 
@@ -75,7 +75,7 @@ export const documentService = {
     }
     formData.append('file', data.file);
 
-    return apiRequest<Document>('/api/documents', {
+    return apiRequest<Document>('/api/v1/documents', {
       'method': 'POST',
       'body': formData,
       'headers': {
@@ -88,7 +88,7 @@ export const documentService = {
   // Update document
   async updateDocument (id: string, data: Partial<Document>): Promise<Document> {
 
-    return apiRequest<Document>(`/api/documents/${id}`, {
+    return apiRequest<Document>(`/api/v1/documents/${id}`, {
       'method': 'PUT',
       'body': JSON.stringify(data),
       'headers': {
@@ -101,7 +101,7 @@ export const documentService = {
   // Delete document
   async deleteDocument (id: string): Promise<void> {
 
-    return apiRequest<void>(`/api/documents/${id}`, {
+    return apiRequest<void>(`/api/v1/documents/${id}`, {
       'method': 'DELETE'
     });
 
@@ -109,7 +109,7 @@ export const documentService = {
 
   // Download document
   async downloadDocument (id: string): Promise<Blob> {
-    return apiRequest<Blob>(`/api/documents/${id}/download`, {
+    return apiRequest<Blob>(`/api/v1/documents/${id}/download`, {
       'method': 'GET',
       'responseType': 'blob'
     });
@@ -123,7 +123,7 @@ export const documentService = {
 
     return apiRequest<Array<{
    id: string; name: string; icon: string; count: number 
-}>>('/api/documents/categories');
+}>>('/api/v1/documents/categories');
 
   },
 
@@ -141,7 +141,7 @@ export const documentService = {
     }
 
     const result = await apiRequest<{ url: string; fileName: string }>(
-      '/api/documents/upload',
+      '/api/v1/documents/upload',
       {
         'method': 'POST',
         'body': formData

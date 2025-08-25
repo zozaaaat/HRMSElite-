@@ -41,7 +41,7 @@ const mockDocuments: Document[] = [
     'category': 'contracts',
     'description': 'عقد العمل الأساسي للموظف',
     'fileName': 'contract-ahmad-mohamed.pdf',
-    'fileUrl': '/api/documents/1/download',
+    'fileUrl': '/api/v1/documents/1/download',
     'fileSize': 2516582,
     'mimeType': 'application/pdf',
     'tags': ['عقد', 'أحمد محمد', 'توظيف']
@@ -57,7 +57,7 @@ const mockDocuments: Document[] = [
     'category': 'personal',
     'description': 'صورة الهوية الوطنية للموظف',
     'fileName': 'national-id-photo.jpg',
-    'fileUrl': '/api/documents/2/download',
+    'fileUrl': '/api/v1/documents/2/download',
     'fileSize': 1887437,
     'mimeType': 'image/jpeg',
     'tags': ['هوية', 'صورة', 'شخصية']
@@ -73,7 +73,7 @@ const mockDocuments: Document[] = [
     'category': 'reports',
     'description': 'تقرير الأداء الشهري للموظف',
     'fileName': 'monthly-performance-report.pdf',
-    'fileUrl': '/api/documents/3/download',
+    'fileUrl': '/api/v1/documents/3/download',
     'fileSize': 3355443,
     'mimeType': 'application/pdf',
     'tags': ['تقرير', 'أداء', 'شهري']
