@@ -37,7 +37,8 @@ interface SessionUser {
 }
 
 // JWT Configuration - Using validated environment variables
-const JWT_SECRET = env.JWT_SECRET;
+const ACCESS_JWT_SECRET = env.ACCESS_JWT_SECRET;
+const REFRESH_JWT_SECRET = env.REFRESH_JWT_SECRET;
 const JWT_EXPIRES_IN = env.JWT_EXPIRES_IN;
 const JWT_REFRESH_EXPIRES_IN = env.JWT_REFRESH_EXPIRES_IN;
 
@@ -73,7 +74,7 @@ declare module 'express-session' {
  */
 export const generateJWTToken = (payload: Record<string, unknown>): string => {
 
-  return jwt.sign(payload as object, JWT_SECRET as jwt.Secret, {
+  return jwt.sign(payload as object, ACCESS_JWT_SECRET as jwt.Secret, {
     'expiresIn': JWT_EXPIRES_IN,
     'issuer': 'hrms-elite',
     'audience': 'hrms-elite-users'
@@ -88,7 +89,7 @@ export const generateJWTToken = (payload: Record<string, unknown>): string => {
  */
 export const generateRefreshToken = (payload: Record<string, unknown>): string => {
 
-  return jwt.sign(payload as object, JWT_SECRET as jwt.Secret, {
+  return jwt.sign(payload as object, REFRESH_JWT_SECRET as jwt.Secret, {
     'expiresIn': JWT_REFRESH_EXPIRES_IN,
     'issuer': 'hrms-elite',
     'audience': 'hrms-elite-refresh'
@@ -105,7 +106,7 @@ export const verifyJWTToken = (token: string): jwt.JwtPayload | null => {
 
   try {
 
-    const decoded = jwt.verify(token, JWT_SECRET, {
+    const decoded = jwt.verify(token, ACCESS_JWT_SECRET, {
       'issuer': 'hrms-elite',
       'audience': 'hrms-elite-users'
     }) as jwt.JwtPayload;
@@ -130,7 +131,7 @@ export const verifyRefreshToken = (token: string): jwt.JwtPayload | null => {
 
   try {
 
-    const decoded = jwt.verify(token, JWT_SECRET, {
+    const decoded = jwt.verify(token, REFRESH_JWT_SECRET, {
       'issuer': 'hrms-elite',
       'audience': 'hrms-elite-refresh'
     }) as jwt.JwtPayload;
@@ -152,7 +153,7 @@ export const verifyRefreshToken = (token: string): jwt.JwtPayload | null => {
  * @returns HMAC hash
  */
 export const hashToken = (token: string): string => {
-  return crypto.createHmac('sha256', JWT_SECRET).update(token).digest('hex');
+  return crypto.createHmac('sha256', REFRESH_JWT_SECRET).update(token).digest('hex');
 };
 
 /**
