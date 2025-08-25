@@ -8,6 +8,9 @@ import {promises as fs} from 'fs';
 import {glob} from 'glob';
 import {execSync} from 'child_process';
 
+const API_ALLOWLIST = ['/api/v1/public/health', '/api/v1/public/dictionary'];
+const API_TTL_SECONDS = 5 * 60; // 5 min
+
 function secureSourceMaps() {
   return {
     'name': 'secure-source-maps',
@@ -63,17 +66,16 @@ export default defineConfig({
         'runtimeCaching': [
           {
             'urlPattern': ({ url, request }) => {
-              const isApi = url.hostname.startsWith('api.');
-              const isAuth = url.pathname.startsWith('/auth') || url.pathname.startsWith('/session');
-              const hasCredentials = request.headers.has('Authorization') || request.headers.has('Cookie');
-              return isApi && !isAuth && !hasCredentials;
+              return API_ALLOWLIST.some((p) => url.pathname.startsWith(p)) &&
+                     request.credentials !== 'include' &&
+                     !request.headers.has('Authorization');
             },
             'handler': 'NetworkFirst',
             'options': {
               'cacheName': 'api-cache',
               'expiration': {
                 'maxEntries': 100,
-                'maxAgeSeconds': 60 * 60 * 24 // 24 hours
+                'maxAgeSeconds': API_TTL_SECONDS
               }
             }
           },
