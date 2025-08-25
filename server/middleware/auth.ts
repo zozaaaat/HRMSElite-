@@ -185,7 +185,7 @@ export const clearAuthCookies = (res: Response): void => {
 };
 
 /**
- * Get token from cookies or Authorization header
+ * Get token from authentication cookies
  * @param req - Express request object
  * @returns Token string or null
  */
@@ -196,12 +196,7 @@ export const getTokenFromRequest = (req: Request): string | null => {
     return accessToken;
   }
 
-  // Fallback to Authorization header for backward compatibility
-  const authHeader = req.headers.authorization;
-  if (authHeader?.startsWith('Bearer ')) {
-    return authHeader.substring(7);
-  }
-
+  // No header fallback: tokens are cookies-only
   return null;
 };
 
