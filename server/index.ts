@@ -163,53 +163,10 @@ app.use(csrfErrorHandler);
 // Error handling middleware with observability
 app.use(observability.errorTracking);
 
-// Error handling middleware
+// Global error handler
 app.use((err: any, req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  // Determine locale from request
-  const locale = getLocale(req.headers['accept-language']);
-
-  // Log error with request context
-  req.log?.error('Unhandled error:', {
-    error: err,
-    requestId: req.id,
-    url: req.url,
-    method: req.method,
-    userId: req.user?.id,
-    userRole: req.user?.role
-  });
-
-  // Rate limit errors
-  if (err.status === 429) {
-    return res.status(429).json({
-      code: 'RATE_LIMIT_EXCEEDED',
-      message: t(locale, 'RATE_LIMIT_EXCEEDED'),
-      locale,
-      requestId: req.id,
-      details: t(locale, 'RATE_LIMIT_TRY_LATER')
-    });
-  }
-
-  // Validation errors
-  if (err.name === 'ValidationError') {
-    return res.status(400).json({
-      code: 'VALIDATION_ERROR',
-      message: t(locale, 'VALIDATION_ERROR'),
-      locale,
-      requestId: req.id,
-      details: err.message
-    });
-  }
-
-  // Default error response
-  const isDevelopment = env.NODE_ENV === 'development';
-  const code = err.code || 'INTERNAL_ERROR';
-  res.status(err.status || 500).json({
-    code,
-    message: t(locale, code),
-    locale,
-    requestId: req.id,
-    ...(isDevelopment && { details: err.stack })
-  });
+  console.error('❌', err);
+  res.status(500).json({ error: 'Internal Server Error', requestId: req.id });
 });
 
 // 404 handler
