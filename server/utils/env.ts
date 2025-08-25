@@ -12,6 +12,7 @@ const envSchema = z.object({
   SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 characters long'),
   DB_ENCRYPTION_KEY: z.string().min(32, 'DB_ENCRYPTION_KEY must be at least 32 characters long'),
   FILE_SIGNATURE_SECRET: z.string().min(32, 'FILE_SIGNATURE_SECRET must be at least 32 characters long'),
+  FILE_ENCRYPTION_KEY: z.string().min(32, 'FILE_ENCRYPTION_KEY must be at least 32 characters long').optional(),
   METRICS_TOKEN: z.string().min(32, 'METRICS_TOKEN must be at least 32 characters long').optional(),
   
   // Optional environment variables with defaults
@@ -139,12 +140,35 @@ export function validateSecrets(): void {
     }
   });
 
+  const optionalSecrets = [
+    { name: 'FILE_ENCRYPTION_KEY', value: env.FILE_ENCRYPTION_KEY }
+  ];
+
+  optionalSecrets.forEach(({ name, value }) => {
+    if (value) {
+      if (value.length < 32) {
+        throw new Error(`${name} is missing or too weak. It must be at least 32 characters long.`);
+      }
+      if (weakSecrets.some(weak => value.includes(weak) || value === weak)) {
+        throw new Error(`${name} contains weak or default values. Please use a strong, unique secret.`);
+      }
+      const entropy = calculateEntropy(value);
+      if (entropy < 3.5) {
+        log.warn(`${name} has low entropy. Consider using a more random secret.`, {
+          entropy,
+          minRecommended: 3.5
+        }, 'ENV');
+      }
+    }
+  });
+
   log.info('Secret validation completed successfully', {
     accessJwtSecretLength: env.ACCESS_JWT_SECRET.length,
     refreshJwtSecretLength: env.REFRESH_JWT_SECRET.length,
     sessionSecretLength: env.SESSION_SECRET.length,
     dbEncryptionKeyLength: env.DB_ENCRYPTION_KEY.length,
-    fileSignatureSecretLength: env.FILE_SIGNATURE_SECRET.length
+    fileSignatureSecretLength: env.FILE_SIGNATURE_SECRET.length,
+    fileEncryptionKeyLength: env.FILE_ENCRYPTION_KEY?.length || 0
   }, 'ENV');
 }
 
