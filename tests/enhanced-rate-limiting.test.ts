@@ -50,8 +50,8 @@ describe('Enhanced Rate Limiting', () => {
 
   describe('IP-based Rate Limiting', () => {
     test('should limit requests by IP address', async () => {
-      // Make 101 requests (exceeding the 100 IP limit)
-      const requests = Array(101).fill(null).map(() =>
+      // Make 61 requests (exceeding the 60 IP limit)
+      const requests = Array(61).fill(null).map(() =>
         request(app)
           .get('/api/test')
           .set('X-Forwarded-For', testIP)
@@ -69,7 +69,7 @@ describe('Enhanced Rate Limiting', () => {
     });
 
     test('should allow requests within IP limit', async () => {
-      // Make 50 requests (within the 100 IP limit)
+      // Make 50 requests (within the 60 IP limit)
       const requests = Array(50).fill(null).map(() =>
         request(app)
           .get('/api/test')
@@ -85,8 +85,8 @@ describe('Enhanced Rate Limiting', () => {
 
   describe('User-based Rate Limiting', () => {
     test('should limit authenticated user requests', async () => {
-      // Make 201 requests (exceeding the 200 user limit)
-      const requests = Array(201).fill(null).map(() =>
+      // Make 121 requests (exceeding the 120 user limit)
+      const requests = Array(121).fill(null).map(() =>
         request(app)
           .get('/api/test')
           .set('X-Forwarded-For', testIP)
@@ -105,8 +105,8 @@ describe('Enhanced Rate Limiting', () => {
     });
 
     test('should allow authenticated user requests within limit', async () => {
-      // Make 100 requests (within the 200 user limit)
-      const requests = Array(100).fill(null).map(() =>
+      // Make 60 requests (within the 120 user limit)
+      const requests = Array(60).fill(null).map(() =>
         request(app)
           .get('/api/test')
           .set('X-Forwarded-For', testIP)
@@ -116,14 +116,14 @@ describe('Enhanced Rate Limiting', () => {
       const responses = await Promise.all(requests);
       const successful = responses.filter(r => r.status === 200);
 
-      expect(successful.length).toBe(100);
+      expect(successful.length).toBe(60);
     });
   });
 
   describe('Dual Rate Limiting', () => {
     test('should apply both IP and user limits independently', async () => {
       // Test scenario: User hits IP limit before user limit
-      const requests = Array(101).fill(null).map(() =>
+      const requests = Array(61).fill(null).map(() =>
         request(app)
           .get('/api/test')
           .set('X-Forwarded-For', testIP)
@@ -133,7 +133,7 @@ describe('Enhanced Rate Limiting', () => {
       const responses = await Promise.all(requests);
       const rateLimited = responses.filter(r => r.status === 429);
 
-      // Should be rate limited by IP (100 limit) before hitting user limit (200)
+      // Should be rate limited by IP (60 limit) before hitting user limit (120)
       expect(rateLimited.length).toBeGreaterThan(0);
       expect(rateLimited[0].body.limitType).toBe('IP');
     });
@@ -142,35 +142,35 @@ describe('Enhanced Rate Limiting', () => {
       const user1 = 'user1';
       const user2 = 'user2';
 
-      // User 1 makes 50 requests
-      const user1Requests = Array(50).fill(null).map(() =>
+      // User 1 makes 30 requests
+      const user1Requests = Array(30).fill(null).map(() =>
         request(app)
           .get('/api/test')
           .set('X-Forwarded-For', testIP)
           .set('X-Test-User-Id', user1)
       );
 
-      // User 2 makes 50 requests
-      const user2Requests = Array(50).fill(null).map(() =>
+      // User 2 makes 30 requests
+      const user2Requests = Array(30).fill(null).map(() =>
         request(app)
           .get('/api/test')
           .set('X-Forwarded-For', testIP)
           .set('X-Test-User-Id', user2)
       );
 
-      const user1Responses = await Promise.all(user1Requests);
-      const user2Responses = await Promise.all(user2Requests);
+        const user1Responses = await Promise.all(user1Requests);
+        const user2Responses = await Promise.all(user2Requests);
 
-      // Both users should succeed (50 requests each, within both IP and user limits)
-      expect(user1Responses.every(r => r.status === 200)).toBe(true);
-      expect(user2Responses.every(r => r.status === 200)).toBe(true);
+        // Both users should succeed (30 requests each, within both IP and user limits)
+        expect(user1Responses.every(r => r.status === 200)).toBe(true);
+        expect(user2Responses.every(r => r.status === 200)).toBe(true);
+      });
     });
-  });
 
   describe('Anonymous Users', () => {
     test('should only apply IP limits to anonymous users', async () => {
-      // Anonymous user makes 101 requests (exceeding IP limit)
-      const requests = Array(101).fill(null).map(() =>
+      // Anonymous user makes 61 requests (exceeding IP limit)
+      const requests = Array(61).fill(null).map(() =>
         request(app)
           .get('/api/test')
           .set('X-Forwarded-For', testIP)
@@ -182,6 +182,22 @@ describe('Enhanced Rate Limiting', () => {
 
       expect(rateLimited.length).toBeGreaterThan(0);
       expect(rateLimited[0].body.limitType).toBe('IP');
+    });
+  });
+
+  describe('Burst Detection', () => {
+    test('should trigger burst limit on rapid requests', async () => {
+      const requests = Array(25).fill(null).map(() =>
+        request(app)
+          .get('/api/test')
+          .set('X-Forwarded-For', testIP)
+      );
+
+      const responses = await Promise.all(requests);
+      const rateLimited = responses.filter(r => r.status === 429);
+
+      expect(rateLimited.length).toBeGreaterThan(0);
+      expect(rateLimited[0].body.limitType).toBe('BURST');
     });
   });
 
@@ -201,11 +217,11 @@ describe('Enhanced Rate Limiting', () => {
   describe('Error Messages', () => {
     test('should return Arabic error messages', async () => {
       // Exceed rate limit
-      const requests = Array(101).fill(null).map(() =>
-        request(app)
-          .get('/api/test')
-          .set('X-Forwarded-For', testIP)
-      );
+        const requests = Array(61).fill(null).map(() =>
+          request(app)
+            .get('/api/test')
+            .set('X-Forwarded-For', testIP)
+        );
 
       const responses = await Promise.all(requests);
       const rateLimited = responses.find(r => r.status === 429);

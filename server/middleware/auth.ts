@@ -162,17 +162,26 @@ export const hashToken = (token: string): string => {
  * @param accessToken - Short-lived access token
  * @param refreshToken - Long-lived refresh token
  */
-export const setAuthCookies = (res: Response, accessToken: string, refreshToken: string): void => {
+export const setAuthCookies = (
+  res: Response,
+  accessToken: string,
+  refreshToken: string,
+  rememberMe = false
+): void => {
   // Set access token cookie (short-lived)
   res.cookie('__Host-hrms-elite-access', accessToken, {
     ...COOKIE_CONFIG,
     maxAge: 15 * 60 * 1000, // 15 minutes
   });
 
-  // Set refresh token cookie (long-lived)
+  // Set refresh token cookie with optional extended expiry
+  const refreshMaxAge = rememberMe
+    ? 30 * 24 * 60 * 60 * 1000 // 30 days for remember me
+    : 7 * 24 * 60 * 60 * 1000; // 7 days default
+
   res.cookie('__Host-hrms-elite-refresh', refreshToken, {
     ...COOKIE_CONFIG,
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    maxAge: refreshMaxAge,
   });
 };
 
