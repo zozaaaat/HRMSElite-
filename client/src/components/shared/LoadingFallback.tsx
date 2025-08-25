@@ -68,7 +68,7 @@ export function LoadingFallback ({
   };
 
   return (
-    <div className={cn(
+    <div role="status" aria-live="polite" className={cn(
       'flex items-center justify-center p-6',
       type === 'default' && 'min-h-[200px]',
       className
@@ -83,7 +83,7 @@ export function LoadingFallback ({
 export function PageLoadingFallback () {
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div role="status" aria-live="polite" className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center space-y-6">
         <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
           <div className="w-8 h-8 bg-primary rounded-full animate-pulse" />
@@ -123,7 +123,7 @@ export function ComponentLoadingFallback ({
 }: { message?: string; className?: string }) {
 
   return (
-    <div className={cn('flex items-center justify-center p-4', className)}>
+    <div role="status" aria-live="polite" className={cn('flex items-center justify-center p-4', className)}>
       <div className="text-center space-y-3">
         <div className="w-6 h-6 border-2 border-gray-200 border-t-primary rounded-full animate-spin mx-auto" />
         <p className="text-xs text-muted-foreground">{message}</p>
@@ -139,7 +139,7 @@ export function OverlayLoadingFallback ({
 }: { message?: string; className?: string }) {
 
   return (
-    <div className={cn(
+    <div role="status" aria-live="polite" className={cn(
       'fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center',
       className
     )}>

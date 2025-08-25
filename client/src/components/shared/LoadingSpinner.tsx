@@ -25,7 +25,7 @@ export function LoadingSpinner ({
   };
 
   return (
-    <div className={cn('flex flex-col items-center justify-center gap-3', className)}>
+    <div role="status" aria-live="polite" className={cn('flex flex-col items-center justify-center gap-3', className)}>
       <div
         className={cn(
           'animate-spin rounded-full border-2 border-gray-300 border-t-primary',
@@ -46,7 +46,7 @@ export function LoadingSpinner ({
 export function FullScreenLoader ({text}: { text?: string | undefined }) {
 
   return (
-    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div role="status" aria-live="polite" className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
       <LoadingSpinner size="lg" text={text} />
     </div>
   );
@@ -57,7 +57,7 @@ export function FullScreenLoader ({text}: { text?: string | undefined }) {
 export function SectionLoader ({text}: { text?: string | undefined }) {
 
   return (
-    <div className="flex items-center justify-center py-12">
+    <div role="status" aria-live="polite" className="flex items-center justify-center py-12">
       <LoadingSpinner size="md" text={text} />
     </div>
   );
@@ -68,7 +68,7 @@ export function SectionLoader ({text}: { text?: string | undefined }) {
 export function TableLoader () {
 
   return (
-    <div className="flex items-center justify-center py-8">
+    <div role="status" aria-live="polite" className="flex items-center justify-center py-8">
       <LoadingSpinner size="sm" text="جاري تحميل البيانات..." />
     </div>
   );

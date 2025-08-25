@@ -12,7 +12,7 @@ export function LoadingScreen ({
 }: LoadingScreenProps) {
 
   return (
-    <div className={cn(
+    <div role="status" aria-live="polite" className={cn(
       'min-h-screen flex items-center justify-center bg-background',
       className
     )}>
@@ -72,7 +72,7 @@ export function CompactLoadingScreen ({
 }: LoadingScreenProps) {
 
   return (
-    <div className={cn(
+    <div role="status" aria-live="polite" className={cn(
       'flex items-center justify-center p-8 bg-background/50 backdrop-blur-sm',
       className
     )}>
@@ -92,7 +92,7 @@ export function OverlayLoadingScreen ({
 }: LoadingScreenProps) {
 
   return (
-    <div className={cn(
+    <div role="status" aria-live="polite" className={cn(
       'fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center',
       className
     )}>

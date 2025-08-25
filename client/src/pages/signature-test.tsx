@@ -119,7 +119,7 @@ export default function SignatureTestPage () {
   ];
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <main role="main" className="container mx-auto p-6 space-y-6">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">اختبار مكون التقاط التوقيع</h1>
         <p className="text-gray-600">اختبار وظائف التقاط التوقيع للمستندات والإجازات</p>
@@ -295,7 +295,7 @@ export default function SignatureTestPage () {
           <p>• يدعم رفع ملفات الصور كتوقيعات</p>
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 
 }

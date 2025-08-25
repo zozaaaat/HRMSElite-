@@ -157,7 +157,7 @@ export function Layout ({
         />
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto p-6">
+        <main role="main" className="flex-1 overflow-auto p-6">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>

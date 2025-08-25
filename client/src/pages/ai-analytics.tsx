@@ -46,7 +46,7 @@ export default function AIAnalyticsPage () {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-6">
+      <main role="main" className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="analytics" className="flex items-center gap-2">
@@ -319,7 +319,7 @@ export default function AIAnalyticsPage () {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
+      </main>
     </div>
   );
 

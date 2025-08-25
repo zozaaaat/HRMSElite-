@@ -390,7 +390,7 @@ export default function LicensesPage () {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <main role="main" className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">إدارة التراخيص</h1>
         <div className="flex gap-2">
@@ -668,7 +668,7 @@ export default function LicensesPage () {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </main>
   );
 
 }
@@ -962,7 +962,7 @@ function LicenseView ({license}: LicenseViewProps) {
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 
 }

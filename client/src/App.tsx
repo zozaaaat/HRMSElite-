@@ -25,17 +25,17 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <AccessibilityProvider>
         <Switch>
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<div role="status" aria-live="polite">Loading…</div>}>
             <AuthRoutes />
           </Suspense>
           {isAuthenticated && (
             <>
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense fallback={<div role="status" aria-live="polite">Loading…</div>}>
                 <ProtectedRoute pageId="dashboard">
                   <HrRoutes />
                 </ProtectedRoute>
               </Suspense>
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense fallback={<div role="status" aria-live="polite">Loading…</div>}>
                 <ProtectedRoute pageId="dashboard" requiredRole="company_manager">
                   <AdminRoutes />
                 </ProtectedRoute>
