@@ -245,6 +245,13 @@ class ServerLogger {
 // Create singleton instance
 const serverLogger = new ServerLogger();
 
+// Optional external log shipper (e.g., Loki/ELK)
+const externalUrl = process.env.LOG_SHIPPER_URL;
+if (externalUrl) {
+  serverLogger.info('External log sink enabled', { externalUrl });
+  // hook your transport here (e.g., pino-loki / elastic)
+}
+
 // Export convenience functions
 export const log = {
   debug: (message: string, data?: LogData, source?: string) => serverLogger.debug(message, data, source),
