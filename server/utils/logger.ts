@@ -47,6 +47,7 @@ export interface ServerLogData extends LogData {
   source?: string | undefined;
   userId?: string | undefined;
   requestId?: string | undefined;
+  correlationId?: string | undefined;
   ip?: string | undefined;
 }
 
@@ -54,11 +55,15 @@ class ServerLogger {
   private logLevel: LogLevelValue;
   private readonly isDevelopment: boolean;
   private readonly isProduction: boolean;
+  private readonly externalUrl?: string;
+  private readonly shipperType: 'loki' | 'elk';
 
   constructor() {
     this.isDevelopment = process.env.NODE_ENV === 'development';
     this.isProduction = process.env.NODE_ENV === 'production';
     this.logLevel = this.isDevelopment ? LogLevels.DEBUG : LogLevels.INFO;
+    this.externalUrl = process.env.LOG_SHIPPER_URL;
+    this.shipperType = (process.env.LOG_SHIPPER_TYPE as 'loki' | 'elk') || 'loki';
   }
 
   private formatMessage(level: LogLevelValue,
@@ -113,47 +118,79 @@ class ServerLogger {
 
   }
 
-  private logToService(logData: ServerLogData): void {
-
-    // In production, send logs to external service
-    if (this.isProduction) {
-
-      // TODO: Implement external logging service (e.g., Winston, Bunyan)
-      // For now, we'll just use console in production too
-      this.logToConsole(logLevelMap[logData.level], logData.message, logData.data, logData.source);
-
+  private attachCorrelation(data?: LogData): { data?: LogData; correlationId?: string } {
+    if (!data) return { data };
+    const requestId = (data as any).correlationId || (data as any).requestId;
+    if (requestId && !(data as any).correlationId) {
+      return { data: { ...data, correlationId: requestId }, correlationId: requestId };
     }
+    return { data, correlationId: requestId };
+  }
 
+  private async logToService(logData: ServerLogData): Promise<void> {
+    if (!this.isProduction || !this.externalUrl) {
+      return;
+    }
+    try {
+      if (this.shipperType === 'loki') {
+        const payload = {
+          streams: [
+            {
+              stream: { level: logData.level, app: 'hrms-elite' },
+              values: [[`${Date.now()}000000`, JSON.stringify(logData)]]
+            }
+          ]
+        };
+        await fetch(this.externalUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } else {
+        await fetch(this.externalUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(logData)
+        });
+      }
+    } catch (err) {
+      this.logToConsole(LogLevels.ERROR, 'Failed to ship log', { error: (err as Error).message }, 'LOGGER');
+    }
   }
 
   debug(message: string, data?: LogData, source?: string): void {
 
-    this.logToConsole(LogLevels.DEBUG, message, data, source);
+    const { data: enriched } = this.attachCorrelation(data);
+    this.logToConsole(LogLevels.DEBUG, message, enriched, source);
 
   }
 
   info(message: string, data?: LogData, source?: string): void {
 
-    this.logToConsole(LogLevels.INFO, message, data, source);
-    this.logToService({
+    const { data: enriched, correlationId } = this.attachCorrelation(data);
+    this.logToConsole(LogLevels.INFO, message, enriched, source);
+    void this.logToService({
       'timestamp': new Date().toISOString(),
       'level': 'info',
       message,
-      ...(data && { data }),
-      ...(source && { source })
+      ...(enriched && { data: enriched }),
+      ...(source && { source }),
+      ...(correlationId && { correlationId })
     });
 
   }
 
   warn(message: string, data?: LogData, source?: string): void {
 
-    this.logToConsole(LogLevels.WARN, message, data, source);
-    this.logToService({
+    const { data: enriched, correlationId } = this.attachCorrelation(data);
+    this.logToConsole(LogLevels.WARN, message, enriched, source);
+    void this.logToService({
       'timestamp': new Date().toISOString(),
       'level': 'warn',
       message,
-      ...(data && { data }),
-      ...(source && { source })
+      ...(enriched && { data: enriched }),
+      ...(source && { source }),
+      ...(correlationId && { correlationId })
     });
 
   }
@@ -163,14 +200,16 @@ class ServerLogger {
     const errorData: LogData = error instanceof Error
       ? { 'message': error.message, 'stack': error.stack, 'name': error.name }
       : error ?? {};
+    const { data: enriched, correlationId } = this.attachCorrelation(errorData);
 
-    this.logToConsole(LogLevels.ERROR, message, errorData, source);
-    this.logToService({
+    this.logToConsole(LogLevels.ERROR, message, enriched, source);
+    void this.logToService({
       'timestamp': new Date().toISOString(),
       'level': 'error',
       message,
-      'data': errorData,
-      ...(source && { source })
+      'data': enriched,
+      ...(source && { source }),
+      ...(correlationId && { correlationId })
     });
 
   }
@@ -246,10 +285,12 @@ class ServerLogger {
 const serverLogger = new ServerLogger();
 
 // Optional external log shipper (e.g., Loki/ELK)
-const externalUrl = process.env.LOG_SHIPPER_URL;
-if (externalUrl) {
-  serverLogger.info('External log sink enabled', { externalUrl });
-  // hook your transport here (e.g., pino-loki / elastic)
+const sinkUrl = process.env.LOG_SHIPPER_URL;
+if (sinkUrl) {
+  serverLogger.info('External log sink enabled', {
+    externalUrl: sinkUrl,
+    type: process.env.LOG_SHIPPER_TYPE || 'loki'
+  });
 }
 
 // Export convenience functions
