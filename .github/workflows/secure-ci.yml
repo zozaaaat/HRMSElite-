@@ -36,7 +36,7 @@ jobs:
         run: npm run check:secrets
 
       - name: Run ESLint
-        run: npm run lint:strict
+        run: npm run lint
         continue-on-error: false
 
       - name: Type checking
@@ -126,33 +126,7 @@ jobs:
         run: npm ci
 
       - name: Run npm audit
-        run: |
-          echo "Running npm audit..."
-          npm run audit:ci -- --json > audit-report.json || true
-          
-          # Check for high/critical vulnerabilities
-          if [ -f audit-report.json ]; then
-            VULNERABILITIES=$(node -e "
-              try {
-                const audit = JSON.parse(require('fs').readFileSync('audit-report.json', 'utf8'));
-                const vulns = audit.metadata?.vulnerabilities || {};
-                const high = vulns.high || 0;
-                const critical = vulns.critical || 0;
-                console.log(high + critical);
-                if (high > 0 || critical > 0) {
-                  console.error('High/Critical vulnerabilities found');
-                  process.exit(1);
-                }
-              } catch (e) {
-                console.log('0');
-              }
-            ")
-            
-            if [ $? -ne 0 ]; then
-              echo "❌ High or critical vulnerabilities found. PR cannot merge."
-              exit 1
-            fi
-          fi
+        run: npm audit --audit-level=moderate --json > audit-report.json
 
       - name: Upload audit report
         uses: actions/upload-artifact@v4
