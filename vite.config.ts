@@ -377,7 +377,7 @@ export default defineConfig({
             }
 
             // Date and Time - تجميع مكتبات التاريخ والوقت
-            if (id.includes('date-fns') || id.includes('dayjs') || id.includes('moment')) {
+            if (id.includes('date-fns') || id.includes('dayjs')) {
               return 'date-utils';
             }
 

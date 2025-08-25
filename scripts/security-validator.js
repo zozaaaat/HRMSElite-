@@ -295,7 +295,6 @@ class SecurityValidator {
         // Check for known vulnerable packages
         const vulnerablePackages = [
           'lodash', // if version < 4.17.21
-          'moment', // if version < 2.29.4
           'axios', // if version < 1.6.0
         ];
         
