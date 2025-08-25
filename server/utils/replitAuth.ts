@@ -9,6 +9,7 @@ import memoize from 'memoizee';
 import connectPg from 'connect-pg-simple';
 import {storage} from '../models/storage';
 import {log} from './logger';
+import { env } from './env';
 
 // Extend Express namespace to include our user type
 declare global {
@@ -31,9 +32,11 @@ interface AuthenticatedUser extends Express.User {
 }
 
 if (!process.env.REPLIT_DOMAINS) {
-
   throw new Error('Environment variable REPLIT_DOMAINS not provided');
+}
 
+if (!process.env.SESSION_SECRET) {
+  throw new Error('Environment variable SESSION_SECRET not provided');
 }
 
 const getOidcConfig = memoize(
@@ -59,7 +62,7 @@ export function getSession () {
     'tableName': 'sessions'
   });
   return session({
-    'secret': process.env.SESSION_SECRET!,
+    'secret': env.SESSION_SECRET,
     'store': sessionStore,
     'resave': false,
     'saveUninitialized': false,
@@ -69,7 +72,7 @@ export function getSession () {
       'secure': true,
       'sameSite': 'strict',
       'maxAge': sessionTtl,
-      'path': '/' 
+      'path': '/'
     }
   });
 
