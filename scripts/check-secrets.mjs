@@ -1,7 +1,8 @@
 import fs from 'fs';
 
 const required = [
-  'JWT_SECRET',
+  'ACCESS_JWT_SECRET',
+  'REFRESH_JWT_SECRET',
   'SESSION_SECRET',
   'DB_ENCRYPTION_KEY',
   'FILE_SIGNATURE_SECRET'

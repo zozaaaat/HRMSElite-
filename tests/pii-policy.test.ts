@@ -5,7 +5,8 @@ import { maskPII, PII_CLASSIFICATION } from '../server/utils/pii';
 let DataMaskingManager: any;
 beforeAll(async () => {
   const dummy = 'x'.repeat(32);
-  process.env.JWT_SECRET = dummy;
+  process.env.ACCESS_JWT_SECRET = dummy;
+  process.env.REFRESH_JWT_SECRET = dummy;
   process.env.SESSION_SECRET = dummy;
   process.env.DB_ENCRYPTION_KEY = dummy;
   process.env.FILE_SIGNATURE_SECRET = dummy;

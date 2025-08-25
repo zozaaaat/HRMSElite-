@@ -7,7 +7,8 @@ import { log } from './logger';
  */
 const envSchema = z.object({
   // Required secrets with minimum length validation
-  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters long'),
+  ACCESS_JWT_SECRET: z.string().min(32, 'ACCESS_JWT_SECRET must be at least 32 characters long'),
+  REFRESH_JWT_SECRET: z.string().min(32, 'REFRESH_JWT_SECRET must be at least 32 characters long'),
   SESSION_SECRET: z.string().min(32, 'SESSION_SECRET must be at least 32 characters long'),
   DB_ENCRYPTION_KEY: z.string().min(32, 'DB_ENCRYPTION_KEY must be at least 32 characters long'),
   FILE_SIGNATURE_SECRET: z.string().min(32, 'FILE_SIGNATURE_SECRET must be at least 32 characters long'),
@@ -113,7 +114,8 @@ export function validateSecrets(): void {
   ];
   
   const secrets = [
-    { name: 'JWT_SECRET', value: env.JWT_SECRET },
+    { name: 'ACCESS_JWT_SECRET', value: env.ACCESS_JWT_SECRET },
+    { name: 'REFRESH_JWT_SECRET', value: env.REFRESH_JWT_SECRET },
     { name: 'SESSION_SECRET', value: env.SESSION_SECRET },
     { name: 'DB_ENCRYPTION_KEY', value: env.DB_ENCRYPTION_KEY },
     { name: 'FILE_SIGNATURE_SECRET', value: env.FILE_SIGNATURE_SECRET },
@@ -138,7 +140,8 @@ export function validateSecrets(): void {
   });
 
   log.info('Secret validation completed successfully', {
-    jwtSecretLength: env.JWT_SECRET.length,
+    accessJwtSecretLength: env.ACCESS_JWT_SECRET.length,
+    refreshJwtSecretLength: env.REFRESH_JWT_SECRET.length,
     sessionSecretLength: env.SESSION_SECRET.length,
     dbEncryptionKeyLength: env.DB_ENCRYPTION_KEY.length,
     fileSignatureSecretLength: env.FILE_SIGNATURE_SECRET.length
