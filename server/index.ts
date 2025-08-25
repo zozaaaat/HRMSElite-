@@ -8,6 +8,7 @@
 
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import { createSessionMiddleware } from './utils/session';
 import { assertDatabaseEncryption } from './bootstrap/encryption-guard';
 
@@ -80,7 +81,7 @@ app.use(additionalSecurityHeaders);
 app.use(securityMonitoring);
 
 // CORS configuration
-app.use(strictCors);
+app.use(cors(strictCors));
 
 // Cookie parsing middleware
 app.use(cookieParser());

@@ -9,6 +9,7 @@ const express = require('express');
 const request = require('supertest');
 
 // Import the strict CORS middleware
+const cors = require('cors');
 const { strictCors } = require('../server/middleware/cors');
 
 // Mock logger
@@ -31,7 +32,7 @@ jest.doMock('../server/utils/logger', () => ({
 
 function createTestApp() {
   const app = express();
-  app.use(strictCors);
+  app.use(cors(strictCors));
   
   app.get('/api/test', (req, res) => {
     res.json({ success: true, message: 'CORS test endpoint' });
@@ -110,11 +111,15 @@ async function testCorsConfiguration() {
       const response = await request(app)
         .get('/api/test')
         .set('Origin', origin)
-        .expect(403);
-      
-      console.log(`✅ Rejected origin: ${origin} (403)`);
+        .expect(200);
+
+      if (!response.headers['access-control-allow-origin']) {
+        console.log(`✅ Rejected origin: ${origin} (no CORS headers)`);
+      } else {
+        console.log(`❌ Origin unexpectedly allowed: ${origin}`);
+      }
     } catch (error) {
-      console.log(`❌ Failed to reject origin: ${origin}`);
+      console.log(`❌ Failed to handle origin: ${origin}`);
     }
   }
   
