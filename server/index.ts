@@ -95,7 +95,7 @@ app.use(createSessionMiddleware());
 // CSRF protection
 app.use(csrfProtection);
 app.use(csrfTokenMiddleware);
-app.get('/api/v1/csrf-token', csrfTokenHandler);
+app.get('/api/csrf-token', csrfTokenHandler);
 
 // Rate limiting
 app.use(enhancedRateLimiters.general);
