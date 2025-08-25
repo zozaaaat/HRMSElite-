@@ -318,7 +318,7 @@ const AISummary = ({companyId}: { companyId: string }) => {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 
 };
@@ -595,7 +595,7 @@ export default function ReportsPage () {
   const _userId = 'user-1';
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <main role="main" className="container mx-auto px-4 py-8 space-y-8">
       {/* العنوان */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">التقارير والمستندات</h1>
@@ -656,7 +656,7 @@ export default function ReportsPage () {
           <DocumentManagement companyId={companyId} />
         </TabsContent>
       </Tabs>
-    </div>
+    </main>
   );
 
 }

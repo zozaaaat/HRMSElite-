@@ -15,7 +15,7 @@ export default function QualityMonitorPage () {
         <meta name="description" content="Comprehensive code quality and performance monitoring dashboard" />
       </Helmet>
 
-      <div className="container mx-auto px-4 py-8">
+      <main role="main" className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -234,7 +234,7 @@ export default function QualityMonitorPage () {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </main>
     </>
   );
 
