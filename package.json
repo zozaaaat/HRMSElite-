@@ -48,7 +48,7 @@
     "type-check:strict": "tsc --noEmit --strict",
     "check-all": "npm run type-check && npm run lint",
     "fix-typescript": "node scripts/fix-typescript-errors.js",
-    "test": "node --import tsx --test test/basic.test.ts",
+    "test": "tsx test/basic.test.ts",
     "test:all": "cd client && tsx tests/test-runner.ts",
     "test:unit": "cd client && tsx tests/test-runner.ts unit",
     "test:integration": "cd client && tsx tests/test-runner.ts integration",

@@ -30,8 +30,10 @@ const SECURITY_CONFIG = {
     // General API rate limiting
     general: {
       windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutes
-      max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'), // limit each IP to 100 requests per windowMs
-      userMax: parseInt(process.env.RATE_LIMIT_USER_MAX_REQUESTS || '200'), // limit each user to 200 requests per windowMs
+      max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '60'), // limit each IP to 60 requests per windowMs
+      userMax: parseInt(process.env.RATE_LIMIT_USER_MAX_REQUESTS || '120'), // limit each user to 120 requests per windowMs
+      burstWindowMs: 60 * 1000, // 1 minute burst window
+      burstMax: 20, // max 20 requests per burst window
       message: {
         error: 'تم تجاوز حد الطلبات',
         message: 'يرجى المحاولة مرة أخرى بعد فترة',
@@ -204,15 +206,61 @@ export const createEnhancedRateLimiter = (type: keyof typeof SECURITY_CONFIG.rat
     },
   });
 
-  // Return middleware that applies both limiters
-  return (req: Request, res: Response, next: NextFunction) => {
-    // Apply IP-based rate limiting first
-    ipLimiter(req, res, (err) => {
-      if (err) return next(err);
+  // Optional burst limiter for rapid request bursts
+  const burstLimiter =
+    config.burstWindowMs && config.burstMax
+      ? rateLimit({
+        store: rateLimitStore,
+        windowMs: config.burstWindowMs,
+        max: config.burstMax,
+        standardHeaders: config.standardHeaders,
+        legacyHeaders: config.legacyHeaders,
+        keyGenerator: (req: Request) => {
+          return `burst:${req.ip || req.connection.remoteAddress || 'unknown'}`;
+        },
+        handler: (req: Request, res: Response) => {
+          const logData = {
+            ip: req.ip,
+            url: req.url,
+            method: req.method,
+            userAgent: req.get('User-Agent'),
+            userId: req.user?.id,
+            timestamp: new Date().toISOString(),
+          };
+          req.log?.warn(`Burst rate limit exceeded for ${type}`, logData);
+          req.metrics?.increment('security_alerts_total', {
+            type: `${type}_rate_limit`,
+            limitType: 'burst',
+          });
+          log.warn(`Burst rate limit exceeded for ${type}`, logData, 'SECURITY');
 
-      // Then apply user-based rate limiting
-      userLimiter(req, res, next);
+          res.status(429).json({
+            error: config.message.error,
+            message: config.message.message,
+            retryAfter: '1 دقيقة',
+            code: `RATE_LIMIT_BURST_${type.toUpperCase()}`,
+            limitType: 'BURST',
+            timestamp: new Date().toISOString(),
+          });
+        },
+      })
+      : null;
+
+  // Return middleware that applies burst, IP, and user limiters
+  return (req: Request, res: Response, next: NextFunction) => {
+    const applyUserLimiter = () => userLimiter(req, res, next);
+    const applyIpLimiter = () => ipLimiter(req, res, (err) => {
+      if (err) return next(err);
+      applyUserLimiter();
     });
+    if (burstLimiter) {
+      burstLimiter(req, res, (err) => {
+        if (err) return next(err);
+        applyIpLimiter();
+      });
+    } else {
+      applyIpLimiter();
+    }
   };
 };
 

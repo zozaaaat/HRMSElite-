@@ -1,11 +1,12 @@
-import express, {type Express} from 'express';
+import express, { type Express } from 'express';
 import fs from 'fs';
 import path from 'path';
-import {createServer as createViteServer, createLogger} from 'vite';
-import {type Server} from 'http';
+import { createServer as createViteServer, createLogger } from 'vite';
+import { type Server } from 'http';
 import viteConfig from '../../vite.config';
-import {nanoid} from 'nanoid';
-import {log} from './logger';
+import { nanoid } from 'nanoid';
+import { log } from './logger';
+import { getLocale } from './errorMessages';
 
 const viteLogger = createLogger();
 
@@ -47,12 +48,8 @@ export async function setupVite (app: Express, server: Server) {
 
   app.use(vite.middlewares);
   app.use('*', async (req, res, next) => {
-
     const url = req.originalUrl;
-
     try {
-
-      // إصلاح المسار ليشير إلى مجلد client في الجذر
       const clientTemplate = path.resolve(
         import.meta.dirname,
         '..',
@@ -60,46 +57,55 @@ export async function setupVite (app: Express, server: Server) {
         'client',
         'index.html'
       );
-
-      // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, 'utf-8');
       template = template.replace(
         'src="/src/main.tsx"',
         `src="/src/main.tsx?v=${nanoid()}"`
       );
+
+      const locale = getLocale(req.headers['accept-language']);
+      const dir = locale === 'ar' ? 'rtl' : 'ltr';
+      template = template
+        .replace('%LANG%', locale)
+        .replace('%DIR%', dir);
+
       const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({'Content-Type': 'text/html'}).end(page);
-
+      res
+        .status(200)
+        .set({ 'Content-Type': 'text/html', 'Content-Language': locale })
+        .end(page);
     } catch (e) {
-
       vite.ssrFixStacktrace(e as Error);
       next(e);
-
     }
-
   });
 
 }
 
 export function serveStatic (app: Express) {
-
   const distPath = path.resolve(import.meta.dirname, '..', '..', 'dist');
 
   if (!fs.existsSync(distPath)) {
-
     throw new Error(
       `Could not find the build directory: ${distPath}, make sure to build the client first`
     );
-
   }
 
-  app.use(express.static(distPath));
+  app.use(express.static(distPath, { index: false }));
 
-  // fall through to index.html if the file doesn't exist
-  app.use('*', (_req, res) => {
-
-    res.sendFile(path.resolve(distPath, 'index.html'));
-
+  app.get('*', (req, res, next) => {
+    try {
+      const locale = getLocale(req.headers['accept-language']);
+      const dir = locale === 'ar' ? 'rtl' : 'ltr';
+      const indexPath = path.resolve(distPath, 'index.html');
+      let template = fs.readFileSync(indexPath, 'utf-8');
+      template = template.replace('%LANG%', locale).replace('%DIR%', dir);
+      res
+        .status(200)
+        .set({ 'Content-Type': 'text/html', 'Content-Language': locale })
+        .send(template);
+    } catch (e) {
+      next(e);
+    }
   });
-
 }
