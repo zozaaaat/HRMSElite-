@@ -129,7 +129,7 @@ app.get('/api-docs', (req, res) => {
     endpoints: {
       auth: '/api/auth',
       employees: '/api/employees',
-      documents: '/api/documents',
+      documents: '/api/v1/documents',
       ai: '/api/ai',
       quality: '/api/quality',
       v1: {

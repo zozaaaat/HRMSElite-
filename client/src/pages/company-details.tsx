@@ -127,7 +127,7 @@ export default function CompanyDetails () {
 
   // جلب مستندات الشركة
   const {'data': documents = [], 'isLoading': isLoadingDocuments} = useQuery<CompanyDocument[]>({
-    'queryKey': ['/api/documents', companyId],
+    'queryKey': ['/api/v1/documents', companyId],
     'queryFn': async (): Promise<CompanyDocument[]> => {
 
       if (!companyId) {
@@ -135,7 +135,7 @@ export default function CompanyDetails () {
         return [];
 
       }
-      const res = await apiRequest('GET', `/api/documents?company=${companyId}`);
+      const res = await apiRequest('GET', `/api/v1/documents?company=${companyId}`);
       return await res.json() as CompanyDocument[];
 
     },

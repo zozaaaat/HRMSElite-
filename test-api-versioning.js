@@ -45,7 +45,7 @@ const TESTS = [
   {
     name: 'Test Legacy API Still Works',
     method: 'GET',
-    url: `${BASE_URL}/api/documents`,
+    url: `${BASE_URL}/api/v1/documents`,
     expectedStatus: 401, // Should require authentication
     description: 'Legacy API should still be accessible'
   }
