@@ -42,6 +42,9 @@ jobs:
         run: npm run type-check:strict
         continue-on-error: false
 
+      - name: i18n scan
+        run: ./scripts/i18n-scan.sh
+
       - name: Upload lint results
         uses: actions/upload-artifact@v4
         with:
