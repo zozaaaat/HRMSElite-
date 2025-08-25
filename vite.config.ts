@@ -583,7 +583,7 @@ export default defineConfig({
     'headers': {
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
-      'X-XSS-Protection': '1; mode=block'
+      // إزالة X-XSS-Protection - الحماية تتم عبر CSP
     }
   },
   // تحسين optimizeDeps - تحسين pre-bundling
@@ -653,7 +653,7 @@ export default defineConfig({
     'headers': {
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
-      'X-XSS-Protection': '1; mode=block'
+      // إزالة X-XSS-Protection - الحماية تتم عبر CSP
     }
   },
   // تحسينات إضافية
