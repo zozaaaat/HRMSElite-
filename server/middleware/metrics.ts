@@ -396,9 +396,12 @@ export const prometheusMiddleware = (req: Request, res: Response, next: NextFunc
  * Metrics endpoint authentication
  */
 export const metricsAuth = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (token !== env.METRICS_TOKEN) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  const token = env.METRICS_TOKEN;
+  if (!token) {
+    return res.status(403).json({ error: 'Metrics disabled' });
+  }
+  if (req.get('x-metrics-token') !== token) {
+    return res.status(403).json({ error: 'Forbidden' });
   }
   next();
 };
