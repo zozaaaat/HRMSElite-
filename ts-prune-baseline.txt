@@ -1,4 +1,3 @@
-security/files.ts:18 - createScanFile
 shared/schema.ts:13 - sessions
 shared/schema.ts:27 - users (used in module)
 shared/schema.ts:58 - refreshTokens (used in module)
@@ -88,7 +87,6 @@ server/utils/dbSecurity.ts:56 - SecureDatabaseManager (used in module)
 server/utils/dbSecurity.ts:355 - defaultSecurityConfig (used in module)
 server/utils/env.ts:57 - validateEnv (used in module)
 server/utils/env.ts:97 - validateSecrets (used in module)
-server/utils/env.ts:177 - generateSecureSecret
 server/utils/env.ts:51 - EnvConfig (used in module)
 server/utils/logger.ts:40 - LogLevel (used in module)
 server/utils/logger.ts:42 - ServerLogData (used in module)

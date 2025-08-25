@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { log } from './logger';
-import crypto from 'node:crypto';
 
 /**
  * Environment variable validation schema
@@ -167,15 +166,6 @@ function calculateEntropy(str: string): number {
   }
   
   return entropy;
-}
-
-/**
- * Generate a secure random secret
- * @param length - Length of the secret (default: 64)
- * @returns Secure random string
- */
-export function generateSecureSecret(length: number = 64): string {
-  return crypto.randomBytes(length).toString('base64url');
 }
 
 /**

@@ -5,8 +5,6 @@ import { insertDocumentSchema } from '@shared/schema';
 import { log } from '../../utils/logger';
 import { isAuthenticated, requireRole } from '../../middleware/auth';
 import { secureFileStorage, type StoredFile } from '../../utils/secureStorage';
-import { antivirusScanner } from '../../utils/antivirus';
-import { createScanFile } from '../../../security/files';
 import { generateETag, setETagHeader, matchesIfMatchHeader } from '../../utils/etag';
 import { fileTypeFromBuffer } from 'file-type';
 import {
@@ -150,8 +148,6 @@ const validateFile = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-// Antivirus scanning middleware
-const scanFile = createScanFile({ createErrorResponse });
 
 // Sanitize filename for security
 function sanitizeFilename(filename: string): string {
@@ -519,9 +515,8 @@ export function registerDocumentRoutes(app: Express) {
   // Secure file upload endpoint
   app.post('/api/v1/documents/upload', 
     isAuthenticated, 
-    upload.single('file'), 
+    upload.single('file'),
     validateFile,
-    scanFile,
     async (req: Request, res: Response) => {
       try {
         if (!req.file) {
@@ -535,7 +530,6 @@ export function registerDocumentRoutes(app: Express) {
         }
 
         const file = req.file;
-        const scanResult = (req as any).scanResult as ScanResult;
         
         // Store file securely
         const storedFile: StoredFile = await secureFileStorage.storeFile(
@@ -572,11 +566,6 @@ export function registerDocumentRoutes(app: Express) {
           fileSize: file.size,
           mimeType: file.mimetype,
           uploadedBy: req.user?.id,
-          scanResult: {
-            isClean: scanResult.isClean,
-            provider: scanResult.provider,
-            scanTime: scanResult.scanTime
-          },
           storage: {
             provider: secureFileStorage.getStatus().provider,
             urlExpiration: secureFileStorage.getStatus().urlExpiration
@@ -600,11 +589,6 @@ export function registerDocumentRoutes(app: Express) {
             fileSignature: 'verified',
             mimeType: 'verified',
             sizeLimit: 'within_bounds',
-            antivirusScan: {
-              isClean: scanResult.isClean,
-              provider: scanResult.provider,
-              scanTime: scanResult.scanTime
-            },
             storage: {
               provider: secureFileStorage.getStatus().provider,
               encrypted: true,
