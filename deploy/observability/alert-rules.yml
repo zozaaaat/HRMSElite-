@@ -1,0 +1,13 @@
+groups:
+  - name: hrms-elite
+    rules:
+      - alert: High5xxRate
+        expr: sum(rate(http_requests_total{code=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.05
+        for: 10m
+        labels: { severity: page }
+        annotations: { summary: "5xx > 5% for 10m" }
+      - alert: LoginBruteforce
+        expr: increase(hrms_login_failures_total[10m]) > 20
+        for: 5m
+        labels: { severity: page }
+        annotations: { summary: "login failures >20/10m" }
