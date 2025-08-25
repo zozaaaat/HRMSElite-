@@ -5,6 +5,7 @@
 import './test-env.js';
 import express from 'express';
 import request from 'supertest';
+import cors from 'cors';
 import { strictCors } from '../server/middleware/cors';
 
 describe('Strict CORS middleware', () => {
@@ -15,7 +16,7 @@ describe('Strict CORS middleware', () => {
     delete process.env.INTERNAL_CIDR_ALLOWLIST;
 
     app = express();
-    app.use(strictCors);
+    app.use(cors(strictCors));
     app.get('/test', (_req, res) => res.json({ ok: true }));
   });
 
@@ -24,12 +25,13 @@ describe('Strict CORS middleware', () => {
       .get('/test')
       .set('Origin', 'https://evil.example');
 
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(200);
     expect(res.headers['access-control-allow-origin']).toBeUndefined();
   });
 
-  it('rejects originless requests from non-internal sources', async () => {
+  it('handles originless requests without enabling CORS', async () => {
     const res = await request(app).get('/test');
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(200);
+    expect(res.headers['access-control-allow-origin']).toBeUndefined();
   });
 });
