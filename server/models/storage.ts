@@ -60,6 +60,12 @@ async function withDbMetrics<T>(operation: string, table: string, query: () => P
 }
 import {eq, and, gt, isNull} from 'drizzle-orm';
 import {log} from '../utils/logger';
+import crypto from 'node:crypto';
+import { env } from '../utils/env';
+
+function hashTokenInternal(token: string): string {
+  return crypto.createHmac('sha256', env.REFRESH_JWT_SECRET).update(token).digest('hex');
+}
 
 
 /**
@@ -2128,6 +2134,43 @@ export class DatabaseStorage {
     } catch (error) {
       log.error('Error revoking refresh token family:', error as Error);
       throw new Error('Failed to revoke refresh token family');
+    }
+  }
+
+  /**
+   * Invalidate a refresh token
+   * @async
+   * @param {string} token - Raw refresh token
+   * @returns {Promise<RefreshToken | null>} Revoked token record
+   */
+  async invalidateRefreshToken (token: string): Promise<RefreshToken | null> {
+    try {
+      const tokenHash = hashTokenInternal(token);
+      const stored = await this.findRefreshToken(tokenHash);
+      if (stored) {
+        await this.revokeRefreshToken(stored.id);
+      }
+      return stored ?? null;
+    } catch (error) {
+      log.error('Error invalidating refresh token:', error as Error);
+      throw new Error('Failed to invalidate refresh token');
+    }
+  }
+
+  /**
+   * Check if refresh token is revoked
+   * @async
+   * @param {string} token - Raw refresh token
+   * @returns {Promise<boolean>} True if token is revoked
+   */
+  async isRefreshTokenBlacklisted (token: string): Promise<boolean> {
+    try {
+      const tokenHash = hashTokenInternal(token);
+      const stored = await this.findRefreshToken(tokenHash);
+      return !!stored?.revokedAt;
+    } catch (error) {
+      log.error('Error checking refresh token blacklist:', error as Error);
+      throw new Error('Failed to check refresh token');
     }
   }
 

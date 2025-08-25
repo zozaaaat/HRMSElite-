@@ -2,13 +2,6 @@
 const BUILD_HASH = new URL(self.location.href).searchParams.get('build') || 'dev';
 const STATIC_CACHE = `hrms-static-v${BUILD_HASH}`;
 
-const ALLOWLIST = [
-  '/api/v1/public/health',
-  '/api/v1/public/dictionary'
-];
-const API_TTL_MS = 5 * 60 * 1000; // 5 min فقط
-const MAX_ENTRIES = 100;
-
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(STATIC_CACHE));
 });
@@ -36,43 +29,6 @@ self.addEventListener('fetch', (e) => {
   );
 });
 
-self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-
-  // لا تكاش أي طلب عليه credentials أو هيدر Authorization
-  if (event.request.credentials === 'include') return;
-  if (event.request.headers.get('authorization')) return;
-
-  // اسمح فقط بنقاط Endpoints عامة محددة
-  if (url.pathname && ALLOWLIST.some((p) => url.pathname.startsWith(p))) {
-    event.respondWith(
-      (async () => {
-        const cache = await caches.open('hrms-public-v1');
-        const cached = await cache.match(event.request);
-        if (cached) {
-          const date = cached.headers.get('date');
-          if (date && Date.now() - new Date(date).getTime() <= API_TTL_MS) {
-            return cached;
-          }
-          await cache.delete(event.request);
-        }
-
-        const res = await fetch(event.request);
-        // لا تكاش لو الرد private/no-store
-        const cc = res.headers.get('cache-control') || '';
-        if (/no-store|no-cache|private/i.test(cc)) return res;
-
-        // enforce TTL + quota
-        await cache.put(event.request, res.clone());
-        // تنظيف بسيط للكوته (عينة)
-        const keys = await cache.keys();
-        if (keys.length > MAX_ENTRIES) await cache.delete(keys[0]);
-
-        return res;
-      })()
-    );
-  }
-});
 
 // Background sync for offline functionality
 self.addEventListener('sync', (event) => {

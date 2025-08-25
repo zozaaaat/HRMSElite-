@@ -9,7 +9,8 @@ import {
   verifyRefreshToken,
   setAuthCookies,
   clearAuthCookies,
-  getRefreshTokenFromRequest
+  getRefreshTokenFromRequest,
+  hashToken
 } from '../../middleware/auth';
 import {
   hashPassword,
@@ -37,6 +38,7 @@ import {
 } from '../../middleware/api-versioning';
 import { generateETag, setETagHeader } from '../../utils/etag';
 import { metricsUtils } from '../../middleware/metrics';
+import crypto from 'node:crypto';
 
 // Define session interface
 interface SessionUser {
@@ -481,12 +483,23 @@ router.post('/refresh', async (req: Request, res: Response) => {
       return res.status(errorResponse.statusCode).json(errorResponse.body);
     }
 
+    // Invalidate old refresh token and get record
+    const oldRecord = await storage.invalidateRefreshToken(refreshToken);
+
     // Generate new tokens
     const newToken = generateJWTToken(user);
     const newRefreshToken = generateRefreshToken(user);
+    const newPayload = verifyRefreshToken(newRefreshToken);
 
-    // Invalidate old refresh token
-    await storage.invalidateRefreshToken(refreshToken);
+    // Store new refresh token
+    await storage.createRefreshToken({
+      userId: user.id,
+      tokenHash: hashToken(newRefreshToken),
+      familyId: oldRecord?.familyId ?? crypto.randomUUID(),
+      expiresAt: new Date((newPayload?.exp ?? 0) * 1000),
+      userAgent: req.get('User-Agent') ?? '',
+      ip: req.ip
+    });
 
     // Set new cookies
     setAuthCookies(res, newToken, newRefreshToken, false);
