@@ -253,7 +253,7 @@ export const createRateLimiter = (type: keyof typeof SECURITY_CONFIG.rateLimit) 
  * Generate CSP nonce for scripts
  */
 function generateNonce(): string {
-  return crypto.randomBytes(16).toString('base64url');
+  return crypto.randomBytes(16).toString('base64');
 }
 
 /**
@@ -269,7 +269,7 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
   // Also expose as res.locals.nonce for SSR templates
   res.locals.nonce = nonce;
 
-  // Build CSP header string manually to allow base64url nonce
+  // Build CSP header string manually to allow base64 nonce
   const cspHeader = [
     "default-src 'self'",
     // Nonce + strict-dynamic يمنع أي سكريبت غير موثوق حتى لو من self بدون nonce
@@ -607,10 +607,10 @@ export const cspUtils = {
   },
 
   /**
-   * Validate nonce format
+  * Validate nonce format
    */
   validateNonce: (nonce: string): boolean => {
-    return /^[A-Za-z0-9_-]+$/.test(nonce);
+    return /^[A-Za-z0-9+/=]+$/.test(nonce);
   },
 };
 
