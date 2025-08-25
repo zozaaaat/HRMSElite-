@@ -12,6 +12,16 @@ import helmet from 'helmet';
 import crypto from 'node:crypto';
 import { log } from '../utils/logger';
 import { deepSanitize } from '../utils/sanitize';
+import RedisStore from 'rate-limit-redis';
+import Redis from 'ioredis';
+
+const redisClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+redisClient.on('error', (err) => {
+  log.error('Redis connection error for rate limiter', { error: err }, 'SECURITY');
+});
+const rateLimitStore = new RedisStore({
+  sendCommand: (...args: string[]) => redisClient.call(...args),
+});
 
 // Security configuration
 const SECURITY_CONFIG = {
@@ -114,6 +124,7 @@ export const createEnhancedRateLimiter = (type: keyof typeof SECURITY_CONFIG.rat
 
   // Create IP-based rate limiter
   const ipLimiter = rateLimit({
+    store: rateLimitStore,
     windowMs: config.windowMs,
     max: config.max,
     standardHeaders: config.standardHeaders,
@@ -152,6 +163,7 @@ export const createEnhancedRateLimiter = (type: keyof typeof SECURITY_CONFIG.rat
 
   // Create user-based rate limiter (only for authenticated users)
   const userLimiter = rateLimit({
+    store: rateLimitStore,
     windowMs: config.windowMs,
     max: config.userMax,
     standardHeaders: config.standardHeaders,
@@ -211,6 +223,7 @@ export const createRateLimiter = (type: keyof typeof SECURITY_CONFIG.rateLimit) 
   const config = SECURITY_CONFIG.rateLimit[type];
 
   return rateLimit({
+    store: rateLimitStore,
     windowMs: config.windowMs,
     max: config.max,
     message: config.message,
