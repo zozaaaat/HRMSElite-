@@ -1,84 +1,30 @@
-// Service Worker for HRMS Elite PWA
+// Service Worker caching static assets only
 const BUILD_HASH = new URL(self.location.href).searchParams.get('build') || 'dev';
-const CACHE_NAME = `hrms-elite-${BUILD_HASH}`;
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon-192x192.png',
-  '/icon-512x512.png'
-];
+const STATIC_CACHE = `hrms-static-v${BUILD_HASH}`;
 
-// Install event - cache resources
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.info('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
+self.addEventListener('install', (e) => {
+  e.waitUntil(caches.open(STATIC_CACHE));
+});
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== STATIC_CACHE).map((k) => caches.delete(k)))
+    )
   );
 });
 
-// Fetch event - serve from cache if available
-  self.addEventListener('fetch', (event) => {
-    const { request } = event;
-    if (request.method !== 'GET') {
-      return;
-    }
-
-    const url = new URL(request.url);
-    const hasCredentials = request.headers.has('Authorization') || request.headers.has('Cookie');
-    const acceptsJson = request.headers.get('Accept')?.includes('application/json');
-
-    // Bypass caching for API/JSON requests or credentialed requests
-    if (
-      url.pathname.startsWith('/api/') ||
-      acceptsJson ||
-      hasCredentials
-    ) {
-      event.respondWith(fetch(request));
-      return;
-    }
-
-    event.respondWith(
-      (async () => {
-        const cached = await caches.match(request);
-        if (cached) {
-          return cached;
-        }
-
-        const networkResponse = await fetch(request);
-        const contentType = networkResponse.headers.get('Content-Type') || '';
-        const cacheControl = networkResponse.headers.get('Cache-Control') || '';
-        const isJson = contentType.includes('application/json');
-        const shouldCache =
-          !isJson &&
-          !cacheControl.includes('no-store') &&
-          !cacheControl.includes('no-cache');
-
-        if (shouldCache) {
-          const cache = await caches.open(CACHE_NAME);
-          cache.put(request, networkResponse.clone());
-        }
-
-        return networkResponse;
-      })()
-    );
-  });
-
-// Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.info('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
+self.addEventListener('fetch', (e) => {
+  const url = new URL(e.request.url);
+  const isStatic = url.pathname.match(/\.(?:css|js|woff2?|ttf|png|jpg|jpeg|webp|svg)$/);
+  if (!isStatic) return;
+  e.respondWith(
+    caches.open(STATIC_CACHE).then(async (cache) => {
+      const cached = await cache.match(e.request);
+      if (cached) return cached;
+      const res = await fetch(e.request, { credentials: 'omit' });
+      if (res.ok) cache.put(e.request, res.clone());
+      return res;
     })
   );
 });
@@ -99,25 +45,23 @@ self.addEventListener('push', (event) => {
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
-      primaryKey: 1
+      primaryKey: 1,
     },
     actions: [
       {
         action: 'explore',
         title: 'View',
-        icon: '/icon-72x72.png'
+        icon: '/icon-72x72.png',
       },
       {
         action: 'close',
         title: 'Close',
-        icon: '/icon-72x72.png'
-      }
-    ]
+        icon: '/icon-72x72.png',
+      },
+    ],
   };
 
-  event.waitUntil(
-    self.registration.showNotification('HRMS Elite', options)
-  );
+  event.waitUntil(self.registration.showNotification('HRMS Elite', options));
 });
 
 // Notification click handling
@@ -125,9 +69,7 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
   if (event.action === 'explore') {
-    event.waitUntil(
-      clients.openWindow('/')
-    );
+    event.waitUntil(clients.openWindow('/'));
   }
 });
 
@@ -140,3 +82,4 @@ async function doBackgroundSync() {
     console.error('Background sync failed:', error);
   }
 }
+
