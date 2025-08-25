@@ -12,6 +12,7 @@ import {
   clearAuthCookies,
   getRefreshTokenFromRequest
 } from '../middleware/auth';
+import { blacklistToken, isTokenBlacklisted } from '../services/tokenStore';
 import {
   hashPassword,
   verifyPassword,
@@ -425,6 +426,12 @@ router.post('/refresh', async (req: Request, res: Response) => {
       });
     }
 
+    const refreshTokenId = storedToken.id;
+    if (await isTokenBlacklisted(refreshTokenId)) {
+      clearAuthCookies(res);
+      return res.status(401).json({ error: 'Token revoked' });
+    }
+
     if (storedToken.revokedAt) {
       await storage.revokeRefreshTokenFamily(storedToken.familyId);
       log.security('Refresh token replay detected', req.ip, {
@@ -483,6 +490,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
     });
 
     await storage.revokeRefreshToken(storedToken.id, newTokenRecord.id);
+    await blacklistToken(storedToken.id);
 
     setAuthCookies(res, newAccessToken, newRefreshToken);
 
@@ -511,6 +519,7 @@ router.post('/logout', async (req: Request, res: Response) => {
       const stored = await storage.findRefreshToken(hashToken(refreshToken));
       if (stored) {
         await storage.revokeRefreshToken(stored.id);
+        await blacklistToken(stored.id);
       }
     }
   } catch (error) {
@@ -534,6 +543,7 @@ router.post('/logout-all', async (req: Request, res: Response) => {
       const stored = await storage.findRefreshToken(hashToken(refreshToken));
       if (stored) {
         await storage.revokeRefreshTokenFamily(stored.familyId);
+        await blacklistToken(stored.id);
       }
     }
   } catch (error) {
