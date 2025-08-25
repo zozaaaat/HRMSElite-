@@ -42,7 +42,7 @@ import { apiVersioningRedirect } from './middleware/apiVersioningRedirect';
 assertDatabaseEncryption();
 
 // Import versioned routes
-import v1AuthRoutes from './routes/v1/auth-routes';
+import { authRoutesPublic, authRoutesPrivate } from './routes/v1/auth-routes';
 import { registerEmployeeRoutes as registerV1EmployeeRoutes } from './routes/v1/employee-routes';
 import { registerDocumentRoutes } from './routes/v1/document-routes';
 
@@ -140,7 +140,8 @@ app.get('/api-docs', (req, res) => {
 app.use(apiVersioningRedirect);
 
 // Versioned API routes
-app.use('/api/v1/auth', isAuthenticated, v1AuthRoutes);
+app.use('/api/v1/auth', authRoutesPublic);
+app.use('/api/v1/auth', isAuthenticated, authRoutesPrivate);
 registerV1EmployeeRoutes(app);
 registerDocumentRoutes(app);
 app.use('/api/v1/ai', isAuthenticated, aiRoutes);
