@@ -87,8 +87,8 @@ app.use(cors(strictCors));
 app.use(cookieParser());
 
 // Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Session configuration with Redis store
 app.use(createSessionMiddleware());

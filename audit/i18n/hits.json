@@ -846,22 +846,22 @@
   },
   {
     "file": "client/src/components/header.tsx",
-    "line": 82,
+    "line": 85,
     "text": "موظف"
   },
   {
     "file": "client/src/components/header.tsx",
-    "line": 147,
+    "line": 151,
     "text": "الإعدادات"
   },
   {
     "file": "client/src/components/header.tsx",
-    "line": 151,
+    "line": 155,
     "text": "الملف الشخصي"
   },
   {
     "file": "client/src/components/header.tsx",
-    "line": 156,
+    "line": 160,
     "text": "تسجيل الخروج"
   },
   {
@@ -1241,107 +1241,107 @@
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 89,
+    "line": 88,
     "text": "لوحة التحكم"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 90,
+    "line": 89,
     "text": "لوحة التحكم الرئيسية لنظام إدارة الموارد البشرية"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 91,
+    "line": 90,
     "text": "لوحة التحكم, إحصائيات, تقارير, HRMS"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 96,
+    "line": 95,
     "text": "إدارة الشركات"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 97,
+    "line": 96,
     "text": "إدارة الشركات والمؤسسات في النظام"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 98,
+    "line": 97,
     "text": "شركات, مؤسسات, إدارة, HRMS"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 103,
+    "line": 102,
     "text": "إدارة الموظفين"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 104,
+    "line": 103,
     "text": "إدارة بيانات الموظفين والموارد البشرية"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 105,
+    "line": 104,
     "text": "موظفين, موارد بشرية, إدارة, HRMS"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 110,
+    "line": 109,
     "text": "إدارة المستندات"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 111,
+    "line": 110,
     "text": "إدارة المستندات والتراخيص والملفات"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 112,
+    "line": 111,
     "text": "مستندات, تراخيص, ملفات, HRMS"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 117,
+    "line": 116,
     "text": "التقارير"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 118,
+    "line": 117,
     "text": "تقارير شاملة عن الموارد البشرية والشركات"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 119,
+    "line": 118,
     "text": "تقارير, إحصائيات, تحليلات, HRMS"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 124,
+    "line": 123,
     "text": "الإعدادات"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 125,
+    "line": 124,
     "text": "إعدادات النظام والتكوين"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 126,
+    "line": 125,
     "text": "إعدادات, تكوين, النظام, HRMS"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 131,
+    "line": 130,
     "text": "تسجيل الدخول"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 132,
+    "line": 131,
     "text": "تسجيل الدخول إلى نظام إدارة الموارد البشرية"
   },
   {
     "file": "client/src/components/shared/PageHelmet.tsx",
-    "line": 133,
+    "line": 132,
     "text": "تسجيل دخول, مصادقة, أمان, HRMS"
   },
   {
@@ -5035,296 +5035,6 @@
     "text": "جاري تحميل اختبار الترجمة..."
   },
   {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 395,
-    "text": "إدارة التراخيص"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 398,
-    "text": "فلترة"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 405,
-    "text": "إضافة ترخيص"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 425,
-    "text": "من الشهر الماضي"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 442,
-    "text": "البحث في التراخيص..."
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 450,
-    "text": "جميع الشركات"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 453,
-    "text": "جميع الشركات"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 463,
-    "text": "جميع الحالات"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 466,
-    "text": "جميع الحالات"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 467,
-    "text": "نشط"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 468,
-    "text": "منتهي الصلاحية"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 469,
-    "text": "قيد المراجعة"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 474,
-    "text": "جميع الأنواع"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 477,
-    "text": "جميع الأنواع"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 491,
-    "text": "هناك"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 494,
-    "text": "ترخيص سينتهي خلال 30 يوم"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 540,
-    "text": "ينتهي في:"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 546,
-    "text": "موظف"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 562,
-    "text": "عرض"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 570,
-    "text": "تعديل"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 578,
-    "text": "مستندات"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 587,
-    "text": "حذف"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 601,
-    "text": "لا توجد تراخيص"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 604,
-    "text": "لم يتم العثور على تراخيص تطابق معايير البحث"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 636,
-    "text": "تفاصيل الترخيص"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 648,
-    "text": "إضافة مستند للترخيص"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 722,
-    "text": "اسم الترخيص *"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 727,
-    "text": "أدخل اسم الترخيص"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 732,
-    "text": "رقم الترخيص *"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 737,
-    "text": "أدخل رقم الترخيص"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 745,
-    "text": "الشركة *"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 754,
-    "text": "اختر الشركة"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 766,
-    "text": "نوع الترخيص *"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 775,
-    "text": "اختر نوع الترخيص"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 790,
-    "text": "تاريخ الإصدار *"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 800,
-    "text": "تاريخ انتهاء الصلاحية *"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 813,
-    "text": "جهة الإصدار *"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 818,
-    "text": "أدخل جهة الإصدار"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 823,
-    "text": "الموقع *"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 828,
-    "text": "أدخل الموقع"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 835,
-    "text": "الوصف"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 840,
-    "text": "أدخل وصف الترخيص (اختياري)"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 846,
-    "text": "الحالة"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 858,
-    "text": "نشط"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 859,
-    "text": "منتهي الصلاحية"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 860,
-    "text": "قيد المراجعة"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 866,
-    "text": "إلغاء"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 909,
-    "text": "الشركة"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 913,
-    "text": "نوع الترخيص"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 917,
-    "text": "جهة الإصدار"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 921,
-    "text": "الموقع"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 927,
-    "text": "تاريخ الإصدار"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 931,
-    "text": "تاريخ انتهاء الصلاحية"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 935,
-    "text": "عدد الموظفين"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 936,
-    "text": "موظف"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 939,
-    "text": "تاريخ الإنشاء"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 947,
-    "text": "الوصف"
-  },
-  {
-    "file": "client/src/pages/licenses.tsx",
-    "line": 954,
-    "text": "الموظفون المرتبطون"
-  },
-  {
     "file": "client/src/pages/payroll.tsx",
     "line": 62,
     "text": "أحمد محمد علي"
@@ -6110,206 +5820,6 @@
     "text": "طلب"
   },
   {
-    "file": "client/src/pages/reports.tsx",
-    "line": 81,
-    "text": "تقارير PDF"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 83,
-    "text": "إنشاء تقرير جديد"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 103,
-    "text": "تم إنشاؤه في"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 108,
-    "text": "تحميل"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 112,
-    "text": "معاينة"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 127,
-    "text": "إدارة المستندات"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 129,
-    "text": "رفع مستند جديد"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 139,
-    "text": "البحث في المستندات..."
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 144,
-    "text": "تصفية"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 168,
-    "text": "الحجم:"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 171,
-    "text": "تم الرفع في"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 176,
-    "text": "تحميل"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 180,
-    "text": "معاينة"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 206,
-    "text": "جاري تحليل البيانات..."
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 219,
-    "text": "حدث خطأ في تحميل التحليل الذكي. يرجى المحاولة مرة أخرى."
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 231,
-    "text": "التحليل الذكي الشامل"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 235,
-    "text": "محدث الآن"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 244,
-    "text": "نظرة عامة"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 258,
-    "text": "إجمالي الموظفين"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 264,
-    "text": "رضا الموظفين"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 270,
-    "text": "معدل الدوران"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 276,
-    "text": "متوسط الراتب"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 286,
-    "text": "الرؤى الرئيسية"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 306,
-    "text": "التوصيات الذكية"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 340,
-    "text": "الرؤى الذكية"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 364,
-    "text": "جاري تحليل الرؤى..."
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 419,
-    "text": "التوقعات الذكية"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 445,
-    "text": "جاري تحليل التوقعات..."
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 484,
-    "text": "العوامل المؤثرة:"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 519,
-    "text": "تحليل الاتجاهات"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 547,
-    "text": "جاري تحليل الاتجاهات..."
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 554,
-    "text": "اتجاه"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 601,
-    "text": "التقارير والمستندات"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 602,
-    "text": "إدارة شاملة للتقارير والمستندات ولوحات التحكم المتخصصة مع الذكاء الاصطناعي"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 610,
-    "text": "التحليل الذكي"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 614,
-    "text": "الرؤى الذكية"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 618,
-    "text": "التوقعات"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 622,
-    "text": "الاتجاهات"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 626,
-    "text": "تقارير PDF"
-  },
-  {
-    "file": "client/src/pages/reports.tsx",
-    "line": 630,
-    "text": "المستندات"
-  },
-  {
     "file": "client/src/pages/role-based-dashboard.tsx",
     "line": 19,
     "text": "لوحة تحكم المدير العام"
@@ -6903,171 +6413,6 @@
     "file": "client/src/pages/settings.tsx",
     "line": 626,
     "text": "حفظ بيانات الشركة"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 320,
-    "text": "إدارة التوقيعات"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 321,
-    "text": "إدارة وتنظيم جميع التوقيعات في النظام"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 324,
-    "text": "إضافة توقيع جديد"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 336,
-    "text": "إجمالي التوقيعات"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 347,
-    "text": "التوقيعات النشطة"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 358,
-    "text": "التوقيعات غير النشطة"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 369,
-    "text": "الرفوعات الحديثة"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 384,
-    "text": "البحث"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 389,
-    "text": "البحث في التوقيعات..."
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 397,
-    "text": "نوع الكيان"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 403,
-    "text": "جميع الأنواع"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 404,
-    "text": "موظف"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 405,
-    "text": "شركة"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 406,
-    "text": "ترخيص"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 407,
-    "text": "إجازة"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 408,
-    "text": "مستند"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 413,
-    "text": "الحالة"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 419,
-    "text": "جميع الحالات"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 420,
-    "text": "نشط"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 421,
-    "text": "غير نشط"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 437,
-    "text": "إعادة تعيين"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 449,
-    "text": "التوقيعات ("
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 457,
-    "text": "لا توجد توقيعات"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 498,
-    "text": "التوقيع"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 513,
-    "text": "تحميل"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 521,
-    "text": "رفع"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 537,
-    "text": "تحقق"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 546,
-    "text": "تعديل"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 555,
-    "text": "حذف"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 582,
-    "text": "إضافة توقيع جديد"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 583,
-    "text": "قم بالتوقيع في المساحة أدناه"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 603,
-    "text": "تعديل التوقيع"
-  },
-  {
-    "file": "client/src/pages/signatures.tsx",
-    "line": 604,
-    "text": "قم بتعديل التوقيع"
   },
   {
     "file": "client/src/pages/super-admin-dashboard.tsx",

@@ -297,6 +297,36 @@ jobs:
             .dockerignore
             deploy/Dockerfile
 
+  accessibility:
+    name: Accessibility Audit
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Start server
+        run: npm start &
+
+      - name: Wait for server
+        run: npx wait-on http://localhost:3000
+
+      - name: Run axe accessibility audit
+        run: npx axe-ci http://localhost:3000
+
   # 🔄 Post-CI Tasks
   post-ci:
     name: Post-CI Tasks
