@@ -7,7 +7,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { Store, MemoryStore } from 'express-rate-limit';
 import helmet from 'helmet';
 import crypto from 'node:crypto';
 import { log } from '../utils/logger';
@@ -15,13 +15,23 @@ import { deepSanitize } from '../utils/sanitize';
 import RedisStore from 'rate-limit-redis';
 import Redis from 'ioredis';
 
-const redisClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
-redisClient.on('error', (err) => {
-  log.error('Redis connection error for rate limiter', { error: err }, 'SECURITY');
-});
-const rateLimitStore = new RedisStore({
-  sendCommand: (...args: string[]) => redisClient.call(...args),
-});
+// Initialize rate limit store with Redis and fallback to in-memory store if Redis is unavailable
+let rateLimitStore: Store;
+try {
+  const redisClient = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+    connectTimeout: 1000,
+  });
+  await redisClient.ping();
+  redisClient.on('error', (err) => {
+    log.error('Redis connection error for rate limiter', { error: err }, 'SECURITY');
+  });
+  rateLimitStore = new RedisStore({
+    sendCommand: (...args: string[]) => redisClient.call(...args),
+  });
+} catch (err) {
+  log.warn('Redis unavailable for rate limiter, falling back to in-memory store', { error: err }, 'SECURITY');
+  rateLimitStore = new MemoryStore();
+}
 
 // Security configuration
 const SECURITY_CONFIG = {
