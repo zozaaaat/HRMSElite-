@@ -533,18 +533,12 @@ export function registerDocumentRoutes(app: Express) {
         const file = req.file;
 
         // Antivirus scanning - fail closed
-        const avStatus = antivirusScanner.getStatus();
-        if (!avStatus.enabled) {
-          const errorResponse = createErrorResponse(
-            'SECURITY_ERROR',
-            'Antivirus scanner unavailable',
-            { message: 'File uploads are temporarily disabled' },
-            503
-          );
-          return res.status(errorResponse.statusCode).json(errorResponse.body);
+        let scanResult;
+        try {
+          scanResult = await antivirusScanner.scanBuffer(file.buffer, file.originalname);
+        } catch {
+          return res.status(503).json({ error: 'Upload rejected: antivirus unavailable' });
         }
-
-        const scanResult = await antivirusScanner.scanBuffer(file.buffer, file.originalname);
         if (!scanResult.isClean) {
           log.warn('Antivirus scan rejected file', {
             fileName: file.originalname,
