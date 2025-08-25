@@ -43,8 +43,13 @@ export class AntivirusScanner {
    * @returns Promise<ScanResult> - Scan result with threat information
    */
   async scanBuffer(buffer: Buffer, filename: string): Promise<ScanResult> {
+    if (!this.config.enabled) {
+      metricsUtils.incrementAvScanFailure(this.config.provider);
+      throw new Error('Antivirus not configured: rejecting upload');
+    }
+
     const startTime = Date.now();
-    
+
     try {
       // Check file size limit
       if (buffer.length > this.config.maxFileSize) {
@@ -82,23 +87,12 @@ export class AntivirusScanner {
         case 'both':
           return await this.scanWithBoth(buffer, filename, startTime);
         default:
-          return {
-            isClean: true,
-            threats: [],
-            scanTime: Date.now() - startTime,
-            provider: 'no-scan'
-          };
+          throw new Error('Antivirus not configured: rejecting upload');
       }
     } catch (error) {
       log.error('Antivirus scan failed', error as Error, 'SECURITY');
       metricsUtils.incrementAvScanFailure(this.config.provider);
-      return {
-        isClean: false,
-        threats: ['Scan failed - file rejected for security'],
-        scanTime: Date.now() - startTime,
-        provider: 'error',
-        error: (error as Error).message
-      };
+      throw error;
     }
   }
 
