@@ -113,7 +113,8 @@ services:
       NODE_ENV: development
       PORT: 3001
       DATABASE_URL: postgresql://hrmse_user:hrmse_password@postgres-auth:5432/auth_service_db
-      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+        ACCESS_JWT_SECRET: your-super-secret-access-jwt-key-change-in-production
+        REFRESH_JWT_SECRET: your-super-secret-refresh-jwt-key-change-in-production
       REDIS_URL: redis://redis:6379
     ports:
       - "3001:3001"

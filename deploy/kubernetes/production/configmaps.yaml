@@ -17,7 +17,8 @@ metadata:
   namespace: hrmse-production
 data:
   PORT: "3001"
-  JWT_SECRET: "your-super-secret-jwt-key-change-in-production"
+    ACCESS_JWT_SECRET: "your-super-secret-access-jwt-key-change-in-production"
+    REFRESH_JWT_SECRET: "your-super-secret-refresh-jwt-key-change-in-production"
   JWT_EXPIRES_IN: "24h"
   REFRESH_TOKEN_EXPIRES_IN: "7d"
   PASSWORD_SALT_ROUNDS: "12"

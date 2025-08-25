@@ -14,9 +14,10 @@ services:
       - NODE_ENV=staging
       - PORT=3000
       - DATABASE_URL=/app/data/hrms-staging.db
-      - SESSION_SECRET=${SESSION_SECRET:-staging-session-secret}
-      - JWT_SECRET=${JWT_SECRET:-staging-jwt-secret}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+        - SESSION_SECRET=${SESSION_SECRET:-staging-session-secret}
+        - ACCESS_JWT_SECRET=${ACCESS_JWT_SECRET:-staging-access-jwt-secret}
+        - REFRESH_JWT_SECRET=${REFRESH_JWT_SECRET:-staging-refresh-jwt-secret}
+        - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - CSRF_SECRET=${CSRF_SECRET:-staging-csrf-secret}
       - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-900000}

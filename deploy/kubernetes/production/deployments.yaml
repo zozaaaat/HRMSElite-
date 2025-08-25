@@ -40,11 +40,16 @@ spec:
             secretKeyRef:
               name: database-secrets
               key: auth-db-password
-        - name: JWT_SECRET
+        - name: ACCESS_JWT_SECRET
           valueFrom:
             secretKeyRef:
               name: jwt-secret
-              key: jwt-secret
+              key: access-jwt-secret
+        - name: REFRESH_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: jwt-secret
+              key: refresh-jwt-secret
         - name: REDIS_URL
           value: "redis://:$(REDIS_PASSWORD)@redis:6379"
         - name: REDIS_PASSWORD

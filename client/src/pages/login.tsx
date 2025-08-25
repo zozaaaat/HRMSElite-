@@ -8,7 +8,7 @@ import {Alert, AlertDescription} from '../components/ui/alert';
 import {Loader2, User, Lock, AlertCircle} from 'lucide-react';
 import {useToast} from '../hooks/use-toast';
 import {getDashboardRouteWithCompany} from '../lib/routes';
-import {useAppStore} from '../stores/useAppStore';
+import {useAuth} from '../hooks/auth/useAuth';
 import {useTranslation} from 'react-i18next';
 
 export default function Login () {
@@ -16,6 +16,7 @@ export default function Login () {
   const [, setLocation] = useLocation();
   const {toast} = useToast();
   const {t} = useTranslation();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -29,102 +30,48 @@ export default function Login () {
   const companyName = urlParams.get('name');
 
   const handleSubmit = async (e: FormEvent) => {
-
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
     try {
-
-      // محاكاة تسجيل الدخول مع تحسين التوجيه
       if (formData.username && formData.password) {
-
-        let userRole = 'worker';
-
-        // تحديد الدور حسب اسم المستخدم
-        if (formData.username.includes('admin')) {
-
-          userRole = 'super_admin';
-
-        } else if (formData.username.includes('gu_2') || formData.username.includes('manager')) {
-
-          userRole = 'company_manager';
-
-        
-} else if (formData.username.includes('gu_4') || formData.username.includes('gu_6') || formData.username.includes('employee')) {
-  
-
-          userRole = 'employee';
-
-        } else if (formData.username.includes('supervisor')) {
-
-          userRole = 'supervisor';
-
-        } else if (formData.username.includes('worker') || formData.username.includes('gu_3')) {
-
-          userRole = 'worker';
-
-        }
-
-        // بناء مسار لوحة التحكم الموحد باستخدام الدوال المساعدة
-        const dashboard = getDashboardRouteWithCompany(userRole,
-   companyId ?? undefined,
-   companyName ?? undefined);
-
-        toast({
-          'title': t('auth.loginSuccess'),
-          'description': t('auth.welcomeMessage', { company: userRole === 'super_admin' ? t('auth.admin') : companyName ?? t('common.companies') })
+        const result = await login({
+          username: formData.username,
+          password: formData.password,
+          companyId: companyId ?? undefined
         });
 
-        // تحديث حالة المستخدم في المتجر
-        const mockUser = {
-          'id': '1',
-          'email': `${formData.username}@example.com`,
-          'firstName': userRole === 'super_admin' ? 'المسؤول' : 'المستخدم',
-          'lastName': 'النظام',
-          'profileImageUrl': null,
-          'role': userRole,
-          'companyId': companyId ?? null,
-          'permissions': '[]',
-          'isActive': true,
-          'emailVerified': true,
-          'emailVerificationToken': null,
-          'emailVerificationExpires': null,
-          'passwordResetToken': null,
-          'passwordResetExpires': null,
-          'lastPasswordChange': null,
-          'lastLoginAt': Date.now(),
-          'sub': 'mock-sub',
-          'claims': null,
-          'createdAt': new Date(),
-          'updatedAt': new Date()
-        };
+        if (result.success && result.user) {
+          const userRole = result.user.role;
+          const dashboard = getDashboardRouteWithCompany(
+            userRole,
+            companyId ?? undefined,
+            companyName ?? undefined
+          );
 
-        // تحديث المتجر مباشرة
-        const {login} = useAppStore.getState();
-        login(mockUser);
+          toast({
+            'title': t('auth.loginSuccess'),
+            'description': t('auth.welcomeMessage', {
+              company: userRole === 'super_admin'
+                ? t('auth.admin')
+                : companyName ?? t('common.companies')
+            })
+          });
 
-        // توجيه فوري إلى لوحة التحكم
-        setLocation(dashboard);
-
+          setLocation(dashboard);
+        } else {
+          setError(result.error ?? t('auth.loginError'));
+        }
       } else {
-
         setError(t('validation.required'));
-
       }
-
     } catch {
-
       setError(t('auth.loginError'));
-
     } finally {
-
       setIsLoading(false);
-
     }
-
   };
-
   return (
     <main role="main" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5 p-4">
       <Card className="w-full max-w-md">
