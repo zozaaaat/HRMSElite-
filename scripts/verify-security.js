@@ -84,7 +84,6 @@ const securityChecks = [
       'securityHeaders',
       'X-Content-Type-Options',
       'X-Frame-Options',
-      'X-XSS-Protection',
       'Referrer-Policy'
     ],
     status: '❌'

@@ -94,12 +94,12 @@ export const defaultSecurityConfig: SecurityConfig = {
     'contentSecurityPolicy': {
       'directives': {
         'defaultSrc': ['\'self\''],
-        'scriptSrc': ['\'self\''], // Will be dynamically updated with nonce
+        'scriptSrc': ['\'self\'', '\'strict-dynamic\''], // Will be dynamically updated with nonce
         'styleSrc': ['\'self\''],
         'fontSrc': ['\'self\'', 'data:'],
         'imgSrc': ['\'self\'', 'data:', 'https:'],
         'connectSrc': ['\'self\''],
-        'frameSrc': ['\'none\''],
+        'frameAncestors': ['\'none\''],
         'objectSrc': ['\'none\''],
         'baseUri': ['\'self\''],
         ...(process.env.NODE_ENV === 'production' && {'upgradeInsecureRequests': []})
@@ -207,7 +207,6 @@ export const securityHeaders = {
   // Basic security headers
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
-  'X-XSS-Protection': '1; mode=block',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'geolocation=(), microphone=(), camera=(), payment=()',
 

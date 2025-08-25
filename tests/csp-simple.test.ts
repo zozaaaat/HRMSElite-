@@ -80,12 +80,12 @@ describe('CSP Nonce Implementation Tests', () => {
 
       const cspDirectives = {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", `'nonce-${nonce}'`],
+        scriptSrc: ["'self'", `'nonce-${nonce}'`, "'strict-dynamic'"] ,
         styleSrc: ["'self'"],
         fontSrc: ["'self'", 'data:'],
         imgSrc: ["'self'", 'data:', 'https:'],
         connectSrc: ["'self'"],
-        frameSrc: ["'none'"],
+        frameAncestors: ["'none'"],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
       };
@@ -94,6 +94,7 @@ describe('CSP Nonce Implementation Tests', () => {
       expect(cspDirectives.defaultSrc).toContain("'self'");
       expect(cspDirectives.scriptSrc).toContain("'self'");
       expect(cspDirectives.scriptSrc).toContain(`'nonce-${nonce}'`);
+      expect(cspDirectives.scriptSrc).toContain("'strict-dynamic'");
       expect(cspDirectives.styleSrc).toContain("'self'");
       expect(cspDirectives.fontSrc).toContain("'self'");
       expect(cspDirectives.fontSrc).toContain('data:');
@@ -101,7 +102,7 @@ describe('CSP Nonce Implementation Tests', () => {
       expect(cspDirectives.imgSrc).toContain('data:');
       expect(cspDirectives.imgSrc).toContain('https:');
       expect(cspDirectives.connectSrc).toContain("'self'");
-      expect(cspDirectives.frameSrc).toContain("'none'");
+      expect(cspDirectives.frameAncestors).toContain("'none'");
       expect(cspDirectives.objectSrc).toContain("'none'");
       expect(cspDirectives.baseUri).toContain("'self'");
 

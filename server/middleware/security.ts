@@ -87,12 +87,12 @@ const SECURITY_CONFIG = {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'"], // Will be dynamically updated with nonce
+        scriptSrc: ["'self'", "'strict-dynamic'"], // Will be dynamically updated with nonce
         styleSrc: ["'self'"],
         fontSrc: ["'self'", 'data:'],
         imgSrc: ["'self'", 'data:', 'https:'],
         connectSrc: ["'self'"],
-        frameSrc: ["'none'"],
+        frameAncestors: ["'none'"],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
         upgradeInsecureRequests: [],
@@ -272,12 +272,13 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
   // Build CSP header string manually to allow base64url nonce
   const cspHeader = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}'`,
+    // Nonce + strict-dynamic يمنع أي سكريبت غير موثوق حتى لو من self بدون nonce
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
     "style-src 'self'",
     "img-src 'self' data: https:",
     "connect-src 'self'",
-    "frame-src 'none'",
     "object-src 'none'",
+    "frame-ancestors 'none'",
     "base-uri 'self'",
   ].join('; ');
 
@@ -291,7 +292,6 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
     hsts: SECURITY_CONFIG.headers.hsts,
     noSniff: true,
     frameguard: { action: 'deny' },
-    xssFilter: true,
     referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
     crossOriginEmbedderPolicy: isProd ? { policy: 'require-corp' } : false,
     crossOriginOpenerPolicy: isProd ? { policy: 'same-origin' } : false,
@@ -309,8 +309,7 @@ export const additionalSecurityHeaders = (req: Request, res: Response, next: Nex
   // X-Frame-Options
   res.setHeader('X-Frame-Options', 'DENY');
 
-  // X-XSS-Protection
-  res.setHeader('X-XSS-Protection', '1; mode=block');
+  // Remove legacy X-XSS-Protection (modern browsers ignore it); rely on CSP.
 
   // Permissions-Policy
   res.setHeader(
